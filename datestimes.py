@@ -6,9 +6,11 @@ import sublime
 import sublime_plugin
 import datetime
 import Urtext.meta
+import Urtext.urtext
 import os
 
-path = '/Users/nathanielbeversluis/Dropbox/txt'
+#path = Urtext.urtext.set_path()
+
 timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
 alt_timestamp_formats = [
   '< >', ]
@@ -60,13 +62,15 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     Creates a new file with reverse-dated filename and initial metadata
     """
     def run(self):
-      os.chdir(path)
+      path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
+      if not path:
+        path = '.'
       now = datetime.datetime.now()
-      new_view = self.window.open_file(make_reverse_date_filename(now))
+      new_view = self.window.open_file(path+'/'+make_reverse_date_filename(now))
       sublime.set_timeout(lambda: self.add_meta(new_view, now), 10)
     def add_meta(self, view, now):
       if not view.is_loading():
-        Urtext.meta.add_created_timestamp(view)
+        Urtext.meta.add_created_timestamp(view, now)
         Urtext.meta.add_original_filename(view)
         view.run_command("insert_snippet", { "contents": "\n\n\n"}) # (whitespace)
         view.run_command("move_to", {"to": "bof"})

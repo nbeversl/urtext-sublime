@@ -72,14 +72,14 @@ def add_separator(view):
     view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator})
     view.run_command("move_to", {"to": "bof"})
 
-def add_created_timestamp(view):
+def add_created_timestamp(view, timestamp):
   """
   Adds an initial "Created: " timestamp
   """
   filename = view.file_name().split('/')[-1]
-  timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+  text_timestamp = timestamp.strftime("<%a., %b. %d, %Y, %I:%M %p>")
   view.run_command("move_to", {"to": "eof"})
-  view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator+"Created "+timestamp+'\n'})
+  view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator+"Created "+text_timestamp+'\n'})
   view.run_command("move_to", {"to": "bof"})
 
 def add_original_filename(view):

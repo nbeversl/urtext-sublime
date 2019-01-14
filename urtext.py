@@ -8,6 +8,7 @@ from datetime import datetime
 
 main_path = '/Users/nathanielbeversluis/Dropbox/txt'
 meta_separator = '------------'
+
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """
     List snippets of files by date
