@@ -6,19 +6,20 @@ import os
 import re
 from datetime import datetime
 
-main_path = '/Users/nathanielbeversluis/Dropbox/txt'
 meta_separator = '------------'
 
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """
-    List snippets of files by date
+    List snippets of files in a timeline
     """
     def run(self,edit):
         found_stuff = []
         view = self.view
         self.window = view.window()
-        global main_path
-        os.chdir(main_path)
+        if self.window.project_data():
+           main_path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
+        else:
+           main_path = '.'
         path = view.window().extract_variables()['folder']
         files = os.listdir(path)
         for file in files:
@@ -43,7 +44,6 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
                     # this is a meta timestamp
                     contents = contents.split(meta_separator)[0]
                     relevant_text = contents[:100]  # pull the beginning of the file
-                    print(relevant_text)
                     found_thing['filename'] = file
                     found_thing['kind'] = 'meta'
                   else:
