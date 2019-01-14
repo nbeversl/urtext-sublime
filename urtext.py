@@ -6,6 +6,8 @@ import os
 import re
 from datetime import datetime
 
+main_path = '/Users/nathanielbeversluis/Dropbox/txt'
+meta_separator = '------------'
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """
     List snippets of files by date
@@ -14,6 +16,8 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
         found_stuff = []
         view = self.view
         self.window = view.window()
+        global main_path
+        os.chdir(main_path)
         path = view.window().extract_variables()['folder']
         files = os.listdir(path)
         for file in files:
@@ -79,7 +83,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
             contents = contents.replace('\n\n','\n')          
           contents = '      ...'+contents.replace('\n','\n|      ')+'...   '
           view.run_command("append", {"characters": '\n|<----'+entry_date+' found as '+entry['kind']})
-          view.run_command("append", {"characters": ' in file: '+entry['filename']+'\n|\n|'})
+          view.run_command("append", {"characters": ' in file -> '+entry['filename']+'\n|\n|'})
           view.run_command("append", {"characters": contents+'\n|'})
 
     def show_stuff(self, view, sorted_stuff):

@@ -11,8 +11,7 @@ import os
 path = '/Users/nathanielbeversluis/Dropbox/txt'
 timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
 alt_timestamp_formats = [
-  '< >',
-]
+  '< >', ]
 
 class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
   """
@@ -22,9 +21,11 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     for region in self.view.sel():
       text = self.view.substr(region)
+      print('shit')
       try:
-        date = datetime.strptime(text,timestamp_format)
-        sublime.set_clipboard(make_reverse_date_filename(date)+'.txt')
+        print(text)
+        date = datetime.datetime.strptime(text, timestamp_format)
+        sublime.set_clipboard(make_reverse_date_filename(date))
         self.view.show_popup('Reverse-dated filename copied to clipboard.') 
       except:
         self.view.show_popup('Error.') 
@@ -46,9 +47,9 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
   def add_content(self, view): #https://forum.sublimetext.com/t/wait-until-is-loading-finnish/12062/5
         if not view.is_loading():
           view.run_command("insert_snippet", { "contents": self.contents})
-          Urtext.meta.add_file_created_meta(view)
+          Urtext.meta.add_created_timestamp(view)
           view.run_command("move_to", {"to": "eof"})
-          view.run_command("insert_snippet", { "contents": "\nForked from: "+self.old_filename + " (editorial://open/"+self.old_filename+"?root=dropbox)"})
+          view.run_command("insert_snippet", { "contents": "Forked from: "+self.old_filename + " (editorial://open/"+self.old_filename+"?root=dropbox)"})
           view.run_command("move_to", {"to": "bof"})
           view.run_command('save')
         else:

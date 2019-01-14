@@ -8,6 +8,7 @@ import sublime_plugin
 import os
 import re
 import datetime
+import Urtext.urtext
 
 meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
 path = '/Users/nathanielbeversluis/Dropbox/txt'
@@ -20,74 +21,76 @@ path = '/Users/nathanielbeversluis/Dropbox/txt'
 # - Meta added : for existing files DONE <Sun., Jan. 13, 2019, 07:31 PM>
 # - Filename when meta information added: for existing files
 # - File Updated Metadata DONE <Sun., Jan. 13, 2019, 07:34 PM>
+# - command to add metadata to an existing file DONE <Sun., Jan. 13, 2019, 07:59 PM>
+
+class ModifiedCommand(sublime_plugin.TextCommand):
+  """
+  Adds a modification timestamp to the metadata.
+  """
+  def run(self, edit):
+      if not has_meta(self.view):
+        add_separator(self.view)
+        self.view.run_command("move_to", {"to": "eof"})
+        self.view.run_command("insert_snippet", { "contents": "[ no existing metadata ]\n"})
+      timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+      self.view.run_command("move_to", {"to": "eof"})
+      self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
+      self.view.run_command("move_to", {"to": "bof"})
+
+class AddMetaToExistingFile(sublime_plugin.TextCommand):
+  """
+  Adds metadata to a file that does not already have metadata.
+  """
+  def run(self, edit):
+      if not has_meta(self.view):
+        add_separator(self.view)
+        timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+        filename = self.view.file_name().split('/')[-1]
+        self.view.run_command("move_to", {"to": "eof"})
+        self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
+        self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
+        self.view.run_command("move_to", {"to": "bof"})
 
 def has_meta(view):
+  """
+  Determine whether a view contains metadata.
+  """
   global metaseparator
-  contents = Urtext.get_contents()
+  contents = Urtext.urtext.get_contents(view)
   if meta_separator in contents:
     return True
   else:
     return False
 
 def add_separator(view):
+  """
+  Adds a metadata separator if one is not already there.
+  """
   if not has_meta(view):
-    contents += "\n\n"+meta_separator
-    pass
+    global meta_separator
+    view.run_command("move_to", {"to": "eof"})
+    view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator})
+    view.run_command("move_to", {"to": "bof"})
 
 def add_created_timestamp(view):
-    filename = view.file_name().split('/')[-1]
-    timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
-    view.run_command("move_to", {"to": "eof"})
-    view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator+"Created "+timestamp+'\n'})
-    view.run_command("move_to", {"to": "bof"})
+  """
+  Adds an initial "Created: " timestamp
+  """
+  filename = view.file_name().split('/')[-1]
+  timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+  view.run_command("move_to", {"to": "eof"})
+  view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator+"Created "+timestamp+'\n'})
+  view.run_command("move_to", {"to": "bof"})
 
 def add_original_filename(view):
-    filename = view.file_name().split('/')[-1]
-    view.run_command("move_to", {"to": "eof"})
-    view.run_command("insert_snippet", { "contents": "Original filename: "+filename+'\n'})
-    view.run_command("move_to", {"to": "bof"})
-
-
-class ModifiedCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
-        self.view.run_command("move_to", {"to": "eof"})
-        self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
-        self.view.run_command("move_to", {"to": "bof"})
-
-class ExistingFilename(sublime_plugin.TextCommand):
-    def run(self, edit):
-        timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
-        filename = view.file_name().split('/')[-1]
-        self.view.run_command("move_to", {"to": "eof"})
-        self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
-        self.view.run_command("insert_snippet", { "contents": "Existing filename: "+timestamp+'\n'})
-        self.view.run_command("move_to", {"to": "bof"})
-
-
-#------- OLD STUFF
-"""
-def clear_meta(contents):
-  global metaseparator
-  if has_meta(contents):
-    contents = contents.split(meta_separator)[0]
-  return contents
-
-def add_file_modified_meta(view): 
-  timestamp = (datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+  """
+  Adds an initial "Original Filename: " metadata stamp
+  """
+  filename = view.file_name().split('/')[-1]
   view.run_command("move_to", {"to": "eof"})
-  view.run_command("insert_snippet", { "contents": "\nModified: "+timestamp})
+  view.run_command("insert_snippet", { "contents": "Original filename: "+filename+'\n'})
   view.run_command("move_to", {"to": "bof"})
-  return
 
-  def add_content(self, view): #https://forum.sublimetext.com/t/wait-until-is-loading-finnish/12062/5
-      if not view.is_loading():
-        view.run_command("insert_snippet", { "contents": self.contents})
-        add_file_created_meta(view)
-        view.run_command("move_to", {"to": "eof"})
-        view.run_command("insert_snippet", { "contents": "\nForked from: "+self.old_filename + " (editorial://open/"+self.old_filename+"?root=dropbox)"})
-        view.run_command("move_to", {"to": "bof"})
-        view.run_command('save')
-      else:
-        sublime.set_timeout(lambda: self.add_content(view), 10)
-"""
+def clear_meta(contents):
+  global meta_separator
+  return contents.split(meta_separator)[0]
