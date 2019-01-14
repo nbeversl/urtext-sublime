@@ -1,0 +1,6 @@
+[
+	{ "keys": ["ctrl+shift+."], "command": "modified" },
+	{ "keys": ["ctrl+shift+l"], "command": "update_file" },
+	{ "keys": ["ctrl+shift+;"], "command": "new_undatified_file" },
+	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },
+]
