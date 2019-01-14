@@ -100,7 +100,10 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           text = text.strip()
           text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
           return text
-        global path
+        if self.window.project_data():
+           path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
+        else:
+           path = '.'
         os.chdir(path)
         files = os.listdir()
         menu = []
