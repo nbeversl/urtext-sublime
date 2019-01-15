@@ -113,15 +113,15 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
             with open(filename,'r',encoding='utf-8') as this_file:
               first_line = this_file.read(150)
               first_line = first_line.split('------------')[0]
-              item.append(filename)
               item.append(clear_white_space(first_line))
+              item.append(filename)
             menu.append(item)
           except:
             pass
-        self.sorted_menu = sorted(menu,key=lambda item: item[0] )
+        self.sorted_menu = sorted(menu,key=lambda item: item[1] )
         def open_the_file(index):
           if index != -1:
-            self.window.open_file(path+"/"+self.sorted_menu[index][0])
+            self.window.open_file(path+"/"+self.sorted_menu[index][1])
         self.window.show_quick_panel(self.sorted_menu, open_the_file)
 
 def get_contents(view):

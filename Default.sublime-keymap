@@ -3,4 +3,5 @@
 	{ "keys": ["ctrl+shift+l"], "command": "update_file" },
 	{ "keys": ["ctrl+shift+;"], "command": "new_undatified_file" },
 	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },
+	{ "keys": ["super+e"], "command": "show_files_with_preview"},
 ]
