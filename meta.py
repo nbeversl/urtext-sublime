@@ -37,6 +37,25 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
 
+def get_meta(content):
+  if not has_meta(content):
+    return None
+  raw_meta_data = content.split(meta_separator)[-1]
+  metadata = {}
+  found_keys = []
+  print(raw_meta_data)
+  meta_lines = raw_meta_data.split('\n')
+  for line in meta_lines:
+    key = line.split(':')[0].strip()
+    value = line.split(':')[-1].strip()
+    index = 1
+    while key in found_keys:
+      sanitized_key = key + str(index)
+    key = sanitized_key
+    found_keys.append(sanitized_key)
+    metadata[sanitized_key] = value
+  return metadata
+
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """
   Adds metadata to a file that does not already have metadata.

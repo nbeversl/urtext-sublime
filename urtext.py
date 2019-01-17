@@ -5,6 +5,7 @@ import sublime_plugin
 import os
 import re
 from datetime import datetime
+import Urtext.datestimes
 
 meta_separator = '------------'
 
@@ -115,6 +116,9 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
               first_line = first_line.split('------------')[0]
               item.append(clear_white_space(first_line))
               item.append(filename)
+              date = Urtext.datestimes.date_from_reverse_date(filename[:13])
+              item.append(date.strftime('<%a., %b. %d, %Y, %I:%M %p>'))
+              # want to add in here that it will sort by most recent meta date
             menu.append(item)
           except:
             pass

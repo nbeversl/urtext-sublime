@@ -23,7 +23,6 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     for region in self.view.sel():
       text = self.view.substr(region)
-      print('shit')
       try:
         print(text)
         date = datetime.datetime.strptime(text, timestamp_format)
@@ -93,11 +92,14 @@ def make_reverse_date_filename(date):
   return undatetime
 
 def date_from_reverse_date(undate):
-    year = 10000 - int(undate[0:3])
-    month = 12 - int(undate[2:4])
-    day = 31 - int(undate[4:6])
-    hour = 23 - int(undate[6:8])
-    minute = 59 - int(undate[8:10])
-    second = 59 - int(undate[10:12])
+    """
+    This gets a datetime object back from reverse-dated filenames
+    """
+    year = 10000 - int(undate[0:4])
+    month = 12 - int(undate[4:6])
+    day = 31 - int(undate[6:8])
+    hour = 23 - int(undate[8:10])
+    minute = 59 - int(undate[10:12])
+    second = 59 - int(undate[12:14])
     date = datetime.datetime(year,month,day,hour,minute,second)
     return date
