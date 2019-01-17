@@ -22,6 +22,7 @@ path = '/Users/nathanielbeversluis/Dropbox/txt'
 # - Filename when meta information added: for existing files
 # - File Updated Metadata DONE <Sun., Jan. 13, 2019, 07:34 PM>
 # - command to add metadata to an existing file DONE <Sun., Jan. 13, 2019, 07:59 PM>
+# - get and parse metadata from existing file into a dict
 
 class ModifiedCommand(sublime_plugin.TextCommand):
   """
@@ -37,24 +38,69 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
 
-def get_meta(content):
-  if not has_meta(content):
+def get_meta(view):
+  """
+  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
+
+  """  
+  if not has_meta(view):
     return None
+  content = Urtext.urtext.get_contents(view)
+  raw_meta_data = content.split(meta_separator)[-1]
+  metadata = {}
+  meta_lines = raw_meta_data.split('\n')
+  print(meta_lines)
+  undated_message_key = 1
+  existing_keys =[]
+  for line in meta_lines:
+    try:
+      key = datetime.datetime.strptime(line[:31], '<%a., %b. %d, %Y, %I:%M %p>')
+      message = line[32:]
+      while key in existing_keys:
+        key = key + datetime.timedelta(seconds=1) # seconds are used as an index
+    except:
+      key = "undated_message_" + str(undated_message_key)
+      undated_message_key += 1;
+      message = line
+    if message.strip() != '':
+      metadata[key] = message
+      existing_keys.append(key)
+  print(metadata)
+  return metadata
+
+def get_meta_old(view):
+  """
+  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
+  """  
+  if not has_meta(view):
+    return None
+  content = Urtext.urtext.get_contents(view)
   raw_meta_data = content.split(meta_separator)[-1]
   metadata = {}
   found_keys = []
-  print(raw_meta_data)
   meta_lines = raw_meta_data.split('\n')
   for line in meta_lines:
     key = line.split(':')[0].strip()
-    value = line.split(':')[-1].strip()
+    value = ''.join(line.split(':',1)[1:]).strip()
     index = 1
+    sanitized_key = key
     while key in found_keys:
       sanitized_key = key + str(index)
+      index += 1
     key = sanitized_key
-    found_keys.append(sanitized_key)
-    metadata[sanitized_key] = value
+    if key.strip() != '':
+      found_keys.append(sanitized_key)
+      metadata[sanitized_key] = value
+  print(metadata)
   return metadata
+
+class ShowMetadata(sublime_plugin.TextCommand):
+  """
+  Make metadata command available in Sublime command palette
+  """
+  def run(self, edit):
+    get_meta(self.view)
+
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """

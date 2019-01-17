@@ -48,7 +48,8 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
   def add_content(self, view): #https://forum.sublimetext.com/t/wait-until-is-loading-finnish/12062/5
         if not view.is_loading():
           view.run_command("insert_snippet", { "contents": self.contents})
-          Urtext.meta.add_created_timestamp(view)
+          now = datetime.datetime.now()
+          Urtext.meta.add_created_timestamp(view, now)
           view.run_command("move_to", {"to": "eof"})
           view.run_command("insert_snippet", { "contents": "Forked from: "+self.old_filename + " (editorial://open/"+self.old_filename+"?root=dropbox)"})
           view.run_command("move_to", {"to": "bof"})
