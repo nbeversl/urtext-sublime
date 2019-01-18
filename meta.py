@@ -38,7 +38,48 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
 
+
 def get_meta(view):
+  """
+  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
+  """  
+  if not has_meta(view):
+    return None
+  content = Urtext.urtext.get_contents(view)
+  raw_meta_data = content.split(meta_separator)[-1]
+  metadata = {}
+  meta_lines = raw_meta_data.split('\n')
+  undated_message_key = 1
+  existing_keys = []
+  match = None
+  for line in meta_lines:
+    index = -1
+    while index < len(line) - 31:
+      try:
+        index += 1
+        key = datetime.datetime.strptime(line[index:index+31], '<%a., %b. %d, %Y, %I:%M %p>')
+        print(match)
+        message = line.replace(line[index:index+31], '').strip()
+        while key in existing_keys:
+          key = match + datetime.timedelta(seconds=1) # seconds are used as an index
+        break
+      except:
+        continue
+    if not key:
+      print('NO KEY')
+      key = "undated_message_" + str(undated_message_key)
+      undated_message_key += 1;
+      message = line.strip()
+    if message != '':
+      metadata[key] = message
+      existing_keys.append(key)
+    key = None
+  print(metadata)
+  return metadata
+
+
+
+def get_meta_2(view):
   """
   Reads and parses the metadata at the bottom of the file into a dict by timestamp.
 
@@ -68,7 +109,7 @@ def get_meta(view):
   print(metadata)
   return metadata
 
-def get_meta_old(view):
+def get_meta_1(view):
   """
   Reads and parses the metadata at the bottom of the file into a dict by timestamp.
   """  
