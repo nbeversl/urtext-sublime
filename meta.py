@@ -1,4 +1,4 @@
-`# Urtext
+# Urtext
 # file metadata handling
 
 # Datestimes -> /Users/nathanielbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/datestimes.py
@@ -9,6 +9,7 @@ import os
 import re
 import datetime
 import Urtext.urtext
+import pprint
 
 meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
 path = '/Users/nathanielbeversluis/Dropbox/txt'
@@ -39,20 +40,18 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("move_to", {"to": "bof"})
 
 
-def get_meta(view):
+def get_meta(content):
   """
   Reads and parses the metadata at the bottom of the file into a dict by timestamp.
   """  
-  if not has_meta(view):
+  if not has_meta(content):
     return None
-  content = Urtext.urtext.get_contents(view)
   raw_meta_data = content.split(meta_separator)[-1]
   metadata = {}
   meta_lines = raw_meta_data.split('\n')
   date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
   metadata = []
   for line in meta_lines: 
-    print(line)
     if line.strip() == '':
       continue
     metadata_entry = {}    
@@ -77,7 +76,7 @@ def get_meta(view):
     metadata_entry[key] = value
     metadata.append(metadata_entry)
 
-  print(metadata)
+  print(pprint.pformat(metadata))
   return metadata
 
 class ShowMetadata(sublime_plugin.TextCommand):
@@ -85,7 +84,7 @@ class ShowMetadata(sublime_plugin.TextCommand):
   Make metadata command available in Sublime command palette
   """
   def run(self, edit):
-    get_meta(self.view)
+    get_meta(self.view.substr(sublime.Region(0, self.view.size())))
 
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
@@ -102,12 +101,11 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
 
-def has_meta(view):
+def has_meta(contents):
   """
   Determine whether a view contains metadata.
   """
   global metaseparator
-  contents = Urtext.urtext.get_contents(view)
   if meta_separator in contents:
     return True
   else:

@@ -6,6 +6,7 @@ import os
 import re
 from datetime import datetime
 import Urtext.datestimes
+import Urtext.meta
 
 meta_separator = '------------'
 
@@ -128,6 +129,38 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
             self.window.open_file(path+"/"+self.sorted_menu[index][1])
         self.window.show_quick_panel(self.sorted_menu, open_the_file)
 
+class ShowTags(sublime_plugin.WindowCommand):
+    def run(self):
+        def clear_white_space(text):
+          text = text.strip()
+          text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
+          return text
+        if self.window.project_data():
+           path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
+        else:
+           path = '.'
+        os.chdir(path)
+        files = os.listdir()
+        tags = []
+        for filename in files:
+          try:
+            with open(filename,'r',encoding='utf-8') as this_file:
+              contents = this_file.read()
+              metadata = Urtext.meta.get_meta(contents)
+              for entry in metadata:
+                if 'tags' in entry:
+                  for tag in entry['tags']:
+                    tags.append(tag)              
+            menu.append(item)
+          except:
+            pass
+        self.sorted_menu = sorted(menu,key=lambda item: item[1] )
+        def open_the_file(index):
+          if index != -1:
+            self.window.open_file(path+"/"+self.sorted_menu[index][1])
+        self.window.show_quick_panel(self.sorted_menu, open_the_file)
+
+
 def get_contents(view):
-  contents = view.substr(sublime.Region(0, view.size()))
+  contents = view.substr(sublime.Region(0, self.view.size()))
   return contents
