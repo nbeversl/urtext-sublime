@@ -1,4 +1,4 @@
-# Urtext
+`# Urtext
 # file metadata handling
 
 # Datestimes -> /Users/nathanielbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/datestimes.py
@@ -49,89 +49,34 @@ def get_meta(view):
   raw_meta_data = content.split(meta_separator)[-1]
   metadata = {}
   meta_lines = raw_meta_data.split('\n')
-  undated_message_key = 1
-  existing_keys = []
-  match = None
-  for line in meta_lines:
-    index = -1
-    while index < len(line) - 31:
-      try:
-        index += 1
-        key = datetime.datetime.strptime(line[index:index+31], '<%a., %b. %d, %Y, %I:%M %p>')
-        print(match)
-        message = line.replace(line[index:index+31], '').strip()
-        while key in existing_keys:
-          key = match + datetime.timedelta(seconds=1) # seconds are used as an index
-        break
-      except:
-        continue
-    if not key:
-      print('NO KEY')
-      key = "undated_message_" + str(undated_message_key)
-      undated_message_key += 1;
-      message = line.strip()
-    if message != '':
-      metadata[key] = message
-      existing_keys.append(key)
-    key = None
-  print(metadata)
-  return metadata
+  date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
+  metadata = []
+  for line in meta_lines: 
+    print(line)
+    if line.strip() == '':
+      continue
+    metadata_entry = {}    
+    date_match = re.search(date_regex,line)
+    if date_match:
+      datestamp_string = date_match.group(0)
+      line = line.replace(datestamp_string, '').strip()
+      date_stamp = datetime.datetime.strptime(datestamp_string, '<%a., %b. %d, %Y, %I:%M %p>')
+    else:
+      date_stamp = None
+    metadata_entry['datestamp'] = date_stamp
 
+    if ':' in line:
+      key = line.split(":")[0]
+      value = ''.join(line.split(":")[1:]).strip()
+      if ',' in value:
+        value = value.split(',')
+    else:
+      key = '(no_key)'
+      value = line
 
+    metadata_entry[key] = value
+    metadata.append(metadata_entry)
 
-def get_meta_2(view):
-  """
-  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
-
-  """  
-  if not has_meta(view):
-    return None
-  content = Urtext.urtext.get_contents(view)
-  raw_meta_data = content.split(meta_separator)[-1]
-  metadata = {}
-  meta_lines = raw_meta_data.split('\n')
-  print(meta_lines)
-  undated_message_key = 1
-  existing_keys =[]
-  for line in meta_lines:
-    try:
-      key = datetime.datetime.strptime(line[:31], '<%a., %b. %d, %Y, %I:%M %p>')
-      message = line[32:]
-      while key in existing_keys:
-        key = key + datetime.timedelta(seconds=1) # seconds are used as an index
-    except:
-      key = "undated_message_" + str(undated_message_key)
-      undated_message_key += 1;
-      message = line
-    if message.strip() != '':
-      metadata[key] = message
-      existing_keys.append(key)
-  print(metadata)
-  return metadata
-
-def get_meta_1(view):
-  """
-  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
-  """  
-  if not has_meta(view):
-    return None
-  content = Urtext.urtext.get_contents(view)
-  raw_meta_data = content.split(meta_separator)[-1]
-  metadata = {}
-  found_keys = []
-  meta_lines = raw_meta_data.split('\n')
-  for line in meta_lines:
-    key = line.split(':')[0].strip()
-    value = ''.join(line.split(':',1)[1:]).strip()
-    index = 1
-    sanitized_key = key
-    while key in found_keys:
-      sanitized_key = key + str(index)
-      index += 1
-    key = sanitized_key
-    if key.strip() != '':
-      found_keys.append(sanitized_key)
-      metadata[sanitized_key] = value
   print(metadata)
   return metadata
 
