@@ -7,8 +7,15 @@ import re
 from datetime import datetime
 import Urtext.datestimes
 import Urtext.meta
+import copy
 
 meta_separator = '------------'
+
+class CopyPathCoolerCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    filename = self.view.window().extract_variables()['file_name']
+    self.view.show_popup('`'+filename + '` copied to the clipboard')
+    sublime.set_clipboard(filename)
 
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """
@@ -75,6 +82,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
             pass
         sorted_stuff = sorted(found_stuff, key=lambda x: x['date'], reverse=True)
         new_view = self.window.new_file()
+        new_view.set_name('Timeline')
         sublime.set_timeout(lambda: self.show_stuff(new_view, sorted_stuff), 10)
 
     def build_timeline(self,view, sorted_stuff):
@@ -115,19 +123,23 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
             with open(filename,'r',encoding='utf-8') as this_file:
               first_line = this_file.read(150)
               first_line = first_line.split('------------')[0]
-              item.append(clear_white_space(first_line))
-              item.append(filename)
+              item.append(clear_white_space(first_line))              
               date = Urtext.datestimes.date_from_reverse_date(filename[:13])
-              item.append(date.strftime('<%a., %b. %d, %Y, %I:%M %p>'))
-              # want to add in here that it will sort by most recent meta date
+              item.append(date)
+              item.append(filename)
             menu.append(item)
           except:
             pass
-        self.sorted_menu = sorted(menu,key=lambda item: item[1] )
+        self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
+        self.display_menu = []
+        for item in self.sorted_menu: # there is probably a better way to copy this list.
+          new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>')]
+          self.display_menu.append(new_item)
         def open_the_file(index):
           if index != -1:
-            self.window.open_file(path+"/"+self.sorted_menu[index][1])
-        self.window.show_quick_panel(self.sorted_menu, open_the_file)
+            print(self.sorted_menu[index][2])
+            self.window.open_file(path+"/"+self.sorted_menu[index][2])
+        self.window.show_quick_panel(self.display_menu, open_the_file)
 
 class ShowTags(sublime_plugin.WindowCommand):
     def run(self):
