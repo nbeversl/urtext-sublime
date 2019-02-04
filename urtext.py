@@ -138,7 +138,8 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         def open_the_file(index):
           if index != -1:
             print(self.sorted_menu[index][2])
-            self.window.open_file(path+"/"+self.sorted_menu[index][2])
+            new_view = self.window.open_file(path+"/"+self.sorted_menu[index][2])
+  
         self.window.show_quick_panel(self.display_menu, open_the_file)
 
 class ShowTags(sublime_plugin.WindowCommand):
