@@ -1,0 +1,15 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+---
+name: Urtext
+file_extensions: [txt]
+
+contexts:
+  datestamp:
+    - match: <(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>  
+      push: datestamp
+    - match: 
+
+  brackets:
+    - match: \)
+      pop: true
+    - include: main
