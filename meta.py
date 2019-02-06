@@ -30,6 +30,7 @@ class MetadataEntry: # container for a single metadata entry
 class NodeMetadata: 
   def __init__(self, filename): # always take the metadata from the file, not the view.
     self.entries = []
+    self.filename = filename # log the filename as part of the metadata for queries
     try:
       with open(filename, 'r', encoding='utf-8') as theFile:
           full_contents = theFile.read()
@@ -67,11 +68,14 @@ class NodeMetadata:
         value = line
       if key == 'title':
         title_set = True
+        title = value
       self.entries.append(MetadataEntry(key, value, date_stamp))
 
     if not title_set:
-      self.entries.append(MetadataEntry('title', full_contents.split('\n')[0], None)) # title defaults to first line. possible refactor this.
-    
+      title = full_contents.split('\n')[0]
+    #self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possible refactor this.
+    self.title = title # set the title as a value accessible from the main Metadata object
+
   def get_tag(self, tagname):
     """ returns an array of values for the given tagname """ 
     values = []
@@ -177,14 +181,15 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     files = os.listdir('/Users/nbeversluis/Documents/ref/')
     for file in files:
       if file[-4:] == '.txt':
-        for tag in NodeMetadata(file).get_tag('tags'):
+        metadata = NodeMetadata(file)
+        for tag in metadata.get_tag('tags'):
           if isinstance(tag, str):
             tag = [ tag ]
           for item in tag:
             if item not in self.found_tags: # this is incredibly ugly code. Redo it.
               self.found_tags.append(item)
               self.tagged_files[item] = []
-            self.tagged_files[item].append(file)
+            self.tagged_files[item].append(metadata) # append the full file so title can be shown with filename
 
     self.view.window().show_quick_panel(self.found_tags, self.list_files)
 
@@ -192,7 +197,10 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     tag = self.found_tags[selected_tag]
     new_view = self.view.window().new_file()
     new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % tag})
-    new_view.run_command("insert_snippet", { "contents": '\t\n'.join(self.tagged_files[tag])})       
+    for file in self.tagged_files[tag]:
+      file.log()
+      listing = '\n\t -> ' + file.filename + '  |  ' + file.title      
+      new_view.run_command("insert_snippet", { "contents": listing})       
 
 def has_meta(contents):
   """ 
