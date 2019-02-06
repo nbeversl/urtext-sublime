@@ -10,6 +10,10 @@ import re
 import datetime
 import Urtext.urtext
 import pprint
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from anytree import Node, RenderTree
+
 
 meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
 path = '/Users/nathanielbeversluis/Dropbox/txt'
@@ -38,6 +42,8 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("move_to", {"to": "eof"})
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
+
+
 
 
 def get_meta(content):
@@ -76,8 +82,8 @@ def get_meta(content):
     metadata_entry[key] = value
     metadata.append(metadata_entry)
 
-  print(pprint.pformat(metadata))
   return metadata
+  print(pprint.pformat(metadata))
 
 class ShowMetadata(sublime_plugin.TextCommand):
   """
@@ -86,6 +92,49 @@ class ShowMetadata(sublime_plugin.TextCommand):
   def run(self, edit):
     get_meta(self.view.substr(sublime.Region(0, self.view.size())))
 
+class ShowNodeTreeCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit):
+    oldest_known_filename = self.find_oldest_node(self.view.file_name())
+    print('Oldest Filename is %s' % oldest_known_filename)
+    self.tree = Node(oldest_known_filename)
+    print(self.tree)
+    print(self.build_node_tree(oldest_known_filename))
+
+  def find_oldest_node(self, filename):
+    oldest_known_filename = filename
+    with open(filename, 'r', encoding='utf-8') as theFile:
+      full_contents = theFile.read()
+      theFile.close()
+    this_meta = get_meta(full_contents)
+    for meta_entry in this_meta:
+      if 'pulled from' in meta_entry:
+        oldest_known_filename = meta_entry['pulled from'].split(' |')[0].strip(' ->' )
+        return self.find_oldest_node(oldest_known_filename)
+    return oldest_known_filename
+
+
+  def build_node_tree(self, oldest_node, parent=None):
+
+    if parent == None:
+      parent = Node(oldest_node)
+
+    tree = self.add_nodes_from_meta(oldest_node, parent)
+
+  def add_nodes_from_meta(self, filename, parent):
+    with open(filename, 'r', encoding='utf-8') as theFile:
+      full_contents = theFile.read()
+      theFile.close()
+    this_meta = get_meta(full_contents)
+    for meta_entry in this_meta:
+      if 'pulled to' in meta_entry:
+        newer_filename = meta_entry['pulled to'].split(' |')[0].strip(' ->' )
+        new_node = Node(newer_filename, parent=parent)
+        return self.add_nodes_from_meta(newer_filename, parent)
+    return parent
+
+    for pre, fill, node in RenderTree(tree):
+      print("%s%s" % (pre, node.name))
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """

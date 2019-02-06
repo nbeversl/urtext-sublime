@@ -5,5 +5,7 @@
     { "caption": "Urtext: Add Meta to Existing File", "command": "add_meta_to_existing_file"},
     { "caption": "Urtext: Show Metadata", "command":"show_metadata"},
     { "caption": "Urtext: Copy Path", "command":"copy_path_cooler"},
-    { "caption": "Urtext: Compile TODO", "command":"compile_todo"}
+    { "caption": "Urtext: Compile TODO", "command":"compile_todo"},
+    { "caption": "Urtext: Show Node Tree", "command":"show_node_tree"}
+  
 ] 

@@ -39,7 +39,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand): # copies the file to a new 
     self.old_filename = old_filename.split('/')[-1]
     now = datetime.datetime.now()
     new_filename = make_reverse_date_filename(now)
-    self.view.insert(edit, self.view.size(), '\nforked to: -> '+new_filename+'  | (editorial://open/'+new_filename+'?root=dropbox)')
+    self.view.insert(edit, self.view.size(), '\npulled to: -> '+new_filename+'  | (editorial://open/'+new_filename+'?root=dropbox) ' + now.strftime(timestamp_format))
     self.view.run_command('save')
     window = self.view.window()
     new_view = window.open_file(new_filename)
@@ -51,7 +51,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand): # copies the file to a new 
           now = datetime.datetime.now()
           Urtext.meta.add_created_timestamp(view, now)
           view.run_command("move_to", {"to": "eof"})
-          view.run_command("insert_snippet", { "contents": "Forked from: -> "+self.old_filename + " | (editorial://open/"+self.old_filename+"?root=dropbox)"})
+          view.run_command("insert_snippet", { "contents": "pulled from: -> "+self.old_filename + " | (editorial://open/"+self.old_filename+"?root=dropbox)"})
           view.run_command("move_to", {"to": "bof"})
           view.run_command('save')
         else:
