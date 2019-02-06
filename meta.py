@@ -1,8 +1,6 @@
 # Urtext
 # file metadata handling
 
-# Datestimes -> /Users/nathanielbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/datestimes.py
-
 import sublime
 import sublime_plugin
 import os
@@ -14,19 +12,76 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 
+# TODO migrate both of these to project settings
 meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
-path = '/Users/nathanielbeversluis/Dropbox/txt'
+path = '/Users/nathanielbeversluis/Dropbox/txt' 
 
-# Needed commands:
-# - Check for existing meta DONE <Sun., Jan. 13, 2019, 06:35 PM>
-# - Insert meta separator <Sun., Jan. 13, 2019, 06:35 PM>
-# - File Created (only for new files) DONE <Sun., Jan. 13, 2019, 06:43 PM>
-# - Original filename (only for new files) DONE <Sun., Jan. 13, 2019, 07:28 PM>
-# - Meta added : for existing files DONE <Sun., Jan. 13, 2019, 07:31 PM>
-# - Filename when meta information added: for existing files
-# - File Updated Metadata DONE <Sun., Jan. 13, 2019, 07:34 PM>
-# - command to add metadata to an existing file DONE <Sun., Jan. 13, 2019, 07:59 PM>
-# - get and parse metadata from existing file into a dict
+class MetadataEntry: # container for a single metadata entry 
+  def __init__(self, tag, value, dtstamp):
+    self.tag_name = tag
+    self.value = value
+    self.dtstamp = dtstamp
+
+  def log(self):
+    print('tag: %s' % self.tag_name)
+    print('value: %s' % self.value)
+    print('datetimestamp: %s' % self.dtstamp)
+
+class NodeMetadata: 
+  def __init__(self, filename): # always take the metadata from the file, not the view.
+    try:
+      with open(filename, 'r', encoding='utf-8') as theFile:
+          full_contents = theFile.read()
+          theFile.close()
+    except: # file name not exist
+      return None
+
+    #necessary?
+    if not has_meta(full_contents): # no metadata found
+      return None
+ 
+    title_set = False
+    raw_meta_data = full_contents.split(meta_separator)[-1]
+    meta_lines = raw_meta_data.split('\n')
+    date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
+    self.entries = []
+
+    for line in meta_lines: 
+      if line.strip() == '':
+        continue
+      date_match = re.search(date_regex,line)
+      if date_match:
+        datestamp_string = date_match.group(0)
+        line = line.replace(datestamp_string, '').strip()
+        date_stamp = datetime.datetime.strptime(datestamp_string, '<%a., %b. %d, %Y, %I:%M %p>')
+      else:
+        date_stamp = None
+      if ':' in line:
+        key = line.split(":")[0]
+        value = ''.join(line.split(":")[1:]).strip()
+        if ',' in value:
+          value = value.split(',')
+      else:
+        key = '(no_key)'
+        value = line
+      if key == 'title':
+        title_set = True
+      self.entries.append(MetadataEntry(key, value, date_stamp))
+
+    if not title_set:
+      self.entries.append(MetadataEntry('title', full_contents.split('\n')[0], None)) # title defaults to first line. possible refactor this.
+    
+  def get_tag(self, tagname):
+    """ returns an array of values for the given tagname """ 
+    values = []
+    for entry in self.entries:
+      if entry.tag_name == tagname:
+        values.append(entry.value) # allows for multiple tags of the same name
+    return values
+
+  def log(self):
+    for entry in self.entries:
+      entry.log()
 
 class ModifiedCommand(sublime_plugin.TextCommand):
   """
@@ -42,55 +97,21 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
 
-def get_meta(content):
-  """
-  Reads and parses the metadata at the bottom of the file into a dict by timestamp.
-  """  
-  if not has_meta(content):
-    return None
-  raw_meta_data = content.split(meta_separator)[-1]
-  metadata = {}
-  meta_lines = raw_meta_data.split('\n')
-  date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
-  metadata = []
-  for line in meta_lines: 
-    if line.strip() == '':
-      continue
-    metadata_entry = {}    
-    date_match = re.search(date_regex,line)
-    if date_match:
-      datestamp_string = date_match.group(0)
-      line = line.replace(datestamp_string, '').strip()
-      date_stamp = datetime.datetime.strptime(datestamp_string, '<%a., %b. %d, %Y, %I:%M %p>')
-    else:
-      date_stamp = None
-    metadata_entry['datestamp'] = date_stamp
-
-    if ':' in line:
-      key = line.split(":")[0]
-      value = ''.join(line.split(":")[1:]).strip()
-      if ',' in value:
-        value = value.split(',')
-    else:
-      key = '(no_key)'
-      value = line
-
-    metadata_entry[key] = value
-    metadata.append(metadata_entry)
-
-  return metadata
-  print(pprint.pformat(metadata))
-
 class ShowMetadata(sublime_plugin.TextCommand):
   """ Make metadata command available in Sublime command palette """
   def run(self, edit):
-    get_meta(self.view.substr(sublime.Region(0, self.view.size())))
+    filename = self.view.file_name()
+    print(NodeMetadata(filename).log_metadata())
 
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
+  # to add:
+  #   move cursor to the file this was called from
+  #   have the title default to the first line of the file if not explicitly set
+
   def run(self, edit):
     self.errors = []   
-    oldest_known_filename = self.find_oldest_node(self.view.file_name())    
+    oldest_known_filename = self.find_oldest_node(self.view.file_name())
     self.tree = Node(oldest_known_filename)
     self.build_node_tree('ROOT -> ' + oldest_known_filename)
     render = ''
@@ -103,29 +124,17 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   def find_oldest_node(self, filename):
     """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
-    try:
-      with open(filename, 'r', encoding='utf-8') as theFile:
-        full_contents = theFile.read()
-        theFile.close()
-    except:
-      self.errors.append('Broken link: -> %s\n' % filename)
-      return
-    this_meta = get_meta(full_contents)
-    for meta_entry in this_meta:
-      if 'pulled from' in meta_entry:
-        oldest_known_filename = meta_entry['pulled from'].split(' |')[0].strip(' ->' )
-        return self.find_oldest_node(oldest_known_filename)
+    this_meta = NodeMetadata(filename)
+    this_meta.log()
+
+    if this_meta.get_tag('pulled from'): # 0 = always use first value. should not be pulled from more than one place.
+      oldest_known_filename = this_meta.get_tag('pulled from')[0].split(' |')[0].strip(' ->' )
+      return self.find_oldest_node(oldest_known_filename)
     return oldest_known_filename
 
   def build_node_tree(self, oldest_node, parent=None):
     self.tree = Node(oldest_node)
     self.add_children(self.tree)
-
-  def get_title(self, meta):
-    for meta_entry in meta:
-      if 'title' in meta_entry:
-        return ''.join(meta_entry['title'])
-    return '[untitled'
 
   def add_children(self, parent):
     """ recursively add children """
@@ -141,14 +150,12 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     for meta_entry in this_meta:
       if 'pulled to' in meta_entry:
         newer_filename = meta_entry['pulled to'].split(' |')[0].strip(' ->' )
-        newer_nodename = Node(self.get_title(this_meta) + ' -> ' + newer_filename, parent=parent)
-        print(newer_nodename)
+        newer_metadata = NodeMetadata(newer_filename)
+        newer_nodename = Node(newer_metadata.get_tag('title')[0] + ' -> ' + newer_filename, parent=parent)
         self.add_children(newer_nodename)
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
-  """
-  Adds metadata to a file that does not already have metadata.
-  """
+  """ Add metadata to a file that does not already have metadata.  """
   def run(self, edit):
       if not has_meta(self.view):
         add_separator(self.view)
@@ -160,8 +167,9 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("move_to", {"to": "bof"})
 
 def has_meta(contents):
-  """
-  Determine whether a view contains metadata.
+  """ 
+  Determine whether a view contains metadata. 
+  :contents: -- the full contents of a file or fragment
   """
   global metaseparator
   if meta_separator in contents:
@@ -172,6 +180,7 @@ def has_meta(contents):
 def add_separator(view):
   """
   Adds a metadata separator if one is not already there.
+  :view: a Sublime view
   """
   if not has_meta(view):
     global meta_separator
@@ -182,6 +191,8 @@ def add_separator(view):
 def add_created_timestamp(view, timestamp):
   """
   Adds an initial "Created: " timestamp
+  view: Sublime view
+  timestamp: a datetime.datetime object
   """
   filename = view.file_name().split('/')[-1]
   text_timestamp = timestamp.strftime("<%a., %b. %d, %Y, %I:%M %p>")
