@@ -83,6 +83,13 @@ class NodeMetadata:
     for entry in self.entries:
       entry.log()
 
+  def groups(self): # not used?
+    groups_list = []
+    for entry in self.entries:
+      if entry.tag_name[0] == '_':
+        groups_list.append(entry.tag_name)
+    return groups_list
+
 class ModifiedCommand(sublime_plugin.TextCommand):
   """
   Adds a modification timestamp to the metadata.
@@ -107,7 +114,6 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
   # to add:
   #   move cursor to the file this was called from
-  #   have the title default to the first line of the file if not explicitly set
 
   def run(self, edit):
     self.errors = []   
@@ -117,6 +123,8 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     render = ''
     for pre, fill, node in RenderTree(self.tree):
       render += ("%s-> %s" % (pre, node.name)) + '\n'
+    window = self.view.window()
+    window.focus_group(0) # always show the tree on the leftmost focus
     new_view = self.view.window().new_file()
     new_view.run_command("insert_snippet", { "contents": render})
     new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
@@ -125,8 +133,6 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
     this_meta = NodeMetadata(filename)
-    this_meta.log()
-
     if this_meta.get_tag('pulled from'): # 0 = always use first value. should not be pulled from more than one place.
       oldest_known_filename = this_meta.get_tag('pulled from')[0].split(' |')[0].strip(' ->' )
       return self.find_oldest_node(oldest_known_filename)
@@ -140,16 +146,13 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     """ recursively add children """
     parent_filename = parent.name.split('->')[1].strip()
     try:
-      with open(parent_filename, 'r', encoding='utf-8') as theFile:
-        full_contents = theFile.read()
-        theFile.close()
+      this_meta = NodeMetadata(parent_filename)
     except:
       self.errors.append('Broken link: -> %s\n' % parent_filename)
       return
-    this_meta = get_meta(full_contents)
-    for meta_entry in this_meta:
-      if 'pulled to' in meta_entry:
-        newer_filename = meta_entry['pulled to'].split(' |')[0].strip(' ->' )
+    for entry in this_meta.entries:
+      if entry.tag_name == 'pulled to':
+        newer_filename = entry.value.split(' |')[0].strip(' ->' )
         newer_metadata = NodeMetadata(newer_filename)
         newer_nodename = Node(newer_metadata.get_tag('title')[0] + ' -> ' + newer_filename, parent=parent)
         self.add_children(newer_nodename)

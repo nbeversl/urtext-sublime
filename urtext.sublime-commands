@@ -7,7 +7,9 @@
     { "caption": "Urtext: Copy Path", "command":"copy_path_cooler"},
     { "caption": "Urtext: Compile TODO", "command":"compile_todo"},
     { "caption": "Urtext: Show Node Tree", "command":"show_node_tree"},
-    { "caption": "Urtext: Metadata Test", "command":"show_metadata_test"}
+    { "caption": "Urtext: Metadata Test", "command":"show_metadata_test"},
+    { "caption": "Urtext: Show Node Groups", "command":"show_node_group"}
+
 
   
 ] 
