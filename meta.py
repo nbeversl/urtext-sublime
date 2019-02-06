@@ -86,22 +86,24 @@ def get_meta(content):
   print(pprint.pformat(metadata))
 
 class ShowMetadata(sublime_plugin.TextCommand):
-  """
-  Make metadata command available in Sublime command palette
-  """
+  """ Make metadata command available in Sublime command palette """
   def run(self, edit):
     get_meta(self.view.substr(sublime.Region(0, self.view.size())))
 
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
-
+  """ Display a tree of all nodes connected to this one """
   def run(self, edit):
     oldest_known_filename = self.find_oldest_node(self.view.file_name())
-    print('Oldest Filename is %s' % oldest_known_filename)
     self.tree = Node(oldest_known_filename)
-    print(self.tree)
-    print(self.build_node_tree(oldest_known_filename))
+    self.build_node_tree(oldest_known_filename)
+    render = ''
+    for pre, fill, node in RenderTree(self.tree):
+      render += ("%s-> %s" % (pre, node.name)) + '\n'
+    new_view = self.view.window().new_file()
+    new_view.run_command("insert_snippet", { "contents": render})
 
   def find_oldest_node(self, filename):
+    """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
     with open(filename, 'r', encoding='utf-8') as theFile:
       full_contents = theFile.read()
@@ -113,28 +115,21 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
         return self.find_oldest_node(oldest_known_filename)
     return oldest_known_filename
 
-
   def build_node_tree(self, oldest_node, parent=None):
+    self.tree = Node(oldest_node)
+    self.add_children(self.tree)
 
-    if parent == None:
-      parent = Node(oldest_node)
-
-    tree = self.add_nodes_from_meta(oldest_node, parent)
-
-  def add_nodes_from_meta(self, filename, parent):
-    with open(filename, 'r', encoding='utf-8') as theFile:
+  def add_children(self, parent):
+    """ recursively add children """
+    with open(parent.name, 'r', encoding='utf-8') as theFile:
       full_contents = theFile.read()
       theFile.close()
     this_meta = get_meta(full_contents)
     for meta_entry in this_meta:
       if 'pulled to' in meta_entry:
         newer_filename = meta_entry['pulled to'].split(' |')[0].strip(' ->' )
-        new_node = Node(newer_filename, parent=parent)
-        return self.add_nodes_from_meta(newer_filename, parent)
-    return parent
-
-    for pre, fill, node in RenderTree(tree):
-      print("%s%s" % (pre, node.name))
+        newer_nodename = Node(newer_filename, parent=parent)
+        self.add_children(newer_nodename)
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """
