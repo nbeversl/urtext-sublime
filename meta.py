@@ -29,6 +29,7 @@ class MetadataEntry: # container for a single metadata entry
 
 class NodeMetadata: 
   def __init__(self, filename): # always take the metadata from the file, not the view.
+    self.entries = []
     try:
       with open(filename, 'r', encoding='utf-8') as theFile:
           full_contents = theFile.read()
@@ -44,7 +45,7 @@ class NodeMetadata:
     raw_meta_data = full_contents.split(meta_separator)[-1]
     meta_lines = raw_meta_data.split('\n')
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
-    self.entries = []
+   
 
     for line in meta_lines: 
       if line.strip() == '':
@@ -168,6 +169,30 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
+
+class ShowTagsCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    self.found_tags = []
+    self.tagged_files = {}
+    files = os.listdir('/Users/nbeversluis/Documents/ref/')
+    for file in files:
+      if file[-4:] == '.txt':
+        for tag in NodeMetadata(file).get_tag('tags'):
+          if isinstance(tag, str):
+            tag = [ tag ]
+          for item in tag:
+            if item not in self.found_tags: # this is incredibly ugly code. Redo it.
+              self.found_tags.append(item)
+              self.tagged_files[item] = []
+            self.tagged_files[item].append(file)
+
+    self.view.window().show_quick_panel(self.found_tags, self.list_files)
+
+  def list_files(self, selected_tag):
+    tag = self.found_tags[selected_tag]
+    new_view = self.view.window().new_file()
+    new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % tag})
+    new_view.run_command("insert_snippet", { "contents": '\t\n'.join(self.tagged_files[tag])})       
 
 def has_meta(contents):
   """ 
