@@ -14,7 +14,6 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 
-
 meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
 path = '/Users/nathanielbeversluis/Dropbox/txt'
 
@@ -42,9 +41,6 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("move_to", {"to": "eof"})
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
-
-
-
 
 def get_meta(content):
   """
@@ -93,21 +89,27 @@ class ShowMetadata(sublime_plugin.TextCommand):
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
   def run(self, edit):
-    oldest_known_filename = self.find_oldest_node(self.view.file_name())
+    self.errors = []   
+    oldest_known_filename = self.find_oldest_node(self.view.file_name())    
     self.tree = Node(oldest_known_filename)
-    self.build_node_tree(oldest_known_filename)
+    self.build_node_tree('ROOT -> ' + oldest_known_filename)
     render = ''
     for pre, fill, node in RenderTree(self.tree):
       render += ("%s-> %s" % (pre, node.name)) + '\n'
     new_view = self.view.window().new_file()
     new_view.run_command("insert_snippet", { "contents": render})
+    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
 
   def find_oldest_node(self, filename):
     """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
-    with open(filename, 'r', encoding='utf-8') as theFile:
-      full_contents = theFile.read()
-      theFile.close()
+    try:
+      with open(filename, 'r', encoding='utf-8') as theFile:
+        full_contents = theFile.read()
+        theFile.close()
+    except:
+      self.errors.append('Broken link: -> %s\n' % filename)
+      return
     this_meta = get_meta(full_contents)
     for meta_entry in this_meta:
       if 'pulled from' in meta_entry:
@@ -119,16 +121,28 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     self.tree = Node(oldest_node)
     self.add_children(self.tree)
 
+  def get_title(self, meta):
+    for meta_entry in meta:
+      if 'title' in meta_entry:
+        return ''.join(meta_entry['title'])
+    return '[untitled'
+
   def add_children(self, parent):
     """ recursively add children """
-    with open(parent.name, 'r', encoding='utf-8') as theFile:
-      full_contents = theFile.read()
-      theFile.close()
+    parent_filename = parent.name.split('->')[1].strip()
+    try:
+      with open(parent_filename, 'r', encoding='utf-8') as theFile:
+        full_contents = theFile.read()
+        theFile.close()
+    except:
+      self.errors.append('Broken link: -> %s\n' % parent_filename)
+      return
     this_meta = get_meta(full_contents)
     for meta_entry in this_meta:
       if 'pulled to' in meta_entry:
         newer_filename = meta_entry['pulled to'].split(' |')[0].strip(' ->' )
-        newer_nodename = Node(newer_filename, parent=parent)
+        newer_nodename = Node(self.get_title(this_meta) + ' -> ' + newer_filename, parent=parent)
+        print(newer_nodename)
         self.add_children(newer_nodename)
 
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
