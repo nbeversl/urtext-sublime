@@ -9,7 +9,16 @@ import Urtext.datestimes
 import Urtext.meta
 import copy
 
-meta_separator = '------------'
+settings = sublime.load_settings('urtext-default.sublime-settings')
+path = settings.get('urtext_folder')
+meta_separator = settings.get('meta_separator')
+
+def get_path(view):
+  if view.window().project_data():
+    path = view.window().project_data()['urtext_path'] # ? 
+  else:
+    path = '.'
+  return path
 
 class CopyPathCoolerCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -18,18 +27,12 @@ class CopyPathCoolerCommand(sublime_plugin.TextCommand):
     sublime.set_clipboard(filename)
 
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
-    """
-    List snippets of files in a timeline
-    """
+    """ List snippets of files in a timeline """
     def run(self,edit):
         found_stuff = []
         view = self.view
         self.window = view.window()
-        if self.window.project_data():
-           main_path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
-        else:
-           main_path = '.'
-        path = view.window().extract_variables()['folder']
+        path = get_path(view)
         files = os.listdir(path)
         for file in files:
           try:
@@ -110,17 +113,13 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           text = text.strip()
           text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
           return text
-        if self.window.project_data():
-           path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
-        else:
-           path = '.'
-        os.chdir(path)
-        files = os.listdir()
+        path = get_path(self.window.active_view())
+        files = os.listdir(path)
         menu = []
         for filename in files:
           item = []       
           try:
-            with open(filename,'r',encoding='utf-8') as this_file:
+            with open(path + '/' + filename,'r',encoding='utf-8') as this_file:
               first_line = this_file.read(150)
               first_line = first_line.split('------------')[0]
               item.append(clear_white_space(first_line))              
@@ -148,16 +147,12 @@ class ShowTags(sublime_plugin.WindowCommand):
           text = text.strip()
           text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
           return text
-        if self.window.project_data():
-           path = self.window.project_data()['folders'][0]['path'] # always save in the current project path if there is one
-        else:
-           path = '.'
-        os.chdir(path)
-        files = os.listdir()
+        path = get_path(view)
+        files = os.listdir(path)
         tags = []
         for filename in files:
           try:
-            with open(filename,'r',encoding='utf-8') as this_file:
+            with open(path+'/'+filename,'r',encoding='utf-8') as this_file:
               contents = this_file.read()
               metadata = Urtext.meta.get_meta(contents)
               for entry in metadata:

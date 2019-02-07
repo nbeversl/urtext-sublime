@@ -1,5 +1,4 @@
-# Urtext
-# file metadata handling
+# Urtext node metadata handling
 
 import sublime
 import sublime_plugin
@@ -12,9 +11,16 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 
-# TODO migrate both of these to project settings
-meta_separator = '\n------------\n' # = 12 dashes in a row starting a line, followed by a newline
-path = '/Users/nathanielbeversluis/Dropbox/txt' 
+# note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
+def get_path(view):
+  if view.window().project_data():
+    path = view.window().project_data()['urtext_path'] # ? 
+  else:
+    path = '.'
+  return path
+settings = sublime.load_settings('urtext-default.sublime-settings')
+
+meta_separator = settings.get('meta_separator') # = 12 dashes in a row starting a line, followed by a newline
 
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
@@ -46,7 +52,6 @@ class NodeMetadata:
     raw_meta_data = full_contents.split(meta_separator)[-1]
     meta_lines = raw_meta_data.split('\n')
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
-   
 
     for line in meta_lines: 
       if line.strip() == '':
@@ -73,9 +78,8 @@ class NodeMetadata:
 
     if not title_set:
       title = full_contents.split('\n')[0]
-    #self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possible refactor this.
-    self.title = title # set the title as a value accessible from the main Metadata object
-
+    self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
+    
   def get_tag(self, tagname):
     """ returns an array of values for the given tagname """ 
     values = []
@@ -178,10 +182,12 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     self.found_tags = []
     self.tagged_files = {}
-    files = os.listdir('/Users/nbeversluis/Documents/ref/')
+    path = get_path(self.view)
+    print(path)
+    files = os.listdir(path) #migrate this to pull from project settings
     for file in files:
       if file[-4:] == '.txt':
-        metadata = NodeMetadata(file)
+        metadata = NodeMetadata(path + '/' + file)
         for tag in metadata.get_tag('tags'):
           if isinstance(tag, str):
             tag = [ tag ]
@@ -190,7 +196,6 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
               self.found_tags.append(item)
               self.tagged_files[item] = []
             self.tagged_files[item].append(metadata) # append the full file so title can be shown with filename
-
     self.view.window().show_quick_panel(self.found_tags, self.list_files)
 
   def list_files(self, selected_tag):
@@ -199,7 +204,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % tag})
     for file in self.tagged_files[tag]:
       file.log()
-      listing = '\n\t -> ' + file.filename + '  |  ' + file.title      
+      listing = '\n\t -> ' + file.filename + '  |  ' + file.get_tag('title')[0]      
       new_view.run_command("insert_snippet", { "contents": listing})       
 
 def has_meta(contents):
