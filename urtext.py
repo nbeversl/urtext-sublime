@@ -33,10 +33,11 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
         view = self.view
         self.window = view.window()
         path = get_path(view)
+        os.chdir(path)
         files = os.listdir(path)
         for file in files:
           try:
-            with open(path + '/' + file, 'r', encoding='utf-8') as theFile:
+            with open(file, 'r', encoding='utf-8') as theFile:
               full_contents = theFile.read()
               timestamp_regex = '\<(.*?)\>'
               timestamps = re.findall(timestamp_regex, full_contents)
@@ -109,26 +110,19 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
 
 class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
-        def clear_white_space(text):
-          text = text.strip()
-          text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
-          return text
         path = get_path(self.window.active_view())
         files = os.listdir(path)
         menu = []
         for filename in files:
           item = []       
           try:
-            with open(path + '/' + filename,'r',encoding='utf-8') as this_file:
-              first_line = this_file.read(150)
-              first_line = first_line.split('------------')[0]
-              item.append(clear_white_space(first_line))              
-              date = Urtext.datestimes.date_from_reverse_date(filename[:13])
-              item.append(date)
-              item.append(filename)
+            metadata = Urtext.meta.NodeMetadata(path+'/'+filename)
+            item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
+            item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
+            item.append(metadata.filename)
             menu.append(item)
           except:
-            pass
+            pass # probably not a .txt file
         self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
         self.display_menu = []
         for item in self.sorted_menu: # there is probably a better way to copy this list.
@@ -137,9 +131,37 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         def open_the_file(index):
           if index != -1:
             print(self.sorted_menu[index][2])
-            new_view = self.window.open_file(path+"/"+self.sorted_menu[index][2])
-  
+            new_view = self.window.open_file(self.sorted_menu[index][2])
+        print(self.display_menu)
         self.window.show_quick_panel(self.display_menu, open_the_file)
+
+class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
+    def run(self):
+        path = get_path(self.window.active_view())
+        files = os.listdir(path)
+        menu = []
+        for filename in files:
+          item = []       
+          try:
+            metadata = Urtext.meta.NodeMetadata(path+'/'+filename)
+            item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
+            item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
+            item.append(metadata.filename)
+            menu.append(item)
+          except:
+            pass # probably not a .txt file
+        self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
+        self.display_menu = []
+        for item in self.sorted_menu: # there is probably a better way to copy this list.
+          new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>')]
+          self.display_menu.append(new_item)
+        def link_to_the_file(index):
+          view = self.window.active_view()
+          file = self.sorted_menu[index][2].split('/')[-1]
+          title = self.sorted_menu[index][0]
+          view.run_command("insert", {"characters": title + ' -> '+ file + ' | '})
+        self.window.show_quick_panel(self.display_menu, link_to_the_file)
+
 
 class ShowTags(sublime_plugin.WindowCommand):
     def run(self):

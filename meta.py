@@ -18,10 +18,12 @@ def get_path(view):
   else:
     path = '.'
   return path
-settings = sublime.load_settings('urtext-default.sublime-settings')
 
-meta_separator = settings.get('meta_separator') # = 12 dashes in a row starting a line, followed by a newline
-
+def meta_separator():
+    settings = sublime.load_settings('urtext-default.sublime-settings')
+    meta_separator = settings.get('meta_separator') 
+    return meta_separator
+print(meta_separator)
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
     self.tag_name = tag
@@ -49,7 +51,7 @@ class NodeMetadata:
       return None
  
     title_set = False
-    raw_meta_data = full_contents.split(meta_separator)[-1]
+    raw_meta_data = full_contents.split(meta_separator())[-1]
     meta_lines = raw_meta_data.split('\n')
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
 
@@ -76,10 +78,14 @@ class NodeMetadata:
         title = value
       self.entries.append(MetadataEntry(key, value, date_stamp))
 
-    if not title_set:
+    if not title_set: # title is the the first many lines if not set
+      full_contents = full_contents.strip()
+      #text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
       title = full_contents.split('\n')[0]
-    self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
-    
+      first_line = full_contents[:150] # not used now 
+      first_line = first_line.split('------------')[0] # not used now 
+      self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
+  
   def get_tag(self, tagname):
     """ returns an array of values for the given tagname """ 
     values = []
@@ -112,12 +118,6 @@ class ModifiedCommand(sublime_plugin.TextCommand):
       self.view.run_command("move_to", {"to": "eof"})
       self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
       self.view.run_command("move_to", {"to": "bof"})
-
-class ShowMetadata(sublime_plugin.TextCommand):
-  """ Make metadata command available in Sublime command palette """
-  def run(self, edit):
-    filename = self.view.file_name()
-    print(NodeMetadata(filename).log_metadata())
 
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
@@ -153,6 +153,8 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
 
   def add_children(self, parent):
     """ recursively add children """
+    path = get_path(self.view)
+    os.chdir(path)
     parent_filename = parent.name.split('->')[1].strip()
     try:
       this_meta = NodeMetadata(parent_filename)
@@ -183,7 +185,6 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     self.found_tags = []
     self.tagged_files = {}
     path = get_path(self.view)
-    print(path)
     files = os.listdir(path) #migrate this to pull from project settings
     for file in files:
       if file[-4:] == '.txt':
@@ -213,7 +214,7 @@ def has_meta(contents):
   :contents: -- the full contents of a file or fragment
   """
   global metaseparator
-  if meta_separator in contents:
+  if meta_separator() in contents:
     return True
   else:
     return False
@@ -224,9 +225,8 @@ def add_separator(view):
   :view: a Sublime view
   """
   if not has_meta(view):
-    global meta_separator
     view.run_command("move_to", {"to": "eof"})
-    view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator})
+    view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator()})
     view.run_command("move_to", {"to": "bof"})
 
 def add_created_timestamp(view, timestamp):
@@ -238,7 +238,7 @@ def add_created_timestamp(view, timestamp):
   filename = view.file_name().split('/')[-1]
   text_timestamp = timestamp.strftime("<%a., %b. %d, %Y, %I:%M %p>")
   view.run_command("move_to", {"to": "eof"})
-  view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator+"Created "+text_timestamp+'\n'})
+  view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator()+"Created "+text_timestamp+'\n'})
   view.run_command("move_to", {"to": "bof"})
 
 def add_original_filename(view):
@@ -251,5 +251,4 @@ def add_original_filename(view):
   view.run_command("move_to", {"to": "bof"})
 
 def clear_meta(contents):
-  global meta_separator
-  return contents.split(meta_separator)[0]
+  return contents.split(meta_separator())[0]

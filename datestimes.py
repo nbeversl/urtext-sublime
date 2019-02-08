@@ -12,11 +12,13 @@ import os
 timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
 alt_timestamp_formats = [
     '< >', ]
-settings = sublime.load_settings('urtext-default.sublime-settings')
 # path = settings.get('urtext_folder') # not needed in this module <Thu., Feb. 07, 2019, 02:25 PM>
 # = 12 dashes in a row starting a line, followed by a newline
-meta_separator = settings.get('meta_separator')
-
+def meta_separator():
+    settings = sublime.load_settings('urtext-default.sublime-settings')
+    meta_separator = settings.get('meta_separator') 
+    print(meta_separator)
+    return meta_separator
 
 class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
     """
