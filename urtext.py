@@ -33,11 +33,11 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
         view = self.view
         self.window = view.window()
         path = get_path(view)
-        os.chdir(path)
         files = os.listdir(path)
         for file in files:
+          file=file.split('/')[-1] # need to fix all this path nonsense.
           try:
-            with open(file, 'r', encoding='utf-8') as theFile:
+            with open(path + '/' + file, 'r', encoding='utf-8') as theFile:
               full_contents = theFile.read()
               timestamp_regex = '\<(.*?)\>'
               timestamps = re.findall(timestamp_regex, full_contents)
