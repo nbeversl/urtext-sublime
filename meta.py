@@ -10,7 +10,7 @@ import pprint
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
-
+import anytree
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 def get_path(view):
   if view.window().project_data():
@@ -23,7 +23,7 @@ def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
     meta_separator = settings.get('meta_separator') 
     return meta_separator
-print(meta_separator)
+
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
     self.tag_name = tag
@@ -44,10 +44,6 @@ class NodeMetadata:
           full_contents = theFile.read()
           theFile.close()
     except: # file name not exist
-      return None
-
-    #necessary?
-    if not has_meta(full_contents): # no metadata found
       return None
  
     title_set = False
@@ -85,7 +81,7 @@ class NodeMetadata:
       first_line = full_contents[:150] # not used now 
       first_line = first_line.split('------------')[0] # not used now 
       self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
-  
+
   def get_tag(self, tagname):
     """ returns an array of values for the given tagname """ 
     values = []
@@ -131,7 +127,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     self.build_node_tree('ROOT -> ' + oldest_known_filename)
     render = ''
     for pre, fill, node in RenderTree(self.tree):
-      render += ("%s-> %s" % (pre, node.name)) + '\n'
+      render += ("%s %s" % (pre, node.name)) + '\n'
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus
     new_view = self.view.window().new_file()
@@ -168,6 +164,125 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
         newer_nodename = Node(newer_metadata.get_tag('title')[0] + ' -> ' + newer_filename, parent=parent)
         self.add_children(newer_nodename)
 
+class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
+  """ Display a tree of all nodes connected to this one """
+  # TODO: for files that link to the same place more than one time,
+  # show how many times on one tree node, instead of showing multiple nodes
+  # would this require building the tree after scanning all files?
+   
+  def run(self, edit):
+    self.errors = [] 
+    self.visited_files = []
+    self.backward_visited_files = []
+    self.tree = Node(self.view.file_name())
+    self.build_node_tree('This File -> ' + self.view.file_name())
+    self.build_backward_node_tree('This File -> ' + self.view.file_name())
+    
+    window = self.view.window()
+    window.focus_group(0) # always show the tree on the leftmost focus'
+    new_view = self.view.window().new_file()
+
+    render = ''
+    for pre, fill, node in RenderTree(self.backward_tree):
+      render += ("%s%s" % (pre, node.name)) + '\n'
+    render = render.replace('└','┌')    
+    render = render.split('\n')
+    render = render[1:]
+    render_upside_down = ''
+    for index in range(len(render)):
+      render_upside_down += render[len(render)-1 - index] + '\n'
+    render_upside_down = ''.join(render_upside_down)
+    new_view.run_command("insert_snippet", { "contents": render_upside_down})
+    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+
+    render = ''
+    for pre, fill, node in RenderTree(self.tree):
+      render += ("%s%s" % (pre, node.name)) + '\n'
+    
+    new_view.run_command("insert_snippet", { "contents": render})
+    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+    
+  def build_node_tree(self, oldest_node, parent=None):
+      self.tree = Node(oldest_node)
+      self.add_children(self.tree)
+
+  def get_links_in_file(self,filename):
+      path = get_path(self.view)
+      os.chdir(path)
+      with open(filename,'r',encoding='utf-8') as this_file:
+        contents = this_file.read()
+      links = re.findall('->\s+([\w\.\/]+)',contents) # link RegEx
+      return links
+ 
+  def add_children(self, parent):
+    """ recursively add children """
+    parent_filename = parent.name.split('->')[1].strip()
+    links = self.get_links_in_file(parent_filename)
+    path = get_path(self.view)
+    self.visited_files = []
+    os.chdir(path)
+    for link in links:
+      try: # this is in case filenames don't exist
+        #if link in self.backward_visited_files:
+        if link in self.visited_files:
+          #continue # temporarily remove files already visited this generation only
+          child_metadata = NodeMetadata(link)
+          child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+          continue
+        self.backward_visited_files.append(link)  
+        self.visited_files.append(link)
+        link = link.split('/')[-1]
+        child_metadata = NodeMetadata(link)
+        child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+        self.add_backward_children(child_nodename)
+      except:
+        pass
+
+  def build_backward_node_tree(self, oldest_node, parent=None):
+      self.backward_tree = Node(oldest_node)
+      self.add_backward_children(self.backward_tree)
+
+  def get_links_to_file(self, filename):
+      visited_files = []    
+      if filename == '':
+        return []
+      path = get_path(self.view)
+      os.chdir(path)
+      files = os.listdir(path) #migrate this to pull from project settings
+      links_to_file = []
+      for file in files:
+        if file[-4:] == '.txt':
+            with open(file,'r',encoding='utf-8') as this_file:
+              contents = this_file.read()
+              links = re.findall('-> ('+ filename.replace('.txt','')+')', contents) # link RegEx
+              for link in links:
+                links_to_file.append(file)
+      return links_to_file
+
+  def add_backward_children(self, parent):
+    visited_files = []    
+    parent_filename = parent.name.split('->')[1].strip()
+    parent_filename = parent_filename.split('/')[-1]
+    links = self.get_links_to_file(parent_filename)
+    path = get_path(self.view)
+    os.chdir(path)
+    for link in links:   
+      try: # this is in case filenames don't exist
+        #if link in self.backward_visited_files:
+        if link in self.visited_files:
+          continue # temporarily remove files already visited this generation only
+          child_metadata = NodeMetadata(link)
+          child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+          continue
+        self.backward_visited_files.append(link)  
+        self.visited_files.append(link)
+        link = link.split('/')[-1]
+        child_metadata = NodeMetadata(link)
+        child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+        self.add_backward_children(child_nodename)
+      except:
+        pass  
+  
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """ Add metadata to a file that does not already have metadata.  """
   def run(self, edit):
@@ -204,8 +319,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     new_view = self.view.window().new_file()
     new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % tag})
     for file in self.tagged_files[tag]:
-      file.log()
-      listing = '\n\t -> ' + file.filename + '  |  ' + file.get_tag('title')[0]      
+      listing = file.get_tag('title')[0] + ' -> ' + file.filename + '\n'    
       new_view.run_command("insert_snippet", { "contents": listing})       
 
 def has_meta(contents):

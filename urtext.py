@@ -8,6 +8,9 @@ from datetime import datetime
 import Urtext.datestimes
 import Urtext.meta
 import copy
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from anytree import Node, RenderTree
 
 settings = sublime.load_settings('urtext-default.sublime-settings')
 path = settings.get('urtext_folder')
@@ -130,9 +133,7 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           self.display_menu.append(new_item)
         def open_the_file(index):
           if index != -1:
-            print(self.sorted_menu[index][2])
             new_view = self.window.open_file(self.sorted_menu[index][2])
-        print(self.display_menu)
         self.window.show_quick_panel(self.display_menu, open_the_file)
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.

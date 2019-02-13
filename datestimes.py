@@ -17,7 +17,6 @@ alt_timestamp_formats = [
 def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
     meta_separator = settings.get('meta_separator') 
-    print(meta_separator)
     return meta_separator
 
 class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
@@ -30,7 +29,6 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
         for region in self.view.sel():
             text = self.view.substr(region)
             try:
-                print(text)
                 date = datetime.datetime.strptime(text, timestamp_format)
                 sublime.set_clipboard(make_reverse_date_filename(date))
                 self.view.show_popup(

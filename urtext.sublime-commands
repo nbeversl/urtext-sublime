@@ -5,6 +5,7 @@
     { "caption": "Urtext: Copy Path", "command":"copy_path_cooler"},
     { "caption": "Urtext: Show Node Tree", "command":"show_node_tree"},
     { "caption": "Urtext: Show Tags", "command":"show_tags"},
-    { "caption": "Urtext: Link to ...", "command":"link_to_node"}
+    { "caption": "Urtext: Link to ...", "command":"link_to_node"},
+    { "caption": "Urtext: Show File Relationships ...", "command" : "show_file_relationships"}
   
 ] 
