@@ -26,7 +26,7 @@ def meta_separator():
 
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
-    self.tag_name = tag
+    self.tag_name = tag.strip()
     self.value = value
     self.dtstamp = dtstamp
 
@@ -64,8 +64,11 @@ class NodeMetadata:
       if ':' in line:
         key = line.split(":")[0]
         value = ''.join(line.split(":")[1:]).strip()
-        if ',' in value:
-          value = value.split(',')
+        if '|' in value:
+          items = value.split('|')
+          value = []
+          for item in items:
+             value.append(item.strip())
       else:
         key = '(no_key)'
         value = line
@@ -222,10 +225,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.visited_files = []
     os.chdir(path)
     for link in links:
-      try: # this is in case filenames don't exist
-        #if link in self.backward_visited_files:
+      try: # in case filenames don't exist
         if link in self.visited_files:
-          #continue # temporarily remove files already visited this generation only
           child_metadata = NodeMetadata(link)
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
           continue
@@ -252,8 +253,12 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       links_to_file = []
       for file in files:
         if file[-4:] == '.txt':
-            with open(file,'r',encoding='utf-8') as this_file:
-              contents = this_file.read()
+            with open(os.path.join(path, file),'r',encoding='utf-8') as this_file:
+              print(file)
+              try:
+                contents = this_file.read() # in case there's a binary file in there or something.
+              except:
+                continue
               links = re.findall('-> ('+ filename.replace('.txt','')+')', contents) # link RegEx
               for link in links:
                 links_to_file.append(file)
@@ -268,10 +273,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     os.chdir(path)
     for link in links:   
       try: # this is in case filenames don't exist
-        #if link in self.backward_visited_files:
         if link in self.visited_files:
-          continue # temporarily remove files already visited this generation only
-          child_metadata = NodeMetadata(link)
+          child_metadata = NodeMetadata(os.path.join(path, file))
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
           continue
         self.backward_visited_files.append(link)  

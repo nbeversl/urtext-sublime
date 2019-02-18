@@ -16,6 +16,34 @@ settings = sublime.load_settings('urtext-default.sublime-settings')
 path = settings.get('urtext_folder')
 meta_separator = settings.get('meta_separator')
 
+class MyListener(sublime_plugin.ViewEventListener):
+    def is_applicable(settings):     
+      settings.set('file_view','True')
+      if settings.get('file_view') == 'True':
+        return True
+      return False
+
+    def on_selection_modified_async(self):
+
+      s = Urtext.meta.NodeMetadata(self.view.file_name())
+      tags = s.get_tag('tags')
+      try:
+        if 'file_tree' in tags[0]:
+        # TODO : fix that tags has to be indexed
+          full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+          link = re.findall('->\s+([\w\.\/]+)',full_line)
+          path = get_path(self.view)
+          try:
+            window = self.view.window()
+            window.set_layout({"cols":[0,0.5,1], "rows": [0,1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+            window.focus_group(1)
+            window.open_file(link[0])
+            window.focus_group(0)
+          except: 
+            pass
+      except:
+        pass
+  
 def get_path(view):
   if view.window().project_data():
     path = view.window().project_data()['urtext_path'] # ? 
@@ -115,11 +143,15 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
         path = get_path(self.window.active_view())
         files = os.listdir(path)
+        print(path)
+        print(files)
         menu = []
         for filename in files:
+          print(filename)
+          print(os.path.join(path, filename))
           item = []       
-          try:
-            metadata = Urtext.meta.NodeMetadata(path+'/'+filename)
+          try: 
+            metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
             item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
             item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
             item.append(metadata.filename)
