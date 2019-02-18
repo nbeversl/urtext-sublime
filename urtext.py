@@ -40,26 +40,23 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     self.view.window().focus_group(0)
     
 class TraverseFileTree(sublime_plugin.EventListener):
-  def is_applicable(settings):
-    if settings.get('traverse') == 'false':
-      return False
-    if settings.get('traverse') == 'true':
-      return True
+
   def on_selection_modified(self, view):
-    tree_view = view
-    window = view.window()
-    full_line = view.substr(view.line(view.sel()[0]))
-    link = re.findall('->\s+([\w\.\/]+)',full_line)    
-    if len(link) > 0 :
-      path = get_path(view)
-      window.focus_group(1)
-      try:
-        file_view = window.open_file(os.path.join(path, link[0]) , sublime.TRANSIENT)
-        file_view.set_scratch(True)
-      except:
-        print('unable to open '+link[0])
-      self.return_to_left(file_view, tree_view)
-       
+    if view.settings().get('traverse') == 'true':
+      tree_view = view
+      window = view.window()
+      full_line = view.substr(view.line(view.sel()[0]))
+      link = re.findall('->\s+([^\|]+)',full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      if len(link) > 0 :
+        path = get_path(view)
+        window.focus_group(1)
+        try:
+          file_view = window.open_file(os.path.join(path, link[0].strip()) , sublime.TRANSIENT)
+          file_view.set_scratch(True)
+        except:
+          print('unable to open '+link[0])
+        self.return_to_left(file_view, tree_view)
+         
   def return_to_left(self, view,return_view):
     if not view.is_loading():
         view.window().focus_view(return_view)
