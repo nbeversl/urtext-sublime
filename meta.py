@@ -204,6 +204,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     
     new_view.run_command("insert_snippet", { "contents": render})
     new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+    new_view.set_scratch(True)
     
   def build_node_tree(self, oldest_node, parent=None):
       self.tree = Node(oldest_node)
@@ -223,7 +224,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     path = get_path(self.view)
     self.visited_files = []
     for link in links:
-      try: # in case filenames don't exist
+      #try: # in case filenames don't exist ??? Or filter them out first?
         if link in self.visited_files:
           child_metadata = NodeMetadata(os.path.join(path, link))
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
@@ -231,11 +232,11 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         self.backward_visited_files.append(link)  
         self.visited_files.append(link)
         link = link.split('/')[-1]
-        child_metadata = NodeMetadata(link)
+        child_metadata = NodeMetadata(os.path.join(path, link))
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         self.add_backward_children(child_nodename)
-      except:
-        pass
+      #except:
+      #  pass
 
   def build_backward_node_tree(self, oldest_node, parent=None):
       self.backward_tree = Node(oldest_node)
@@ -251,7 +252,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       for file in files:
         if file[-4:] == '.txt':
             with open(os.path.join(path, file),'r',encoding='utf-8') as this_file:
-              print(file)
               try:
                 contents = this_file.read() # in case there's a binary file in there or something.
               except:
@@ -276,7 +276,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         self.backward_visited_files.append(link)  
         self.visited_files.append(link)
         link = link.split('/')[-1]
-        child_metadata = NodeMetadata(link)
+        child_metadata = NodeMetadata(os.path.join(path, link))
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         self.add_backward_children(child_nodename)
       except:

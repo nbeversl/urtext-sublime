@@ -20,6 +20,10 @@ contexts:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
       scope: urtext.link
 
+  url: # not yet styled
+    - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
+      scope: urtext.url_link
+
   meta-block:
     - meta_scope: urtext.meta-block
       scope: meta-separator.urtext

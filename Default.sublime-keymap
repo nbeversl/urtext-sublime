@@ -4,4 +4,5 @@
 	{ "keys": ["ctrl+shift+;"], "command": "new_undatified_file" },
 	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },
 	{ "keys": ["super+e"], "command": "show_files_with_preview"},
+	{ "keys": ["super+r"], "command": "toggle_traverse"}
 ]
