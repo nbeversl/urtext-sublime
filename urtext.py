@@ -16,34 +16,49 @@ settings = sublime.load_settings('urtext-default.sublime-settings')
 path = settings.get('urtext_folder')
 meta_separator = settings.get('meta_separator')
 
-class MyListener(sublime_plugin.ViewEventListener):
-    def is_applicable(settings):     
-      settings.set('file_view','True')
-      if settings.get('file_view') == 'True':
-        return True
+class ToggleTraverse(sublime_plugin.TextCommand):
+  def run(self,edit):  
+    if self.view.settings().has('traverse'):
+      if self.view.settings().get('traverse') == 'true':
+        self.view.settings().set('traverse','false')
+        print('toggled false')
+        return
+    print('toggled true')
+    self.view.settings().set('traverse', 'true')
+    window = self.view.window()
+    window.set_layout({"cols":[0,0.5,1], "rows": [0,1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+    window.focus_group(0)
+    
+class TraverseFileTree(sublime_plugin.EventListener):
+  def is_applicable(settings):
+    if settings.get('traverse') == 'false':
       return False
+    if settings.get('traverse') == 'true':
+      return True
 
-    def on_selection_modified_async(self):
-
-      s = Urtext.meta.NodeMetadata(self.view.file_name())
-      tags = s.get_tag('tags')
+  def on_selection_modified(self, view):
+    tree_view = view
+    window = view.window()
+    full_line = view.substr(view.line(view.sel()[0]))
+    link = re.findall('->\s+([\w\.\/]+)',full_line)    
+    if len(link) > 0 :
+      path = get_path(view)
+      window.focus_group(1)
       try:
-        if 'file_tree' in tags[0]:
-        # TODO : fix that tags has to be indexed
-          full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-          link = re.findall('->\s+([\w\.\/]+)',full_line)
-          path = get_path(self.view)
-          try:
-            window = self.view.window()
-            window.set_layout({"cols":[0,0.5,1], "rows": [0,1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
-            window.focus_group(1)
-            window.open_file(link[0])
-            window.focus_group(0)
-          except: 
-            pass
+        file_view = window.open_file(os.path.join(path, link[0]), sublime.TRANSIENT)
       except:
         pass
-  
+      self.return_to_left(file_view, tree_view)
+       
+  def return_to_left(self, view,return_view):
+    if not view.is_loading():
+        view.window().focus_view(return_view)
+        view.window().focus_group(0)
+        pass
+    else:
+      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
+
+
 def get_path(view):
   if view.window().project_data():
     path = view.window().project_data()['urtext_path'] # ? 
@@ -143,12 +158,8 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
         path = get_path(self.window.active_view())
         files = os.listdir(path)
-        print(path)
-        print(files)
         menu = []
         for filename in files:
-          print(filename)
-          print(os.path.join(path, filename))
           item = []       
           try: 
             metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))

@@ -153,10 +153,10 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   def add_children(self, parent):
     """ recursively add children """
     path = get_path(self.view)
-    os.chdir(path)
+
     parent_filename = parent.name.split('->')[1].strip()
     try:
-      this_meta = NodeMetadata(parent_filename)
+      this_meta = NodeMetadata(os.path.join(path, parent_filename))
     except:
       self.errors.append('Broken link: -> %s\n' % parent_filename)
       return
@@ -211,8 +211,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
 
   def get_links_in_file(self,filename):
       path = get_path(self.view)
-      os.chdir(path)
-      with open(filename,'r',encoding='utf-8') as this_file:
+      with open(os.path.join(path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
       links = re.findall('->\s+([\w\.\/]+)',contents) # link RegEx
       return links
@@ -223,11 +222,10 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     links = self.get_links_in_file(parent_filename)
     path = get_path(self.view)
     self.visited_files = []
-    os.chdir(path)
     for link in links:
       try: # in case filenames don't exist
         if link in self.visited_files:
-          child_metadata = NodeMetadata(link)
+          child_metadata = NodeMetadata(os.path.join(path, link))
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
           continue
         self.backward_visited_files.append(link)  
@@ -248,7 +246,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       if filename == '':
         return []
       path = get_path(self.view)
-      os.chdir(path)
       files = os.listdir(path) #migrate this to pull from project settings
       links_to_file = []
       for file in files:
@@ -270,7 +267,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     parent_filename = parent_filename.split('/')[-1]
     links = self.get_links_to_file(parent_filename)
     path = get_path(self.view)
-    os.chdir(path)
     for link in links:   
       try: # this is in case filenames don't exist
         if link in self.visited_files:
