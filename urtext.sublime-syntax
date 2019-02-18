@@ -7,39 +7,48 @@ file_extensions:
 scope: urtext
 
 contexts:
-  main:
-    # The main context is the initial starting point of our syntax.
-    # Include other contexts from here (or specify them directly).
-    
+  main:    
     - include: datestamp
     - include: link
+    - include: task-status
     - match: '^------------$'
       push: meta-block
 
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
-      scope: urtext.link
+      scope: comment.urtext
 
   url: # not yet styled
     - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
       scope: urtext.url_link
 
+  task-status:
+    - match: '\s(DONE|REMOVED|TODO|IN PROGRESS)'
+      scope: markup.bold
+
   meta-block:
-    - meta_scope: urtext.meta-block
-      scope: meta-separator.urtext
-    - include: tags
+    - meta_scope: comment.urtext
+      scope: comment.urtext
     - include: datestamp
-      push:
-        - meta_scope: meta-block.urtext
+    - include: tag-names
+    - include: tag-values
     - match: \-\/
-      scope: meta-separator-end.urtext
+      scope: end-comment.urtext
       pop: true
 
   datestamp:
     - match: <(Sat|Sun|Mon|Tue|Wed|Thu|Fri)\., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\. \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>
-      scope: urtext.datestamp
+      scope: constant.language
 
-  tags:
+  tag-names:
     - match: '^[\w\s]+:'
-      scope: urtext.tagname
+      scope: entity.name.tag
+
+  tag-values:
+    - match: (?<=^tags\:)\s.*(\b^\|\b)
+      scope: entity.name.tag
+
+  urtext-node:
+    - match: '\b\d{14}\.txt\b'
+      scope: st
 
