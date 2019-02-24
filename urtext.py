@@ -9,6 +9,7 @@ import Urtext.datestimes
 import Urtext.meta
 import copy
 import sys
+import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 
@@ -163,18 +164,19 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
 class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
         path = get_path(self.window.active_view())
-        files = os.listdir(path)
+        files = Urtext.meta.get_all_files(self.window.active_view())
         menu = []
         for filename in files:
           item = []       
-          try: 
-            metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
-            item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
-            item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
+          metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
+          try:
+            item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
+            node_id = re.search(r'\b\d{14}\b', filename).group(0) # refactor later
+            item.append(Urtext.datestimes.date_from_reverse_date(node_id))
             item.append(metadata.filename)
             menu.append(item)
           except:
-            pass # probably not a .txt file
+            print(filename)
         self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
         self.display_menu = []
         for item in self.sorted_menu: # there is probably a better way to copy this list.
@@ -182,6 +184,8 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           self.display_menu.append(new_item)
         def open_the_file(index):
           if index != -1:
+            print(self.sorted_menu[index][2])
+            urtext_file = Urtext.meta.UrtextFile(self.sorted_menu[index][2])
             new_view = self.window.open_file(self.sorted_menu[index][2])
         self.window.show_quick_panel(self.display_menu, open_the_file)
 

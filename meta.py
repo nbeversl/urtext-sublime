@@ -11,6 +11,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 import anytree
+import logging
+
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 def get_path(view):
   if view.window().project_data():
@@ -19,10 +21,49 @@ def get_path(view):
     path = '.'
   return path
 
+
 def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
     meta_separator = settings.get('meta_separator') 
     return meta_separator
+
+def get_all_files(view):
+  path = get_path(view)
+  files = os.listdir(path)
+  urtext_files = []
+  regexp = re.compile(r'\b\d{14}\b')
+  for file in files:
+    if regexp.search(file):  
+      urtext_files.append(file)
+  return urtext_files
+
+class UrtextFile:
+  def __init__(self, filename):
+    self.filename = filename
+    self.node_number = re.match('\b\d{14}\b', filename)
+    self.index = re.match('^\d{2}\b', filename)
+    self.title = re.match('[^\d]*', filename)
+    self.log()
+
+  def set_index(self, new_index):
+    self.index = new_index
+
+  def set_title(self, new_title):
+    self.title = new_title
+
+  def log(self):
+    logging.info(self.node_number)
+    logging.info(self.title)
+    logging.info(self.index)
+    logging.info(self.filename)
+
+  def rename_file(self, view):
+    path = get_path(view)
+    old_filename = view.file_name()
+    new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
+    os.path.join(path, old_filename)
+    os.path.join(path, new_filename)
+    os.rename(os.path.join(path, old_filename), os.path.join(path, new_filename))
 
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
