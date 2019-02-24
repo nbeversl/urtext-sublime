@@ -234,7 +234,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         link = link.split('/')[-1]
         child_metadata = NodeMetadata(os.path.join(path, link))
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-        self.add_backward_children(child_nodename)
+        self.add_children(child_nodename) # bug fix here
       #except:
       #  pass
 
