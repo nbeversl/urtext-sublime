@@ -1,77 +1,91 @@
 # Urtext - Main
-
 import sublime
 import sublime_plugin
 import os
 import re
-from datetime import datetime
 import Urtext.datestimes
 import Urtext.meta
-import copy
 import sys
-import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
+import codecs
+import logging
 
-settings = sublime.load_settings('urtext-default.sublime-settings')
-path = settings.get('urtext_folder')
-meta_separator = settings.get('meta_separator')
+# note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
-class ToggleTraverse(sublime_plugin.TextCommand):
-  def run(self,edit):  
-    if self.view.settings().has('traverse'):
-      if self.view.settings().get('traverse') == 'true':
-        self.view.settings().set('traverse','false')
-        self.view.set_status('traverse', 'Traverse: Off')
-        return
-    # if 'traverse' is not in settings or it's false: 
-    self.view.settings().set('traverse', 'true')
-    self.view.set_status('traverse', 'Traverse: On')
-    self.view.window().set_layout({"cols":[0,0.4,1], "rows": [0,1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+class UrtextFile:
+  def __init__(self, filename):
+    self.path = os.path.dirname(filename)
+    self.filename = os.path.basename(filename)
+    self.node_number = re.search(r'\b\d{14}\b|$',filename).group(0)
+    self.index = re.search(r'^\d{2}\b|$', filename).group(0)
+    self.title = re.search(r'[^\d]+|$',filename).group(0).strip()
+    self.log()
 
-    # This moves all the files to right pane.
-    # Maybe it's better to check individuall if they're already open, and then move them, as they are clicked.
-    views = self.view.window().views()
-    index = 0
-    for view in views:
-      if view != self.view:
-        self.view.window().set_view_index(view, 1, index)
-        index += 1
+  def set_index(self, new_index):
+    self.index = new_index
 
-    self.view.window().focus_group(0)
-    
-class TraverseFileTree(sublime_plugin.EventListener):
+  def set_title(self, new_title):
+    self.title = new_title
 
-  def on_selection_modified(self, view):
-    if view.settings().get('traverse') == 'true':
-      tree_view = view
-      window = view.window()
-      full_line = view.substr(view.line(view.sel()[0]))
-      link = re.findall('->\s+([^\|]+)',full_line) # allows for spaces and symbols in filenames, spaces stripped later
-      if len(link) > 0 :
-        path = get_path(view)
-        window.focus_group(1)
-        try:
-          file_view = window.open_file(os.path.join(path, link[0].strip()) , sublime.TRANSIENT)
-          file_view.set_scratch(True)
-        except:
-          print('unable to open '+link[0])
-        self.return_to_left(file_view, tree_view)
-         
-  def return_to_left(self, view,return_view):
-    if not view.is_loading():
-        view.window().focus_view(return_view)
-        view.window().focus_group(0)
-    else:
-      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
+  def log(self):
+    logging.info(self.node_number)
+    logging.info(self.title)
+    logging.info(self.index)
+    logging.info(self.filename)
 
+  def rename_file(self):
+    old_filename = self.filename
+    new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
+    os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
+    self.filename = new_filename
+    return new_filename
 
-def get_path(view):
-  if view.window().project_data():
-    path = view.window().project_data()['urtext_path'] # ? 
+class RenameFileCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    path = get_path(self.view.window())
+    filename = self.view.file_name()
+    metadata = Urtext.meta.NodeMetadata(os.path.join(path,filename))
+    metadata.log()
+    title = metadata.get_tag('title')[0].strip()
+    index = metadata.get_tag('index')[0]
+    file = UrtextFile(filename)
+    file.set_title(title)
+    file.set_index(index)
+    old_filename = file.filename
+    new_filename = file.rename_file()
+    v = self.view.window().find_open_file(old_filename)
+    if v:
+      v.retarget(os.path.join(path,new_filename))
+
+def get_path(window):
+  """ Returns the Urtext path from settings """
+  if window.project_data():
+    path = window.project_data()['urtext_path'] # ? 
   else:
     path = '.'
   return path
+
+def get_all_files(window):
+  """ Get all files in the Urtext Project. Returns an array without file path. """
+  path = get_path(window)
+  files = os.listdir(path)
+  urtext_files = []
+  regexp = re.compile(r'\b\d{14}\b')
+  for file in files:
+    try:
+      f = codecs.open(os.path.join(path, file), encoding='utf-8', errors='strict')
+      for line in f:
+          pass
+      if regexp.search(file):  
+        urtext_files.append(file)
+    except UnicodeDecodeError:
+      #https://stackoverflow.com/questions/3269293/how-to-write-a-check-in-python-to-see-if-file-is-valid-utf-8
+      print("%s invalid utf-8" % file)  
+    except:
+      print('some other error with %s' % file)
+  return urtext_files
+
 
 class CopyPathCoolerCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -79,92 +93,11 @@ class CopyPathCoolerCommand(sublime_plugin.TextCommand):
     self.view.show_popup('`'+filename + '` copied to the clipboard')
     sublime.set_clipboard(filename)
 
-class GenerateTimelineCommand(sublime_plugin.TextCommand):
-    """ List snippets of files in a timeline """
-    def run(self,edit):
-        found_stuff = []
-        view = self.view
-        self.window = view.window()
-        path = get_path(view)
-        files = os.listdir(path)
-        for file in files:
-          file=file.split('/')[-1] # need to fix all this path nonsense.
-          try:
-            with open(path + '/' + file, 'r', encoding='utf-8') as theFile:
-              full_contents = theFile.read()
-              timestamp_regex = '\<(.*?)\>'
-              timestamps = re.findall(timestamp_regex, full_contents)
-              for timestamp in timestamps:
-                contents = full_contents # reset the contents
-                found_thing = {}
-                try:
-                  try:
-                    datetime_obj = datetime.strptime(timestamp,'%a., %b. %d, %Y, %I:%M %p')
-                  except:
-                    datetime_obj = datetime.strptime(timestamp,'%A, %B %d, %Y, %I:%M %p')
-                  position = contents.find(timestamp)
-                  # TWO KINDS of timestamps: meta and inline 
-                  # inline:
-                  global meta_separator
-                  if meta_separator in contents[0:position]:
-                    # this is a meta timestamp
-                    contents = contents.split(meta_separator)[0]
-                    relevant_text = contents[:100]  # pull the beginning of the file
-                    found_thing['filename'] = file
-                    found_thing['kind'] = 'meta'
-                  else:
-                    # this is an inline timestamp
-                    contents = contents.split(meta_separator)[0]
-                    theFile.seek(0)
-                    for num, line in enumerate(theFile, 1):
-                      if timestamp in line: 
-                        line_number = num
-                    if len(contents) < 150:
-                       relevant_text = contents
-                    elif position < 150:
-                       relevant_text = contents[:position+150]
-                    elif len(contents) < 300:
-                       relevant_text = contents[position-150:]
-                    else:
-                       relevant_text = contents[position-150:position+150] # pull the nearby text
-                    relevant_text = relevant_text.replace('<'+timestamp+'>','[ ...STAMP... ]')
-                    found_thing['filename'] = file+':'+str(line_number)
-                    found_thing['kind'] = 'inline'
-                  found_thing['date'] = datetime_obj
-                  found_thing['contents'] = relevant_text
-                  found_stuff.append(found_thing)
-                except:
-                  pass
-          except:
-            pass
-        sorted_stuff = sorted(found_stuff, key=lambda x: x['date'], reverse=True)
-        new_view = self.window.new_file()
-        new_view.set_name('Timeline')
-        sublime.set_timeout(lambda: self.show_stuff(new_view, sorted_stuff), 10)
-
-    def build_timeline(self,view, sorted_stuff):
-        view.run_command("append", {"characters": '|\n|'})
-        for entry in sorted_stuff:
-          entry_date = entry['date'].strftime('%a., %b. %d, %Y, %I:%M%p')
-          contents = entry['contents'].strip()
-          while '\n\n' in contents:
-            contents = contents.replace('\n\n','\n')          
-          contents = '      ...'+contents.replace('\n','\n|      ')+'...   '
-          view.run_command("append", {"characters": '\n|<----'+entry_date+' found as '+entry['kind']})
-          view.run_command("append", {"characters": ' in file -> '+entry['filename']+'\n|\n|'})
-          view.run_command("append", {"characters": contents+'\n|'})
-
-    def show_stuff(self, view, sorted_stuff):
-          if not view.is_loading(): 
-            self.build_timeline(view, sorted_stuff)
-          else:
-            sublime.set_timeout(lambda: self.show_stuff(view,sorted_stuff), 10)
-          #https://forum.sublimetext.com/t/how-to-print-text-on-the-output-panel/35226/2
 
 class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
-        path = get_path(self.window.active_view())
-        files = Urtext.meta.get_all_files(self.window.active_view())
+        path = get_path(self.window)
+        files = get_all_files(self.window)
         menu = []
         for filename in files:
           item = []       
@@ -185,19 +118,18 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         def open_the_file(index):
           if index != -1:
             print(self.sorted_menu[index][2])
-            urtext_file = Urtext.meta.UrtextFile(self.sorted_menu[index][2])
+            urtext_file = UrtextFile(self.sorted_menu[index][2])
             new_view = self.window.open_file(self.sorted_menu[index][2])
         self.window.show_quick_panel(self.display_menu, open_the_file)
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
     def run(self):
-        path = get_path(self.window.active_view())
-        files = os.listdir(path)
+        files = get_all_files(self.window)
         menu = []
         for filename in files:
           item = []       
           try:
-            metadata = Urtext.meta.NodeMetadata(path+'/'+filename)
+            metadata = Urtext.meta.NodeMetadata(os.join.path(get_path(self.window), filename))
             item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
             item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
             item.append(metadata.filename)
@@ -215,35 +147,6 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
           title = self.sorted_menu[index][0]
           view.run_command("insert", {"characters": title + ' -> '+ file + ' | '})
         self.window.show_quick_panel(self.display_menu, link_to_the_file)
-
-
-class ShowTags(sublime_plugin.WindowCommand):
-    def run(self):
-        def clear_white_space(text):
-          text = text.strip()
-          text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
-          return text
-        path = get_path(view)
-        files = os.listdir(path)
-        tags = []
-        for filename in files:
-          try:
-            with open(path+'/'+filename,'r',encoding='utf-8') as this_file:
-              contents = this_file.read()
-              metadata = Urtext.meta.get_meta(contents)
-              for entry in metadata:
-                if 'tags' in entry:
-                  for tag in entry['tags']:
-                    tags.append(tag)              
-            menu.append(item)
-          except:
-            pass
-        self.sorted_menu = sorted(menu,key=lambda item: item[1] )
-        def open_the_file(index):
-          if index != -1:
-            self.window.open_file(path+"/"+self.sorted_menu[index][1])
-        self.window.show_quick_panel(self.sorted_menu, open_the_file)
-
 
 def get_contents(view):
   contents = view.substr(sublime.Region(0, self.view.size()))

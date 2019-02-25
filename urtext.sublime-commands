@@ -7,5 +7,6 @@
     { "caption": "Urtext: Show Tags", "command":"show_tags"},
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
     { "caption": "Urtext: Show File Relationships ...", "command" : "show_file_relationships"},
-  	{ "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"}
+  	{ "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
+  	{ "caption": "Urtext: Rename File from Meta","command":"rename_file"},
 ] 

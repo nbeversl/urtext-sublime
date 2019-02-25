@@ -5,65 +5,19 @@ import sublime_plugin
 import os
 import re
 import datetime
-import Urtext.urtext
+import Urtext.urtext as Urtext
 import pprint
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
+
 from anytree import Node, RenderTree
 import anytree
 import logging
-
-# note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
-def get_path(view):
-  if view.window().project_data():
-    path = view.window().project_data()['urtext_path'] # ? 
-  else:
-    path = '.'
-  return path
-
 
 def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
     meta_separator = settings.get('meta_separator') 
     return meta_separator
-
-def get_all_files(view):
-  path = get_path(view)
-  files = os.listdir(path)
-  urtext_files = []
-  regexp = re.compile(r'\b\d{14}\b')
-  for file in files:
-    if regexp.search(file):  
-      urtext_files.append(file)
-  return urtext_files
-
-class UrtextFile:
-  def __init__(self, filename):
-    self.filename = filename
-    self.node_number = re.match('\b\d{14}\b', filename)
-    self.index = re.match('^\d{2}\b', filename)
-    self.title = re.match('[^\d]*', filename)
-    self.log()
-
-  def set_index(self, new_index):
-    self.index = new_index
-
-  def set_title(self, new_title):
-    self.title = new_title
-
-  def log(self):
-    logging.info(self.node_number)
-    logging.info(self.title)
-    logging.info(self.index)
-    logging.info(self.filename)
-
-  def rename_file(self, view):
-    path = get_path(view)
-    old_filename = view.file_name()
-    new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
-    os.path.join(path, old_filename)
-    os.path.join(path, new_filename)
-    os.rename(os.path.join(path, old_filename), os.path.join(path, new_filename))
 
 class MetadataEntry: # container for a single metadata entry 
   def __init__(self, tag, value, dtstamp):
@@ -193,7 +147,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
 
   def add_children(self, parent):
     """ recursively add children """
-    path = get_path(self.view)
+    path = get_path(self.view.window())
 
     parent_filename = parent.name.split('->')[1].strip()
     try:
@@ -213,8 +167,10 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # TODO: for files that link to the same place more than one time,
   # show how many times on one tree node, instead of showing multiple nodes
   # would this require building the tree after scanning all files?
-   
+  
   def run(self, edit):
+    self.path = get_path(self.view.window())
+  
     self.errors = [] 
     self.visited_files = []
     self.backward_visited_files = []
@@ -252,8 +208,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       self.add_children(self.tree)
 
   def get_links_in_file(self,filename):
-      path = get_path(self.view)
-      with open(os.path.join(path, filename),'r',encoding='utf-8') as this_file:
+      with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
       links = re.findall('->\s+([\w\.\/]+)',contents) # link RegEx
       return links
@@ -262,18 +217,17 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     """ recursively add children """
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_in_file(parent_filename)
-    path = get_path(self.view)
     self.visited_files = []
     for link in links:
       #try: # in case filenames don't exist ??? Or filter them out first?
         if link in self.visited_files:
-          child_metadata = NodeMetadata(os.path.join(path, link))
+          child_metadata = NodeMetadata(os.path.join(self.path, link))
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
           continue
         self.backward_visited_files.append(link)  
         self.visited_files.append(link)
         link = link.split('/')[-1]
-        child_metadata = NodeMetadata(os.path.join(path, link))
+        child_metadata = NodeMetadata(os.path.join(self.path, link))
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         self.add_children(child_nodename) # bug fix here
       #except:
@@ -287,12 +241,11 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       visited_files = []    
       if filename == '':
         return []
-      path = get_path(self.view)
       files = os.listdir(path) #migrate this to pull from project settings
       links_to_file = []
       for file in files:
         if file[-4:] == '.txt':
-            with open(os.path.join(path, file),'r',encoding='utf-8') as this_file:
+            with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
               try:
                 contents = this_file.read() # in case there's a binary file in there or something.
               except:
@@ -307,17 +260,16 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     parent_filename = parent.name.split('->')[1].strip()
     parent_filename = parent_filename.split('/')[-1]
     links = self.get_links_to_file(parent_filename)
-    path = get_path(self.view)
     for link in links:   
       try: # this is in case filenames don't exist
         if link in self.visited_files:
-          child_metadata = NodeMetadata(os.path.join(path, file))
+          child_metadata = NodeMetadata(os.path.join(self.path, file))
           child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
           continue
         self.backward_visited_files.append(link)  
         self.visited_files.append(link)
         link = link.split('/')[-1]
-        child_metadata = NodeMetadata(os.path.join(path, link))
+        child_metadata = NodeMetadata(os.path.join(self.path, link))
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         self.add_backward_children(child_nodename)
       except:
@@ -339,11 +291,10 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     self.found_tags = []
     self.tagged_files = {}
-    path = get_path(self.view)
-    files = os.listdir(path) #migrate this to pull from project settings
+    files = Urtext.get_all_files(self.view.window())
     for file in files:
       if file[-4:] == '.txt':
-        metadata = NodeMetadata(path + '/' + file)
+        metadata = NodeMetadata(os.path.join(Urtext.get_path(self.view.window()), file))
         for tag in metadata.get_tag('tags'):
           if isinstance(tag, str):
             tag = [ tag ]
