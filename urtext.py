@@ -13,6 +13,33 @@ import logging
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
+def get_path(window):
+  """ Returns the Urtext path from settings """
+  if window.project_data():
+    path = window.project_data()['urtext_path'] # ? 
+  else:
+    path = '.'
+  return path
+
+def get_all_files(window):
+  """ Get all files in the Urtext Project. Returns an array without file path. """
+  path = get_path(window)
+  files = os.listdir(path)
+  urtext_files = []
+  regexp = re.compile(r'\b\d{14}\b')
+  for file in files:
+    try:
+      f = codecs.open(os.path.join(path, file), encoding='utf-8', errors='strict')
+      for line in f:
+          pass
+      if regexp.search(file):  
+        urtext_files.append(file)
+    except UnicodeDecodeError:
+      print("%s invalid utf-8" % file)  
+    except:
+      print('some other error with %s' % file)
+  return urtext_files
+
 class UrtextFile:
   def __init__(self, filename):
     self.path = os.path.dirname(filename)
@@ -36,7 +63,12 @@ class UrtextFile:
 
   def rename_file(self):
     old_filename = self.filename
-    new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
+    if len(self.index) > 0:
+      new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
+    elif self.title != 'Untitled':
+      new_filename = self.node_number + ' ' + self.title + '.txt'
+    else:
+      new_filename = old_filename
     os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
     self.filename = new_filename
     return new_filename
@@ -46,45 +78,19 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     path = get_path(self.view.window())
     filename = self.view.file_name()
     metadata = Urtext.meta.NodeMetadata(os.path.join(path,filename))
-    metadata.log()
-    title = metadata.get_tag('title')[0].strip()
-    index = metadata.get_tag('index')[0]
     file = UrtextFile(filename)
-    file.set_title(title)
-    file.set_index(index)
+    if metadata.get_tag('title') != 'Untitled':
+      title = metadata.get_tag('title')[0].strip()
+      file.set_title(title)
+    if metadata.get_tag('index') != []:
+      print('setting new index')
+      index = metadata.get_tag('index')[0].strip()
+      file.set_index(index)
     old_filename = file.filename
     new_filename = file.rename_file()
     v = self.view.window().find_open_file(old_filename)
     if v:
       v.retarget(os.path.join(path,new_filename))
-
-def get_path(window):
-  """ Returns the Urtext path from settings """
-  if window.project_data():
-    path = window.project_data()['urtext_path'] # ? 
-  else:
-    path = '.'
-  return path
-
-def get_all_files(window):
-  """ Get all files in the Urtext Project. Returns an array without file path. """
-  path = get_path(window)
-  files = os.listdir(path)
-  urtext_files = []
-  regexp = re.compile(r'\b\d{14}\b')
-  for file in files:
-    try:
-      f = codecs.open(os.path.join(path, file), encoding='utf-8', errors='strict')
-      for line in f:
-          pass
-      if regexp.search(file):  
-        urtext_files.append(file)
-    except UnicodeDecodeError:
-      #https://stackoverflow.com/questions/3269293/how-to-write-a-check-in-python-to-see-if-file-is-valid-utf-8
-      print("%s invalid utf-8" % file)  
-    except:
-      print('some other error with %s' % file)
-  return urtext_files
 
 
 class CopyPathCoolerCommand(sublime_plugin.TextCommand):
@@ -109,6 +115,7 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
             item.append(metadata.filename)
             menu.append(item)
           except:
+            print('Error in ShowFilesWithPreview')
             print(filename)
         self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
         self.display_menu = []
@@ -117,7 +124,6 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           self.display_menu.append(new_item)
         def open_the_file(index):
           if index != -1:
-            print(self.sorted_menu[index][2])
             urtext_file = UrtextFile(self.sorted_menu[index][2])
             new_view = self.window.open_file(self.sorted_menu[index][2])
         self.window.show_quick_panel(self.display_menu, open_the_file)

@@ -9,12 +9,10 @@ class RenameFileCommand(sublime_plugin.TextCommand):
         path = Urtext.get_path(self.view.window())
         filename = self.view.file_name()
         metadata = Meta.NodeMetadata(os.path.join(path,filename))
-        metadata.log()
         title = metadata.get_tag('title')[0].strip()
         index = metadata.get_tag('index')       
         file = Urtext.UrtextFile(filename)   
         if index != []:
-            print(index)
             file.set_index(index[0])     
         file.set_title(title)
         old_filename = file.filename
@@ -22,7 +20,7 @@ class RenameFileCommand(sublime_plugin.TextCommand):
         v = self.view.window().find_open_file(old_filename)
         if v:
           v.retarget(os.path.join(path,new_filename))
-          #set_name(new_filename)"""
+          v.set_name(new_filename)
 
 """
 class ManageFilenames(sublime_plugin.EventListener):

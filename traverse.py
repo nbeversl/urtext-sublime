@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 import os
+import re
+import Urtext.urtext as Urtext
 
 class ToggleTraverse(sublime_plugin.TextCommand):
   def run(self,edit):  
@@ -34,7 +36,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
       full_line = view.substr(view.line(view.sel()[0]))
       link = re.findall('->\s+([^\|]+)',full_line) # allows for spaces and symbols in filenames, spaces stripped later
       if len(link) > 0 :
-        path = get_path(view.window())
+        path = Urtext.get_path(view.window())
         window.focus_group(1)
         try:
           file_view = window.open_file(os.path.join(path, link[0].strip()) , sublime.TRANSIENT)

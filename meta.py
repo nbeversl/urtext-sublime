@@ -5,7 +5,7 @@ import sublime_plugin
 import os
 import re
 import datetime
-import Urtext.urtext as Urtext
+import Urtext
 import pprint
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
@@ -34,6 +34,7 @@ class NodeMetadata:
   def __init__(self, filename): # always take the metadata from the file, not the view.
     self.entries = []
     self.filename = filename # log the filename as part of the metadata for queries
+    print(filename)
     try:
       with open(filename, 'r', encoding='utf-8') as theFile:
           full_contents = theFile.read()
@@ -122,6 +123,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     self.errors = []   
     oldest_known_filename = self.find_oldest_node(self.view.file_name())
     self.tree = Node(oldest_known_filename)
+    print(oldest_known_filename)
     self.build_node_tree('ROOT -> ' + oldest_known_filename)
     render = ''
     for pre, fill, node in RenderTree(self.tree):
@@ -147,8 +149,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
 
   def add_children(self, parent):
     """ recursively add children """
-    path = get_path(self.view.window())
-
+    path = Urtext.get_path(self.view.window())
     parent_filename = parent.name.split('->')[1].strip()
     try:
       this_meta = NodeMetadata(os.path.join(path, parent_filename))
@@ -169,7 +170,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # would this require building the tree after scanning all files?
   
   def run(self, edit):
-    self.path = get_path(self.view.window())
+    self.path = Urtext.get_path(self.view.window())
   
     self.errors = [] 
     self.visited_files = []
@@ -207,16 +208,16 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       self.tree = Node(oldest_node)
       self.add_children(self.tree)
 
-  def get_links_in_file(self,filename):
+  def get_file_links_in_file(self,filename):
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
-      links = re.findall('->\s+([\w\.\/]+)',contents) # link RegEx
+      links = re.findall('->\s+(?!http)([\w\.\/]+)',contents) # link RegEx
       return links
  
   def add_children(self, parent):
     """ recursively add children """
     parent_filename = parent.name.split('->')[1].strip()
-    links = self.get_links_in_file(parent_filename)
+    links = self.get_file_links_in_file(parent_filename)
     self.visited_files = []
     for link in links:
       #try: # in case filenames don't exist ??? Or filter them out first?
@@ -228,8 +229,9 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         self.visited_files.append(link)
         link = link.split('/')[-1]
         child_metadata = NodeMetadata(os.path.join(self.path, link))
+        child_metadata.log()
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-        self.add_children(child_nodename) # bug fix here
+        self.add_backward_children(child_nodename) # bug fix here
       #except:
       #  pass
 
@@ -241,7 +243,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       visited_files = []    
       if filename == '':
         return []
-      files = os.listdir(path) #migrate this to pull from project settings
+      files =Urtext.get_all_files(self.view.window())
       links_to_file = []
       for file in files:
         if file[-4:] == '.txt':
