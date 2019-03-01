@@ -173,8 +173,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
 
-
-    root_file = Urtext.UrtextFile(self.view.file_name())
+    root_file = Urtext.UrtextFile(os.path.join(self.path, self.view.file_name()))
     root_meta = NodeMetadata(os.path.join(self.path, root_file.filename))
     self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
     self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)

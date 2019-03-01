@@ -9,4 +9,6 @@
     { "caption": "Urtext: Show File Relationships ...", "command" : "show_file_relationships"},
   	{ "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
   	{ "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
+    { "caption": "Urtext: Show Reverse Sae", "command":"show_reverse_date_filename"},
+
 ] 

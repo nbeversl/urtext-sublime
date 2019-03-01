@@ -106,10 +106,11 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         files = get_all_files(self.window)
         menu = []
         for filename in files:
-          item = []       
+          item = []
           metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
           item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
           node_id = re.search(r'\b\d{14}\b', filename).group(0) # refactor later
+          print(node_id)
           item.append(Urtext.datestimes.date_from_reverse_date(node_id))
           item.append(metadata.filename)
           menu.append(item)
