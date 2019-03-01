@@ -17,14 +17,14 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
             timestamp_regex = '<((?:Sat|Sun|Mon|Tue|Wed|Thu|Fri)\., (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\. \d{2}, \d{4},\s+\d{2}:\d{2} (?:AM|PM))>'
             timestamps = re.findall(timestamp_regex, full_contents)
             for timestamp in timestamps:
-             contents = full_contents # reset the contents
+              contents = full_contents # reset the contents
               found_thing = {}
               try:
                 datetime_obj = datetime.datetime.strptime(timestamp,'%a., %b. %d, %Y, %I:%M %p')
               except:
                 datetime_obj = datetime.datetime.strptime(timestamp,'%A, %B %d, %Y, %I:%M %p')
               position = contents.find(timestamp)
-             meta_separator = '------------'
+              meta_separator = '------------'
               if meta_separator in contents[0:position]:# this is a meta timestamp      
                 contents = contents.split(meta_separator)[0]
                 relevant_text = contents[:100]  # pull the beginning of the file

@@ -5,7 +5,7 @@ import sublime_plugin
 import os
 import re
 import datetime
-import Urtext
+import Urtext.urtext as Urtext
 import pprint
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
@@ -34,7 +34,6 @@ class NodeMetadata:
   def __init__(self, filename): # always take the metadata from the file, not the view.
     self.entries = []
     self.filename = filename # log the filename as part of the metadata for queries
-    print(filename)
     try:
       with open(filename, 'r', encoding='utf-8') as theFile:
           full_contents = theFile.read()
@@ -73,9 +72,8 @@ class NodeMetadata:
         title = value
       self.entries.append(MetadataEntry(key, value, date_stamp))
 
-    if not title_set: # title is the the first many lines if not set
+    if title_set == False: # title is the the first many lines if not set
       full_contents = full_contents.strip()
-      #text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
       title = full_contents.split('\n')[0]
       first_line = full_contents[:150] # not used now 
       first_line = first_line.split('------------')[0] # not used now 
@@ -123,7 +121,6 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     self.errors = []   
     oldest_known_filename = self.find_oldest_node(self.view.file_name())
     self.tree = Node(oldest_known_filename)
-    print(oldest_known_filename)
     self.build_node_tree('ROOT -> ' + oldest_known_filename)
     render = ''
     for pre, fill, node in RenderTree(self.tree):
@@ -171,13 +168,16 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   
   def run(self, edit):
     self.path = Urtext.get_path(self.view.window())
-  
     self.errors = [] 
     self.visited_files = []
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
-    self.build_node_tree('This File -> ' + self.view.file_name())
-    self.build_backward_node_tree('This File -> ' + self.view.file_name())
+
+
+    root_file = Urtext.UrtextFile(self.view.file_name())
+    root_meta = NodeMetadata(os.path.join(self.path, root_file.filename))
+    self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
+    self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
     
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus'
@@ -220,20 +220,16 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     links = self.get_file_links_in_file(parent_filename)
     self.visited_files = []
     for link in links:
-      #try: # in case filenames don't exist ??? Or filter them out first?
-        if link in self.visited_files:
-          child_metadata = NodeMetadata(os.path.join(self.path, link))
-          child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-          continue
-        self.backward_visited_files.append(link)  
-        self.visited_files.append(link)
-        link = link.split('/')[-1]
+      if link in self.visited_files:
         child_metadata = NodeMetadata(os.path.join(self.path, link))
-        child_metadata.log()
-        child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-        self.add_backward_children(child_nodename) # bug fix here
-      #except:
-      #  pass
+        child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+        continue
+      self.backward_visited_files.append(link)
+      self.visited_files.append(link)
+      link = link.split('/')[-1]
+      child_metadata = NodeMetadata(os.path.join(self.path, link))
+      child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+      self.add_children(child_nodename) # bug fix here
 
   def build_backward_node_tree(self, oldest_node, parent=None):
       self.backward_tree = Node(oldest_node)
@@ -252,30 +248,30 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
                 contents = this_file.read() # in case there's a binary file in there or something.
               except:
                 continue
-              links = re.findall('-> ('+ filename.replace('.txt','')+')', contents) # link RegEx
+              links = re.findall('-> '+ filename.replace('.txt',''), contents) # link RegEx
               for link in links:
                 links_to_file.append(file)
       return links_to_file
 
   def add_backward_children(self, parent):
     visited_files = []    
+    print(parent)
     parent_filename = parent.name.split('->')[1].strip()
-    parent_filename = parent_filename.split('/')[-1]
+    print(parent_filename)
+    #parent_filename = parent_filename.split('/')[-1]
     links = self.get_links_to_file(parent_filename)
     for link in links:   
-      try: # this is in case filenames don't exist
-        if link in self.visited_files:
-          child_metadata = NodeMetadata(os.path.join(self.path, file))
-          child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-          continue
-        self.backward_visited_files.append(link)  
-        self.visited_files.append(link)
-        link = link.split('/')[-1]
+      print(link)
+      if link in self.visited_files:
         child_metadata = NodeMetadata(os.path.join(self.path, link))
-        child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
-        self.add_backward_children(child_nodename)
-      except:
-        pass  
+        child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+        continue
+      self.backward_visited_files.append(link)  
+      self.visited_files.append(link)
+      link = link.split('/')[-1]
+      child_metadata = NodeMetadata(os.path.join(self.path, link))
+      child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+      self.add_backward_children(child_nodename)
   
 class AddMetaToExistingFile(sublime_plugin.TextCommand):
   """ Add metadata to a file that does not already have metadata.  """

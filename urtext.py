@@ -35,9 +35,9 @@ def get_all_files(window):
       if regexp.search(file):  
         urtext_files.append(file)
     except UnicodeDecodeError:
-      print("%s invalid utf-8" % file)  
+      print("Urtext Skipping %s, invalid utf-8" % file)  
     except:
-      print('some other error with %s' % file)
+      print('Urtext Skipping %s' % file)
   return urtext_files
 
 class UrtextFile:
@@ -108,15 +108,11 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         for filename in files:
           item = []       
           metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
-          try:
-            item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
-            node_id = re.search(r'\b\d{14}\b', filename).group(0) # refactor later
-            item.append(Urtext.datestimes.date_from_reverse_date(node_id))
-            item.append(metadata.filename)
-            menu.append(item)
-          except:
-            print('Error in ShowFilesWithPreview')
-            print(filename)
+          item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
+          node_id = re.search(r'\b\d{14}\b', filename).group(0) # refactor later
+          item.append(Urtext.datestimes.date_from_reverse_date(node_id))
+          item.append(metadata.filename)
+          menu.append(item)
         self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
         self.display_menu = []
         for item in self.sorted_menu: # there is probably a better way to copy this list.
@@ -134,14 +130,12 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
         menu = []
         for filename in files:
           item = []       
-          try:
-            metadata = Urtext.meta.NodeMetadata(os.join.path(get_path(self.window), filename))
-            item.append(metadata.get_tag('title')[0])  # should title be a list or a string?            
-            item.append(Urtext.datestimes.date_from_reverse_date(filename[:13]))
-            item.append(metadata.filename)
-            menu.append(item)
-          except:
-            pass # probably not a .txt file
+          file_info = UrtextFile(filename)
+          metadata = Urtext.meta.NodeMetadata(os.path.join(get_path(self.window), file_info.filename))
+          item.append(metadata.get_tag('title')[0])  # should title be a list or a string?  
+          item.append(Urtext.datestimes.date_from_reverse_date(file_info.node_number))
+          item.append(metadata.filename)
+          menu.append(item)
         self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
         self.display_menu = []
         for item in self.sorted_menu: # there is probably a better way to copy this list.
@@ -149,9 +143,9 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
           self.display_menu.append(new_item)
         def link_to_the_file(index):
           view = self.window.active_view()
-          file = self.sorted_menu[index][2].split('/')[-1]
+          file = self.sorted_menu[index][2]
           title = self.sorted_menu[index][0]
-          view.run_command("insert", {"characters": title + ' -> '+ file + ' | '})
+          view.run_command("insert", {"characters": title + ' -> '+ file_info.filename + ' | '})
         self.window.show_quick_panel(self.display_menu, link_to_the_file)
 
 def get_contents(view):
