@@ -13,6 +13,13 @@ import logging
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
+def get_file_from_node(node, window):
+  files = get_all_files(window)
+  for file in files:
+    if node in file:
+      return file
+  return None
+
 def get_path(window):
   """ Returns the Urtext path from settings """
   if window.project_data():
@@ -41,13 +48,14 @@ def get_all_files(window):
   return urtext_files
 
 class UrtextFile:
-  def __init__(self, filename):
-    self.path = os.path.dirname(filename)
+  """ Takes a filename without path, gets path from the project settings """
+  def __init__(self, filename, window):
+    self.path = get_path(window)
     self.filename = os.path.basename(filename)
     self.node_number = re.search(r'\b\d{14}\b|$',filename).group(0)
     self.index = re.search(r'^\d{2}\b|$', filename).group(0)
-    self.title = re.search(r'[^\d]+|$',filename).group(0).strip()
-    self.log()
+    self.title = re.search(r'[^\d]+|$',filename).group(0)
+    self.metadata = Urtext.meta.NodeMetadata(os.path.join(self.path, self.filename))
 
   def set_index(self, new_index):
     self.index = new_index
@@ -60,6 +68,7 @@ class UrtextFile:
     logging.info(self.title)
     logging.info(self.index)
     logging.info(self.filename)
+    logging.info(self.metadata.log())
 
   def rename_file(self):
     old_filename = self.filename
@@ -74,11 +83,12 @@ class UrtextFile:
     return new_filename
 
 class RenameFileCommand(sublime_plugin.TextCommand):
+  # TODO: it has to rename all references to this filename as well.
   def run(self, edit):
     path = get_path(self.view.window())
     filename = self.view.file_name()
     metadata = Urtext.meta.NodeMetadata(os.path.join(path,filename))
-    file = UrtextFile(filename)
+    file = UrtextFile(filename, self.view.window())
     if metadata.get_tag('title') != 'Untitled':
       title = metadata.get_tag('title')[0].strip()
       file.set_title(title)
@@ -110,7 +120,6 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           metadata = Urtext.meta.NodeMetadata(os.path.join(path, filename))
           item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
           node_id = re.search(r'\b\d{14}\b', filename).group(0) # refactor later
-          print(node_id)
           item.append(Urtext.datestimes.date_from_reverse_date(node_id))
           item.append(metadata.filename)
           menu.append(item)
@@ -121,7 +130,7 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
           self.display_menu.append(new_item)
         def open_the_file(index):
           if index != -1:
-            urtext_file = UrtextFile(self.sorted_menu[index][2])
+            urtext_file = UrtextFile(self.sorted_menu[index][2], self.window)
             new_view = self.window.open_file(self.sorted_menu[index][2])
         self.window.show_quick_panel(self.display_menu, open_the_file)
 
@@ -131,7 +140,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
         menu = []
         for filename in files:
           item = []       
-          file_info = UrtextFile(filename)
+          file_info = UrtextFile(filename, self.window)
           metadata = Urtext.meta.NodeMetadata(os.path.join(get_path(self.window), file_info.filename))
           item.append(metadata.get_tag('title')[0])  # should title be a list or a string?  
           item.append(Urtext.datestimes.date_from_reverse_date(file_info.node_number))

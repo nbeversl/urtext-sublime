@@ -7,12 +7,12 @@ import re
 import datetime
 import Urtext.urtext as Urtext
 import pprint
+import logging
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__)))
 
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 import anytree
-import logging
 
 def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
@@ -34,12 +34,9 @@ class NodeMetadata:
   def __init__(self, filename): # always take the metadata from the file, not the view.
     self.entries = []
     self.filename = filename # log the filename as part of the metadata for queries
-    try:
-      with open(filename, 'r', encoding='utf-8') as theFile:
-          full_contents = theFile.read()
-          theFile.close()
-    except: # file name not exist
-      return None
+    with open(filename, 'r', encoding='utf-8') as theFile:
+        full_contents = theFile.read()
+        theFile.close()
  
     title_set = False
     raw_meta_data = full_contents.split(meta_separator())[-1]
@@ -74,9 +71,10 @@ class NodeMetadata:
 
     if title_set == False: # title is the the first many lines if not set
       full_contents = full_contents.strip()
-      title = full_contents.split('\n')[0]
-      first_line = full_contents[:150] # not used now 
-      first_line = first_line.split('------------')[0] # not used now 
+      first_line = full_contents.split('\n')[0][:50]
+      first_line = first_line.split('------------')[0]
+      title = first_line.split('->')[0] # don't include links in the title, for traversing files clearly.
+      print(title)
       self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
 
   def get_tag(self, tagname):
@@ -134,7 +132,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   def find_oldest_node(self, filename):
     """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
-    this_meta = NodeMetadata(filename)
+    this_meta = Urtext.UrtextFile(filename,self.view.window()).metadata
     if this_meta.get_tag('pulled from'): # 0 = always use first value. should not be pulled from more than one place.
       oldest_known_filename = this_meta.get_tag('pulled from')[0].split(' |')[0].strip(' ->' )
       return self.find_oldest_node(oldest_known_filename)
@@ -173,8 +171,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
 
-    root_file = Urtext.UrtextFile(os.path.join(self.path, self.view.file_name()))
-    root_meta = NodeMetadata(os.path.join(self.path, root_file.filename))
+    root_file = Urtext.UrtextFile(self.view.file_name(),self.view.window())
+    root_meta = root_file.metadata
     self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
     self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
     
@@ -210,8 +208,13 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   def get_file_links_in_file(self,filename):
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
-      links = re.findall('->\s+(?!http)([\w\.\/]+)',contents) # link RegEx
-      return links
+      #links = re.findall('->\s+(?!http)([\w\.\/]+)',contents) # link RegEx
+      nodes = re.findall('->\s(?:[^\|]\s)?(\d{14})(?:\s[^\|]*)?\|?',contents) # link RegEx
+      filenames = []
+      for node in nodes:
+        filenames.append(Urtext.get_file_from_node(node, self.view.window()))
+      print(filenames)
+      return filenames
  
   def add_children(self, parent):
     """ recursively add children """
@@ -220,13 +223,12 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.visited_files = []
     for link in links:
       if link in self.visited_files:
-        child_metadata = NodeMetadata(os.path.join(self.path, link))
+        child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
       self.backward_visited_files.append(link)
       self.visited_files.append(link)
-      link = link.split('/')[-1]
-      child_metadata = NodeMetadata(os.path.join(self.path, link))
+      child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
       child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
       self.add_children(child_nodename) # bug fix here
 
@@ -238,29 +240,22 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       visited_files = []    
       if filename == '':
         return []
-      files =Urtext.get_all_files(self.view.window())
+      files = Urtext.get_all_files(self.view.window())
       links_to_file = []
       for file in files:
-        if file[-4:] == '.txt':
-            with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
-              try:
-                contents = this_file.read() # in case there's a binary file in there or something.
-              except:
-                continue
-              links = re.findall('-> '+ filename.replace('.txt',''), contents) # link RegEx
-              for link in links:
-                links_to_file.append(file)
+        with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
+          contents = this_file.read()
+          this_file = Urtext.UrtextFile(filename, self.view.window())
+          links = re.findall('-> [^\|]*' + this_file.node_number + '[^\|]*\|?', contents) # link RegEx
+          if len(links) > 0:
+            links_to_file.append(file)
       return links_to_file
 
   def add_backward_children(self, parent):
     visited_files = []    
-    print(parent)
     parent_filename = parent.name.split('->')[1].strip()
-    print(parent_filename)
-    #parent_filename = parent_filename.split('/')[-1]
     links = self.get_links_to_file(parent_filename)
     for link in links:   
-      print(link)
       if link in self.visited_files:
         child_metadata = NodeMetadata(os.path.join(self.path, link))
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
@@ -290,16 +285,15 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     self.tagged_files = {}
     files = Urtext.get_all_files(self.view.window())
     for file in files:
-      if file[-4:] == '.txt':
-        metadata = NodeMetadata(os.path.join(Urtext.get_path(self.view.window()), file))
-        for tag in metadata.get_tag('tags'):
-          if isinstance(tag, str):
-            tag = [ tag ]
-          for item in tag:
-            if item not in self.found_tags: # this is incredibly ugly code. Redo it.
-              self.found_tags.append(item)
-              self.tagged_files[item] = []
-            self.tagged_files[item].append(metadata) # append the full file so title can be shown with filename
+      metadata = NodeMetadata(os.path.join(Urtext.get_path(self.view.window()), file))
+      for tag in metadata.get_tag('tags'):
+        if isinstance(tag, str):
+          tag = [ tag ]
+        for item in tag:
+          if item not in self.found_tags: # this is incredibly ugly code. Redo it.
+            self.found_tags.append(item)
+            self.tagged_files[item] = []
+          self.tagged_files[item].append(metadata) # append the full file so title can be shown with filename
     self.view.window().show_quick_panel(self.found_tags, self.list_files)
 
   def list_files(self, selected_tag):

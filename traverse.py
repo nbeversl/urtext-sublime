@@ -34,18 +34,18 @@ class TraverseFileTree(sublime_plugin.EventListener):
       tree_view = view
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
-      link = re.findall('->\s+([^\|]+)',full_line) # allows for spaces and symbols in filenames, spaces stripped later
-      if len(link) > 0 :
-        path = Urtext.get_path(view.window())
+      links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      filenames = []
+      for link in links:
+        filenames.append(Urtext.get_file_from_node(link, window))
+      if len(filenames) > 0 :
+        path = Urtext.get_path(window)
         window.focus_group(1)
-        try:
-          file_view = window.open_file(os.path.join(path, link[0].strip()) , sublime.TRANSIENT)
-          file_view.set_scratch(True)
-        except:
-          print('unable to open '+link[0])
+        file_view = window.open_file(os.path.join(path, filenames[0]), sublime.TRANSIENT)
+        file_view.set_scratch(True)
         self.return_to_left(file_view, tree_view)
          
-  def return_to_left(self, view,return_view):
+  def return_to_left(self, view, return_view):
     if not view.is_loading():
         view.window().focus_view(return_view)
         view.window().focus_group(0)
