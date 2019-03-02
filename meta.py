@@ -74,7 +74,6 @@ class NodeMetadata:
       first_line = full_contents.split('\n')[0][:50]
       first_line = first_line.split('------------')[0]
       title = first_line.split('->')[0] # don't include links in the title, for traversing files clearly.
-      print(title)
       self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.
 
   def get_tag(self, tagname):

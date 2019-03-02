@@ -141,7 +141,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
         for filename in files:
           item = []       
           file_info = UrtextFile(filename, self.window)
-          metadata = Urtext.meta.NodeMetadata(os.path.join(get_path(self.window), file_info.filename))
+          metadata = file_info.metadata
           item.append(metadata.get_tag('title')[0])  # should title be a list or a string?  
           item.append(Urtext.datestimes.date_from_reverse_date(file_info.node_number))
           item.append(metadata.filename)
@@ -157,6 +157,36 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
           title = self.sorted_menu[index][0]
           view.run_command("insert", {"characters": title + ' -> '+ file_info.filename + ' | '})
         self.window.show_quick_panel(self.display_menu, link_to_the_file)
+
+class LinkNodeFromCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
+    def run(self):
+        linked_file = os.path.basename(self.window.active_view().file_name())
+        files = get_all_files(self.window)
+        menu = []
+        for filename in files:
+          item = []       
+          file_info = UrtextFile(filename, self.window)
+          metadata = file_info.metadata
+          item.append(metadata.get_tag('title')[0])  # should title be a list or a string?  
+          item.append(Urtext.datestimes.date_from_reverse_date(file_info.node_number))
+          item.append(metadata.filename)
+          menu.append(item)
+        self.sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
+        self.display_menu = []
+        for item in self.sorted_menu: # there is probably a better way to copy this list.
+          new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>')]
+          self.display_menu.append(new_item)
+        def link_from_the_file(index):
+          path = get_path(self.window)
+          view = self.window.active_view()
+          file = self.sorted_menu[index][2]
+          title = self.sorted_menu[index][0]          
+          new_view = self.window.open_file(os.path.join(path,file))
+          sublime.set_clipboard(' -> ' + linked_file)
+          new_view.show_popup('Link to ' + linked_file + ' copied to the clipboard')
+        self.window.show_quick_panel(self.display_menu, link_from_the_file)
+
+
 
 def get_contents(view):
   contents = view.substr(sublime.Region(0, self.view.size()))
