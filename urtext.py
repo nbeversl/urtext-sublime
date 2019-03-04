@@ -13,12 +13,11 @@ import logging
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
-_Urtext_Files = []
+_Urtext_Files = {}
 
 def plugin_loaded():
-  global _Urtext_Files
-  
-  _Urtext_Files = [1]
+  global _Urtext_Files  
+  _Urtext_Files = {}
 
 def get_file_from_node(node, window):
   files = get_all_files(window)
@@ -39,6 +38,7 @@ def get_all_files(window):
   """ Get all files in the Urtext Project. Returns an array without file path. """
   path = get_path(window)
   files = os.listdir(path)
+  global _Urtext_Files
   urtext_files = []
   regexp = re.compile(r'\b\d{14}\b')
   for file in files:
@@ -48,10 +48,15 @@ def get_all_files(window):
           pass
       if regexp.search(file):  
         urtext_files.append(os.path.basename(file))
+        thisfile = UrtextFile(os.path.basename(file), window)
+        if thisfile.node_number not in _Urtext_Files:
+          _Urtext_Files[thisfile.node_number]= thisfile
     except UnicodeDecodeError:
       print("Urtext Skipping %s, invalid utf-8" % file)  
     except:
-      print('Urtext Skipping %s' % file)
+      print('Urtext Skipping %s' % file)   
+  print(_Urtext_Files)
+  print('URtext has %d files' % len(_Urtext_Files))
   return urtext_files
 
 class UrtextFile:
@@ -88,6 +93,14 @@ class UrtextFile:
     os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
     self.filename = new_filename
     return new_filename
+
+
+class UrtextSave(sublime_plugin.EventListener):
+  def on_post_save(self, view):
+    file = UrtextFile(os.path.basename(view.file_name()), view.window())
+    global _Urtext_Files
+    _Urtext_Files[file.node_number] = file
+    print(_Urtext_Files[file.node_number].log())
 
 class RenameFileCommand(sublime_plugin.TextCommand):
   # TODO: it has to rename all references to this filename as well.

@@ -5,7 +5,7 @@ import sublime_plugin
 import os
 import re
 import datetime
-import Urtext
+import Urtext.urtext as Urtext
 import pprint
 import logging
 import sys
