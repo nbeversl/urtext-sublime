@@ -1,5 +1,8 @@
-SublimeUrtext Documentation <Thu., Feb. 07, 2019, 06:02 PM>
-Urtext TODOs -> 79811013080449.txt | 
+SublimeUrtext Documentation 
+
+Updated: <Mon., Mar. 04, 2019, 05:32 PM>
+Version: 0.4
+
 
 What this is : This is an implementation of Urtext in Sublime Text. I call it SublimeUrtext. Urtext is a system for writing and using information in plain text files. Sublime is a modern, programmable text editor. This is Urtext inside of Sublime.
 
@@ -39,37 +42,104 @@ How to set it up :
 Getting Started:
 ---------------
 
-	Content is kept in nodes. A node is a file but we call it a node because of how it's used. Think of a node as a piece of paper. Nodes can be any length. Create a new node: Press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename, Urtext does that. (One of the Urtext principles is not to rely on the file system dialogs.)
+	Content is kept in nodes. Think of a node as a piece of paper. Nodes can be any length. Create a new node: Press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename, Urtext does that. (One of the Urtext principles is not to rely on the file system dialogs.)
 
-	Every new node includes some whitespace on top and a metadata block at the bottom. Default metadata includes the creation date and the file system filename. The cursor is placed at the top. Writing anything. Save it with command-S. Create another file the same way. Write something in it. Save it.
+	Every new node has whitespace on top and a metadata block at the bottom. Default metadata includes the creation date and the system filename. The cursor is placed at the top. Writing anything. Save it with command-S. Create another file the same way. Write something in it. Save it.
 
-	Now you have multiple nodes. To browse your nodes, press Command-E (Mac) or select Urtext: Show Nodes from the Sublime command palette (shift-command-P. Nodes are displayed by their title and datestamp. Search for a node by typing part of its title. Open a node by selecting it and pressing enter.
+	Now you have multiple nodes. To browse your nodes, press Command-E (Mac) or select Urtext: Show All Nodes from the Sublime command palette (Shift-Command-P). Nodes are displayed by their title and datestamp. Search for a node by typing part of its title. Open a node by selecting it and pressing enter.
 
 	Where does the title come from? As you would when writing on paper, write the name or title directly into the node. By default, the Urtext Node browser reads your non-whitespace line as the node title. When you edit the lines, the title changes automatically. If for some reason you want to override that and assign a title manually, add a line to the metadata block:
 
-			title: < Title Of Your Node >
+		title: < Title Of Your Node >
+
+Linking Nodes:
+--------------
+	
+	The way to build elaborate writing and notetaking systems is to link many nodes together. Wherever the dash-arrow sign (->) appears in an Urtext project, Urtext will look for a complete filename or node-ID immediately afterward. This reference is treated as a link. Pressing Shift-Ctrl-/ on a link containing a link will open the linked node.
+
+	Note that linking does not require a full filename, only a 14-digit Node ID. Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. This works because all Node IDs are unique.
+
+	Two commands accessible from the Command Pallette make linking quick and easy:
+
+	Link To ...
+		Links FROM the current node TO another node which you can select in the selection panel. When you select a node in the selection panel, a link to that node will be inserted at the cursor.
+
+	Link From ...
+		Links TO the current node FROM another node. When you select this command, a link to the current node will be copied to the clipboard. You can then paste the reference into the node you open in the selection panel 
+
+
+Nodeviews:
+----------
+
+
+
+
+Organization:
+-------------
+	
+	Urtext utilizes no file tree. All nodes are kept in the same folder. To link nodes to reference materials such as images, PDFs, etc., use subfolders such as /img, /pdf, etc.
+
+	In place of a fixed file tree, Urtext utilizes nodeviews. A nodeview is a structured list or diagram of many nodes, itself written in plain text. It works like a virtual file tree. Once you have a node view, you can navigate it like a file tree, either by opening each link manually (Shift-Ctrl-/) or by turning on Traverse mode (Ctrl-R). Ctrl-R will open a second pane in Sublime and show the node 
+
+	You can have as many different nodeviews, even of the same group of nodes, as you want.
+
+Metadata:
+---------
+
+	At the bottom of every file is a separator of twelve consecutive dashes starting and ending a single line. This signals that everything below it is metadata. Metadata is written in tags of a single line each in the formnat format:
+		
+			<tag name> : <optional tag value> <optional tag timestamp> 
+
+	The uses for these are left entirely open-ended. 
+
+		Reserved words in metadata:
+
+				There are only a few reserved words.
+
+
+
+Timestamps:
+-----------
+	
+	Timestamps: Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime, insert one anywhere by pressing Command-T. Timestamps can be written inline or as elements of metadata (see below). Urtext parses timestamps throughout the project for many uses.
+
+Node IDs:
+---------
+
+	Node files have 14-digit names with .txt extension. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. We don't use the file-created or -modified date metadata because that can be too easily modified under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that commonly have very limited or fussy file system sorting and viewing capabilities. 
+
+
+
+
+Filenames:
+----------
+
+	Urtext needs only the 14-digit node ID somewhere in the filename. The rest of the filename is arbitrary. This means you can use any naming convention you want for purposes of like browsing files via the file system and mobile apps, etc.
+
+	Urtext has a built-in feature to rename files from their title
+
+Timeline View:
+--------------
 
 	Another way to view all your nodes is timelime view. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. This shows all your nodes in a timeline, starting with the most recent. To open an node from the timeline, place the cursor anywhere on the line containing the link and press Ctrl-U. 
+	
+Linking to URLS and to Files Outside the Project:
+------------------------------------
 
 	Ctrl-U works to open a link anywhere in an Urtext project. The syntax for making a link is:
 
 		<any text> -> <link to anything> | <any other text>
 
-	Any text between the arrow (->) and the pipe (|) is read as a link. Filepaths are always relative to the Urtext project directory. 
+	Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as -> www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
 
-	You can quickly write a link from one node to another node by selecting Urtext: Link to ... and selecting a file in the Sublime Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as -> www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
-
-	[ FUTURE: Using these features together, you can build virtual file trees called nodegroups. Nodegroups simulate folder structure, however many folder-like views can be imposed on the same nodes. This requires directed acyclic graphs -> https://wiki.gnome.org/action/show/Projects/liblarch?action=show&redirect=liblarch |
-
-	[ FUTURE: When nodes are interlinked, you can get an overview of the linked group 
-	-- also permit browsing of the virtual structure in the Sublime command palette ]
-
-
-	
 Reserved Symbols and Syntax
+---------------------------
+
+		Any text between the arrow (->) and the pipe (|) is read as a link.
 
 
 Ideas Behind Urtext :
+---------------------
 
 		Urtext is a system and a syntax, not an implementation. The syntax is a loose format for writing files in plaintext that can be read by any platform and fil 
 
@@ -110,21 +180,6 @@ Ideas Behind Urtext :
 
 
 
-
-Node files have 14-digit names with .txt extension. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. We don't use the file-created or -modified date metadata because that can be too easily modified under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that commonly have very limited or fussy file system sorting and viewing capabilities. 
-
-Timestamps: Within node text, Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime, insert one anywhere by pressing Command-T. Timestamps can be written inline or as elements of metadata (see below). Urtext parses timestamps throughout the project for many uses.
-
-
-Metadata: At the bottom of every file is a separator of twelve consecutive dashes starting and ending a single line. This signals that everything below it is metadata. Metadata is written in tags of a single line each in the formnat format:
-	
-		<tag name> : <optional tag value> <optional tag timestamp> 
-
-The uses for these are left entirely open-ended. 
-
-	Reserved words in metadata:
-
-			There are only a few reserved words.
 
 
 

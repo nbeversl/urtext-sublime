@@ -205,7 +205,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   def get_file_links_in_file(self,filename):
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
-      #links = re.findall('->\s+(?!http)([\w\.\/]+)',contents) # link RegEx
       nodes = re.findall('->\s(?:[^\|]\s)?(\d{14})(?:\s[^\|]*)?\|?',contents) # link RegEx
       filenames = []
       for node in nodes:
@@ -239,7 +238,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       visited_files = []    
       if filename == '':
         return []
-      files = Urtext.get_all_files(self.view.window())
+      files = Urtext._Urtext_Nodes.get_all_files()
       links_to_file = []
       for file in files:
         with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:

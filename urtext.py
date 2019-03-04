@@ -51,6 +51,11 @@ class NodeList:
         return node
     return None
 
+  def get_all_files(self):
+    all_files = []
+    for node in self.nodes:
+      all_files.append(self.nodes[node].filename)
+    return all_files
 
 def refresh_nodes(window):
   global _Urtext_Nodes 
@@ -133,7 +138,8 @@ class RenameFileCommand(sublime_plugin.TextCommand):
       file.set_index(index)
     old_filename = file.filename
     new_filename = file.rename_file()
-    _Urtext_Nodes[file.node_number] = file
+    node_number = _Urtext_Nodes.get_node_id(old_filename)
+    _Urtext_Nodes.nodes[node_number] = file
     v = self.view.window().find_open_file(old_filename)
     if v:
       v.retarget(os.path.join(path,new_filename))
