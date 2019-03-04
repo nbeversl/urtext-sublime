@@ -74,11 +74,7 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     """
 
     def run(self):
-        if self.window.project_data():
-            # always save in the current project path if there is one
-            path = self.window.project_data()['folders'][0]['path']
-        else:
-            path = '.'
+        path = Urtext.urtext.get_path(self.window)
         now = datetime.datetime.now()
         new_view = self.window.open_file(
             path+'/'+make_reverse_date_filename(now))

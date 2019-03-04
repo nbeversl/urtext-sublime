@@ -5,7 +5,7 @@ import sublime_plugin
 import os
 import re
 import datetime
-import Urtext.urtext as Urtext
+import Urtext
 import pprint
 import logging
 import sys
@@ -96,9 +96,7 @@ class NodeMetadata:
     return groups_list
 
 class ModifiedCommand(sublime_plugin.TextCommand):
-  """
-  Adds a modification timestamp to the metadata.
-  """
+  """ Adds a modification timestamp to the metadata. """
   def run(self, edit):
       if not has_meta(self.view):
         add_separator(self.view)
@@ -170,7 +168,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
 
-    root_file = Urtext.UrtextFile(self.view.file_name(),self.view.window())
+    root_file = Urtext.UrtextFile(os.path.basename(self.view.file_name()),self.view.window())
     root_meta = root_file.metadata
     self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
     self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
@@ -212,7 +210,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       filenames = []
       for node in nodes:
         filenames.append(Urtext.get_file_from_node(node, self.view.window()))
-      print(filenames)
       return filenames
  
   def add_children(self, parent):
@@ -227,8 +224,11 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         continue
       self.backward_visited_files.append(link)
       self.visited_files.append(link)
-      child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
-      child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
+      if link == None:
+        child_nodename = Node('1 Broken Link',parent=parent)
+      else:
+        child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
+        child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
       self.add_children(child_nodename) # bug fix here
 
   def build_backward_node_tree(self, oldest_node, parent=None):

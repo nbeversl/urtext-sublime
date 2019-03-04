@@ -52,3 +52,13 @@ class TraverseFileTree(sublime_plugin.EventListener):
     else:
       sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
 
+class OpenNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+      full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+      links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
+      if len(links) == 0:
+        return
+      window = self.view.window()
+      path = Urtext.get_path(window)
+      filename = Urtext.get_file_from_node(links[0], self.view.window())
+      file_view = window.open_file(os.path.join(path, filename))

@@ -13,6 +13,13 @@ import logging
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
+_Urtext_Files = []
+
+def plugin_loaded():
+  global _Urtext_Files
+  
+  _Urtext_Files = [1]
+
 def get_file_from_node(node, window):
   files = get_all_files(window)
   for file in files:
@@ -40,7 +47,7 @@ def get_all_files(window):
       for line in f:
           pass
       if regexp.search(file):  
-        urtext_files.append(file)
+        urtext_files.append(os.path.basename(file))
     except UnicodeDecodeError:
       print("Urtext Skipping %s, invalid utf-8" % file)  
     except:
@@ -51,8 +58,8 @@ class UrtextFile:
   """ Takes a filename without path, gets path from the project settings """
   def __init__(self, filename, window):
     self.path = get_path(window)
-    self.filename = os.path.basename(filename)
-    self.node_number = re.search(r'\b\d{14}\b|$',filename).group(0)
+    self.filename = filename
+    self.node_number = re.search(r'(\d{14})',filename).group(0)
     self.index = re.search(r'^\d{2}\b|$', filename).group(0)
     self.title = re.search(r'[^\d]+|$',filename).group(0)
     self.metadata = Urtext.meta.NodeMetadata(os.path.join(self.path, self.filename))
@@ -108,6 +115,8 @@ class CopyPathCoolerCommand(sublime_plugin.TextCommand):
     filename = self.view.window().extract_variables()['file_name']
     self.view.show_popup('`'+filename + '` copied to the clipboard')
     sublime.set_clipboard(filename)
+    global _Urtext_Files
+    print(_Urtext_Files)
 
 
 class ShowFilesWithPreview(sublime_plugin.WindowCommand):
