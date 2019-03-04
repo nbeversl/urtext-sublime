@@ -37,7 +37,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
       links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
       filenames = []
       for link in links:
-        filenames.append(Urtext.get_file_from_node(link, window))
+        filenames.append(Urtext._Urtext_Nodes.get_file_name(link))
       if len(filenames) > 0 :
         path = Urtext.get_path(window)
         window.focus_group(1)
@@ -58,7 +58,6 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
       links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
       if len(links) == 0:
         return
-      window = self.view.window()
-      path = Urtext.get_path(window)
-      filename = Urtext.get_file_from_node(links[0], self.view.window())
-      file_view = window.open_file(os.path.join(path, filename))
+      path = Urtext.get_path(self.view.window())
+      filename = Urtext._Urtext_Nodes.get_file_name(links[0])
+      file_view = self.view.window().open_file(os.path.join(path, filename))

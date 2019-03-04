@@ -9,11 +9,9 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """ List snippets of files in a timeline """
     def run(self,edit):
         found_stuff = []
-        files = Urtext.get_all_files(self.view.window())
-        path = Urtext.get_path(self.view.window())
-        for file in files:
-          with open(os.path.join(path, file),'r',encoding='utf-8') as theFile:
-            full_contents = theFile.read()
+        for node in Urtext._Urtext_Nodes.nodes:
+            print(node)
+            full_contents = Urtext._Urtext_Nodes.nodes[node].contents()
             timestamp_regex = '<((?:Sat|Sun|Mon|Tue|Wed|Thu|Fri)\., (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\. \d{2}, \d{4},\s+\d{2}:\d{2} (?:AM|PM))>'
             timestamps = re.findall(timestamp_regex, full_contents)
             for timestamp in timestamps:
@@ -28,12 +26,12 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
               if meta_separator in contents[0:position]:# this is a meta timestamp      
                 contents = contents.split(meta_separator)[0]
                 relevant_text = contents[:100]  # pull the beginning of the file
-                found_thing['filename'] = file
+                found_thing['filename'] = node
                 found_thing['kind'] = 'meta'     
               else: # this is an inline timestamp          
                 contents = contents.split(meta_separator)[0]
-                theFile.seek(0)
-                for num, line in enumerate(theFile, 1):
+                lines = contents.split('\n')
+                for num, line in enumerate(lines, 1):
                   if timestamp in line: 
                     line_number = num
                 if len(contents) < 150:
@@ -45,7 +43,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
                 else:
                    relevant_text = contents[position-150:position+150] # pull the nearby text
                 relevant_text = relevant_text.replace('<'+timestamp+'>','[ ...STAMP... ]')
-                found_thing['filename'] = file+':'+str(line_number)
+                found_thing['filename'] = node+':'+str(line_number)
                 found_thing['kind'] = 'inline'
               found_thing['date'] = datetime_obj
               found_thing['contents'] = relevant_text
@@ -65,7 +63,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
             contents = contents.replace('\n\n','\n')          
           contents = '      ...'+contents.replace('\n','\n|      ')+'...   '
           view.run_command("append", {"characters": '\n|<----'+entry_date+' found as '+entry['kind']})
-          view.run_command("append", {"characters": ' in file -> '+entry['filename']+'\n|\n|'})
+          view.run_command("append", {"characters": ' in node -> '+entry['filename']+'\n|\n|'})
           view.run_command("append", {"characters": contents+'\n|'})
 
     def show_stuff(self, view, sorted_stuff):
