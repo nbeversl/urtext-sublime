@@ -13,7 +13,7 @@ import logging
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
-_Urtext_Nodes = {}
+_Urtext_Nodes = None
 
 class NodeList:
   def __init__(self, window):
@@ -44,6 +44,13 @@ class NodeList:
         print(node)
         return self.nodes[node].filename
     return None
+
+  def from_file_name(self, node_id):
+    for node in self.nodes:
+      if node == node_id:
+        return self.nodes[node]
+    return None
+
 
   def get_node_id(self, filename):
     for node in self.nodes:
@@ -77,15 +84,9 @@ class NodeList:
 
 def refresh_nodes(window):
   global _Urtext_Nodes 
-  if _Urtext_Nodes == {}: # needs better logic
+  if _Urtext_Nodes == None:
     _Urtext_Nodes = NodeList(window)
 
-def get_file_from_node(node, window):
-  files = get_all_files(window)
-  for file in files:
-    if node in file:
-      return file
-  return None
 
 def get_path(window):
   """ Returns the Urtext path from settings """
@@ -172,7 +173,8 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
       show_panel(self.window, self.open_the_file)
 
     def open_the_file(self, filename):
-      new_view = self.window.open_file(filename)
+      path = get_path(self.window)
+      new_view = self.window.open_file(os.path.join(path,filename))
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
     def run(self):

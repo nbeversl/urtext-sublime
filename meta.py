@@ -159,18 +159,24 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # TODO: for files that link to the same place more than one time,
   # show how many times on one tree node, instead of showing multiple nodes
   # would this require building the tree after scanning all files?
-  
+  #
+  # Also this command does not currently utilize the global array, it reads files manually.
+  # Necessary to change it?
+
   def run(self, edit):
+    Urtext.refresh_nodes(self.view.window())
     self.path = Urtext.get_path(self.view.window())
     self.errors = [] 
     self.visited_files = []
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
 
-    root_file = Urtext.UrtextFile(os.path.basename(self.view.file_name()),self.view.window())
-    root_meta = root_file.metadata
-    self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
-    self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_file.filename)
+    root_node_id = Urtext._Urtext_Nodes.get_node_id(os.path.basename(self.view.file_name()))
+    root_node = Urtext._Urtext_Nodes.nodes[root_node_id]
+    root_meta = Urtext._Urtext_Nodes.nodes[root_node_id].metadata
+
+    self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_node.filename)
+    self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_node.filename)
     
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus'
@@ -207,11 +213,13 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       nodes = re.findall('->\s(?:[^\|]\s)?(\d{14})(?:\s[^\|]*)?\|?',contents) # link RegEx
       filenames = []
       for node in nodes:
-        filenames.append(Urtext.get_file_from_node(node, self.view.window()))
+        filenames.append(Urtext._Urtext_Nodes.get_file_name(node))
       return filenames
  
   def add_children(self, parent):
     """ recursively add children """
+    if 'Broken Link' in parent.name:
+      return
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_file_links_in_file(parent_filename)
     self.visited_files = []
@@ -223,7 +231,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       self.backward_visited_files.append(link)
       self.visited_files.append(link)
       if link == None:
-        child_nodename = Node('1 Broken Link',parent=parent)
+        child_nodename = Node('(Broken Link)',parent=parent)
       else:
         child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
@@ -249,6 +257,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       return links_to_file
 
   def add_backward_children(self, parent):
+    if 'Broken Link' in parent.name:
+      return
     visited_files = []    
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_to_file(parent_filename)
