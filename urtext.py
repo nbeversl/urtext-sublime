@@ -36,6 +36,7 @@ class NodeList:
       except:
         print('Urtext Skipping %s' % file)   
     print('URtext has %d files' % len(self.nodes))
+    self.build_tag_info()
 
   def get_file_name(self, node_id):
     for node in self.nodes:
@@ -46,6 +47,7 @@ class NodeList:
 
   def get_node_id(self, filename):
     for node in self.nodes:
+      print(self.nodes[node].filename)
       if self.nodes[node].filename == filename:
         print(node)
         return node
@@ -56,6 +58,22 @@ class NodeList:
     for node in self.nodes:
       all_files.append(self.nodes[node].filename)
     return all_files
+
+  def build_tag_info(self):
+    self.tagnames = {}
+    for node in self.nodes:
+      for entry in self.nodes[node].metadata.entries:
+        if entry.tag_name.lower() != 'title': 
+          if entry.tag_name not in self.tagnames:
+            self.tagnames[entry.tag_name] = {}
+          if not isinstance(entry.value, list):
+            entryvalues = [entry.value]
+          else:
+            entryvalues = entry.value
+          for value in entryvalues:
+            if value not in self.tagnames[entry.tag_name]:
+              self.tagnames[entry.tag_name][value] = []
+            self.tagnames[entry.tag_name][value].append(node)
 
 def refresh_nodes(window):
   global _Urtext_Nodes 
@@ -126,23 +144,22 @@ class UrtextSave(sublime_plugin.EventListener):
 
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    path = get_path(self.view.window())
+    path = Urtext.urtext.get_path(self.view.window())
     filename = self.view.file_name()
-    file = UrtextFile(filename, self.view.window())
-    if file.metadata.get_tag('title') != 'Untitled':
-      title = file.metadata.get_tag('title')[0].strip()
-      file.set_title(title)
-    if file.metadata.get_tag('index') != []:
-      print('setting new index')
-      index = file.metadata.get_tag('index')[0].strip()
-      file.set_index(index)
-    old_filename = file.filename
-    new_filename = file.rename_file()
-    node_number = _Urtext_Nodes.get_node_id(old_filename)
-    _Urtext_Nodes.nodes[node_number] = file
+    node = _Urtext_Nodes.get_node_id(os.path.basename(filename))
+    print(node) 
+    title = _Urtext_Nodes.nodes[node].metadata.get_tag('title')[0].strip()
+    index = _Urtext_Nodes.nodes[node].metadata.get_tag('index')
+    if index != []:
+       _Urtext_Nodes.nodes[node].set_index(index)     
+    _Urtext_Nodes.nodes[node].set_title(title)
+    old_filename = filename
+    new_filename = _Urtext_Nodes.nodes[node].rename_file()
     v = self.view.window().find_open_file(old_filename)
     if v:
       v.retarget(os.path.join(path,new_filename))
+      v.set_name(new_filename)
+
 
 class CopyPathCoolerCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -151,7 +168,7 @@ class CopyPathCoolerCommand(sublime_plugin.TextCommand):
     sublime.set_clipboard(filename)
 
 class ShowFilesWithPreview(sublime_plugin.WindowCommand):
-    def run(self):     
+    def run(self):
       show_panel(self.window, self.open_the_file)
 
     def open_the_file(self, filename):
@@ -186,11 +203,12 @@ def show_panel(window, main_callback):
   refresh_nodes(window)
   menu = []
   for node_id in _Urtext_Nodes.nodes:
+    print(node_id)
     item = []
     metadata = _Urtext_Nodes.nodes[node_id].metadata
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
     item.append(Urtext.datestimes.date_from_reverse_date(node_id))
-    item.append(metadata.filename)
+    item.append(_Urtext_Nodes.nodes[node_id].filename)
     menu.append(item)
   sorted_menu = sorted(menu,key=lambda item: item[1], reverse=True )
   display_menu = []

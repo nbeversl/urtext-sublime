@@ -33,7 +33,6 @@ class MetadataEntry: # container for a single metadata entry
 class NodeMetadata: 
   def __init__(self, filename): # always take the metadata from the file, not the view.
     self.entries = []
-    self.filename = filename # log the filename as part of the metadata for queries
     with open(filename, 'r', encoding='utf-8') as theFile:
         full_contents = theFile.read()
         theFile.close()
@@ -278,29 +277,33 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("move_to", {"to": "bof"})
 
 class ShowTagsCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    self.found_tags = []
-    self.tagged_files = {}
-    files = Urtext.get_all_files(self.view.window())
-    for file in files:
-      metadata = NodeMetadata(os.path.join(Urtext.get_path(self.view.window()), file))
-      for tag in metadata.get_tag('tags'):
-        if isinstance(tag, str):
-          tag = [ tag ]
-        for item in tag:
-          if item not in self.found_tags: # this is incredibly ugly code. Redo it.
-            self.found_tags.append(item)
-            self.tagged_files[item] = []
-          self.tagged_files[item].append(metadata) # append the full file so title can be shown with filename
-    self.view.window().show_quick_panel(self.found_tags, self.list_files)
 
-  def list_files(self, selected_tag):
-    tag = self.found_tags[selected_tag]
+  def run(self, edit):
+    self.tagnames = [ value for value in Urtext._Urtext_Nodes.tagnames ]
+    self.view.window().show_quick_panel(self.tagnames, self.list_values)
+
+  def list_values(self, index):
+    self.selected_tag = self.tagnames[index]
+    self.values = [ value for value in Urtext._Urtext_Nodes.tagnames[self.selected_tag]]
+    self.values.insert(0, '< all >')
+    self.view.window().show_quick_panel(self.values, self.list_files)
+
+  def list_files(self, index):
+    self.selected_value = self.values[index]
     new_view = self.view.window().new_file()
-    new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % tag})
-    for file in self.tagged_files[tag]:
-      listing = file.get_tag('title')[0] + ' -> ' + file.filename + '\n'    
-      new_view.run_command("insert_snippet", { "contents": listing})       
+    new_view.set_scratch(True)
+    if self.selected_value == '< all >':
+      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % self.selected_value})
+      for value in Urtext._Urtext_Nodes.tagnames[self.selected_tag]:
+        new_view.run_command("insert_snippet", { "contents": value + "\n"})       
+        for node in Urtext._Urtext_Nodes.tagnames[self.selected_tag][value]:
+          new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})   
+        new_view.run_command("insert_snippet", { "contents": "\n"})       
+
+    else:
+      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
+      for node in Urtext._Urtext_Nodes.tagnames[self.selected_tag][self.selected_value]:
+        new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
 
 def has_meta(contents):
   """ 
