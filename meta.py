@@ -181,10 +181,9 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus'
     new_view = self.view.window().new_file()
-
+    
     def render_tree(new_view):
       if not new_view.is_loading():
-        
         render = ''
         for pre, fill, node in RenderTree(self.backward_tree):
           render += ("%s%s" % (pre, node.name)) + '\n'
@@ -201,8 +200,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         render = ''
         for pre, fill, node in RenderTree(self.tree):
           render += ("%s%s" % (pre, node.name)) + '\n'
-        print(render)
-        new_view.run_command("insert", { "contents": render.strip()})
+ 
+        new_view.run_command("insert_snippet", { "contents": render})
         new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
         new_view.set_scratch(True)
       else:
@@ -217,7 +216,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   def get_file_links_in_file(self,filename):
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
-      nodes = re.findall('(?:->\s)(?:[^\|\n\r]*\s)?(\d{14})(?:\s[^\|\n\r])(?:\|)?',contents) # link RegEx
+      nodes = re.findall('(?:->\s)(?:[^\|\r\n]*\s)?(\d{14})',contents) # link RegEx
       filenames = []
       for node in nodes:
         filenames.append(Urtext._Urtext_Nodes.get_file_name(node))
@@ -253,7 +252,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
           contents = this_file.read()
           this_file = Urtext.UrtextFile(filename, self.view.window())
-          links = re.findall('-> [^\|\r\n]*' + this_file.node_number + '[^\|\r\n]*\|?', contents) # link RegEx
+          links = re.findall('->\s[^\|\r\n]*' + this_file.node_number, contents) # link RegEx
           if len(links) > 0:
             links_to_file.append(file)
       return links_to_file
