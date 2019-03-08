@@ -182,27 +182,34 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     window.focus_group(0) # always show the tree on the leftmost focus'
     new_view = self.view.window().new_file()
 
-    render = ''
-    for pre, fill, node in RenderTree(self.backward_tree):
-      render += ("%s%s" % (pre, node.name)) + '\n'
-    render = render.replace('└','┌')    
-    render = render.split('\n')
-    render = render[1:] # avoids duplicating the root node
-    render_upside_down = ''
-    for index in range(len(render)):
-      render_upside_down += render[len(render)-1 - index] + '\n'
-    render_upside_down = ''.join(render_upside_down)
-    new_view.run_command("insert_snippet", { "contents": render_upside_down})
-    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
-  
-    render = ''
-    for pre, fill, node in RenderTree(self.tree):
-      render += ("%s%s" % (pre, node.name)) + '\n'
+    def render_tree(new_view):
+      if not new_view.is_loading():
+        
+        render = ''
+        for pre, fill, node in RenderTree(self.backward_tree):
+          render += ("%s%s" % (pre, node.name)) + '\n'
+        render = render.replace('└','┌')    
+        render = render.split('\n')
+        render = render[1:] # avoids duplicating the root node
+        render_upside_down = ''
+        for index in range(len(render)):
+          render_upside_down += render[len(render)-1 - index] + '\n'
+        render_upside_down = ''.join(render_upside_down)
+        new_view.run_command("insert_snippet", { "contents": render_upside_down})
+        new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+      
+        render = ''
+        for pre, fill, node in RenderTree(self.tree):
+          render += ("%s%s" % (pre, node.name)) + '\n'
+        print(render)
+        new_view.run_command("insert", { "contents": render.strip()})
+        new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+        new_view.set_scratch(True)
+      else:
+        sublime.set_timeout(lambda: render_tree(new_view), 10)
     
-    new_view.run_command("insert_snippet", { "contents": render})
-    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
-    new_view.set_scratch(True)
-    
+    render_tree(new_view)
+
   def build_node_tree(self, oldest_node, parent=None):
       self.tree = Node(oldest_node)
       self.add_children(self.tree)
@@ -210,7 +217,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   def get_file_links_in_file(self,filename):
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as this_file:
         contents = this_file.read()
-      nodes = re.findall('->\s(?:[^\|]\s)?(\d{14})(?:\s[^\|]*)?\|?',contents) # link RegEx
+      nodes = re.findall('(?:->\s)(?:[^\|\n\r]*\s)?(\d{14})(?:\s[^\|\n\r])(?:\|)?',contents) # link RegEx
       filenames = []
       for node in nodes:
         filenames.append(Urtext._Urtext_Nodes.get_file_name(node))
@@ -218,17 +225,13 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
  
   def add_children(self, parent):
     """ recursively add children """
-    if 'Broken Link' in parent.name:
-      return
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_file_links_in_file(parent_filename)
-    self.visited_files = []
     for link in links:
       if link in self.visited_files:
         child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
-      self.backward_visited_files.append(link)
       self.visited_files.append(link)
       if link == None:
         child_nodename = Node('(Broken Link)',parent=parent)
@@ -242,7 +245,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       self.add_backward_children(self.backward_tree)
 
   def get_links_to_file(self, filename):
-      visited_files = []    
       if filename == '':
         return []
       files = Urtext._Urtext_Nodes.get_all_files()
@@ -257,16 +259,14 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       return links_to_file
 
   def add_backward_children(self, parent):
-    visited_files = []    
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_to_file(parent_filename)
     for link in links:   
-      if link in self.visited_files:
+      if link in self.backward_visited_files:
         child_metadata = NodeMetadata(os.path.join(self.path, link))
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
       self.backward_visited_files.append(link)  
-      self.visited_files.append(link)
       link = link.split('/')[-1]
       child_metadata = NodeMetadata(os.path.join(self.path, link))
       child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
