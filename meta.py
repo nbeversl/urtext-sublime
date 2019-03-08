@@ -187,14 +187,14 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       render += ("%s%s" % (pre, node.name)) + '\n'
     render = render.replace('└','┌')    
     render = render.split('\n')
-    render = render[1:]
+    render = render[1:] # avoids duplicating the root node
     render_upside_down = ''
     for index in range(len(render)):
       render_upside_down += render[len(render)-1 - index] + '\n'
     render_upside_down = ''.join(render_upside_down)
     new_view.run_command("insert_snippet", { "contents": render_upside_down})
     new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
-
+  
     render = ''
     for pre, fill, node in RenderTree(self.tree):
       render += ("%s%s" % (pre, node.name)) + '\n'
@@ -251,14 +251,12 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
           contents = this_file.read()
           this_file = Urtext.UrtextFile(filename, self.view.window())
-          links = re.findall('-> [^\|]*' + this_file.node_number + '[^\|]*\|?', contents) # link RegEx
+          links = re.findall('-> [^\|\r\n]*' + this_file.node_number + '[^\|\r\n]*\|?', contents) # link RegEx
           if len(links) > 0:
             links_to_file.append(file)
       return links_to_file
 
   def add_backward_children(self, parent):
-    if 'Broken Link' in parent.name:
-      return
     visited_files = []    
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_to_file(parent_filename)

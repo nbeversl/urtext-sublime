@@ -41,7 +41,6 @@ class NodeList:
   def get_file_name(self, node_id):
     for node in self.nodes:
       if node == node_id:
-        print(node)
         return self.nodes[node].filename
     return None
 
@@ -54,9 +53,7 @@ class NodeList:
 
   def get_node_id(self, filename):
     for node in self.nodes:
-      print(self.nodes[node].filename)
       if self.nodes[node].filename == filename:
-        print(node)
         return node
     return None
 
@@ -148,7 +145,6 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     path = Urtext.urtext.get_path(self.view.window())
     filename = self.view.file_name()
     node = _Urtext_Nodes.get_node_id(os.path.basename(filename))
-    print(node) 
     title = _Urtext_Nodes.nodes[node].metadata.get_tag('title')[0].strip()
     index = _Urtext_Nodes.nodes[node].metadata.get_tag('index')
     if index != []:
@@ -205,7 +201,6 @@ def show_panel(window, main_callback):
   refresh_nodes(window)
   menu = []
   for node_id in _Urtext_Nodes.nodes:
-    print(node_id)
     item = []
     metadata = _Urtext_Nodes.nodes[node_id].metadata
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
@@ -242,8 +237,6 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
         if (file_name is not None and os.path.isfile(file_name)):
             node_id = _Urtext_Nodes.get_node_id(os.path.basename(file_name))
-            print(os.path.basename(file_name))
-            print(node_id)
             os.remove(file_name)
             _Urtext_Nodes.nodes.pop(node_id)
 

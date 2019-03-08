@@ -10,6 +10,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
       if self.view.settings().get('traverse') == 'true':
         self.view.settings().set('traverse','false')
         self.view.set_status('traverse', 'Traverse: Off')
+        self.view.window().set_layout({"cols":[0,1], "rows": [0,1]})
         return
     # if 'traverse' is not in settings or it's false: 
     self.view.settings().set('traverse', 'true')
