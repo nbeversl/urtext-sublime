@@ -180,8 +180,9 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus'
-    new_view = self.view.window().new_file()
-    
+    new_view = window.new_file()
+    window.focus_view(new_view)
+
     def render_tree(new_view):
       if not new_view.is_loading():
         render = ''
@@ -193,15 +194,17 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
         render_upside_down = ''
         for index in range(len(render)):
           render_upside_down += render[len(render)-1 - index] + '\n'
-        render_upside_down = ''.join(render_upside_down)
-        new_view.run_command("insert_snippet", { "contents": render_upside_down})
+        for line in render_upside_down:
+          new_view.run_command("insert_snippet", { "contents": line })
         new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
       
         render = ''
         for pre, fill, node in RenderTree(self.tree):
           render += ("%s%s" % (pre, node.name)) + '\n'
  
-        new_view.run_command("insert_snippet", { "contents": render})
+        render = render.split('\n')
+        for line in render:
+          new_view.run_command("insert_snippet", { "contents": line+'\n'})
         new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
         new_view.set_scratch(True)
       else:
