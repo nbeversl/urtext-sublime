@@ -37,8 +37,9 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
                 self.view.show_popup('Error.')
 
 
-# copies the file to a new node with a backreference.
+
 class UpdateFileCommand(sublime_plugin.TextCommand):
+    """ copies the file to a new node with a backreference."""
     def run(self, edit):
         contents = self.view.substr(sublime.Region(0, self.view.size()))
         self.contents = Urtext.meta.clear_meta(contents)
@@ -72,12 +73,10 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     """
     Creates a new file with reverse-dated filename and initial metadata
     """
-
     def run(self):
         path = Urtext.urtext.get_path(self.window)
         now = datetime.datetime.now()
-        new_view = self.window.open_file(
-            path+'/'+make_reverse_date_filename(now))
+        new_view = self.window.open_file(os.path.join(path,make_reverse_date_filename(now)))
         sublime.set_timeout(lambda: self.add_meta(new_view, now), 10)
 
     def add_meta(self, view, now):
@@ -89,7 +88,6 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
             view.run_command("move_to", {"to": "bof"})
         else:
             sublime.set_timeout(lambda: self.add_meta(view, now), 10)
-
 
 class ReFile(sublime_plugin.TextCommand):
     def run(self, edit):

@@ -66,7 +66,7 @@ Linking Nodes:
 	Two Command Pallette commands can make linking quick and easy:
 
 	Urtext : Link To ...
-		Links FROM the currently viewed node TO another node which you can select in the selection panel. When you select a node in the quick panel, a link to that node will be inserted at the cursor.
+		Links from the currently viewed node to another node which you can select in the selection panel. When you select a node in the quick panel, a link to that node will be inserted at the cursor.
 
 	Urtext: Link From ...
 		Links TO the current node FROM another node. When you select this command, a link to the current node will be copied to the clipboard. You can then paste the reference into the node you open in the quick panel. 
@@ -74,7 +74,7 @@ Linking Nodes:
 Seeing Node Relationships:
 --------------------------
 
-	Once two or more nodes are interlinked, you can view a tree of all nodes that link into and out of a given node, to any depth. Start by viewing any node either containing a link or having another node containing a link to itself. Select "Urtext: Show Node Relationships ... " from the Command Palette. This will write a nodeview into a new buffer showing a horizontal tree.
+	When two or more nodes are interlinked, you can view a tree of all nodes that link into and out of a given node, to any depth. Start by viewing any node either containing a link or having another node containing a link to itself. Select "Urtext: Show Node Relationships ... " from the Command Palette.
 
 File Organization:
 ------------------

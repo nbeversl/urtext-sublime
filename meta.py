@@ -128,7 +128,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   def find_oldest_node(self, filename):
     """ Locate the oldest node by recursively following 'pulled from' backlinks """
     oldest_known_filename = filename
-    this_meta = Urtext.UrtextFile(filename,self.view.window()).metadata
+    this_meta = Urtext.UrtextNode(filename,self.view.window()).metadata
     if this_meta.get_tag('pulled from'): # 0 = always use first value. should not be pulled from more than one place.
       oldest_known_filename = this_meta.get_tag('pulled from')[0].split(' |')[0].strip(' ->' )
       return self.find_oldest_node(oldest_known_filename)
@@ -171,9 +171,9 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     self.backward_visited_files = []
     self.tree = Node(self.view.file_name())
 
-    root_node_id = Urtext._Urtext_Nodes.get_node_id(os.path.basename(self.view.file_name()))
-    root_node = Urtext._Urtext_Nodes.nodes[root_node_id]
-    root_meta = Urtext._Urtext_Nodes.nodes[root_node_id].metadata
+    root_node_id = Urtext._UrtextProject.get_node_id(os.path.basename(self.view.file_name()))
+    root_node = Urtext._UrtextProject.nodes[root_node_id]
+    root_meta = Urtext._UrtextProject.nodes[root_node_id].metadata
 
     self.build_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_node.filename)
     self.build_backward_node_tree(root_meta.get_tag('title')[0] + ' -> ' + root_node.filename)
@@ -222,7 +222,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       nodes = re.findall('(?:->\s)(?:[^\|\r\n]*\s)?(\d{14})',contents) # link RegEx
       filenames = []
       for node in nodes:
-        filenames.append(Urtext._Urtext_Nodes.get_file_name(node))
+        filenames.append(Urtext._UrtextProject.get_file_name(node))
       return filenames
  
   def add_children(self, parent):
@@ -231,14 +231,14 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     links = self.get_file_links_in_file(parent_filename)
     for link in links:
       if link in self.visited_files:
-        child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
+        child_metadata = Urtext.UrtextNode(link, self.view.window()).metadata
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
       self.visited_files.append(link)
       if link == None:
         child_nodename = Node('(Broken Link)',parent=parent)
       else:
-        child_metadata = Urtext.UrtextFile(link, self.view.window()).metadata
+        child_metadata = Urtext.UrtextNode(link, self.view.window()).metadata
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
       self.add_children(child_nodename) # bug fix here
 
@@ -249,12 +249,12 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   def get_links_to_file(self, filename):
       if filename == '':
         return []
-      files = Urtext._Urtext_Nodes.get_all_files()
+      files = Urtext._UrtextProject.get_all_files()
       links_to_file = []
       for file in files:
         with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
           contents = this_file.read()
-          this_file = Urtext.UrtextFile(filename, self.view.window())
+          this_file = Urtext.UrtextNode(filename, self.view.window())
           links = re.findall('->\s[^\|\r\n]*' + this_file.node_number, contents) # link RegEx
           if len(links) > 0:
             links_to_file.append(file)
@@ -289,12 +289,12 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
 class ShowTagsCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
-    self.tagnames = [ value for value in Urtext._Urtext_Nodes.tagnames ]
+    self.tagnames = [ value for value in Urtext._UrtextProject.tagnames ]
     self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
   def list_values(self, index):
     self.selected_tag = self.tagnames[index]
-    self.values = [ value for value in Urtext._Urtext_Nodes.tagnames[self.selected_tag]]
+    self.values = [ value for value in Urtext._UrtextProject.tagnames[self.selected_tag]]
     self.values.insert(0, '< all >')
     self.view.window().show_quick_panel(self.values, self.list_files)
 
@@ -304,15 +304,15 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     new_view.set_scratch(True)
     if self.selected_value == '< all >':
       new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % self.selected_value})
-      for value in Urtext._Urtext_Nodes.tagnames[self.selected_tag]:
+      for value in Urtext._UrtextProject.tagnames[self.selected_tag]:
         new_view.run_command("insert_snippet", { "contents": value + "\n"})       
-        for node in Urtext._Urtext_Nodes.tagnames[self.selected_tag][value]:
+        for node in Urtext._UrtextProject.tagnames[self.selected_tag][value]:
           new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})   
         new_view.run_command("insert_snippet", { "contents": "\n"})       
 
     else:
       new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
-      for node in Urtext._Urtext_Nodes.tagnames[self.selected_tag][self.selected_value]:
+      for node in Urtext._UrtextProject.tagnames[self.selected_tag][self.selected_value]:
         new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
 
 def has_meta(contents):

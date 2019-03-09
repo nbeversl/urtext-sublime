@@ -13,5 +13,5 @@
     { "caption": "Urtext: Create Node ID from Timestamp", "command":"show_reverse_date_filename"},
     { "caption": "Urtext: Open Node", "command":"open_node"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
-
+    { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
 ] 
