@@ -89,7 +89,7 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
                              "contents": "\n\n\n"})  # (whitespace)
             view.run_command("move_to", {"to": "bof"})
             view.run_command("save")
-            file = Urtext.urtext.UrtextNode(os.path.join(self.path, os.path.basename(view.file_name())), self.window )
+            file = Urtext.urtext.Urtext.UrtextNode(view.file_name())
             Urtext.urtext._UrtextProject.nodes[file.node_number] = file
         else:
             sublime.set_timeout(lambda: self.add_meta(view, now), 10)

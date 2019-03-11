@@ -16,6 +16,7 @@ import logging
 _UrtextProject = None
 
 class Project:
+
   def __init__(self, window):
     self.path = get_path(window)
     self.window = window
@@ -28,13 +29,27 @@ class Project:
         for line in f:
             pass
         if regexp.search(file):  
-          thisfile = UrtextNode(os.path.basename(file), window)
+          thisfile = UrtextNode(os.path.join(self.path, file))
           if thisfile.node_number not in self.nodes:
             self.nodes[thisfile.node_number] = thisfile
+        
       except UnicodeDecodeError:
-        print("Urtext Skipping %s, invalid utf-8" % file)  
-      except:
-        print('Urtext Skipping %s' % file)   
+        print("Urtext Skipping %s, invalid utf-8" % file) 
+        continue
+      except IsADirectoryError:
+        continue
+      #except:
+      #  print('Urtext Skipping %s' % file)   
+      #  continue
+
+      with open(os.path.join(self.path, file),'r',encoding='utf-8') as theFile:
+        contents = theFile.read()
+        theFile.close
+      subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}') # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      if subnode_regexp.search(contents): 
+        sub_node = subnode_regexp.search(contents).group(0)
+        print(sub_node)
+
     print('URtext has %d files' % len(self.nodes))
     self.build_tag_info()
 
@@ -116,17 +131,21 @@ def get_path(window):
 
 class UrtextNode:
   """ Takes a filename without path, gets path from the project settings """
-  def __init__(self, filename, window):
-    self.path = get_path(window)
+  """ Needs to be able to take contents only, with optional filename """
+
+  def __init__(self, filename, contents=''):
     self.filename = filename
+    with open(filename,'r',encoding='utf-8') as theFile:
+      self.contents = theFile.read()
+      theFile.close()
     self.node_number = re.search(r'(\d{14})',filename).group(0)
-    self.title = re.search(r'[^\d]+|$',filename).group(0)
-    self.metadata = Urtext.meta.NodeMetadata(os.path.join(self.path, self.filename))
+    self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
+    self.metadata = Urtext.meta.NodeMetadata(self.contents)
     self.index = self.metadata.get_tag('index')
+    
 
   def set_index(self, new_index):
     self.index = new_index
-
   
   def set_title(self, new_title):
     self.title = new_title
@@ -149,12 +168,6 @@ class UrtextNode:
     os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
     self.filename = new_filename
     return new_filename
-
-  def contents(self):
-    with open(os.path.join(self.path, self.filename),'r',encoding='utf-8') as theFile:
-      full_contents = theFile.read()
-    theFile.close()
-    return full_contents
 
 class UrtextSave(sublime_plugin.EventListener):
   def on_post_save(self, view):

@@ -31,12 +31,8 @@ class MetadataEntry: # container for a single metadata entry
     print('datetimestamp: %s' % self.dtstamp)
 
 class NodeMetadata: 
-  def __init__(self, filename): # always take the metadata from the file, not the view.
+  def __init__(self, full_contents): # always take the metadata from the file, not the view.
     self.entries = []
-    with open(filename, 'r', encoding='utf-8') as theFile:
-        full_contents = theFile.read()
-        theFile.close()
- 
     title_set = False
     raw_meta_data = full_contents.split(meta_separator())[-1]
     meta_lines = raw_meta_data.split('\n')
@@ -143,10 +139,14 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
     path = Urtext.get_path(self.view.window())
     parent_filename = parent.name.split('->')[1].strip()
     try:
-      this_meta = NodeMetadata(os.path.join(path, parent_filename))
+      with open(os.path.join(self.path, parent_filename),'r',encoding='utf-8') as this_file:
+        contents = this_file.read()
+        this_file.close()
     except:
       self.errors.append('Broken link: -> %s\n' % parent_filename)
       return
+    this_meta = NodeMetadata(contents)
+
     for entry in this_meta.entries:
       if entry.tag_name == 'pulled to':
         newer_filename = entry.value.split(' |')[0].strip(' ->' )
@@ -231,14 +231,14 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     links = self.get_file_links_in_file(parent_filename)
     for link in links:
       if link in self.visited_files:
-        child_metadata = Urtext.UrtextNode(link, self.view.window()).metadata
+        child_metadata = Urtext.UrtextNode(os.path.join(self.path, link)).metadata
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
       self.visited_files.append(link)
       if link == None:
         child_nodename = Node('(Broken Link)',parent=parent)
       else:
-        child_metadata = Urtext.UrtextNode(link, self.view.window()).metadata
+        child_metadata = Urtext.UrtextNode(os.path.join(self.path, link)).metadata
         child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
       self.add_children(child_nodename) # bug fix here
 
@@ -254,7 +254,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       for file in files:
         with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:
           contents = this_file.read()
-          this_file = Urtext.UrtextNode(filename, self.view.window())
+          this_file = Urtext.UrtextNode(os.path.join(self.path, filename))
           links = re.findall('->\s[^\|\r\n]*' + this_file.node_number, contents) # link RegEx
           if len(links) > 0:
             links_to_file.append(file)
@@ -264,13 +264,15 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_to_file(parent_filename)
     for link in links:   
-      if link in self.backward_visited_files:
-        child_metadata = NodeMetadata(os.path.join(self.path, link))
+      if link in self.backward_visited_files:   
+        with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:       
+           contents = this_file.read()
+        child_metadata = NodeMetadata(contents)
         child_nodename = Node(' ... ' + child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
         continue
       self.backward_visited_files.append(link)  
       link = link.split('/')[-1]
-      child_metadata = NodeMetadata(os.path.join(self.path, link))
+      child_metadata = NodeMetadata(contents)
       child_nodename = Node(child_metadata.get_tag('title')[0] + ' -> ' + link, parent=parent)
       self.add_backward_children(child_nodename)
   
