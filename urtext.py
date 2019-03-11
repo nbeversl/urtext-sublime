@@ -103,6 +103,7 @@ class Project:
 def refresh_nodes(window):
   global _UrtextProject 
   if _UrtextProject == None:
+    print('_UrtextProject rebuilt')
     _UrtextProject = Project(window)  
 
 def get_path(window):

@@ -9,16 +9,16 @@ What This Is :
 
 	This is an implementation of Urtext in Sublime Text. I call it SublimeUrtext. 
 
-	Urtext is a system for writing and using information in plain text files. 
+	* Urtext is a system for writing and using information in plain text. 
 
-	Sublime is a modern, programmable text editor. 
+	* Sublime is a modern, programmable text editor. 
 
 	This is Urtext inside of Sublime.
 
 How to set it up : 
 ----------------
 
-	- You'll need an empty Sublime Project. Create one by opening a new empty folder (File -> Open) and then save it as a project, Project -> Save Project As ...
+	- You'll need an empty Sublime Project. Create one by opening a new empty folder (File -> Open) and then save it as a project (Project -> Save Project As ...).
 
 	- You are prompted to save a file with a .sublime-project extension. Name it anything, save it anywhere you like. For simplicity, you could save it inside the empty folder you just created.
 
@@ -43,23 +43,23 @@ How to set it up :
 			    
 			}
 
-	The "urtext_path" value is the folder where the Urtext plugin will look for all your Urtext files, no matter your current working directory. This is necessary because Sublime Text frequently changes the working directory for various reasons without explicitly letting you know. Because Urtext only utilizes one folder, this ensures everything is saved and retrieved from the correct folder path, nowhere else.
+	The "urtext_path" is where the Urtext plugin will look for all your Urtext files, no matter your current working directory. This is necessary because Sublime Text frequently changes the working directory without explicitly letting you know. Because Urtext only utilizes one folder, this ensures everything in the Urtext project is saved and retrieved from the same folder.
 
-	- Whenever you want to use your project, just select Project -> Quick Switch Project (Ctrl-Cmd-P), select your Urtext project, and you'll be using the project.
+	Whenever you want to use your project, just select Project -> Quick Switch Project (Ctrl-Cmd-P), select your Urtext project, and you'll be using the project.
 
 Getting Started:
 ---------------
 
-	Text content is kept in nodes. Think of a node as a piece of paper. Nodes can be any length. To create a new node press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename, Urtext does that.
+	Text content is kept in nodes. Think of a node as a blank piece of paper. Nodes can be any length. To create a new node press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename or interact with a file system dialog. Urtext does that.
 
-	Every new node starts with some whitespace on top and a metadata block at the bottom. Metadata initially includes the creation date and the node filename. The cursor is placed at the top. By default, the first non-whitespace line is read as a node title. Write a title and anything else into the node. Save it with Command-S. Create another file the same way. Write something in it. Save it.
+	Every new node has whitespace on top and a metadata block at the bottom. Metadata initially includes the creation date and the filename. By default, the first non-whitespace line is read as a node title. Write a title and anything else into the node. Save it with Command-S. Create another file the same way. Write something in it. Save it.
 
 	Now you have multiple nodes. To browse your nodes, press Command-E (Mac) or select "Urtext: Show All Nodes" from the Sublime command palette (Shift-Command-P). By default, nodes are sorted by their creation datestamp, with the most recent first. They can also be sorted by index (see below). Find a node by typing part of its title. Open a node by selecting it and pressing enter.
 
 Linking Nodes:
 --------------
 	
-	The way to build more elaborate writing systems is to link nodes together. Wherever the dash-arrow sign (->) appears in an Urtext node, Urtext will look for a complete filename or node-ID immediately or shortly afterward. This is treated as a link. Press Shift-Ctrl-/ on a line containing a linkto open the linked node. 
+	The way to build elaborate writing systems is to link nodes together. Wherever the dash-arrow sign (->) appears in an Urtext node, Urtext will look for a node-ID immediately or shortly afterward. This is treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the linked node. 
 
 	Note that linking does not require a full filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. This works because all Node IDs are unique. See below for more information on file naming and Node IDs.
 
