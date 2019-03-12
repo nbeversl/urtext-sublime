@@ -39,9 +39,10 @@ class Project:
         continue
       except IsADirectoryError:
         continue
-      except:
-        print('Urtext Skipping %s' % file)   
-        continue
+      #except:
+      #  print('Urtext Skipping %s' % file)   
+      #  continue
+      self.build_sub_nodes(file)
 
     print('URtext has %d files' % len(self.nodes))
     self.build_tag_info()
@@ -112,18 +113,18 @@ class Project:
       #
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
         contents = theFile.read()
-        theFile.close
-      node_number = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now()).strip('.txt')    
+        theFile.close()
+      # temporary
+      #node_number = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now()).strip('.txt')    
+
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+
       if subnode_regexp.search(contents): 
         sub_contents = subnode_regexp.search(contents).group(0)
         sub_contents = sub_contents.strip('{{')
         sub_contents = sub_contents.strip('}}')
         sub_node = UrtextNode(filename, contents=sub_contents)
-        sub_node.title= "animalshit"
-        print('hey')
-        print(node_number)
-        _UrtextProject.nodes[node_number] = sub_node
+        self.nodes[sub_node.node_number] = sub_node
         sub_node.log()
 
 def refresh_nodes(window):
@@ -141,19 +142,23 @@ def get_path(window):
   return path
 
 class UrtextNode:
-  """ Takes a filename without path, gets path from the project settings """
-  """ Needs to be able to take contents only, with optional filename """
+  """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
 
   def __init__(self, filename, contents=''):
     self.filename = filename
     self.contents = contents
+    self.metadata = Urtext.meta.NodeMetadata(self.contents)
     if contents == '':
       with open(filename,'r',encoding='utf-8') as theFile:
         self.contents = theFile.read()
         theFile.close()
-    self.node_number = re.search(r'(\d{14})',filename).group(0)
-    #self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
+        self.node_number = re.search(r'(\d{14})',filename).group(0)
+    else:
+      self.node_number = self.metadata.get_tag('ID')[0]
+    
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
+    #self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
+    
     self.index = self.metadata.get_tag('index')
     
 
@@ -165,7 +170,7 @@ class UrtextNode:
 
   def log(self):
     logging.info(self.node_number)
-    logging.info(self.title)
+    #logging.info(self.title)
     logging.info(self.index)
     logging.info(self.filename)
     logging.info(self.metadata.log())
@@ -187,10 +192,12 @@ class UrtextNode:
 class UrtextSave(sublime_plugin.EventListener):
   def on_post_save(self, view):
     contents = get_contents(view)
-    file = UrtextNode(view.file_name(),contents=contents)
+    file = UrtextNode(view.file_name(), contents=contents)
     global _Urtext_Files
+    print(file.node_number)
     _UrtextProject.nodes[file.node_number] = file
     _UrtextProject.build_sub_nodes(view.file_name())
+
 
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
