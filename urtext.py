@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
 import codecs
 import logging
+import datetime
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
@@ -38,17 +39,9 @@ class Project:
         continue
       except IsADirectoryError:
         continue
-      #except:
-      #  print('Urtext Skipping %s' % file)   
-      #  continue
-
-      with open(os.path.join(self.path, file),'r',encoding='utf-8') as theFile:
-        contents = theFile.read()
-        theFile.close
-      subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}') # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
-      if subnode_regexp.search(contents): 
-        sub_node = subnode_regexp.search(contents).group(0)
-        print(sub_node)
+      except:
+        print('Urtext Skipping %s' % file)   
+        continue
 
     print('URtext has %d files' % len(self.nodes))
     self.build_tag_info()
@@ -64,7 +57,6 @@ class Project:
       if node == node_id:
         return self.nodes[node]
     return None
-
 
   def get_node_id(self, filename):
     for node in self.nodes:
@@ -115,6 +107,25 @@ class Project:
               self.tagnames[entry.tag_name][value] = []
             self.tagnames[entry.tag_name][value].append(node)
 
+  def build_sub_nodes(self, filename):
+      # Build sub-nodes
+      #
+      with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
+        contents = theFile.read()
+        theFile.close
+      node_number = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now()).strip('.txt')    
+      subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      if subnode_regexp.search(contents): 
+        sub_contents = subnode_regexp.search(contents).group(0)
+        sub_contents = sub_contents.strip('{{')
+        sub_contents = sub_contents.strip('}}')
+        sub_node = UrtextNode(filename, contents=sub_contents)
+        sub_node.title= "animalshit"
+        print('hey')
+        print(node_number)
+        _UrtextProject.nodes[node_number] = sub_node
+        sub_node.log()
+
 def refresh_nodes(window):
   global _UrtextProject 
   if _UrtextProject == None:
@@ -135,11 +146,13 @@ class UrtextNode:
 
   def __init__(self, filename, contents=''):
     self.filename = filename
-    with open(filename,'r',encoding='utf-8') as theFile:
-      self.contents = theFile.read()
-      theFile.close()
+    self.contents = contents
+    if contents == '':
+      with open(filename,'r',encoding='utf-8') as theFile:
+        self.contents = theFile.read()
+        theFile.close()
     self.node_number = re.search(r'(\d{14})',filename).group(0)
-    self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
+    #self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
     self.index = self.metadata.get_tag('index')
     
@@ -169,11 +182,15 @@ class UrtextNode:
     self.filename = new_filename
     return new_filename
 
+
+
 class UrtextSave(sublime_plugin.EventListener):
   def on_post_save(self, view):
-    file = UrtextNode(os.path.basename(view.file_name()), view.window())
+    contents = get_contents(view)
+    file = UrtextNode(view.file_name(),contents=contents)
     global _Urtext_Files
     _UrtextProject.nodes[file.node_number] = file
+    _UrtextProject.build_sub_nodes(view.file_name())
 
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -260,7 +277,7 @@ def show_panel(window, main_callback):
   window.show_quick_panel(display_menu, private_callback)
 
 def get_contents(view):
-  contents = view.substr(sublime.Region(0, self.view.size()))
+  contents = view.substr(sublime.Region(0, view.size()))
   return contents
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):

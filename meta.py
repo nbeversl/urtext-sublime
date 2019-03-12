@@ -33,11 +33,17 @@ class MetadataEntry: # container for a single metadata entry
 class NodeMetadata: 
   def __init__(self, full_contents): # always take the metadata from the file, not the view.
     self.entries = []
+    meta = re.compile(r'\/-.*-\/', re.DOTALL)  
+    raw_meta_data = ''
+    for line in re.findall(meta, full_contents):
+      line = line.strip().strip('\t')
+      meta_block = line.strip('-\/').strip('\/-')
+      raw_meta_data += meta_block + '\n'
     title_set = False
-    raw_meta_data = full_contents.split(meta_separator())[-1]
+    raw_meta_data += full_contents.split(meta_separator())[-1]
+    print(raw_meta_data)
     meta_lines = raw_meta_data.split('\n')
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
-
     for line in meta_lines: 
       if line.strip() == '':
         continue
