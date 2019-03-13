@@ -48,24 +48,28 @@ class Project:
     self.build_tag_info()
 
   def get_file_name(self, node_id):
+
     for node in self.nodes:
       if node == node_id:
         return self.nodes[node].filename
     return None
 
   def from_file_name(self, node_id):
+ 
     for node in self.nodes:
       if node == node_id:
         return self.nodes[node]
     return None
 
   def get_node_id(self, filename):
+ 
     for node in self.nodes:
       if self.nodes[node].filename == filename:
         return node
     return None
 
   def get_all_files(self):
+
     all_files = []
     for node in self.nodes:
       all_files.append(self.nodes[node].filename)
@@ -83,6 +87,7 @@ class Project:
 
   def indexed_nodes(self):
     """ returns an array of node IDs of indexed nodes, in indexed order """
+  
     indexed_nodes = []
     for node in self.nodes:
       if self.nodes[node].metadata.get_tag('index') != []:
@@ -93,6 +98,7 @@ class Project:
     return sorted_indexed_nodes
 
   def build_tag_info(self):
+
     self.tagnames = {}
     for node in self.nodes:
       for entry in self.nodes[node].metadata.entries:
@@ -109,13 +115,10 @@ class Project:
             self.tagnames[entry.tag_name][value].append(node)
 
   def build_sub_nodes(self, filename):
-      # Build sub-nodes
-      #
+
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
         contents = theFile.read()
         theFile.close()
-      # temporary
-      #node_number = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now()).strip('.txt')    
 
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
 
@@ -123,23 +126,35 @@ class Project:
         sub_contents = subnode_regexp.search(contents).group(0)
         sub_contents = sub_contents.strip('{{')
         sub_contents = sub_contents.strip('}}')
-        sub_node = UrtextNode(filename, contents=sub_contents)
+        sub_node = UrtextNode(filename, contents=sub_contents)        
         self.nodes[sub_node.node_number] = sub_node
-        sub_node.log()
-
+  
 def refresh_nodes(window):
+
   global _UrtextProject 
   if _UrtextProject == None:
     print('_UrtextProject rebuilt')
     _UrtextProject = Project(window)  
 
 def get_path(window):
+
   """ Returns the Urtext path from settings """
   if window.project_data():
     path = window.project_data()['urtext_path'] # ? 
   else:
     path = '.'
   return path
+
+
+class InsertNodeCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit):
+    node_id = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now())
+    node_wrapper = '{{ \n\n /- ID:'+node_id+' -/ \n\n}}'
+
+    self.view.run_command("insert_snippet", {
+                             "contents": node_wrapper})  # (whitespace)
+    self.view.run_command("save")
 
 class UrtextNode:
   """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
@@ -188,13 +203,10 @@ class UrtextNode:
     return new_filename
 
 
-
 class UrtextSave(sublime_plugin.EventListener):
-  def on_post_save(self, view):
-    contents = get_contents(view)
-    file = UrtextNode(view.file_name(), contents=contents)
+  def on_post_save(self, view):    
     global _Urtext_Files
-    print(file.node_number)
+    file = UrtextNode(view.file_name())
     _UrtextProject.nodes[file.node_number] = file
     _UrtextProject.build_sub_nodes(view.file_name())
 

@@ -106,7 +106,7 @@ def make_reverse_date_filename(date):
     unhour = 23 - int(date.strftime('%H'))
     unminute = 59 - int(date.strftime('%M'))
     unsecond = 59 - int(date.strftime('%S'))
-    undatetime = "{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}.txt".format(
+    undatetime = "{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(
         unyear, unmonth, unday, unhour, unminute, unsecond)
     return undatetime
 
