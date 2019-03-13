@@ -14,5 +14,5 @@
     { "caption": "Urtext: Open Node", "command":"open_node"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
-    { "caption": "Urtext: Insert Node", "command" :"insert_node"},
+    { "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
 ] 

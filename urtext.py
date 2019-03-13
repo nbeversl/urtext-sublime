@@ -22,18 +22,22 @@ class Project:
     self.path = get_path(window)
     self.window = window
     self.nodes = {}
+    self.files = {}
     files = os.listdir(self.path)
     regexp = re.compile(r'\b\d{14}\b')
+    num_files = 0
     for file in files:
       try:
         f = codecs.open(os.path.join(self.path, file), encoding='utf-8', errors='strict')
         for line in f:
             pass
-        if regexp.search(file):  
+        if regexp.search(file):
           thisfile = UrtextNode(os.path.join(self.path, file))
           if thisfile.node_number not in self.nodes:
             self.nodes[thisfile.node_number] = thisfile
-        
+            num_files += 1
+
+
       except UnicodeDecodeError:
         print("Urtext Skipping %s, invalid utf-8" % file) 
         continue
@@ -42,9 +46,11 @@ class Project:
       #except:
       #  print('Urtext Skipping %s' % file)   
       #  continue
+      
       self.build_sub_nodes(file)
+      
 
-    print('URtext has %d files' % len(self.nodes))
+    print('URtext has %d files, %d nodes' % (num_files, len(self.nodes)))
     self.build_tag_info()
 
   def get_file_name(self, node_id):
@@ -115,20 +121,28 @@ class Project:
             self.tagnames[entry.tag_name][value].append(node)
 
   def build_sub_nodes(self, filename):
+      self.files[os.path.basename(filename)] = []
 
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
-        contents = theFile.read()
+        full_file_contents = theFile.read()
         theFile.close()
 
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      #subnode_regexp = re.compile (r'{{((?!{{)(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      # TODO - the second RegEx is better. I'm not sure why it doesn't work.
+      #
+      #
+      remaining_contents = full_file_contents
 
-      if subnode_regexp.search(contents): 
-        sub_contents = subnode_regexp.search(contents).group(0)
-        sub_contents = sub_contents.strip('{{')
-        sub_contents = sub_contents.strip('}}')
-        sub_node = UrtextNode(filename, contents=sub_contents)        
-        self.nodes[sub_node.node_number] = sub_node
-  
+      while subnode_regexp.search(remaining_contents):
+        for sub_contents in subnode_regexp.findall(remaining_contents):
+          stripped_contents = sub_contents.strip('{{')
+          stripped_contents = stripped_contents.strip('}}')
+          sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents)        
+          self.nodes[sub_node.node_number] = sub_node
+          remaining_contents = remaining_contents.replace(sub_contents,'')
+          self.files[os.path.basename(filename)].append(sub_node.node_number)
+
 def refresh_nodes(window):
 
   global _UrtextProject 
@@ -150,7 +164,10 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     node_id = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now())
-    node_wrapper = '{{ \n\n /- ID:'+node_id+' -/ \n\n}}'
+    for region in self.view.sel():
+      selection = self.view.substr(region)
+
+    node_wrapper = '{{ '+selection+'\n\n /- ID:'+node_id+' -/ \n\n}}'
 
     self.view.run_command("insert_snippet", {
                              "contents": node_wrapper})  # (whitespace)
@@ -163,6 +180,7 @@ class UrtextNode:
     self.filename = filename
     self.contents = contents
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
+    self.nested_nodes = []
     if contents == '':
       with open(filename,'r',encoding='utf-8') as theFile:
         self.contents = theFile.read()
@@ -208,7 +226,10 @@ class UrtextSave(sublime_plugin.EventListener):
     global _Urtext_Files
     file = UrtextNode(view.file_name())
     _UrtextProject.nodes[file.node_number] = file
+    for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
+      del _UrtextProject.nodes[node_number]
     _UrtextProject.build_sub_nodes(view.file_name())
+
 
 
 class RenameFileCommand(sublime_plugin.TextCommand):
