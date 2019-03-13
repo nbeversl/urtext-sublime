@@ -13,7 +13,9 @@ contexts:
     - include: task-status
     - match: '^------------$'
       push: meta-block
-
+    - match: '/-'
+      push: meta-block
+    
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
       scope: comment.urtext
@@ -32,7 +34,7 @@ contexts:
     - include: datestamp
     - include: tag-names
     - include: tag-values
-    - match: \-\/
+    - match: '-\/'
       scope: end-comment.urtext
       pop: true
 
@@ -41,7 +43,7 @@ contexts:
       scope: constant.language
 
   tag-names:
-    - match: '^[\w\s]+:'
+    - match: '[\w\s]+:'
       scope: entity.name.tag
 
   tag-values:

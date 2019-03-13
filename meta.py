@@ -41,7 +41,9 @@ class NodeMetadata:
       raw_meta_data += meta_block + '\n'
     title_set = False
     #raw_meta_data += full_contents.split(meta_separator())[-1]
-    meta_lines = raw_meta_data.split('\n')
+    #meta_lines = raw_meta_data.split('\n')
+    meta_lines = re.split(';|\n',raw_meta_data)
+    
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
     for line in meta_lines: 
       if line.strip() == '':

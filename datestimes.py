@@ -47,7 +47,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
         old_filename = self.view.file_name()
         self.old_filename = old_filename.split('/')[-1]
         now = datetime.datetime.now()
-        new_filename = make_reverse_date_filename(now)
+        new_filename = make_reverse_date_filename(now)+'.txt'
         self.view.insert(edit, self.view.size(), '\npulled to: -> '+new_filename +
                          '  | (editorial://open/'+new_filename+'?root=dropbox) ' + now.strftime(timestamp_format))
         self.view.run_command('save')
@@ -77,7 +77,7 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     def run(self):
         self.path = Urtext.urtext.get_path(self.window)
         now = datetime.datetime.now()
-        new_view = self.window.open_file(os.path.join(self.path, make_reverse_date_filename(now)))
+        new_view = self.window.open_file(os.path.join(self.path, make_reverse_date_filename(now)+'.txt'))
         sublime.set_timeout(lambda: self.add_meta(new_view, now), 10)
 
     def add_meta(self, view, now):

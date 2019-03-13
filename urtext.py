@@ -46,7 +46,7 @@ class Project:
       #except:
       #  print('Urtext Skipping %s' % file)   
       #  continue
-      
+      self.files[file] = []
       self.build_sub_nodes(file)
       
 
@@ -121,6 +121,9 @@ class Project:
             self.tagnames[entry.tag_name][value].append(node)
 
   def build_sub_nodes(self, filename):
+      token ='======#########CHILDNODE'
+      token_regex = re.compile(token+'\d{14}')
+
       self.files[os.path.basename(filename)] = []
 
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
@@ -128,20 +131,26 @@ class Project:
         theFile.close()
 
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
-      #subnode_regexp = re.compile (r'{{((?!{{)(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
       # TODO - the second RegEx is better. I'm not sure why it doesn't work.
       #
       #
+      
       remaining_contents = full_file_contents
-
       while subnode_regexp.search(remaining_contents):
         for sub_contents in subnode_regexp.findall(remaining_contents):
-          stripped_contents = sub_contents.strip('{{')
-          stripped_contents = stripped_contents.strip('}}')
+          stripped_contents = sub_contents.strip('{{').strip('}}')
+          childnodes = token_regex.findall(stripped_contents)
+          stripped_contents = re.sub(token_regex,'',stripped_contents)
+          childnodes = token_regex.findall(stripped_contents)
           sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents)        
           self.nodes[sub_node.node_number] = sub_node
-          remaining_contents = remaining_contents.replace(sub_contents,'')
+          position = full_file_contents.find(stripped_contents)
+          self.nodes[sub_node.node_number].position = position
+          remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
+          print(remaining_contents)
           self.files[os.path.basename(filename)].append(sub_node.node_number)
+
 
 def refresh_nodes(window):
 
@@ -178,6 +187,7 @@ class UrtextNode:
 
   def __init__(self, filename, contents=''):
     self.filename = filename
+    self.position = None
     self.contents = contents
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
     self.nested_nodes = []
@@ -187,7 +197,10 @@ class UrtextNode:
         theFile.close()
         self.node_number = re.search(r'(\d{14})',filename).group(0)
     else:
-      self.node_number = self.metadata.get_tag('ID')[0]
+      try:
+        self.node_number = self.metadata.get_tag('ID')[0]
+      except:
+        print('There is is probably a node wrapper without an ID in %s' % self.filename)
     
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
     #self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
@@ -260,17 +273,27 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
     def run(self):
       show_panel(self.window, self.open_the_file)
 
-    def open_the_file(self, filename):
+    def open_the_file(self, selected_option):
       path = get_path(self.window)
-      new_view = self.window.open_file(os.path.join(path,filename))
+      new_view = self.window.open_file(os.path.join(path,selected_option[2])) 
+      if selected_option[3] != None:
+        self.locate_node(selected_option[3], new_view)
 
+    def locate_node(self, position, view):
+      if not view.is_loading(): 
+        line = view.line(position)
+        view.sel().add(line)
+        view.show_at_center(position) 
+      else:
+        sublime.set_timeout(lambda: self.locate_node(position, view), 10)
+         
 class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
     def run(self):
       show_panel(self.window, self.link_to_the_file)
 
-    def link_to_the_file(self, filename):
+    def link_to_the_file(self, selected_option):
       view = self.window.active_view()
-      filename = os.path.basename(filename)
+      filename = os.path.basename(selected_option[2])
       view.run_command("insert", {"characters": ' -> '+ filename + ' | '})
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
@@ -278,8 +301,8 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand): # almost the same code 
       self.current_file = os.path.basename(self.window.active_view().file_name())
       show_panel(self.window, self.link_from_the_file)
 
-    def link_from_the_file(self, filename):
-        new_view = self.window.open_file(filename)
+    def link_from_the_file(self, selected_option):
+        new_view = self.window.open_file(selected_option[2])
         sublime.set_clipboard(' -> ' + self.current_file)
         self.show_tip(new_view)
 
@@ -298,6 +321,7 @@ def show_panel(window, main_callback):
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
     item.append(Urtext.datestimes.date_from_reverse_date(node_id))
     item.append(_UrtextProject.nodes[node_id].filename)
+    item.append(_UrtextProject.nodes[node_id].position)
     menu.append(item)
   for node_id in _UrtextProject.unindexed_nodes():
     item = []
@@ -305,6 +329,7 @@ def show_panel(window, main_callback):
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
     item.append(Urtext.datestimes.date_from_reverse_date(node_id))
     item.append(_UrtextProject.nodes[node_id].filename)
+    item.append(_UrtextProject.nodes[node_id].position)
     menu.append(item)
   display_menu = []
   for item in menu: # there is probably a better way to copy this list.
@@ -312,7 +337,7 @@ def show_panel(window, main_callback):
     display_menu.append(new_item)
 
   def private_callback(index):
-    main_callback(menu[index][2])
+    main_callback(menu[index])
 
   window.show_quick_panel(display_menu, private_callback)
 
@@ -349,5 +374,5 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
         if (file_name is not None and os.path.isfile(file_name)):
             node_id = _UrtextProject.get_node_id(os.path.basename(file_name))
             os.remove(file_name)
-            _UrtextProject.nodes.pop(node_id)
+            del _UrtextProject.nodes[node_id]
 
