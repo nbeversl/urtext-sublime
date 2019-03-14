@@ -8,6 +8,7 @@ import Urtext.meta
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from anytree import Node, RenderTree
+import anytree
 import codecs
 import logging
 import datetime
@@ -120,7 +121,7 @@ class Project:
             self.tagnames[entry.tag_name][value].append(node)
 
   def build_sub_nodes(self, filename):
-      token ='======#########CHILDNODE'
+      token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
 
       self.files[os.path.basename(filename)] = []
@@ -134,22 +135,31 @@ class Project:
       # TODO - the second RegEx is better. I'm not sure why it doesn't work.
       #
       #
-      
+      tree = {}
+      root_node_id = self.get_node_id(filename)
+      tree[root_node_id] = []
+
       remaining_contents = full_file_contents
       while subnode_regexp.search(remaining_contents):
-        for sub_contents in subnode_regexp.findall(remaining_contents):
-          stripped_contents = sub_contents.strip('{{').strip('}}')
-          childnodes = token_regex.findall(stripped_contents)
-          stripped_contents = re.sub(token_regex,'',stripped_contents)
+        for sub_contents in subnode_regexp.findall(remaining_contents):      
+          stripped_contents = sub_contents.strip('{{').strip('}}')        
           childnodes = token_regex.findall(stripped_contents)
           sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents)        
           self.nodes[sub_node.node_number] = sub_node
+          if not sub_node.node_number in tree:
+            tree[sub_node.node_number] = []
+          for child_node in token_regex.findall(stripped_contents): 
+            print(child_node[len(token):])
+            tree[sub_node.node_number].append(child_node[len(token):]) 
+          stripped_contents = re.sub(token_regex,'',stripped_contents)
           identifier_text = '{{'+stripped_contents.split('{{')[0].split('/-')[0].rstrip()
           position = full_file_contents.find(identifier_text) # but the stripped contents may not be in the full contents.
           self.nodes[sub_node.node_number].position = position
           remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
           self.files[os.path.basename(filename)].append(sub_node.node_number)
 
+      print(tree)
+          
 
 def refresh_nodes(window):
 
