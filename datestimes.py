@@ -78,19 +78,16 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
         self.path = Urtext.urtext.get_path(self.window)
         now = datetime.datetime.now()
         new_view = self.window.open_file(os.path.join(self.path, make_reverse_date_filename(now)+'.txt'))
-        sublime.set_timeout(lambda: self.add_meta(new_view, now), 10)
+        self.add_meta(new_view, now)
 
-    def add_meta(self, view, now):
-        Urtext.urtext.refresh_nodes(self.window)
-        if not view.is_loading():
+    def add_meta(self, view, now):        
+        if not view.is_loading():            
             Urtext.meta.add_created_timestamp(view, now)
             Urtext.meta.add_original_filename(view)
             view.run_command("insert_snippet", {
                              "contents": "\n\n\n"})  # (whitespace)
             view.run_command("move_to", {"to": "bof"})
             view.run_command("save")
-            file = Urtext.urtext.Urtext.UrtextNode(view.file_name())
-            Urtext.urtext._UrtextProject.nodes[file.node_number] = file
         else:
             sublime.set_timeout(lambda: self.add_meta(view, now), 10)
 

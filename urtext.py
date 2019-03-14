@@ -37,7 +37,6 @@ class Project:
             self.nodes[thisfile.node_number] = thisfile
             num_files += 1
 
-
       except UnicodeDecodeError:
         print("Urtext Skipping %s, invalid utf-8" % file) 
         continue
@@ -145,16 +144,16 @@ class Project:
           childnodes = token_regex.findall(stripped_contents)
           sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents)        
           self.nodes[sub_node.node_number] = sub_node
-          position = full_file_contents.find(stripped_contents)
+          identifier_text = '{{'+stripped_contents.split('{{')[0].split('/-')[0].rstrip()
+          position = full_file_contents.find(identifier_text) # but the stripped contents may not be in the full contents.
           self.nodes[sub_node.node_number].position = position
           remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
-          print(remaining_contents)
           self.files[os.path.basename(filename)].append(sub_node.node_number)
 
 
 def refresh_nodes(window):
 
-  global _UrtextProject 
+  global _UrtextProject
   if _UrtextProject == None:
     print('_UrtextProject rebuilt')
     _UrtextProject = Project(window)  
@@ -186,7 +185,7 @@ class UrtextNode:
   """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
 
   def __init__(self, filename, contents=''):
-    self.filename = filename
+    self.filename = os.path.basename(filename)
     self.position = None
     self.contents = contents
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
@@ -235,18 +234,29 @@ class UrtextNode:
 
 
 class UrtextSave(sublime_plugin.EventListener):
+
   def on_post_save(self, view):    
-    global _Urtext_Files
-    file = UrtextNode(view.file_name())
-    _UrtextProject.nodes[file.node_number] = file
-    for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
-      del _UrtextProject.nodes[node_number]
-    _UrtextProject.build_sub_nodes(view.file_name())
+    global _UrtextProject
+  
+    try: # not a new file
+      file = UrtextNode(view.file_name())
+      _UrtextProject.nodes[file.node_number] = file
+      for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
+        del _UrtextProject.nodes[node_number]
+      _UrtextProject.build_sub_nodes(view.file_name())
 
-
-
+    except KeyError: # new file
+      print('making new file=')
+      file = Urtext.urtext.UrtextNode(view.file_name())
+      print(file.filename)
+      _UrtextProject.nodes[file.node_number] = file
+      _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
+      for s in _UrtextProject.nodes:
+        print(_UrtextProject.nodes[s].metadata.get_tag('title'))
+ 
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
+    global _UrtextProject
     path = Urtext.urtext.get_path(self.view.window())
     filename = self.view.file_name()
     node = _UrtextProject.get_node_id(os.path.basename(filename))
@@ -261,7 +271,6 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     if v:
       v.retarget(os.path.join(path,new_filename))
       v.set_name(new_filename)
-
 
 class CopyPathCoolerCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -313,6 +322,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand): # almost the same code 
         sublime.set_timeout(lambda: self.show_tip(view), 10)
       
 def show_panel(window, main_callback):
+  global _UrtextProject  
   refresh_nodes(window)
   menu = []
   for node_id in _UrtextProject.indexed_nodes():
@@ -347,6 +357,7 @@ def get_contents(view):
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
   def run(self,edit):
+    global _UrtextProject
     refresh_nodes(self.view.window())
     new_view = self.view.window().new_file()
     for node_id in _UrtextProject.indexed_nodes():
@@ -359,20 +370,24 @@ class ShowAllNodesCommand(sublime_plugin.TextCommand):
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
-        window = sublime.active_window()
-        view = sublime.Window.active_view(window)
-        file_name = view.file_name()
-        message = "Are you sure you want to delete '{}'?"
-        message = message.format(file_name)
-    
-        if not sublime.ok_cancel_dialog(message):
-            return
-        if view.is_dirty():
-            view.set_scratch(True)
-        window.run_command('close_file')
+        global _UrtextProject
+        file_name = self.view.file_name()
+        if self.view.is_dirty():
+            self.view.set_scratch(True)
+        self.view.window().run_command('close_file')
 
-        if (file_name is not None and os.path.isfile(file_name)):
-            node_id = _UrtextProject.get_node_id(os.path.basename(file_name))
-            os.remove(file_name)
-            del _UrtextProject.nodes[node_id]
+        # delete it from the file system
+        os.remove(file_name)
+                
+        # delete its inline nodes from the Project node array:
+        for node_id in _UrtextProject.files[os.path.basename(file_name)]:
+          del _UrtextProject.nodes[node_id]
+
+        # delete it from the Project node array:
+        node_id = _UrtextProject.get_node_id(os.path.basename(file_name))
+        del _UrtextProject.nodes[node_id]
+
+
+        # delete its filename from the Project file array:
+        del _UrtextProject.files[os.path.basename(file_name)]
 
