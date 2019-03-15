@@ -346,7 +346,7 @@ class UrtextSave(sublime_plugin.EventListener):
       _UrtextProject.build_sub_nodes(view.file_name())
 
     except KeyError: # new file
-     file = Urtext.urtext.UrtextNode(view.file_name())
+      file = Urtext.urtext.UrtextNode(view.file_name())
       _UrtextProject.nodes[file.node_number] = file
       _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
 
