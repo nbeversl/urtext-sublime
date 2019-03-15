@@ -19,6 +19,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     self.view.settings().set('traverse', 'true')
     self.view.set_status('traverse', 'Traverse: On')
 
+  
     #
     # Add another group to the left if needed
     #
@@ -61,19 +62,36 @@ class TraverseFileTree(sublime_plugin.EventListener):
   def on_selection_modified(self, view):
 
     #
-    # TODO:
+    # ? TODO:
     # Add a failsafe in case the user has closed the next group to the left
     # but traverse is still on. 
     #
-
     groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
+    self.content_view = view.window().active_view_in_group(self.active_group)
+    contents = Urtext.get_contents(self.content_view)
+    
+    def move_to_location(view, position, tree_view):
+        if not view.is_loading():
+          view.window().focus_group(self.active_group+1)
+          self.content_view.show_at_center(position)
+          #self.return_to_left(view, tree_view)
+        else:
+          sublime.set_timeout(lambda: move_to_location(view,position), 10)
+
 
     if view.settings().get('traverse') == 'true':
       tree_view = view
+
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
       links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      if len(links) ==0 : # might be an inline node view        
+        link = full_line.strip('└── ').strip('├── ')
+        position = self.content_view.find(link, 0)
+        print(position)
+        move_to_location(view,position,tree_view)      
+      
       filenames = []
       for link in links:
         filenames.append(Urtext._UrtextProject.get_file_name(link))

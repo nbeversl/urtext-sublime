@@ -21,6 +21,7 @@ import datetime
 # Put titles in node trees DONE <Fri., Mar. 15, 2019, 12:34 PM>
 # Put inline node tree displays into viewable buffers DONE <Fri., Mar. 15, 2019, 01:41 PM>
 # Enable traversing of inline nodes
+# Have the node tree auto update on save.
 # update documentation
 # investigate multiple scopes
 # investigate git and diff support
@@ -190,32 +191,67 @@ class Project:
     
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
-    global _UrtextProject
-    filename = self.view.file_name()
-    node_id = _UrtextProject.get_node_id(os.path.basename(filename))
-    groups = self.view.window().num_groups() # copied from traverse. Should refactor
-    active_group = self.view.window().active_group() # 0-indexed
-    if active_group + 1 == groups:
-      groups += 1
-    panel_size = 1 / groups
-    cols = [0]
-    cells = [[0,0,1,1]]
-    for index in range(1,groups):
-      cols.append(cols[index-1]+panel_size)
-      cells.append([index,0,index+1,1])
-    cols.append(1)
-    self.view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
-    self.view.settings().set("word_wrap", False)
-    self.view.window().focus_group(active_group+1)
-    new_view = self.view.window().new_file()
-  
-    def render_tree(view):
-      if not view.is_loading():
-         view.run_command("insert_snippet", {"contents": _UrtextProject.nodes[node_id].tree})
-      else:
-        sublime.set_timeout(lambda: render_tree(view), 10)
 
-    render_tree(new_view)
+    def render_tree(view):
+        if not view.is_loading():
+           view.run_command("insert_snippet", {"contents": _UrtextProject.nodes[node_id].tree})
+        else:
+          sublime.set_timeout(lambda: render_tree(view), 10)
+
+    def locate_view(name):
+      all_views = self.view.window().views()
+      for view in  all_views:
+        if view.name() == name:
+          return view
+      return None
+
+
+    global _UrtextProject
+
+    filename = self.view.file_name()
+    node_id = _UrtextProject.get_node_id(os.path.basename(filename))  
+    tree_name = node_id + 'TREE'
+    tree_view = locate_view(tree_name)
+    #
+    # See if a view is already named.
+    #
+    if tree_view == None:    
+      print ('HEY!')
+    
+      groups = self.view.window().num_groups() # copied from traverse. Should refactor
+      active_group = self.view.window().active_group() # 0-indexed
+      groups += 1
+      
+      # side the panels (refactor this)
+      panel_size = 1 / groups
+      cols = [0]
+      cells = [[0,0,1,1]]
+      for index in range(1,groups):
+        cols.append(cols[index-1]+panel_size)
+        cells.append([index,0,index+1,1])
+      cols.append(1)
+      self.view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+      self.view.settings().set("word_wrap", False)
+      #
+      # end size the panels
+
+      # move everything to the right
+      views = self.view.window().views_in_group(active_group)
+      index = 0
+      for view in views:
+        self.view.window().set_view_index(view, 
+          groups-1, # 0-indexed from 1-indexed value
+          index)  
+        index += 1
+    
+      self.view.window().focus_group(active_group)
+      tree_view = self.view.window().new_file()
+      tree_view.set_name(node_id+'TREE')
+    else:
+      tree_view.erase(edit, sublime.Region(0,1000))
+
+    render_tree(tree_view)
+
 
 def refresh_nodes(window):
 
