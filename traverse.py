@@ -66,7 +66,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
     # Add a failsafe in case the user has closed the next group to the left
     # but traverse is still on. 
     #
-    groups = view.window().num_groups()
+    self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
     self.content_view = view.window().active_view_in_group(self.active_group)
     contents = Urtext.get_contents(self.content_view)
@@ -86,12 +86,15 @@ class TraverseFileTree(sublime_plugin.EventListener):
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
       links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      
       if len(links) ==0 : # might be an inline node view        
         link = full_line.strip('└── ').strip('├── ')
-        position = self.content_view.find(link, 0)
-        print(position)
-        move_to_location(view,position,tree_view)      
-      
+        position = self.content_view.find('{{\s+'+link, 0)
+        line = self.content_view.line(position)
+        self.content_view.sel().add(line)
+        move_to_location(view,position,tree_view)
+        return
+
       filenames = []
       for link in links:
         filenames.append(Urtext._UrtextProject.get_file_name(link))

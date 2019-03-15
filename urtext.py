@@ -20,7 +20,7 @@ import datetime
 # make node finder close without opening a file on escape DONE <Fri., Mar. 15, 2019, 12:25 PM>
 # Put titles in node trees DONE <Fri., Mar. 15, 2019, 12:34 PM>
 # Put inline node tree displays into viewable buffers DONE <Fri., Mar. 15, 2019, 01:41 PM>
-# Enable traversing of inline nodes
+# Enable traversing of inline nodes // DONE, buggy <Fri., Mar. 15, 2019, 05:50 PM>
 # Have the node tree auto update on save.
 # update documentation
 # investigate multiple scopes
@@ -205,7 +205,6 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
           return view
       return None
 
-
     global _UrtextProject
 
     filename = self.view.file_name()
@@ -216,8 +215,6 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
     # See if a view is already named.
     #
     if tree_view == None:    
-      print ('HEY!')
-    
       groups = self.view.window().num_groups() # copied from traverse. Should refactor
       active_group = self.view.window().active_group() # 0-indexed
       groups += 1
@@ -349,11 +346,16 @@ class UrtextSave(sublime_plugin.EventListener):
       _UrtextProject.build_sub_nodes(view.file_name())
 
     except KeyError: # new file
-      print('making new file=')
-      file = Urtext.urtext.UrtextNode(view.file_name())
+     file = Urtext.urtext.UrtextNode(view.file_name())
       _UrtextProject.nodes[file.node_number] = file
       _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
- 
+
+    node_id = _UrtextProject.get_node_id(os.path.basename(view.file_name()))
+    if node_id+'TREE' in [view.name() for view in view.window().views()]:
+      print('HEY!')
+      # not yet working
+      ShowInlineNodeTree.run(view)
+      
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     global _UrtextProject

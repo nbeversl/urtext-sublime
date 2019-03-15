@@ -271,7 +271,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     parent_filename = parent.name.split('->')[1].strip()
     links = self.get_links_to_file(parent_filename)
     for link in links:   
-      with open(os.path.join(self.path, file),'r',encoding='utf-8') as this_file:       
+      with open(os.path.join(self.path, link),'r',encoding='utf-8') as this_file:       
          contents = this_file.read()
       if link in self.backward_visited_files:   
         child_metadata = NodeMetadata(contents)
