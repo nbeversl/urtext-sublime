@@ -7,13 +7,23 @@ import Urtext.datestimes
 import Urtext.meta
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-from anytree import Node, RenderTree
+from anytree import Node, RenderTree, PreOrderIter
 import anytree
 import codecs
 import logging
 import datetime
 
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
+
+# TODOS
+# shading of {{ and }} DONE <Fri., Mar. 15, 2019, 12:24 PM>
+# make node finder close without opening a file on escape DONE <Fri., Mar. 15, 2019, 12:25 PM>
+# Put titles in node trees DONE <Fri., Mar. 15, 2019, 12:34 PM>
+# Put inline node tree displays into viewable buffers DONE <Fri., Mar. 15, 2019, 01:41 PM>
+# Enable traversing of inline nodes
+# update documentation
+# investigate multiple scopes
+# investigate git and diff support
 
 _UrtextProject = None
 
@@ -37,19 +47,21 @@ class Project:
           if thisfile.node_number not in self.nodes:
             self.nodes[thisfile.node_number] = thisfile
             num_files += 1
-
+        else:
+          continue # skip files without Node ID's in the filename
       except UnicodeDecodeError:
         print("Urtext Skipping %s, invalid utf-8" % file) 
         continue
       except IsADirectoryError:
         continue
-      #except:
-      #  print('Urtext Skipping %s' % file)   
-      #  continue
-      self.files[file] = []
+      except:
+        print('Urtext Skipping %s' % file)   
+        continue
+      self.files[os.path.basename(file)] = []
+    
+    for file in self.files:
       self.build_sub_nodes(file)
       
-
     print('URtext has %d files, %d nodes' % (num_files, len(self.nodes)))
     self.build_tag_info()
 
@@ -68,11 +80,8 @@ class Project:
     return None
 
   def get_node_id(self, filename):
- 
-    for node in self.nodes:
-      if self.nodes[node].filename == filename:
-        return node
-    return None
+    regexp = re.compile(r'\b\d{14}\b')
+    return regexp.search(filename).group(0)
 
   def get_all_files(self):
 
@@ -136,6 +145,7 @@ class Project:
       #
       #
       tree = {}
+      filename = os.path.basename(filename)
       root_node_id = self.get_node_id(filename)
       tree[root_node_id] = []
 
@@ -166,13 +176,47 @@ class Project:
       def add_children(parent):
         for child in tree[parent.name]:
           title = self.nodes[child].metadata.get_tag('title')[0]
-          print(title)
           new_node = Node(child, parent=parent)
           add_children(new_node)
       add_children(root)
-      if root_node_id == '79810920003751':
-        print(RenderTree(root))
+
+      tree_render = ''
+      for pre, _, node in RenderTree(root):
+        try:
+           tree_render += "%s%s" % (pre, self.nodes[node.name].metadata.get_tag('title')[0]) + '\n' 
+        except:
+          print('Error parsing node in file: %s' % filename)
+      self.nodes[root_node_id].tree = tree_render
+    
+class ShowInlineNodeTree(sublime_plugin.TextCommand):
+  def run(self, edit):
+    global _UrtextProject
+    filename = self.view.file_name()
+    node_id = _UrtextProject.get_node_id(os.path.basename(filename))
+    groups = self.view.window().num_groups() # copied from traverse. Should refactor
+    active_group = self.view.window().active_group() # 0-indexed
+    if active_group + 1 == groups:
+      groups += 1
+    panel_size = 1 / groups
+    cols = [0]
+    cells = [[0,0,1,1]]
+    for index in range(1,groups):
+      cols.append(cols[index-1]+panel_size)
+      cells.append([index,0,index+1,1])
+    cols.append(1)
+    self.view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+    self.view.settings().set("word_wrap", False)
+    self.view.window().focus_group(active_group+1)
+    new_view = self.view.window().new_file()
   
+    def render_tree(view):
+      if not view.is_loading():
+         view.run_command("insert_snippet", {"contents": _UrtextProject.nodes[node_id].tree})
+      else:
+        sublime.set_timeout(lambda: render_tree(view), 10)
+
+    render_tree(new_view)
+
 def refresh_nodes(window):
 
   global _UrtextProject
@@ -209,6 +253,7 @@ class UrtextNode:
   def __init__(self, filename, contents=''):
     self.filename = os.path.basename(filename)
     self.position = None
+    self.tree = None
     self.contents = contents
     self.metadata = Urtext.meta.NodeMetadata(self.contents)
     self.nested_nodes = []
@@ -366,6 +411,8 @@ def show_panel(window, main_callback):
     display_menu.append(new_item)
 
   def private_callback(index):
+    if index == -1:
+      return
     main_callback(menu[index])
 
   window.show_quick_panel(display_menu, private_callback)

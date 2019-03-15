@@ -11,46 +11,62 @@ contexts:
     - include: datestamp
     - include: link
     - include: task-status
-    - match: '^------------$'
-      push: meta-block
-    - match: '/-'
-      push: meta-block
-    
+    - include: meta-block
+    - include: inline-node
+  
+  inline-node:
+    - match: '{{'
+      scope: punctuation.section.braces.begin.inline_node.urtext    
+      push:        
+        - meta_scope: node_content.urtext
+        - include: meta-block
+        - include: datestamp
+        - match: '}}'
+          scope: punctuation.section.braces.end.inline_node.urtext
+          pop: true
+
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
-      scope: comment.urtext
+      scope: link.urtext
 
   url: # not yet styled
     - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
-      scope: urtext.url_link
+      scope: url_link.urtext
 
   task-status:
     - match: '\s(DONE|REMOVED|TODO|IN PROGRESS)'
       scope: markup.bold
 
   meta-block:
-    - meta_scope: comment.urtext
-      scope: comment.urtext
-    - include: datestamp
-    - include: tag-names
-    - include: tag-values
-    - match: '-\/'
-      scope: end-comment.urtext
-      pop: true
+    - match: '/-'
+      scope: punctuation.section.generic.begin.urtext
+      push:
+        - meta_scope: meta-block.urtext
+        - include: tag-names
+        - include: tag-values
+        - include: datestamp
+        - include: node_id
+        - match: '-/'
+          scope: punctuation.section.generic.end.urtext
+          pop: true
+
+  meta-key-terminator:
+    - match: ';'
+      scope: punctuation.terminator.urtext
 
   datestamp:
     - match: <(Sat|Sun|Mon|Tue|Wed|Thu|Fri)\., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\. \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>
-      scope: constant.language
+      scope: entity.name.struct.datestamp.urtext
 
   tag-names:
     - match: '[\w\s]+:'
-      scope: entity.name.tag
+      scope: entity.name.tag.urtext
 
   tag-values:
     - match: (?<=^tags\:)\s.*(\b^\|\b)
-      scope: entity.name.tag
+      scope: entity.name.value.urtext
 
-  urtext-node:
-    - match: '\b\d{14}\.txt\b'
-      scope: st
+  node_id:
+    - match: '\b\d{14}\b'
+      scope: entity.name.struct.node_id.urtext
 

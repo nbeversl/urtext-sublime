@@ -1,0 +1,41 @@
+{
+	"name": "Urtext Sixteen",
+    "variables": {
+		 "gray": "#CBC8C7",
+		 "almost-invisible": "#F3EEED",
+		 "blue-bright" : "#0661EE",
+	},
+	
+	"rules": [
+			{
+				"scope": "punctuation.section.generic.begin.urtext",
+	  			"foreground": "var(gray)",
+	  		},
+			{
+				"scope": "punctuation.section.generic.end.urtext",
+	  			"foreground": "var(gray)",
+	  		},
+	  		{
+				"scope": "punctuation.section.braces.begin.inline_node.urtext",
+	  			"foreground": "var(almost-invisible)",
+	  		},
+	  		{
+				"scope": "punctuation.section.braces.end.inline_node.urtext",
+	  			"foreground": "var(almost-invisible)",
+	  		},
+	  		
+	  		{
+	  			"scope":"entity.name.struct.datestamp.urtext",
+	  			"foreground": "var(blue-bright)",
+	  		},
+	  		{
+	  			"scope":"entity.name.struct.node_id.urtext",
+	  			"foreground": "#8DE8EE",
+	  		},
+	  		{ 
+            "scope" : "entity.name.tag.urtext",
+            "foreground": "#808CE4"
+            }
+	],
+
+}
