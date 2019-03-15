@@ -149,18 +149,30 @@ class Project:
           if not sub_node.node_number in tree:
             tree[sub_node.node_number] = []
           for child_node in token_regex.findall(stripped_contents): 
-            print(child_node[len(token):])
-            tree[sub_node.node_number].append(child_node[len(token):]) 
+            tree[sub_node.node_number].append(child_node[len(token):])   
           stripped_contents = re.sub(token_regex,'',stripped_contents)
           identifier_text = '{{'+stripped_contents.split('{{')[0].split('/-')[0].rstrip()
-          position = full_file_contents.find(identifier_text) # but the stripped contents may not be in the full contents.
+          position = full_file_contents.find(identifier_text)
           self.nodes[sub_node.node_number].position = position
           remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
           self.files[os.path.basename(filename)].append(sub_node.node_number)
 
-      print(tree)
-          
+      # this is now the root node; get all its children;
+      for child_node in token_regex.findall(remaining_contents):   
+        tree[root_node_id].append(child_node[len(token):])
 
+      root = Node(root_node_id)
+
+      def add_children(parent):
+        for child in tree[parent.name]:
+          title = self.nodes[child].metadata.get_tag('title')[0]
+          print(title)
+          new_node = Node(child, parent=parent)
+          add_children(new_node)
+      add_children(root)
+      if root_node_id == '79810920003751':
+        print(RenderTree(root))
+  
 def refresh_nodes(window):
 
   global _UrtextProject
@@ -258,11 +270,8 @@ class UrtextSave(sublime_plugin.EventListener):
     except KeyError: # new file
       print('making new file=')
       file = Urtext.urtext.UrtextNode(view.file_name())
-      print(file.filename)
       _UrtextProject.nodes[file.node_number] = file
       _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
-      for s in _UrtextProject.nodes:
-        print(_UrtextProject.nodes[s].metadata.get_tag('title'))
  
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
