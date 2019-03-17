@@ -3,17 +3,18 @@ SublimeUrtext Documentation
 Updated: <Mon., Mar. 04, 2019, 05:32 PM>
 Version: 0.4
 
+{{ 	What This Is : 
 
-What This Is : 
---------------
+		{{ Urtext is a syntax for writing, structuring, and reading files in plaintext that can be used on any platform.
+		
+																																													 /- ID:79810915120430; 
+																																													 tag:definition-/ }}
 
-	This is an implementation of Urtext in Sublime Text. I call it SublimeUrtext. 
+		* Sublime is a modern, programmable text editor. 
 
-	* Urtext is a system for writing and using information in plain text. 
+		This is an implementation of Urtext in Sublime Text. I call it Sublime-Urtext. 
 
-	* Sublime is a modern, programmable text editor. 
-
-	This is Urtext inside of Sublime.
+		This is Urtext inside of Sublime.																											 /- ID:79810915120529 -/  }}
 
 How to set it up : 
 ----------------
@@ -162,11 +163,11 @@ Timestamps:
 Filenames:
 ----------
 
-	Other than the 14-digit node ID created by Urtext, file names can be arbitrary. This means you can use any naming convention you want for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename. 
+	Other than the 14-digit node ID created by Urtext, file names are arbitrary. You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename.
 
-	Urtext can rename files automatically from their title and/or index. Renaming by index is useful if you want to see nodes appear in a file system, mobile app, or other app's file browser in the same order as they appear within Sublime. Renaming by title is useful if you want to simulate Urtext's automatic title feature. Note that renamed files still contain the Node ID, since Urtext requires this.
+	Urtext can rename files automatically from their title and/or index. Renaming by index is useful if you want to see nodes appear in a file system, mobile app, or other app's file browser in the same order as they appear within Sublime Urtext. Renaming by title is useful if you want to simulate Urtext's automatic title feature. Note that files renamed using this feature still contain the Node ID, since Urtext requires it.
 
-	To rename a file, select "Rename File from Meta" from the command palette (Command-P). This will rename the file in one of the following formats:
+	To rename a file, select "Rename File from Meta" from the command palette (Command-P). This will rename the file in one of the following schema:
 
 	If an index is present:
 
@@ -181,7 +182,7 @@ Filenames:
 Node IDs:
 ---------
 
-	Nodes have 14-digit ID numbers. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that commonly have very limited or finicky file system sorting and viewing capabilities. 
+	Nodes have 14-digit ID numbers. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that have limited or inconvenient filelist sorting and viewing capabilities. 
 	
 Linking to URLS and to Files Outside the Project:
 ------------------------------------
@@ -197,15 +198,15 @@ Reserved Symbols and Syntax
 
 		Any text between the arrow (->) and the pipe (|) is read as a link.
 
-Coming Soon:
------------
+Syntax Highlighting
+-------------------
 
-		Syntax Highlighting
+		Sublime Urtext extends the Sixteen color scheme in Sublime. It also has a syntax definition file that can be used to add syntax highlighting in other color schemes.
 
 Ideas Behind Urtext :
 ---------------------
 
-		Urtext is a system and a syntax, not an implementation. The syntax is a loose format for writing files in plaintext that can be read by any platform.
+		Urtext is a system and a syntax, not an implementation. Urtext is a loose syntax for writing and structuring files in plaintext that can be read by any platform.
 
 		Urtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. One of the design principles is that each feature should have a pencil and paper analogue.
 

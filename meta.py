@@ -33,17 +33,16 @@ class MetadataEntry: # container for a single metadata entry
 class NodeMetadata: 
   def __init__(self, full_contents):
     self.entries = []
-    meta = re.compile(r'\/-.*-\/', re.DOTALL)
+    meta = re.compile(r'\/-.+?-\/', re.DOTALL) # the problem is this regex.
+    
     raw_meta_data = ''
     for section in re.findall(meta, full_contents):
       meta_block = section.replace('-/','')
       meta_block = meta_block.replace('/-','')
       raw_meta_data += meta_block + '\n'
     title_set = False
-    #raw_meta_data += full_contents.split(meta_separator())[-1]
-    #meta_lines = raw_meta_data.split('\n')
+    raw_meta_data += full_contents.split(meta_separator())[-1] # add bottom of file metadata
     meta_lines = re.split(';|\n',raw_meta_data)
-    
     date_regex = '<(Sat|Sun|Mon|Tue|Wed|Thu|Fri)., (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec). \d{2}, \d{4},\s+\d{2}:\d{2} (AM|PM)>'
     for line in meta_lines: 
       if line.strip() == '':
@@ -56,8 +55,9 @@ class NodeMetadata:
       else:
         date_stamp = None
       if ':' in line:
-        key = line.split(":")[0]
+        key = line.split(":")[0].strip()
         value = ''.join(line.split(":")[1:]).strip()
+        print(key)
         if '|' in value:
           items = value.split('|')
           value = []
@@ -82,7 +82,7 @@ class NodeMetadata:
     """ returns an array of values for the given tagname """ 
     values = []
     for entry in self.entries:
-      if entry.tag_name == tagname:
+      if entry.tag_name.lower() == tagname.lower():
         values.append(entry.value) # allows for multiple tags of the same name
     return values
 
@@ -298,6 +298,7 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
 class ShowTagsCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
+    Urtext._UrtextProject.build_tag_info()
     self.tagnames = [ value for value in Urtext._UrtextProject.tagnames ]
     self.view.window().show_quick_panel(self.tagnames, self.list_values)
 

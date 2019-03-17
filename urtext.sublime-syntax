@@ -12,18 +12,19 @@ contexts:
     - include: link
     - include: task-status
     - include: meta-block
-    - include: inline-node
-  
-  inline-node:
     - match: '{{'
-      scope: punctuation.section.braces.begin.inline_node.urtext    
-      push:        
-        - meta_scope: node_content.urtext
-        - include: meta-block
-        - include: datestamp
-        - match: '}}'
-          scope: punctuation.section.braces.end.inline_node.urtext
-          pop: true
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node
+    - match: '}}'
+      scope: invalid.illegal.stray-brace-end
+  
+  inline-node:    
+      - include: meta-block
+      - include: datestamp
+      - match: '}}'
+        scope: punctuation.section.braces.end.inline_node.urtext
+        pop: true
+      - include: main
 
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'

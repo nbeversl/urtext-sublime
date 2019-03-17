@@ -22,6 +22,7 @@ import datetime
 # Put inline node tree displays into viewable buffers DONE <Fri., Mar. 15, 2019, 01:41 PM>
 # Enable traversing of inline nodes // DONE, buggy <Fri., Mar. 15, 2019, 05:50 PM>
 # Have the node tree auto update on save.
+# Fix indexing not working for node finder
 # update documentation
 # investigate multiple scopes
 # investigate git and diff support
@@ -249,7 +250,6 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
 
     render_tree(tree_view)
 
-
 def refresh_nodes(window):
 
   global _UrtextProject
@@ -397,7 +397,7 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
         view.show_at_center(position) 
       else:
         sublime.set_timeout(lambda: self.locate_node(position, view), 10)
-         
+
 class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
     def run(self):
       show_panel(self.window, self.link_to_the_file)
@@ -428,6 +428,7 @@ def show_panel(window, main_callback):
   refresh_nodes(window)
   menu = []
   for node_id in _UrtextProject.indexed_nodes():
+    print(node_id)
     item = []
     metadata = _UrtextProject.nodes[node_id].metadata
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
