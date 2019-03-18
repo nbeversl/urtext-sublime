@@ -56,9 +56,9 @@ class Project:
         continue
       except IsADirectoryError:
         continue
-      except:
-        print('Urtext Skipping %s' % file)   
-        continue
+      #except:
+      #  print('Urtext Skipping %s' % file)   
+      #  continue
       self.files[os.path.basename(file)] = []
     
     for file in self.files:
@@ -274,7 +274,7 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     for region in self.view.sel():
       selection = self.view.substr(region)
 
-    node_wrapper = '{{ '+selection+'\n\n /- ID:'+node_id+' -/ \n\n}}'
+    node_wrapper = '{{ '+selection+'\n /- ID:'+node_id+' -/ }}'
 
     self.view.run_command("insert_snippet", {
                              "contents": node_wrapper})  # (whitespace)
@@ -392,9 +392,9 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
 
     def locate_node(self, position, view):
       if not view.is_loading(): 
-        line = view.line(position)
-        view.sel().add(line)
         view.show_at_center(position) 
+        view.sel().clear()
+        view.sel().add(sublime.Region(position))
       else:
         sublime.set_timeout(lambda: self.locate_node(position, view), 10)
 

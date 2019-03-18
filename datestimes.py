@@ -83,7 +83,13 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     def add_meta(self, view, now):        
         if not view.is_loading():            
             Urtext.meta.add_created_timestamp(view, now)
-            Urtext.meta.add_original_filename(view)
+            view.run_command("move_to", {"to": "eof"})
+            node_id = make_reverse_date_filename(now)
+            view.run_command("insert_snippet", {
+                             "contents": "/- ID: "+node_id+"-/"})  # (whitespace)
+            view.run_command("insert_snippet", {
+                             "contents": "\n\n\n"})  # (whitespace)
+            view.run_command("move_to", {"to": "bof"})
             view.run_command("insert_snippet", {
                              "contents": "\n\n\n"})  # (whitespace)
             view.run_command("move_to", {"to": "bof"})
