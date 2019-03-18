@@ -64,7 +64,7 @@ contexts:
       scope: entity.name.tag.urtext
 
   tag-values:
-    - match: (?<=^tags\:)\s.*(\b^\|\b)
+    - match: (?<=\w:)\s.*(?:())
       scope: entity.name.value.urtext
 
   node_id:

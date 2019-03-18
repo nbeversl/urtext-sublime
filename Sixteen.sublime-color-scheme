@@ -4,6 +4,7 @@
 		 "gray": "#CBC8C7",
 		 "almost-invisible": "#F3EEED",
 		 "blue-bright" : "#0661EE",
+		 "blue-gray": "#E2E1EF"
 	},
 	
 	"rules": [
@@ -33,9 +34,17 @@
 	  			"foreground": "#8DE8EE",
 	  		},
 	  		{ 
-            "scope" : "entity.name.tag.urtext",
-            "foreground": "#808CE4"
-            }
+        "scope" : "entity.name.tag.urtext",
+        "foreground": "var(blue-gray)"
+        },
+        { 
+        "scope" : "entity.name.value.urtext",
+        "foreground": "var(blue-gray)"
+        }
+
+
 	],
+
+
 
 }
