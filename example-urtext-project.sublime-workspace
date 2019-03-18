@@ -1,0 +1,1168 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"mov",
+				"move_to_location"
+			],
+			[
+				"subli",
+				"sublime"
+			],
+			[
+				"conte",
+				"content_view"
+			],
+			[
+				"new",
+				"new_view"
+			],
+			[
+				"root",
+				"root_node_id"
+			],
+			[
+				"tree",
+				"tree_render"
+			],
+			[
+				"get",
+				"get_node_id"
+			],
+			[
+				"child",
+				"child_node_id"
+			],
+			[
+				"_R",
+				"_Urtext_Files"
+			],
+			[
+				"token",
+				"token_regex"
+			],
+			[
+				"strip",
+				"stripped_contents"
+			],
+			[
+				"meta",
+				"meta-block"
+			],
+			[
+				"selection",
+				"selected_option"
+			],
+			[
+				"selectino",
+				"selected_option"
+			],
+			[
+				"_",
+				"_UrtextProject"
+			],
+			[
+				"U",
+				"_UrtextProject"
+			],
+			[
+				"sub_",
+				"sub_contents"
+			],
+			[
+				"sublim",
+				"sublime_plugin"
+			],
+			[
+				"node",
+				"node_number"
+			],
+			[
+				"date",
+				"date_from_reverse_date"
+			],
+			[
+				"build",
+				"build_sub_nodes"
+			],
+			[
+				"Urtex",
+				"UrtextNode"
+			],
+			[
+				"unindexed",
+				"unindexed_nodes"
+			],
+			[
+				"sor",
+				"sorted_unindexed_nodes"
+			],
+			[
+				"sorted",
+				"sorted_indexed_nodes"
+			],
+			[
+				"index",
+				"indexed_nodes"
+			],
+			[
+				"selected",
+				"selected_value"
+			],
+			[
+				"tag",
+				"tagnames"
+			],
+			[
+				"get_all",
+				"get_all_tags"
+			],
+			[
+				"open",
+				"open_the_file"
+			],
+			[
+				"ge",
+				"get_path"
+			],
+			[
+				"noe",
+				"node_number"
+			],
+			[
+				"Nd",
+				"NodeMetadata"
+			],
+			[
+				"no",
+				"node_number"
+			],
+			[
+				"child_",
+				"child_metadata"
+			],
+			[
+				"true",
+				"True"
+			],
+			[
+				"return",
+				"return_to_left"
+			],
+			[
+				"set",
+				"set_timeout"
+			],
+			[
+				"is",
+				"is_loading"
+			],
+			[
+				"existing",
+				"existing_node"
+			],
+			[
+				"back",
+				"backward_circular_references"
+			],
+			[
+				"links",
+				"links_to_file"
+			],
+			[
+				"Node",
+				"NodeMetadata"
+			],
+			[
+				"Metada",
+				"MetadataEntry"
+			],
+			[
+				"newer",
+				"newer_nodename"
+			],
+			[
+				"oldest_",
+				"find_oldest_node"
+			],
+			[
+				"None",
+				"new_node"
+			],
+			[
+				"oldest",
+				"oldest_known_filename"
+			],
+			[
+				"te",
+				"TextCommand"
+			],
+			[
+				"sub",
+				"sublime_plugin"
+			],
+			[
+				"cona",
+				"container-fluid \tBootstrap 3 Class"
+			],
+			[
+				"cont",
+				"container-fluid \tBootstrap 3 Class"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "meta.py",
+			"settings":
+			{
+				"buffer_size": 15140,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "SublimeUrtext Documentation \n\nUpdated: <Mon., Mar. 04, 2019, 05:32 PM>\nVersion: 0.4\n\n{{ \tWhat This Is  \n\t/- ID:79810915120529 -/ \n\n\t\t{{ \n\t\tUrtext is a syntax for writing, structuring, and reading files in plaintext that can be used on any platform.\n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text editor. \n\n\t\tThis is an implementation of Urtext in Sublime Text. I call it Sublime-Urtext. \n\n\t\tThis is Urtext inside of Sublime. }}\n\n{{ How to set it up : \n\t/- ID:79810913063747 -/ \n\n\t- You'll need an empty Sublime Project. Create one by opening a new empty folder (File -> Open) and then save it as a project (Project -> Save Project As ...).\n\n\t- You are prompted to save a file with a .sublime-project extension. Name it anything, save it anywhere you like. For simplicity, you could save it inside the empty folder you just created.\n\n\t- Open up the .sublime-project file you just saved in Sublime and edit it. Add one line inside the outermost squiggly brackets:\n\t\t\n\t\t\"urtext_path\" : \"<path to your new project folder>\",\n\n\tYour .sublime-project file might look like this:\n\n\t\t\t{\n\t\t\t    \"folders\":\n\t\t\t    [\n\t\t\t        {\n\t\t\t            \"path\": \"/Users/YourName/Documents/new project\",\n\t\t\t        },\n\t\t\t    ],\n\t\t\t    \"urtext_path\" : \"/Users/YourName/Documents/new_project\",\n\t\t\t    \"settings\":\n\t\t\t    {\n\t\t\t        \"tab_size\": 2\n\t\t\t    },\n\t\t\t    \n\t\t\t}\n\n\tThe \"urtext_path\" is where the Urtext plugin will look for all your Urtext files, no matter your current working directory. This is necessary because Sublime Text frequently changes the working directory without explicitly letting you know. Because Urtext only utilizes one folder, this ensures everything in the Urtext project is saved and retrieved from the same folder.\n\n\tWhenever you want to use your project, just select Project -> Quick Switch Project (Ctrl-Cmd-P), select your Urtext project, and you'll be using the project. }}\n\n{{ Getting Started: /- ID:79810913063739 -/\n\n\tText content is kept in nodes. Think of a node as a blank piece of paper. Nodes can be any length. To create a new blank, node press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename or interact with a file system dialog. Urtext does that.\n\n\tEvery new node has whitespace on top and a metadata block at the bottom. Metadata initially includes a node ID. By default, the first non-whitespace line is read as the node title. Write a title and anything else into the node. Save it with Command-S. Create another node the same way. Write something in it. Save it.\n\n\tNow you have multiple nodes. To browse your nodes, press Command-E (Mac) or select \"Urtext: Show All Nodes\" from the Sublime command palette (Shift-Command-P). By default, nodes are sorted by their time of creation, with the most recent first. They can also be sorted by index (see below). Find a node by typing part of its title. Open a node by selecting it and pressing enter. }}\n\n{{ Inline Nodes /- ID:79810913060950 -/ \n\t\n\tYou can insert nodes into existing nodes. Select some content that is already inside an existing node and press Shift-Crtl-Cmd-; (Shift-Control-Command-semicolon). This wraps the existing content into a new node. The syntax for inline nodes is to wrap the content in double squiggly brackets, {{ like this text /- ID:79810913060421 -/ }}.  Inside the double squiggly brackets you also must put a node ID. These are generated automatically by Urtext, but if you want to you can write your own. See Node IDs -> 79810913063619.\n\n}}\n\n{{ Linking Nodes: /- ID:79810913063734 -/\n\n\tYou can build elaborate writing systems by linking nodes together. Wherever the dash-arrow sign (->) appears in an Urtext node, Urtext will look for a node-ID immediately or shortly afterward. This is treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the linked node. \n\n\tNote that linking does not require a full filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. This works because all Node IDs are unique. See below for more information on file naming and Node IDs.\n\n\tTwo Command Pallette commands can make linking quick and easy:\n\n\tUrtext : Link To ...\n\t\tLinks from the currently viewed node to another node which you can select in the selection panel. When you select a node in the quick panel, a link to that node will be inserted at the cursor.\n\n\tUrtext: Link From ...\n\t\tLinks TO the current node FROM another node. When you select this command, a link to the current node will be copied to the clipboard. You can then paste the reference into the node you open in the quick panel. }}\n\n{{ Seeing Node Relationships: /- ID:79810913063730 -/\n\n\tWhen two or more nodes are interlinked, you can view a tree of all nodes that link into and out of a given node, to any depth. Start by viewing any node either containing a link or having another node containing a link to itself. Select \"Urtext: Show Node Relationships ... \" from the Command Palette. }}\n\n{{ File Organization: /- ID:79810913063726 -/\n\t\n\tCurrently Urtext utilizes no file tree. All nodes are kept in a single folder. There are two reasons for this:\n\n\t\t- It makes a single project easy to sync and use across multiple file systems where file and folder paths may not always resolve uniformly.\n\n\t\t- It purposefully avoids the need to interact directly with the file system to sort, organize and find files. Use nodeviews instead. (See below).\n\n\tThe exception is non-plaintext (non-node) files. If you reference (link) image, media, PDF or other types of files from an Urtext project, it is suggested to utilize subfolders of the project folder such as /img, /pdf, etc., with files of like type in the same folder. }}\n\n{{ Nodeviews: /- ID:79810913063723 -/\n\n\tInstead of a file tree, Urtext uses nodeviews. A nodeview is a structured list or diagram of many nodes, itself written in plain text. It works like a virtual file tree.\n\n\tTo make a nodeview, just write several node links into a single node, with or without additional text or formatting. You can structure it however you want: as a list, outline, tab-delimited nesting, in prose, etc.\n\n\tOnce you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second pane view. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.\n\n\tThe status bar at the bottom of the Sublime window will indicate whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal. }}\n\n{{ Metadata: /- ID:79810913063707 -/\n\n\tAt the bottom of every node is a separator of twelve consecutive dashes on a single line. Everything below this separator is metadata. Other than two reserved words (see below), metadata can be have aribitrary names and values, with open-ended length and uses. Names and values of any tags appearing in the metadata block will be indexed automatically.\n\n\tWrite each metadata entry on its own line, in the format:\n\t\t\n\t\t<optional name> : <optional value with optional timestamp> \n\n\tFor example:\n\n\t\t\tPurpose : work-related <Tue., Mar. 05, 2019, 03:25 PM>\n\tOr:\n\n\t\t\tkind: gift list\n\n\tNote that: \n\n\t\t- a colon separates the metadata name from the value \n\n\t\t- All three values are optional. Every non-blank line below the metadata separator will be read as a metadata entry. If you entry no name, that \t\tentry's value will have no name; if you enter no value, the name will have no value, etc.\n\n\t\t- A timestamp anywhere in the value will be indexed as the timestamp for the metadata entry. If you put more than one timestamp in an entry, only the first one is read.\n\t\t\n\t\t- Indexing of metadata names is not case-sensitive.\n\n\tThere are two reserved metadata names:\n\n\t\ttitle:\n\n\t\t\tIf for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:\n\n\t\t\ttitle: < Title Of Node >\n\n\t\tindex:\n\n\t\t\tYou can optionally add a two-digit sort index (00-99) to a node, such as:\n\n\t\t\tindex: 03\n\n\t\t\tIndex tags will sort the files in the node browser (Command-E). Any indexed nodes will before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.\n\n\t\t\tSee Filenames for another way to use for indexes. }}\n\t\n{{ Finding nodes via Metadata: /- ID:79810913063640 -/\n\n\tTo navigate to nodes using their metadata, use the \"Find By Meta\" command in Command Palette. Select the tag name and then \"<all>\" or a tag value. A nodeview matching the selection will be written into a new buffer. }}\n\n{{ Timeline View: /- ID:79810913063637 -/\n\n\tAnother way to view all your nodes is timelime view. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. This shows all your nodes in a timeline, starting with the most recent. To open an node from the timeline, place the cursor anywhere on the line containing the link and press Ctrl-U.  }}\n\n\n{{ Timestamps: /- ID:79810913063635 -/\n\n\tTimestamps: Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime, insert one anywhere by pressing Command-T. Timestamps can be written inline or as elements of metadata (see below). Urtext parses timestamps throughout the project, not only in the metadata block. }}\n\n{{ Filenames: /- ID:79810913063623 -/\n\n\tOther than the 14-digit node ID created by Urtext, file names are arbitrary. You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename.\n\n\tUrtext can rename files automatically from their title and/or index. Renaming by index is useful if you want to see nodes appear in a file system, mobile app, or other app's file browser in the same order as they appear within Sublime Urtext. Renaming by title is useful if you want to simulate Urtext's automatic title feature. Note that files renamed using this feature still contain the Node ID, since Urtext requires it.\n\n\tTo rename a file, select \"Rename File from Meta\" from the command palette (Command-P). This will rename the file in one of the following schema:\n\n\tIf an index is present:\n\n\t\t<index> <title> <node id>.txt\n\n\tIf no index is present:\n\n\t\t<node id> <title>.txt\n\n\tThis system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so. Any naming system will work as long as the node ID is somewhere in the filename.\n\n  }}\n{{ Node IDs: /- ID:79810913063619 -/\n\n\tNodes have 14-digit ID numbers. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that have limited or inconvenient filelist sorting and viewing capabilities. \n\t\n  }}\nLinking to URLS and to Files Outside the Project:\n\n\tCtrl-U works to open a link anywhere in an Urtext project. The syntax for making a link is:\n\n\t\t<any text> -> <link to anything> | <any other text>\n\n\tCommand palette. HTTP (internet) URLs are recognized and open in the default browser, such as -> www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. \n\nReserved Symbols and Syntax\n\n\t\tAny text between the arrow (->) and the pipe (|) is read as a link.\n\nSyntax Highlighting\n\n\t\tSublime Urtext extends the Sixteen color scheme in Sublime. It also has a syntax definition file that can be used to add syntax highlighting in other color schemes.\n\nIdeas Behind Urtext\n\n\t\tUrtext is a system and a syntax, not an implementation. Urtext is a loose syntax for writing and structuring files in plaintext that can be read by any platform.\n\n\t\tUrtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. One of the design principles is that each feature should have a pencil and paper analogue.\n\n\t\tCharacteristics:\n\t\t-------------\n\n\t\tAll in plain text. No proprietary file format or structure.\n\t\tAllow freeform text, without the need to adapt text to an existing system.\n\t\tBe undistracted by manually naming, saving, and renaming of files.\n\t\tPermit customizable metadata.\n\t\tContent must be readable, creatable, and at least partially editable and organizible from a mobile text editing app.\n\t\tBe capable of hyperlinks, both within and without the files. Files should be able to connect to one another.\n\t\tVersion control\n\t\tSyntax highlighting\n\t\tFuzzy search\n\t\tAllow both organized and disorganized use.\n\t\tMust be backward compatible with older systems\n\n\t\tUse of file system:\n\t\t\tNever have to interact directly with a file system dialog from within the Urtext project.\n\t\t\tEvery node in a single folder, subfolders organization scheme.\n\t\t\tFiles of other types are in subfolders labeled by type: /img, /pdf, etc.\n\n\t\tEvery feature has a pencil and paper analogue.\n\t\tLooesly structured but flexible format that can be transferred among platforms, devices and applications. \n\t\tContent remains in plain text. No reliance on proprietary applications, formats, platforms.\n\t\tExtensible, customizable.\n\t\tA system, not an implementation.\n\t\tAllows for metadata without relying on the filesystem\n\n------------\nCreated <Thu., Feb. 07, 2019, 03:14 PM>\nOriginal filename: 79811024084551.txt\ntags: urtext\ntitle: Urtext Documentation\nUpdated: <Tue., Mar. 05, 2019, 03:37 PM>",
+			"file": "01 README 79811024084551.txt",
+			"file_size": 14298,
+			"file_write_time": 131974234560000000,
+			"settings":
+			{
+				"buffer_size": 14299,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Rust/Cargo.sublime-build",
+					""
+				],
+				[
+					"Packages/Rust/Cargo.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/Rust/Cargo.sublime-build",
+					"Test"
+				],
+				[
+					"Packages/Rust/Cargo.sublime-build",
+					"Bench"
+				],
+				[
+					"Packages/Rust/Cargo.sublime-build",
+					"Clean"
+				]
+			],
+			[
+				"Packages/Rust/Cargo.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"show",
+				"Urtext: Show All Nodes"
+			],
+			[
+				"delete",
+				"Urtext: Delete This Node"
+			],
+			[
+				"remove page",
+				"Package Control: Remove Package"
+			],
+			[
+				"open",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"dele",
+				"DeleteCurrentFile: Delete File"
+			],
+			[
+				"rena",
+				"Urtext: Rename File from Meta"
+			],
+			[
+				"ur",
+				"Urtext: Show Nodes"
+			],
+			[
+				"link",
+				"Urtext: Link to ..."
+			],
+			[
+				"dl",
+				"DeleteCurrentFile: Delete File"
+			],
+			[
+				"togg",
+				"Urtext: Toggle Traverse Mode"
+			],
+			[
+				"rename",
+				"Rename File"
+			],
+			[
+				"reous",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"reousr",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"resou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"commit",
+				"Git: Commit"
+			],
+			[
+				"git add",
+				"Git: Add All"
+			],
+			[
+				"res",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"git ",
+				"Git: Commit"
+			],
+			[
+				"git ad",
+				"Git: Add Current File"
+			],
+			[
+				"git commit",
+				"Git: Commit"
+			],
+			[
+				"rosrou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"git",
+				"Git: Commit"
+			],
+			[
+				"meta",
+				"Urtext: Show Metadata"
+			],
+			[
+				"mete",
+				"Urtext: Add Meta to Existing File"
+			],
+			[
+				"resour",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"reour",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"reverse",
+				"Urtext: Show Reverse Filename"
+			],
+			[
+				"urtext",
+				"Urtext: Show Metadata"
+			],
+			[
+				"reou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"timelin",
+				"Urtext: Show Timeline"
+			],
+			[
+				"time",
+				"Urtext: Show Timeline"
+			],
+			[
+				"sreou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"preview",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"open reou",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"re",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"prev",
+				"Urtext: Show Files With Preview"
+			],
+			[
+				"pre",
+				"Urtext: Show Files With Preview"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"resource",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"timeline",
+				"Urtext: Show Timeline"
+			],
+			[
+				"nstall",
+				"Package Control: Install Package"
+			],
+			[
+				"instlalk",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 230.0,
+		"history":
+		[
+			"sublime_plugin.ApplicationCommand.run",
+			"sublime_plugin.ApplicationCommand",
+			"sublime_plugin",
+			"import sublime_plugin",
+			"run",
+			"view.substr",
+			"view",
+			"asdfa",
+			"class ProjectInformation(sublime_plugin.WindowCommand):",
+			"set_path()",
+			"print(folder)",
+			"folder = window.project_data()['folders'][0]['path']",
+			"self.folder = self.window.project_data()['folders'][0]['path']",
+			"print(window.project_data())",
+			"window.project_data()",
+			"window",
+			"window.project_data()",
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext"
+	],
+	"file_history":
+	[
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/example-urtext-project.sublime-project",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/Sixteen.sublime-color-scheme",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/urtext.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/01 README 79811024084551.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/meta.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/datestimes.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/urtext.sublime-commands",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/Default.sublime-keymap",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/urtext.sublime-syntax",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/traverse.py",
+		"/Applications/MAMP/htdocs/index.html",
+		"/Applications/MAMP/htdocs/js/election-results.js",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/tags.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/timeline.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/Default.sublime-settings",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/filenames.py",
+		"/Users/nbeversluis/Documents/ref/79811117083608.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Delete Current File/DeleteCurrentFile.py",
+		"/Users/nbeversluis/Documents/ref/79810927131110.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/79811005051604.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Color Scheme - Default/Mariana.sublime-color-scheme",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/79811013063633.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Color Scheme - Default/Monokai.sublime-color-scheme",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/dependencies.json",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Completion Rules.tmPreferences",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/syntax_test_python_strings.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/CSS/Comments.tmPreferences",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/syntax_test_python.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Python.sublime-syntax",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Regular Expressions (Python).sublime-syntax",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Symbol List.tmPreferences",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Miscellaneous.tmPreferences",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Python/Python.sublime-build",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/79811019070048.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/Urtext.sublime-color-scheme",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/test.sublime-syntax",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/test.yaml",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/untitled.sublime-color.scheme.nate",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/networkx/drawing/nx_pydot.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/open-url/open_url.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/urtext-default.sublime-settings",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Timenow/Timenow.py",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Timenow/Default (OSX).sublime-keymap",
+		"/Users/nbeversluis/Documents/ref/79811027093301.txt",
+		"/Users/nbeversluis/Documents/ref/79811027110457.txt",
+		"/Users/nbeversluis/Documents/ref/79811114084759.txt",
+		"/Users/nbeversluis/Documents/ref/79811030122913.txt",
+		"/Users/nbeversluis/Documents/ref/79811106123037.txt",
+		"/Users/nbeversluis/Documents/ref/79811109112210.txt",
+		"/Users/nbeversluis/Documents/ref/79811100124909.txt",
+		"/Applications/MAMP/htdocs/js/test.js",
+		"/Users/nbeversluis/Desktop/voter-results.php",
+		"/Users/nbeversluis/Documents/ref/img/Screen Shot 2019-01-07 at 4.52.44 PM.png",
+		"/Users/nbeversluis/Documents/ref/79811102131044.txt",
+		"/Users/nbeversluis/Documents/ref/79811106104827.txt",
+		"/Users/nbeversluis/Documents/ref/Screen Shot 2019-01-22 at 12.44.18 PM.png",
+		"/Users/nbeversluis/Documents/ref/Screen Shot 2019-01-07 at 4.52.44 PM.png",
+		"/Users/nbeversluis/Documents/ref/79811107060851.txt",
+		"/Users/nbeversluis/Documents/ref/img/test.png",
+		"/Users/nbeversluis/Documents/ref/79811103120927.txt",
+		"/Users/nbeversluis/Documents/ref/79811114073259.txt",
+		"/Users/nbeversluis/Documents/ref/79811106080616.txt",
+		"/Users/nbeversluis/Documents/ref/79811106063454.txt",
+		"/Users/nbeversluis/Documents/ref/79811106082912.txt",
+		"/Users/nbeversluis/Documents/ref/79811108090627.txt",
+		"/Users/nbeversluis/Documents/ref/79811108133945.txt",
+		"/Users/nbeversluis/Documents/ref/79811107122609.txt",
+		"/Users/nbeversluis/Documents/ref/79811113060212.txt",
+		"/Users/nbeversluis/Documents/ref/79811108090608.txt",
+		"/Users/nbeversluis/Documents/ref/79811108104231.txt",
+		"/Users/nbeversluis/Documents/ref/79811108134058.txt",
+		"/Users/nbeversluis/Documents/ref/79811109083238.txt",
+		"/Users/nbeversluis/Documents/ref/79811109083754.txt",
+		"/Users/nbeversluis/Sites/wttw-homepage/readme.md",
+		"/Users/nbeversluis/Documents/ref/79811109135537.txt",
+		"/Users/nbeversluis/Documents/ref/79811110102636.txt",
+		"/Users/nbeversluis/Documents/ref/79811114132737.txt",
+		"/Users/nbeversluis/Documents/ref/79811114073750.txt",
+		"/Users/nbeversluis/Documents/ref/79811114073808.txt",
+		"/Users/nbeversluis/Documents/ref/79811114073926.txt",
+		"/Users/nbeversluis/Documents/ref/79811114074235.txt",
+		"/Users/nbeversluis/Documents/ref/79811114075241.txt",
+		"/Users/nbeversluis/Documents/ref/79811114075245.txt",
+		"/Users/nbeversluis/Documents/ref/79811116075651.txt",
+		"/Users/nbeversluis/Documents/ref/79811116081519.txt",
+		"/Users/nbeversluis/Documents/ref/79811114085723.txt",
+		"/Users/nbeversluis/Documents/ref/79811116122700.txt",
+		"/Users/nbeversluis/Documents/ref/Passwords.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Open URL/open_url.py",
+		"/Users/nbeversluis/Documents/ref/79811117080405.txt",
+		"/Users/nbeversluis/Documents/ref/79811116075657.txt",
+		"/Users/nbeversluis/Documents/ref/79811117060428.txt",
+		"/Applications/MAMP/htdocs/bootstrap-playground/index.html",
+		"/Users/nbeversluis/Documents/ref/79811117070651.txt",
+		"/Users/nbeversluis/Documents/ref/79811117070339.txt",
+		"/Users/nbeversluis/Documents/ref/79811117064649.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071225.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071147.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071202.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071220.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071440.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/79811117071550.txt",
+		"/Users/nbeversluis/Documents/ref/79811117071501.txt",
+		"/Users/nbeversluis/Documents/ref/ref.sublime-project",
+		"/Users/nbeversluis/Documents/ref/79811117083219.txt",
+		"/Users/nbeversluis/Library/Application Support/Sublime Text 3/Packages/Git/Default.sublime-commands",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/modules/views/README.txt",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/wttwbootstrap/wttw-header.inc",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/wttwbootstrap/wfmt-header.inc",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/wttwbootstrap/page.tpl.php",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/starktutorial/starktutorial.info",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/stark/stark.info",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/starktutorial/stark.info",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/starktutorial/layout.css",
+		"/Users/nbeversluis/.php_history",
+		"/Applications/MAMP/htdocs/basic.php",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/wttwbootstrap/block--block--16.tpl.php",
+		"/Users/nbeversluis/Sites/interactivewttw/sites/all/themes/wttwbootstrap/block--google_admanager.tpl.php",
+		"/Users/nbeversluis/Sites/checkplease/sites/all/themes/wttwbootstrap/node--restaurant.tpl.php",
+		"/Users/nbeversluis/Sites/wfmt/wp-content/plugins/duracelltomi-google-tag-manager/public/frontend.php",
+		"/Users/nbeversluis/Desktop/Bootstrap playground/index.html",
+		"/Users/nbeversluis/Sites/checkplease/sites/all/themes/wttwbootstrap/js/restaurant.js",
+		"/Users/nbeversluis/Desktop/untitled folder/index.html",
+		"/Users/nbeversluis/Desktop/untitled folder/js/popper.min.js",
+		"/Users/nbeversluis/Desktop/index.html",
+		"/Users/nbeversluis/Desktop/jquery-3.3.1.js",
+		"/Users/nbeversluis/Desktop/bootstrap-4.2.1-dist/js/bootstrap.bundle.js",
+		"/Users/nbeversluis/Desktop/bootstrap-4.2.1-dist/css/bootstrap.css"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"sel",
+			"add_created",
+			"newunda",
+			"new_unda",
+			"add_created",
+			"newundat",
+			"addoriginal",
+			"newundat",
+			"insertnode",
+			"new",
+			"strip",
+			"title",
+			"print",
+			"run_command",
+			"showinline",
+			"TREE",
+			"listener",
+			"on_save",
+			"onsave",
+			"sel(",
+			"showlinw",
+			"position",
+			"position'",
+			"position",
+			"center",
+			"is_loading",
+			"showinline",
+			"showline",
+			"set_time",
+			"showinline",
+			"\"insert\"",
+			"showinline",
+			"insert",
+			"render",
+			"if not",
+			"UrtextPro",
+			"global",
+			"save",
+			"print",
+			"get_node_id",
+			"save",
+			"delete",
+			"del",
+			"make_reverse_date_filename",
+			"filename_from",
+			"print",
+			"line",
+			"selection",
+			"sel_",
+			"sel",
+			"insertnode",
+			"insert",
+			"insertnew",
+			"save",
+			"insert",
+			"WrapAsNode",
+			"wrap",
+			"save",
+			"onsave",
+			"    ",
+			"print",
+			"title",
+			"Nodemetadata",
+			"NodeMetadata",
+			"UUrtext",
+			"UrtextNode",
+			"UrtextPath",
+			"UrtextPage",
+			"showtags",
+			"bymeta",
+			".static_nodes",
+			".nodes",
+			"run_command",
+			"command''",
+			"command",
+			"undatified",
+			"_Urtext_Nodes",
+			"NodeList",
+			"UrtextFile",
+			"show",
+			"relationships",
+			"insert",
+			"relationships",
+			"print",
+			"Broken LInk",
+			"refresh_nodes",
+			"get_all_files",
+			"metadata.filename",
+			"rename_file",
+			"get_path",
+			"rename",
+			"print",
+			"is_loading()",
+			"print",
+			"Urtext_Nodes",
+			"_Urtext_nodes",
+			"len",
+			"\n          ",
+			"skipping",
+			"node_",
+			".txt",
+			"print",
+			"nodemetadata",
+			"print",
+			"= NodeMetadata",
+			"print",
+			"some other error",
+			"some other erorr",
+			"link",
+			"log",
+			"og",
+			"print",
+			"showfile",
+			"relationship",
+			"errors",
+			"backward",
+			"Urtext",
+			"GenerateTimeline",
+			"print",
+			"regex",
+			"undatified",
+			"new undatified",
+			"rename",
+			"showfiles",
+			"showall",
+			"\n",
+			"untitled",
+			"print"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			".nodes",
+			".static_nodes",
+			"_UrtextProject",
+			"Project",
+			"UrtextNode"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "meta.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15140,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								856,
+								856
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "01 README 79811024084551.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14299,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6202,
+								6202
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Urtext/urtext.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1529.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 108.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 108.0
+	},
+	"pinned_build_system": "Packages/Rust/Cargo.sublime-build",
+	"project": "example-urtext-project.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"six",
+				"Sixteen.sublime-color-scheme"
+			],
+			[
+				"rea",
+				"01 README 79811024084551.txt"
+			],
+			[
+				"meta",
+				"meta.py"
+			],
+			[
+				"red",
+				"01 README 79811024084551.txt"
+			],
+			[
+				"ur",
+				"urtext.py"
+			],
+			[
+				"key",
+				"Default.sublime-keymap"
+			],
+			[
+				"comm",
+				"urtext.sublime-commands"
+			],
+			[
+				"syn",
+				"urtext.sublime-syntax"
+			],
+			[
+				"tra",
+				"traverse.py"
+			],
+			[
+				"trave",
+				"traverse.py"
+			],
+			[
+				"",
+				"urtext.py"
+			],
+			[
+				"tr",
+				"traverse.py"
+			],
+			[
+				"com",
+				"urtext.sublime-commands"
+			],
+			[
+				"ke",
+				"Default.sublime-keymap"
+			],
+			[
+				"dates",
+				"datestimes.py"
+			],
+			[
+				"date",
+				"datestimes.py"
+			],
+			[
+				"urt",
+				"urtext.py"
+			],
+			[
+				"met",
+				"meta.py"
+			],
+			[
+				"sublim",
+				"urtext.sublime-commands"
+			],
+			[
+				"me",
+				"meta.py"
+			],
+			[
+				"c",
+				"urtext.sublime-commands"
+			],
+			[
+				"cm",
+				"urtext.sublime-commands"
+			],
+			[
+				"re",
+				"01 README 79811024084551.txt"
+			],
+			[
+				"time",
+				"timeline.py"
+			],
+			[
+				"urte",
+				"urtext.py"
+			],
+			[
+				"dat",
+				"datestimes.py"
+			],
+			[
+				"comma",
+				"urtext.sublime-commands"
+			],
+			[
+				"uyr",
+				"urtext.py"
+			],
+			[
+				"u",
+				"urtext.py"
+			],
+			[
+				"da",
+				"datestimes.py"
+			],
+			[
+				"tim",
+				"timeline.py"
+			],
+			[
+				"ti",
+				"timeline.py"
+			],
+			[
+				"fil",
+				"filenames.py"
+			],
+			[
+				"trav",
+				"traverse.py"
+			],
+			[
+				"files",
+				"filenames.py"
+			],
+			[
+				"uer",
+				"urtext.py"
+			],
+			[
+				"file",
+				"filenames.py"
+			],
+			[
+				"urtext",
+				"urtext.py"
+			],
+			[
+				"urtex",
+				"urtext.py"
+			],
+			[
+				"sublime",
+				"urtext.sublime-commands"
+			],
+			[
+				"color",
+				"Urtext.sublime-color-scheme"
+			],
+			[
+				"COMMAND",
+				"urtext.sublime-commands"
+			],
+			[
+				"comman",
+				"urtext.sublime-commands"
+			],
+			[
+				"subli",
+				"urtext.sublime-commands"
+			],
+			[
+				"subel",
+				"urtext.sublime-commands"
+			],
+			[
+				"uret",
+				"urtext.py"
+			],
+			[
+				"dep",
+				"dependencies.json"
+			],
+			[
+				"pass",
+				"Passwords.txt"
+			],
+			[
+				"pas",
+				"Passwords.txt"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "ur",
+		"selected_items":
+		[
+			[
+				"ur",
+				"~/Documents/sublime projects/urtext.sublime-project"
+			],
+			[
+				"e",
+				"~/Library/Application Support/Sublime Text 3/Packages/Urtext/example-urtext-project.sublime-project"
+			],
+			[
+				"",
+				"~/Library/Application Support/Sublime Text 3/Packages/Urtext/example-urtext-project.sublime-project"
+			],
+			[
+				"exa",
+				"~/Library/Application Support/Sublime Text 3/Packages/Urtext/example-urtext-project.sublime-project"
+			],
+			[
+				"r",
+				"~/Documents/sublime projects/ref.sublime-project"
+			],
+			[
+				"ref",
+				"~/Documents/sublime projects/ref.sublime-project"
+			],
+			[
+				"re",
+				"~/Documents/sublime projects/nate-react-example.sublime-project"
+			],
+			[
+				"ins",
+				"/Applications/MAMP/htdocs/playground-site.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": false,
+	"side_bar_visible": false,
+	"side_bar_width": 411.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

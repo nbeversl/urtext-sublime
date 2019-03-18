@@ -31,7 +31,7 @@
 	  		},
 	  		{
 	  			"scope":"entity.name.struct.node_id.urtext",
-	  			"foreground": "#8DE8EE",
+	  			"foreground": "var(almost-invisible)",
 	  		},
 	  		{ 
         "scope" : "entity.name.tag.urtext",

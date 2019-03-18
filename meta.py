@@ -71,7 +71,8 @@ class NodeMetadata:
 
     if title_set == False: # title is the the first many lines if not set
       full_contents = full_contents.strip()
-      first_line = full_contents.split('\n')[0][:100].strip('{{').strip()
+      first_line = full_contents.split('\n')[0][:100].strip('{{')
+      first_line = re.sub('\/-.+?-\/','',first_line)
       first_line = first_line.split('------------')[0]
       title = first_line.split('->')[0] # don't include links in the title, for traversing files clearly.
       self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.

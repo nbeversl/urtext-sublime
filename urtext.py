@@ -392,8 +392,8 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
 
     def locate_node(self, position, view):
       if not view.is_loading(): 
-        view.show_at_center(position) 
         view.sel().clear()
+        view.show_at_center(position) 
         view.sel().add(sublime.Region(position))
       else:
         sublime.set_timeout(lambda: self.locate_node(position, view), 10)
