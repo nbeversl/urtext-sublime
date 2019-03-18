@@ -16,7 +16,6 @@ import anytree
 
 def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
-    meta_separator = settings.get('meta_separator') 
     return meta_separator
 
 class MetadataEntry: # container for a single metadata entry 
@@ -65,7 +64,7 @@ class NodeMetadata:
              value.append(item.strip())
       else:
         key = '(no_key)'
-        value = line
+        value = line.strip('-/')
       if key == 'title':
         title_set = True
         title = value
@@ -73,7 +72,7 @@ class NodeMetadata:
 
     if title_set == False: # title is the the first many lines if not set
       full_contents = full_contents.strip()
-      first_line = full_contents.split('\n')[0][:50]
+      first_line = full_contents.split('\n')[0][:100].strip('{{').strip()
       first_line = first_line.split('------------')[0]
       title = first_line.split('->')[0] # don't include links in the title, for traversing files clearly.
       self.entries.append(MetadataEntry('title', title, None)) # title defaults to first line. possibly refactor this.

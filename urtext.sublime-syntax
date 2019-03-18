@@ -11,20 +11,24 @@ contexts:
     - include: datestamp
     - include: link
     - include: task-status
-    - include: meta-block
+    - match: '/-'
+      scope: punctuation.section.generic.begin.urtext
+      push: meta-block
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node
     - match: '}}'
-      scope: invalid.illegal.stray-brace-end
-  
-  inline-node:    
-      - include: meta-block
-      - include: datestamp
-      - match: '}}'
-        scope: punctuation.section.braces.end.inline_node.urtext
-        pop: true
-      - include: main
+      scope: invalid.illegal.stray-bracket-end
+    
+   
+  inline-node:   
+    - meta_scope: inline_node 
+    - include: datestamp
+    - match: '}}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
+    - include: main
+    
 
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
@@ -39,17 +43,15 @@ contexts:
       scope: markup.bold
 
   meta-block:
-    - match: '/-'
-      scope: punctuation.section.generic.begin.urtext
-      push:
-        - meta_scope: meta-block.urtext
-        - include: tag-names
-        - include: tag-values
-        - include: datestamp
-        - include: node_id
-        - match: '-/'
-          scope: punctuation.section.generic.end.urtext
-          pop: true
+    - meta_scope: meta-block.urtext
+    - match: '-/'
+      scope: punctuation.section.generic.end.urtext
+      pop: true
+    - include: tag-names
+    - include: tag-values
+    - include: datestamp
+    - include: node_id
+    
 
   meta-key-terminator:
     - match: ';'
@@ -64,7 +66,7 @@ contexts:
       scope: entity.name.tag.urtext
 
   tag-values:
-    - match: (?<=\w:)\s.*(?:())
+    - match: (?<=\w:)\s[^(;|\-/)]*(?:())
       scope: entity.name.value.urtext
 
   node_id:
