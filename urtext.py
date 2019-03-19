@@ -63,8 +63,8 @@ class Project:
       
     print('URtext has %d files, %d nodes' % (num_files, len(self.nodes)))
     self.build_tag_info()
-    #for node in list(self.nodes):
-    #  self.compile(node)
+    for node in list(self.nodes):
+      self.compile(node)
 
   def get_file_name(self, node_id):
 
@@ -194,28 +194,37 @@ class Project:
   def compile(self, node_id):
     keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
     node_id_match = re.compile('\d{14}')
+
     for match in keys.findall(self.nodes[node_id].contents):       
       compiled_node_id = node_id_match.search(match).group(0)
       entries = re.split(';|\n', match)
+      contents = ''
+      metadata = '/- ID:'+compiled_node_id + '\n'
       for entry in entries:
         atoms = [atom.strip() for atom in entry.split(':')]
-        print(atoms)
         if atoms[0].lower() == 'include':
           if atoms[1].lower() == 'metadata':
             key = atoms[2]
             value = atoms[3]
-            """for indexed_value in self.tagnames[key]:
-              if indexed_value.lower() == value:
-                right_key = value
-            print (right_key)
-            for other_node in self.tagnames[key][value]:
-              contents = '{{ ' + self.nodes[other_node].contents + ' /- ID:'+compiled_node_id+'; title:test -/ }} \n'
-              with open(os.path.join(self.path,compiled_node_id+'.txt'),"w+") as theFile:            
-                theFile.write(contents)
-                theFile.close()
-                self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', 
-                    contents=contents)
-                self.files[compiled_node_id+'.txt'] = [compiled_node_id]"""
+            right_key = None
+            for indexed_value in self.tagnames[key]:
+              if indexed_value.lower().strip() == value:
+                right_value = value
+            print(right_value)   
+            print(self.tagnames[key][right_value])              
+            if right_value != None:
+              for other_node in self.tagnames[key][right_value]:
+                contents += strip_metadata(self.nodes[other_node].contents) + '\n'
+        if atoms[0].lower() == 'metadata':
+          if atoms[1].lower() == 'title':
+            metadata += 'title: '+atoms[2] + '\n'
+      metadata += ' -/'
+      with open(os.path.join(self.path,compiled_node_id+'.txt'),"w") as theFile:            
+        theFile.write(contents)
+        theFile.write(metadata)        
+        theFile.close()
+        self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', contents=contents+metadata)
+        self.files[compiled_node_id+'.txt'] = [compiled_node_id]
 
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -307,6 +316,12 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
                              "contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
 
+def strip_metadata(contents):
+   meta = re.compile('\/-.*?-\/', re.DOTALL)
+   for section in re.findall(meta, contents):
+      contents = contents.replace(section,'')
+   return contents
+   
 class UrtextNode:
   """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
 
@@ -379,8 +394,8 @@ class UrtextSave(sublime_plugin.EventListener):
 
     node_id = _UrtextProject.get_node_id(os.path.basename(view.file_name()))
 
-    #if '[[' in _UrtextProject.nodes[node_id].contents:
-    #  _UrtextProject.compile(node_id)
+    if '[[' in _UrtextProject.nodes[node_id].contents:
+      _UrtextProject.compile(node_id)
 
     if node_id+'TREE' in [view.name() for view in view.window().views()]:
       # not yet working
