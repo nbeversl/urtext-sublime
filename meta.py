@@ -55,7 +55,6 @@ class NodeMetadata:
       if ':' in line:
         key = line.split(":")[0].strip()
         value = ''.join(line.split(":")[1:]).strip()
-        print(key)
         if '|' in value:
           items = value.split('|')
           value = []

@@ -12,7 +12,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
           Urtext.refresh_nodes(self.view.window());
         found_stuff = []
         for node in Urtext._UrtextProject.nodes:
-            full_contents = Urtext._UrtextProject.nodes[node].contents()
+            full_contents = Urtext._UrtextProject.nodes[node].contents
             timestamp_regex = '<((?:Sat|Sun|Mon|Tue|Wed|Thu|Fri)\., (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\. \d{2}, \d{4},\s+\d{2}:\d{2} (?:AM|PM))>'
             timestamps = re.findall(timestamp_regex, full_contents)
             for timestamp in timestamps:

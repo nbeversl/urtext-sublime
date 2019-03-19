@@ -16,13 +16,10 @@ import datetime
 # note -> https://forum.sublimetext.com/t/an-odd-problem-about-sublime-load-settings/30335
 
 # TODOS
-# shading of {{ and }} DONE <Fri., Mar. 15, 2019, 12:24 PM>
-# make node finder close without opening a file on escape DONE <Fri., Mar. 15, 2019, 12:25 PM>
-# Put titles in node trees DONE <Fri., Mar. 15, 2019, 12:34 PM>
-# Put inline node tree displays into viewable buffers DONE <Fri., Mar. 15, 2019, 01:41 PM>
 # Enable traversing of inline nodes // DONE, buggy <Fri., Mar. 15, 2019, 05:50 PM>
 # Have the node tree auto update on save.
-# Fix indexing not working for node finder
+# Fix indexing not working for node finder DONE <Tue., Mar. 19, 2019, 02:14 PM>
+# Fix indexing not working in fuzzy search in panel
 # update documentation
 # investigate multiple scopes
 # investigate git and diff support
@@ -66,6 +63,8 @@ class Project:
       
     print('URtext has %d files, %d nodes' % (num_files, len(self.nodes)))
     self.build_tag_info()
+    #for node in list(self.nodes):
+    #  self.compile(node)
 
   def get_file_name(self, node_id):
 
@@ -141,6 +140,7 @@ class Project:
         full_file_contents = theFile.read()
         theFile.close()
 
+
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
       #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
       # TODO - the second RegEx is better. I'm not sure why it doesn't work.
@@ -180,6 +180,7 @@ class Project:
           title = self.nodes[child].metadata.get_tag('title')[0]
           new_node = Node(child, parent=parent)
           add_children(new_node)
+      
       add_children(root)
 
       tree_render = ''
@@ -189,7 +190,33 @@ class Project:
         except:
           print('Error parsing node in file: %s' % filename)
       self.nodes[root_node_id].tree = tree_render
-    
+
+  def compile(self, node_id):
+    keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
+    node_id_match = re.compile('\d{14}')
+    for match in keys.findall(self.nodes[node_id].contents):       
+      compiled_node_id = node_id_match.search(match).group(0)
+      entries = re.split(';|\n', match)
+      for entry in entries:
+        atoms = [atom.strip() for atom in entry.split(':')]
+        print(atoms)
+        if atoms[0].lower() == 'include':
+          if atoms[1].lower() == 'metadata':
+            key = atoms[2]
+            value = atoms[3]
+            """for indexed_value in self.tagnames[key]:
+              if indexed_value.lower() == value:
+                right_key = value
+            print (right_key)
+            for other_node in self.tagnames[key][value]:
+              contents = '{{ ' + self.nodes[other_node].contents + ' /- ID:'+compiled_node_id+'; title:test -/ }} \n'
+              with open(os.path.join(self.path,compiled_node_id+'.txt'),"w+") as theFile:            
+                theFile.write(contents)
+                theFile.close()
+                self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', 
+                    contents=contents)
+                self.files[compiled_node_id+'.txt'] = [compiled_node_id]"""
+
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
 
@@ -315,7 +342,6 @@ class UrtextNode:
 
   def log(self):
     logging.info(self.node_number)
-    #logging.info(self.title)
     logging.info(self.index)
     logging.info(self.filename)
     logging.info(self.metadata.log())
@@ -339,6 +365,7 @@ class UrtextSave(sublime_plugin.EventListener):
     global _UrtextProject
   
     try: # not a new file
+      print(view.file_name())
       file = UrtextNode(view.file_name())
       _UrtextProject.nodes[file.node_number] = file
       for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
@@ -351,10 +378,15 @@ class UrtextSave(sublime_plugin.EventListener):
       _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
 
     node_id = _UrtextProject.get_node_id(os.path.basename(view.file_name()))
+
+    #if '[[' in _UrtextProject.nodes[node_id].contents:
+    #  _UrtextProject.compile(node_id)
+
     if node_id+'TREE' in [view.name() for view in view.window().views()]:
-      print('HEY!')
       # not yet working
       ShowInlineNodeTree.run(view)
+
+    
       
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -428,7 +460,6 @@ def show_panel(window, main_callback):
   refresh_nodes(window)
   menu = []
   for node_id in _UrtextProject.indexed_nodes():
-    print(node_id)
     item = []
     metadata = _UrtextProject.nodes[node_id].metadata
     item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
@@ -491,7 +522,6 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
         # delete it from the Project node array:
         node_id = _UrtextProject.get_node_id(os.path.basename(file_name))
         del _UrtextProject.nodes[node_id]
-
 
         # delete its filename from the Project file array:
         del _UrtextProject.files[os.path.basename(file_name)]

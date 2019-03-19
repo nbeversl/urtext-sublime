@@ -75,7 +75,7 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     Creates a new file with reverse-dated filename and initial metadata
     """
     def run(self):
-        self.path = Urtext.urtext.get_path(self.window)
+        self.path = Urtext.urtext._UrtextProject.path
         now = datetime.datetime.now()
         new_view = self.window.open_file(os.path.join(self.path, make_reverse_date_filename(now)+'.txt'))
         self.add_meta(new_view, now)
