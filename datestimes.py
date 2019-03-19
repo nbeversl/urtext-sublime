@@ -1,15 +1,11 @@
 # Module to handle reverse dating of filenames
 
-# Meta -> /Users/nathanielbeversluis/Library/Application Support/Sublime Text 3/Packages/Urtext/meta.py:7
-
 import sublime
 import sublime_plugin
 import datetime
-#import sublime_urtext
 import Urtext
 import os
 import time
-#import urtext.datestimes
 
 timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
 alt_timestamp_formats = [

@@ -10,8 +10,7 @@ import logging
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-
-from .urtext.dependencies.anytree import Node, RenderTree
+from urtext.node_pull_tree import NodePullTree
 import sublime_urtext
 
 def meta_separator():
@@ -32,55 +31,18 @@ class ModifiedCommand(sublime_plugin.TextCommand):
 
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
-  # to add:
-  #   move cursor to the file this was called from
+  # most of this is now in urtext module
 
   def run(self, edit):
-    self.errors = []   
-    oldest_known_filename = self.find_oldest_node(self.view.file_name())
-    self.tree = Node(oldest_known_filename)
-    self.build_node_tree('ROOT -> ' + oldest_known_filename)
-    render = ''
-    for pre, fill, node in RenderTree(self.tree):
-      render += ("%s %s" % (pre, node.name)) + '\n'
+    sublime_urtext.refresh_nodes(self.view.window())
+    self.errors = []
+    path = sublime_urtext._UrtextProject.path
+    tree = NodePullTree(self.view.file_name(), path)
     window = self.view.window()
     window.focus_group(0) # always show the tree on the leftmost focus
     new_view = self.view.window().new_file()
-    new_view.run_command("insert_snippet", { "contents": render})
+    new_view.run_command("insert_snippet", { "contents": tree.render})
     new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
-
-  def find_oldest_node(self, filename):
-    """ Locate the oldest node by recursively following 'pulled from' backlinks """
-    oldest_known_filename = filename
-    this_meta = Urtext.UrtextNode(filename,self.view.window()).metadata
-    if this_meta.get_tag('pulled from'): # 0 = always use first value. should not be pulled from more than one place.
-      oldest_known_filename = this_meta.get_tag('pulled from')[0].split(' |')[0].strip(' ->' )
-      return self.find_oldest_node(oldest_known_filename)
-    return oldest_known_filename
-
-  def build_node_tree(self, oldest_node, parent=None):
-    self.tree = Node(oldest_node)
-    self.add_children(self.tree)
-
-  def add_children(self, parent):
-    """ recursively add children """
-    path = Urtext.get_path(self.view.window())
-    parent_filename = parent.name.split('->')[1].strip()
-    try:
-      with open(os.path.join(self.path, parent_filename),'r',encoding='utf-8') as this_file:
-        contents = this_file.read()
-        this_file.close()
-    except:
-      self.errors.append('Broken link: -> %s\n' % parent_filename)
-      return
-    this_meta = NodeMetadata(contents)
-
-    for entry in this_meta.entries:
-      if entry.tag_name == 'pulled to':
-        newer_filename = entry.value.split(' |')[0].strip(' ->' )
-        newer_metadata = NodeMetadata(newer_filename)
-        newer_nodename = Node(newer_metadata.get_tag('title')[0] + ' -> ' + newer_filename, parent=parent)
-        self.add_children(newer_nodename)
 
 class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
@@ -219,13 +181,14 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
 class ShowTagsCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
+    sublime_urtext.refresh_nodes(self.view.window())
     sublime_urtext._UrtextProject.build_tag_info()
-    self.tagnames = [ value for value in Urtext._UrtextProject.tagnames ]
+    self.tagnames = [ value for value in sublime_urtext._UrtextProject.tagnames ]
     self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
   def list_values(self, index):
     self.selected_tag = self.tagnames[index]
-    self.values = [ value for value in Urtext._UrtextProject.tagnames[self.selected_tag]]
+    self.values = [ value for value in sublime_urtext._UrtextProject.tagnames[self.selected_tag]]
     self.values.insert(0, '< all >')
     self.view.window().show_quick_panel(self.values, self.list_files)
 
@@ -235,15 +198,15 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     new_view.set_scratch(True)
     if self.selected_value == '< all >':
       new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % self.selected_value})
-      for value in Urtext._UrtextProject.tagnames[self.selected_tag]:
+      for value in sublime_urtext._UrtextProject.tagnames[self.selected_tag]:
         new_view.run_command("insert_snippet", { "contents": value + "\n"})       
-        for node in Urtext._UrtextProject.tagnames[self.selected_tag][value]:
+        for node in sublime_urtext._UrtextProject.tagnames[self.selected_tag][value]:
           new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})   
         new_view.run_command("insert_snippet", { "contents": "\n"})       
 
     else:
       new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
-      for node in Urtext._UrtextProject.tagnames[self.selected_tag][self.selected_value]:
+      for node in sublime_urtex._UrtextProject.tagnames[self.selected_tag][self.selected_value]:
         new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
 
 def has_meta(contents):

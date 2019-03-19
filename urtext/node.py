@@ -6,7 +6,7 @@ class UrtextNode:
   """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
 
   def __init__(self, filename, contents=''):
-    self.filename = os.path.basename(filename)
+    self.filename = filename
     self.position = None
     self.tree = None
     self.contents = contents

@@ -5,8 +5,8 @@ import os
 import re
 import urtext.datestimes
 import datestimes
-from urtext.urtext_node import UrtextNode
-from urtext.urtext_project import UrtextProject
+from urtext.node import UrtextNode
+from urtext.project import UrtextProject
 import sys
 
 import codecs
@@ -113,11 +113,6 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
                              "contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
 
-def strip_metadata(contents):
-   meta = re.compile('\/-.*?-\/', re.DOTALL)
-   for section in re.findall(meta, contents):
-      contents = contents.replace(section,'')
-   return contents
 
 class UrtextSave(sublime_plugin.EventListener):
 

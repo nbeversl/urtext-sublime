@@ -1,7 +1,7 @@
 import codecs
 import re
 import os
-from urtext.urtext_node import UrtextNode
+from urtext.node import UrtextNode
 from anytree import Node, RenderTree
 
 class UrtextProject:
