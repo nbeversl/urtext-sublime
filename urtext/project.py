@@ -194,6 +194,10 @@ class UrtextProject:
           if atoms[1].lower() == 'title':
             metadata += 'title: '+atoms[2] + '\n'
       metadata += ' -/'
+      
+      # Here, first check if node already exists.
+      # allows for file renaming, etc.
+            
       with open(os.path.join(self.path,compiled_node_id+'.txt'),"w") as theFile:            
         theFile.write(contents)
         theFile.write(metadata)        
