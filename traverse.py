@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import os
 import re
-import Urtext.urtext as Urtext
+import sublime_urtext
 
 class ToggleTraverse(sublime_plugin.TextCommand):
   def run(self,edit): 
@@ -69,7 +69,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
     self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
     self.content_view = view.window().active_view_in_group(self.active_group)
-    contents = Urtext.get_contents(self.content_view)
+    contents = sublime_urtext.get_contents(self.content_view)
     
     def move_to_location(view, position, tree_view):
         if not view.is_loading():

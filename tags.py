@@ -1,5 +1,5 @@
 import sublime_plugin
-import Urtext.urtext as Urtext
+import sublime_urtext
 import Urtext.meta
 
 class ShowTags(sublime_plugin.WindowCommand):
@@ -8,7 +8,7 @@ class ShowTags(sublime_plugin.WindowCommand):
           text = text.strip()
           text = " ".join(text.split()) #https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string-in-python
           return text
-        files = Urtext.get_files(self.window)
+        files = sublime_urtext.get_files(self.window)
         tags = []
         for filename in files:
           try:

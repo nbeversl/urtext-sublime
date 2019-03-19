@@ -1,8 +1,6 @@
 import sublime
 import sublime_plugin
 import datetime
-import Urtext.meta
-import Urtext.urtext
 import os
 import re
 

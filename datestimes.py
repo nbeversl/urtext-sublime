@@ -5,10 +5,11 @@
 import sublime
 import sublime_plugin
 import datetime
-import Urtext.meta
-import Urtext.urtext
+#import sublime_urtext
 import Urtext
 import os
+import time
+#import urtext.datestimes
 
 timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
 alt_timestamp_formats = [
@@ -19,6 +20,17 @@ def meta_separator():
     settings = sublime.load_settings('urtext-default.sublime-settings')
     meta_separator = settings.get('meta_separator') 
     return meta_separator
+
+def insert_timestamp(edit, time):
+    for s in view.sel():
+        if s.empty():
+            view.insert(edit, s.a, time.strftime(fmt))
+        else:
+            view.replace(edit, s, time.strftime(fmt))
+
+class UrtextTimestamp(sublime_plugin.TextCommand):
+    def run(self, edit):
+        insert_timestamp(edit, now)
 
 class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
     """
@@ -47,7 +59,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
         old_filename = self.view.file_name()
         self.old_filename = old_filename.split('/')[-1]
         now = datetime.datetime.now()
-        new_filename = make_reverse_date_filename(now)+'.txt'
+        new_filename = urtext.datestimes.make_reverse_date_filename(now)+'.txt'
         self.view.insert(edit, self.view.size(), '\npulled to: -> '+new_filename +
                          '  | (editorial://open/'+new_filename+'?root=dropbox) ' + now.strftime(timestamp_format))
         self.view.run_command('save')
@@ -75,16 +87,17 @@ class NewUndatifiedFileCommand(sublime_plugin.WindowCommand):
     Creates a new file with reverse-dated filename and initial metadata
     """
     def run(self):
-        self.path = Urtext.urtext._UrtextProject.path
+        sublime_urtext.refresh_nodes(self.window)
+        self.path = sublime_urtext._UrtextProject.path
         now = datetime.datetime.now()
-        new_view = self.window.open_file(os.path.join(self.path, make_reverse_date_filename(now)+'.txt'))
+        new_view = self.window.open_file(os.path.join(self.path, urtext.datestimes.make_reverse_date_filename(now)+'.txt'))
         self.add_meta(new_view, now)
 
     def add_meta(self, view, now):        
         if not view.is_loading():            
             Urtext.meta.add_created_timestamp(view, now)
             view.run_command("move_to", {"to": "eof"})
-            node_id = make_reverse_date_filename(now)
+            node_id = urtext.datestimes.make_reverse_date_filename(now)
             view.run_command("insert_snippet", {
                              "contents": "/- ID: "+node_id+"-/"})  # (whitespace)
             view.run_command("insert_snippet", {
@@ -101,28 +114,3 @@ class ReFile(sublime_plugin.TextCommand):
     def run(self, edit):
         now = datetime.datetime.now()
 
-
-def make_reverse_date_filename(date):
-    unyear = 10000 - int(date.strftime('%Y'))
-    unmonth = 12 - int(date.strftime('%m'))
-    unday = 31 - int(date.strftime('%d'))
-    unhour = 23 - int(date.strftime('%H'))
-    unminute = 59 - int(date.strftime('%M'))
-    unsecond = 59 - int(date.strftime('%S'))
-    undatetime = "{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(
-        unyear, unmonth, unday, unhour, unminute, unsecond)
-    return undatetime
-
-
-def date_from_reverse_date(undate):
-    """
-    This gets a datetime object back from reverse-dated filenames
-    """
-    year = 10000 - int(undate[0:4])
-    month = 12 - int(undate[4:6])
-    day = 31 - int(undate[6:8])
-    hour = 23 - int(undate[8:10])
-    minute = 59 - int(undate[10:12])
-    second = 59 - int(undate[12:14])
-    date = datetime.datetime(year, month, day, hour, minute, second)
-    return date
