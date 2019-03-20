@@ -31,9 +31,9 @@ class UrtextProject:
         continue
       except IsADirectoryError:
         continue
-      #except:
-      #  print('Urtext Skipping %s' % file)   
-      #  continue
+      except:
+        print('Urtext Skipping %s' % file)   
+        continue
       self.files[os.path.basename(file)] = []
     
     for file in self.files:
@@ -160,10 +160,14 @@ class UrtextProject:
 
       def add_children(parent):
         for child in tree[parent.name]:
-          title = self.nodes[child].metadata.get_tag('title')[0]
-          new_node = Node(child, parent=parent)
-          add_children(new_node)
+          try:
+            title = self.nodes[child].metadata.get_tag('title')[0]
+            new_node = Node(child, parent=parent)
+            add_children(new_node)
+          except:
+            print('ERROR')
       
+
       add_children(root)
 
       tree_render = ''
@@ -179,44 +183,47 @@ class UrtextProject:
     node_id_match = re.compile('\d{14}')
 
     for match in keys.findall(self.nodes[node_id].contents):       
-      compiled_node_id = node_id_match.search(match).group(0)
-      entries = re.split(';|\n', match)
-      contents = ''
-      metadata = '/- ID:'+compiled_node_id + '\n'
-      for entry in entries:
-        atoms = [atom.strip() for atom in entry.split(':')]
-        if atoms[0].lower() == 'include':
-          if atoms[1].lower() == 'metadata':
-            key = atoms[2]
-            value = atoms[3]
-            right_key = None
-            for indexed_value in self.tagnames[key]:
-              if indexed_value.lower().strip() == value:
-                right_value = value  
-            if right_value != None:
-              for other_node in self.tagnames[key][right_value]:
-                contents += strip_metadata(self.nodes[other_node].contents) + '\n'
-        if atoms[0].lower() == 'metadata':
-          if atoms[1].lower() == 'title':
-            metadata += 'title: '+atoms[2] + '\n'
-      metadata += ' -/'
-      
-      # Here, first check if node already exists.
-      # allows for file renaming, etc.
-            
-      with open(os.path.join(self.path,compiled_node_id+'.txt'),"w") as theFile:            
-        theFile.write(contents)
-        theFile.write(metadata)        
-        theFile.close()
-        self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', contents=contents+metadata)
-        self.files[compiled_node_id+'.txt'] = [compiled_node_id]
+      if node_id_match.search(match):
+        compiled_node_id = node_id_match.search(match).group(0)
+        entries = re.split(';|\n', match)
+        contents = ''
+        metadata = '/- ID:'+compiled_node_id + '\n'
+        for entry in entries:
+          atoms = [atom.strip() for atom in entry.split(':')]
+          if atoms[0].lower() == 'include':
+            if atoms[1].lower() == 'metadata':
+              key = atoms[2]
+              value = atoms[3]
+              right_key = None
+              for indexed_value in self.tagnames[key]:
+                if indexed_value.lower().strip() == value:
+                  right_value = value  
+              if right_value != None:
+                for other_node in self.tagnames[key][right_value]:
+                  node_contents = strip_metadata(self.nodes[other_node].contents).strip()
+                  node_contents = node_contents.replace('{{','')
+                  node_contents = node_contents.replace('}}','')
+                  contents += node_contents + ' -> ' + other_node + '\n'
+                  contents += '-----------------------\n'
+          if atoms[0].lower() == 'metadata':          
+            metadata += atoms[1]+': '+atoms[2] + '\n'
+        metadata += 'kind: dynamic\n'
+        metadata += 'defined in: -> ' + node_id + '\n'
+        metadata += ' -/'
+        
+        # Here, first check if node already exists.
+        # allows for file renaming, etc.
+              
+        with open(os.path.join(self.path,compiled_node_id+'.txt'),"w") as theFile:            
+          theFile.write(contents)
+          theFile.write(metadata)        
+          theFile.close()
+          self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', contents=contents+metadata)
+          self.files[compiled_node_id+'.txt'] = [compiled_node_id]
 
   def delete(self, filename):
     """ only deletes a file-based node, not an inline node """
 
-    # delete it from the file system
-    os.remove(os.path.join(self.path, filename))
-            
     # delete its inline nodes from the Project node array:
     for node_id in self.files[os.path.basename(filename)]:
       del self.nodes[node_id]
@@ -226,7 +233,18 @@ class UrtextProject:
     del self.nodes[node_id]
 
     # delete its filename from the Project file array:
-    del self.files[filename]
+    del self.files[os.path.basename(filename)]
+
+    # delete it from the self.tagnames array
+    for tagname in self.tagnames:
+      for value in self.tagnames[tagname]:
+        if node_id in self.tagnames[tagname][value]:
+          self.tagnames[tagname][value].remove(node_id)
+        if len(self.tagnames[tagname][value]) == 0:
+          self.tagnames[tagname].remove(value)
+
+    # delete it from the file system
+    os.remove(os.path.join(self.path, filename))
 
   def add(self, datestamp):
     node_id = urtext.datestimes.make_node_id(datestamp)

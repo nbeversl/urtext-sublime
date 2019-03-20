@@ -7,8 +7,7 @@ Version: 0.4
 	/- ID:79810915120529 -/ 
 
 		{{ 
-		Urtext is a syntax for writing, structuring, and reading files in plaintext that can be used on any platform.
-				/- ID:79810915120430;  tag: definition-/ }}
+		Urtext is a syntax for writing, structuring, and reading files in plaintext that can be used on any platform. /- ID:79810915120430;  tag: definition-/ }}
 
 		Sublime is a modern, programmable text editor. 
 
@@ -61,6 +60,7 @@ Version: 0.4
 	You can insert nodes into existing nodes. Select some content that is already inside an existing node and press Shift-Crtl-Cmd-; (Shift-Control-Command-semicolon). This wraps the existing content into a new node. The syntax for inline nodes is to wrap the content in double squiggly brackets, {{ like this text /- ID:79810913060421 -/ }}.  Inside the double squiggly brackets you also must put a node ID. These are generated automatically by Urtext, but if you want to you can write your own. See Node IDs -> 79810913063619
 
 }}
+
 
 {{ Linking Nodes: /- ID:79810913063734 -/
 
@@ -146,6 +146,13 @@ Version: 0.4
 {{ Finding nodes via Metadata: /- ID:79810913063640 -/
 
 	To navigate to nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
+
+{{ Dynamic Nodes
+	
+	Dynamic nodes are compilations of content in other nodes that can update in real time. Dynamic nodes are created from simple code within another node. To 
+
+ /- ID:79810911080130 -/ }}
+
 
 {{ Timeline View: /- ID:79810913063637 -/
 
