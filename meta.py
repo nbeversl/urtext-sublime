@@ -209,16 +209,6 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
       for node in sublime_urtex._UrtextProject.tagnames[self.selected_tag][self.selected_value]:
         new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
 
-def has_meta(contents):
-  """ 
-  Determine whether a view contains metadata. 
-  :contents: -- the full contents of a file or fragment
-  """
-  global metaseparator
-  if meta_separator() in contents:
-    return True
-  else:
-    return False
 
 def add_separator(view):
   """

@@ -1,8 +1,7 @@
 [
-    { "caption": "Urtext: Show Timeline", "command": "generate_timeline", },
-    { "caption": "Urtext: Show All Nodes", "command" :"show_files_with_preview"},
+    { "caption": "Urtext: Show Timeline",   "command":  "generate_timeline", },
+    { "caption": "Urtext: Node Browser", "command": "node_browser"},
     { "caption": "Urtext: Add Meta to Existing File", "command": "add_meta_to_existing_file"},
-    { "caption": "Urtext: Copy Path", "command":"copy_path_cooler"},
     { "caption": "Urtext: Show Node Tree", "command":"show_node_tree"},
     { "caption": "Urtext: Find By Meta", "command":"show_tags"},
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},

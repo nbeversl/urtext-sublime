@@ -4,25 +4,19 @@ import sublime_plugin
 import os
 import re
 import urtext.datestimes
-import datestimes
+import sublime_urtext_datestimes
 from urtext.node import UrtextNode
 from urtext.project import UrtextProject
-import sys
-
-import codecs
 import datetime
 
 # TODOS
-# Enable traversing of inline nodes // DONE, buggy <Fri., Mar. 15, 2019, 05:50 PM>
 # Have the node tree auto update on save.
-# Fix indexing not working for node finder DONE <Tue., Mar. 19, 2019, 02:14 PM>
 # Fix indexing not working in fuzzy search in panel
 # update documentation
 # investigate multiple scopes
 # investigate git and diff support
 
 _UrtextProject = None
-
 
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -85,13 +79,12 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
     render_tree(tree_view)
 
 def refresh_nodes(window):
-
   global _UrtextProject
   if _UrtextProject == None:
     print('_UrtextProject rebuilt')
     _UrtextProject = UrtextProject(get_path(window))  
 
-def get_path(window):
+def get_path(window): # transfer this to an urtext .cfg file
 
   """ Returns the Urtext path from settings """
   if window.project_data():
@@ -101,26 +94,22 @@ def get_path(window):
   return path
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
-
   def run(self, edit):
     node_id = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now())
     for region in self.view.sel():
       selection = self.view.substr(region)
-
     node_wrapper = '{{ '+selection+'\n /- ID:'+node_id+' -/ }}'
-
     self.view.run_command("insert_snippet", {
                              "contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
 
-
 class UrtextSave(sublime_plugin.EventListener):
+  """ This takes the place of an file watcher"""
 
   def on_post_save(self, view):    
     global _UrtextProject
   
     try: # not a new file
-      print(view.file_name())
       file = UrtextNode(view.file_name())
       _UrtextProject.nodes[file.node_number] = file
       for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
@@ -141,33 +130,17 @@ class UrtextSave(sublime_plugin.EventListener):
       # not yet working
       ShowInlineNodeTree.run(view)
 
-    
-      
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     global _UrtextProject
-    path = Urtext.urtext.get_path(self.view.window())
-    filename = self.view.file_name()
-    node = _UrtextProject.get_node_id(os.path.basename(filename))
-    title = _UrtextProject.nodes[node].metadata.get_tag('title')[0].strip()
-    index = _UrtextProject.nodes[node].metadata.get_tag('index')
-    if index != []:
-       _UrtextProject.nodes[node].set_index(index)     
-    _UrtextProject.nodes[node].set_title(title)
-    old_filename = filename
-    new_filename = _UrtextProject.nodes[node].rename_file()
+    old_filename = self.view.file_name()
+    new_filename = _UrtextProject.rename(old_filename)
     v = self.view.window().find_open_file(old_filename)
     if v:
-      v.retarget(os.path.join(path,new_filename))
+      v.retarget(os.path.join(_UrtextProject.path,new_filename))
       v.set_name(new_filename)
 
-class CopyPathCoolerCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    filename = self.view.window().extract_variables()['file_name']
-    self.view.show_popup('`'+filename + '` copied to the clipboard')
-    sublime.set_clipboard(filename)
-
-class ShowFilesWithPreview(sublime_plugin.WindowCommand):
+class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
       show_panel(self.window, self.open_the_file)
 
@@ -185,7 +158,7 @@ class ShowFilesWithPreview(sublime_plugin.WindowCommand):
       else:
         sublime.set_timeout(lambda: self.locate_node(position, view), 10)
 
-class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
+class LinkToNodeCommand(sublime_plugin.WindowCommand): 
     def run(self):
       show_panel(self.window, self.link_to_the_file)
 
@@ -194,7 +167,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand): # almost the same code as
       filename = os.path.basename(selected_option[2])
       view.run_command("insert", {"characters": ' -> '+ filename + ' | '})
 
-class LinkNodeFromCommand(sublime_plugin.WindowCommand): # almost the same code as show files. Refactor.
+class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
       self.current_file = os.path.basename(self.window.active_view().file_name())
       show_panel(self.window, self.link_from_the_file)
@@ -251,33 +224,15 @@ class ShowAllNodesCommand(sublime_plugin.TextCommand):
     global _UrtextProject
     refresh_nodes(self.view.window())
     new_view = self.view.window().new_file()
-    for node_id in _UrtextProject.indexed_nodes():
-      title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
-      new_view.run_command("insert", {"characters": '-> ' + title + ' ' + node_id + '\n'})
-    for node_id in _UrtextProject.unindexed_nodes():
-      title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
-      new_view.run_command("insert", {"characters": '-> ' + title + ' ' + node_id + '\n'})
-      
+    output = _UrtextProject.list_nodes()
+    new_view.run_command("insert", {"characters": output})
+    
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         global _UrtextProject
-        file_name = self.view.file_name()
+        file_name = os.path.basename(self.view.file_name())
         if self.view.is_dirty():
             self.view.set_scratch(True)
         self.view.window().run_command('close_file')
-
-        # delete it from the file system
-        os.remove(file_name)
-                
-        # delete its inline nodes from the Project node array:
-        for node_id in _UrtextProject.files[os.path.basename(file_name)]:
-          del _UrtextProject.nodes[node_id]
-
-        # delete it from the Project node array:
-        node_id = _UrtextProject.get_node_id(os.path.basename(file_name))
-        del _UrtextProject.nodes[node_id]
-
-        # delete its filename from the Project file array:
-        del _UrtextProject.files[os.path.basename(file_name)]
-
+        _UrtextProject.delete(file_name)

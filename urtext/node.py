@@ -1,6 +1,11 @@
 from urtext.metadata import NodeMetadata
 import os
 import re
+import datetime
+import urtext.datestimes
+import logging
+
+# TODO: indexes have to be called from [0]. Distinguish between metadata with single and multiple possible values
 
 class UrtextNode:
   """ Takes contents, filename. If contents is unspecified, the node is the entire file. """
@@ -41,14 +46,16 @@ class UrtextNode:
     logging.info(self.filename)
     logging.info(self.metadata.log())
 
-  def rename_file(self):
+  def rename_file(self, project_path):
+    self.log()
     old_filename = self.filename
     if len(self.index) > 0:
-      new_filename = self.index + ' '+ self.title + ' ' + self.node_number + '.txt'
+      new_filename = self.index[0] + ' '+ self.title + ' ' + self.node_number + '.txt'
     elif self.title != 'Untitled':
       new_filename = self.node_number + ' ' + self.title + '.txt'
     else:
       new_filename = old_filename
-    os.rename(os.path.join(self.path, old_filename), os.path.join(self.path, new_filename))
+    os.rename(os.path.join(project_path, old_filename), os.path.join(project_path, new_filename))
     self.filename = new_filename
     return new_filename
+

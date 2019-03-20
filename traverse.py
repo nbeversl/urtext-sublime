@@ -117,6 +117,6 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
       links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
       if len(links) == 0:
         return
-      path = Urtext.get_path(self.view.window())
-      filename = Urtext._UrtextProject.get_file_name(links[0])
+      path = sublime_urtext.get_path(self.view.window())
+      filename = sublime_urtext._UrtextProject.get_file_name(links[0])
       file_view = self.view.window().open_file(os.path.join(path, filename))

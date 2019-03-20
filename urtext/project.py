@@ -3,6 +3,7 @@ import re
 import os
 from urtext.node import UrtextNode
 from anytree import Node, RenderTree
+import urtext.datestimes
 
 class UrtextProject:
 
@@ -204,6 +205,57 @@ class UrtextProject:
         theFile.close()
         self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', contents=contents+metadata)
         self.files[compiled_node_id+'.txt'] = [compiled_node_id]
+
+  def delete(self, filename):
+    """ only deletes a file-based node, not an inline node """
+
+    # delete it from the file system
+    os.remove(os.path.join(self.path, filename))
+            
+    # delete its inline nodes from the Project node array:
+    for node_id in self.files[os.path.basename(filename)]:
+      del self.nodes[node_id]
+
+    # delete it from the Project node array:
+    node_id = self.get_node_id(os.path.basename(filename))
+    del self.nodes[node_id]
+
+    # delete its filename from the Project file array:
+    del self.files[filename]
+
+  def add(self, datestamp):
+    node_id = urtext.datestimes.make_node_id(datestamp)
+    filename = node_id + '.txt'
+    contents  = "\n\n\n"
+    contents += "/- ID:" +node_id+'\n-/'
+
+    with open(os.path.join(self.path, filename), "w") as theFile:
+      theFile.write(contents)
+      theFile.close()
+    self.nodes[node_id] = UrtextNode(os.path.join(self.path, filename))
+    self.files[filename] = [node_id]
+    return filename
+
+  def list_nodes(self):
+    output = ''
+    for node_id in self.indexed_nodes():
+      title = self.nodes[node_id].metadata.get_tag('title')[0]
+      output += '-> ' + title + ' ' + node_id + '\n'
+    for node_id in self.unindexed_nodes():
+      title = self.nodes[node_id].metadata.get_tag('title')[0]
+      output += '-> ' + title + ' ' + node_id + '\n'
+    return output
+
+  def rename(self, filename):
+    node = self.get_node_id(os.path.basename(filename))
+    title = self.nodes[node].metadata.get_tag('title')[0].strip()
+    index = self.nodes[node].metadata.get_tag('index')
+    if index != []:
+       self.nodes[node].set_index(index)     
+    self.nodes[node].set_title(title)
+    old_filename = filename
+    new_filename = self.nodes[node].rename_file(self.path)
+    return new_filename
 
 def strip_metadata(contents):
    meta = re.compile('\/-.*?-\/', re.DOTALL)

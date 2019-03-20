@@ -79,3 +79,17 @@ class NodeMetadata:
       if entry.tag_name[0] == '_':
         groups_list.append(entry.tag_name)
     return groups_list
+
+def has_meta(contents):
+  """ 
+  Determine whether a view contains metadata. 
+  :contents: -- the full contents of a file or fragment
+  """
+  global metaseparator
+  if meta_separator() in contents:
+    return True
+  else:
+    return False
+
+
+

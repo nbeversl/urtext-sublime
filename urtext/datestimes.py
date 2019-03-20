@@ -1,15 +1,18 @@
 import datetime
 
-def make_reverse_date_filename(date):
+timestamp_format = '<%a., %b. %d, %Y, %I:%M %p>'
+alt_timestamp_formats = ['< >', ]
+
+def make_node_id(date):
     unyear = 10000 - int(date.strftime('%Y'))
     unmonth = 12 - int(date.strftime('%m'))
     unday = 31 - int(date.strftime('%d'))
     unhour = 23 - int(date.strftime('%H'))
     unminute = 59 - int(date.strftime('%M'))
     unsecond = 59 - int(date.strftime('%S'))
-    undatetime = "{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(
+    node_id = "{:04d}{:02d}{:02d}{:02d}{:02d}{:02d}".format(
         unyear, unmonth, unday, unhour, unminute, unsecond)
-    return undatetime
+    return node_id
 
 
 def date_from_reverse_date(undate):
