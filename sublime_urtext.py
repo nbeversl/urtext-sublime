@@ -18,6 +18,62 @@ import datetime
 
 _UrtextProject = None
 
+def get_path(window): # transfer this to an urtext .cfg file
+  """ Returns the Urtext path from settings """
+  if window.project_data():
+    path = window.project_data()['urtext_path'] # ? 
+  else:
+    path = '.'
+  return path
+
+class ShowTagsCommand(sublime_plugin.TextCommand):
+
+  global _UrtextProject
+
+  def run(self, edit):
+    self.tagnames = [ value for value in _UrtextProject.tagnames ]
+    print(self.tagnames)
+    self.view.window().show_quick_panel(self.tagnames, self.list_values)
+
+  def list_values(self, index):
+    self.selected_tag = self.tagnames[index]
+    self.values = [ value for value in _UrtextProject.tagnames[self.selected_tag]]
+    self.values.insert(0, '< all >')
+    self.view.window().show_quick_panel(self.values, self.display_files)
+
+  def display_files(self, index):
+  
+    self.selected_value = self.values[index]
+    menu = make_node_menu(_UrtextProject.tagnames[self.selected_tag][self.selected_value], menu=[])
+    print(menu)
+    display_menu = sort_menu(menu)
+    show_panel(self.view.window(), display_menu, self.open_the_file)
+
+  def open_the_file(self, selected_option): # copied from below, refactor later.
+    print(selected_option)
+    path = get_path(self.view.window())
+    new_view = self.view.window().open_file(os.path.join(path, selected_option[2])) 
+    if selected_option[3] != None:
+      self.locate_node(selected_option[3], new_view)
+
+
+  def list_files(self, index):
+    self.selected_value = self.values[index]
+    new_view = self.view.window().new_file()
+    new_view.set_scratch(True)
+    if self.selected_value == '< all >':
+      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % self.selected_value})
+      for value in _UrtextProject.tagnames[self.selected_tag]:
+        new_view.run_command("insert_snippet", { "contents": value + "\n"})       
+        for node in _UrtextProject.tagnames[self.selected_tag][value]:
+          new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})   
+        new_view.run_command("insert_snippet", { "contents": "\n"})       
+
+    else:
+      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
+      for node in _UrtextProject.tagnames[self.selected_tag][self.selected_value]:
+        new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
+
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
 
@@ -44,22 +100,10 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
     # See if a view is already named.
     #
     if tree_view == None:    
+      add_one_split(self.view)
+      # these two values are duplicated in add_one_split .. better way?
       groups = self.view.window().num_groups() # copied from traverse. Should refactor
       active_group = self.view.window().active_group() # 0-indexed
-      groups += 1
-      
-      # side the panels (refactor this)
-      panel_size = 1 / groups
-      cols = [0]
-      cells = [[0,0,1,1]]
-      for index in range(1,groups):
-        cols.append(cols[index-1]+panel_size)
-        cells.append([index,0,index+1,1])
-      cols.append(1)
-      self.view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
-      self.view.settings().set("word_wrap", False)
-      #
-      # end size the panels
 
       # move everything to the right
       views = self.view.window().views_in_group(active_group)
@@ -74,9 +118,25 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
       tree_view = self.view.window().new_file()
       tree_view.set_name(node_id+'TREE')
     else:
-      tree_view.erase(edit, sublime.Region(0,1000))
+      tree_view.erase(edit, sublime.Region(0,1000)) # TODO - not 1000. Entire view.
 
     render_tree(tree_view)
+
+def add_one_split(view):
+  groups = view.window().num_groups() # copied from traverse. Should refactor
+  active_group = view.window().active_group() # 0-indexed
+  groups += 1
+  
+  # side the panels (refactor this)
+  panel_size = 1 / groups
+  cols = [0]
+  cells = [[0,0,1,1]]
+  for index in range(1,groups):
+    cols.append(cols[index-1]+panel_size)
+    cells.append([index,0,index+1,1])
+  cols.append(1)
+  view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+  view.settings().set("word_wrap", False)
 
 def refresh_nodes(window):
   global _UrtextProject
@@ -84,18 +144,9 @@ def refresh_nodes(window):
     print('_UrtextProject rebuilt')
     _UrtextProject = UrtextProject(get_path(window))  
 
-def get_path(window): # transfer this to an urtext .cfg file
-
-  """ Returns the Urtext path from settings """
-  if window.project_data():
-    path = window.project_data()['urtext_path'] # ? 
-  else:
-    path = '.'
-  return path
-
 class InsertNodeCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    node_id = Urtext.datestimes.make_reverse_date_filename(datetime.datetime.now())
+    node_id = urtext.datestimes.make_node_id(datetime.datetime.now())
     for region in self.view.sel():
       selection = self.view.substr(region)
     node_wrapper = '{{ '+selection+'\n /- ID:'+node_id+' -/ }}'
@@ -130,6 +181,12 @@ class UrtextSave(sublime_plugin.EventListener):
       # not yet working
       ShowInlineNodeTree.run(view)
 
+    # too much, revise later.
+    for node in list(_UrtextProject.nodes):
+      _UrtextProject.compile(node)
+    
+    _UrtextProject.build_tag_info()
+
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     global _UrtextProject
@@ -142,7 +199,12 @@ class RenameFileCommand(sublime_plugin.TextCommand):
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
-      show_panel(self.window, self.open_the_file)
+      global _UrtextProject  
+      refresh_nodes(self.window)
+      menu = make_node_menu(_UrtextProject.indexed_nodes(), menu = [])
+      menu = make_node_menu(_UrtextProject.unindexed_nodes(), menu = menu)
+      display_menu = sort_menu(menu)      
+      show_panel(self.window, display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
       path = get_path(self.window)
@@ -182,38 +244,31 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
         view.show_popup('Link to ' + self.current_file + ' copied to the clipboard')
       else:
         sublime.set_timeout(lambda: self.show_tip(view), 10)
-      
-def show_panel(window, main_callback):
-  global _UrtextProject  
-  refresh_nodes(window)
-  menu = []
-  for node_id in _UrtextProject.indexed_nodes():
-    item = []
-    metadata = _UrtextProject.nodes[node_id].metadata
-    item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
-    item.append(urtext.datestimes.date_from_reverse_date(node_id))
-    item.append(_UrtextProject.nodes[node_id].filename)
-    item.append(_UrtextProject.nodes[node_id].position)
-    menu.append(item)
-  for node_id in _UrtextProject.unindexed_nodes():
-    item = []
-    metadata = _UrtextProject.nodes[node_id].metadata
-    item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
-    item.append(urtext.datestimes.date_from_reverse_date(node_id))
-    item.append(_UrtextProject.nodes[node_id].filename)
-    item.append(_UrtextProject.nodes[node_id].position)
-    menu.append(item)
-  display_menu = []
-  for item in menu: # there is probably a better way to copy this list.
-    new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>')]
-    display_menu.append(new_item)
 
+def show_panel(window, menu, main_callback): 
   def private_callback(index):
     if index == -1:
       return
     main_callback(menu[index])
+  window.show_quick_panel(menu, private_callback)
 
-  window.show_quick_panel(display_menu, private_callback)
+def make_node_menu(node_ids, menu=[]):
+  for node_id in node_ids:
+    item = []
+    metadata = _UrtextProject.nodes[node_id].metadata
+    item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
+    item.append(urtext.datestimes.date_from_reverse_date(node_id))
+    item.append(_UrtextProject.nodes[node_id].filename)
+    item.append(_UrtextProject.nodes[node_id].position)
+    menu.append(item)
+  return menu
+
+def sort_menu(menu):
+  display_menu = []
+  for item in menu: # there is probably a better way to copy this list.
+    new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>'),item[2]]
+    display_menu.append(new_item)
+  return display_menu 
 
 def get_contents(view):
   contents = view.substr(sublime.Region(0, view.size()))

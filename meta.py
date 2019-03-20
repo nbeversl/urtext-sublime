@@ -178,36 +178,6 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
 
-class ShowTagsCommand(sublime_plugin.TextCommand):
-
-  def run(self, edit):
-    sublime_urtext.refresh_nodes(self.view.window())
-    sublime_urtext._UrtextProject.build_tag_info()
-    self.tagnames = [ value for value in sublime_urtext._UrtextProject.tagnames ]
-    self.view.window().show_quick_panel(self.tagnames, self.list_values)
-
-  def list_values(self, index):
-    self.selected_tag = self.tagnames[index]
-    self.values = [ value for value in sublime_urtext._UrtextProject.tagnames[self.selected_tag]]
-    self.values.insert(0, '< all >')
-    self.view.window().show_quick_panel(self.values, self.list_files)
-
-  def list_files(self, index):
-    self.selected_value = self.values[index]
-    new_view = self.view.window().new_file()
-    new_view.set_scratch(True)
-    if self.selected_value == '< all >':
-      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s\n\n' % self.selected_value})
-      for value in sublime_urtext._UrtextProject.tagnames[self.selected_tag]:
-        new_view.run_command("insert_snippet", { "contents": value + "\n"})       
-        for node in sublime_urtext._UrtextProject.tagnames[self.selected_tag][value]:
-          new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})   
-        new_view.run_command("insert_snippet", { "contents": "\n"})       
-
-    else:
-      new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
-      for node in sublime_urtex._UrtextProject.tagnames[self.selected_tag][self.selected_value]:
-        new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
 
 
 def add_separator(view):

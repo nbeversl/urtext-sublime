@@ -44,6 +44,12 @@ class UrtextProject:
     for node in list(self.nodes):
       self.compile(node)
 
+  def dynamic_nodes(self):
+    self.dynamic_nodes = []
+    for node_id in self.nodes:
+      if node[node_id].dynamic == True:
+        self.dynamic_nodes.append(node_id)
+    
   def get_file_name(self, node_id):
 
     for node in self.nodes:
@@ -92,7 +98,6 @@ class UrtextProject:
     return sorted_indexed_nodes
 
   def build_tag_info(self):
-
     self.tagnames = {}
     for node in self.nodes:
       for entry in self.nodes[node].metadata.entries:
@@ -107,7 +112,7 @@ class UrtextProject:
             if value not in self.tagnames[entry.tag_name]:
               self.tagnames[entry.tag_name][value] = []
             self.tagnames[entry.tag_name][value].append(node)
-
+    
   def build_sub_nodes(self, filename):
       token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
@@ -163,10 +168,10 @@ class UrtextProject:
 
       tree_render = ''
       for pre, _, node in RenderTree(root):
-        try:
+        #try:
            tree_render += "%s%s" % (pre, self.nodes[node.name].metadata.get_tag('title')[0]) + '\n' 
-        except:
-          print('Error parsing node in file: %s' % filename)
+        #except:
+        #  print('Error parsing node in file: %s' % filename)
       self.nodes[root_node_id].tree = tree_render
 
   def compile(self, node_id):

@@ -6,7 +6,7 @@ import sublime_urtext
 
 class ToggleTraverse(sublime_plugin.TextCommand):
   def run(self,edit): 
-    Urtext.refresh_nodes(self.view.window()) 
+    sublime_urtext.refresh_nodes(self.view.window()) 
     if self.view.settings().has('traverse'):
       if self.view.settings().get('traverse') == 'true':
         self.view.settings().set('traverse','false')
@@ -18,7 +18,6 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     #
     self.view.settings().set('traverse', 'true')
     self.view.set_status('traverse', 'Traverse: On')
-
   
     #
     # Add another group to the left if needed
@@ -97,9 +96,9 @@ class TraverseFileTree(sublime_plugin.EventListener):
 
       filenames = []
       for link in links:
-        filenames.append(Urtext._UrtextProject.get_file_name(link))
+        filenames.append(sublime_urtext._UrtextProject.get_file_name(link))
       if len(filenames) > 0 :
-        path = Urtext.get_path(window)
+        path = sublime_urtext.get_path(window)
         window.focus_group(self.active_group + 1)
         file_view = window.open_file(os.path.join(path, filenames[0]), sublime.TRANSIENT)
         self.return_to_left(file_view, tree_view)

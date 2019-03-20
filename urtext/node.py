@@ -13,10 +13,11 @@ class UrtextNode:
   def __init__(self, filename, contents=''):
     self.filename = filename
     self.position = None
-    self.tree = None
+    self.tree = None # until built by the project
     self.contents = contents
     self.metadata = NodeMetadata(self.contents)
     self.nested_nodes = []
+    self.dynamic = False
     if contents == '':
       with open(filename,'r',encoding='utf-8') as theFile:
         self.contents = theFile.read()

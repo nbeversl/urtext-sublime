@@ -9,7 +9,6 @@ import time
 import sublime_urtext
 import urtext.datestimes
 
-
 # = 12 dashes in a row starting a line, followed by a newline
 
 def meta_separator():
@@ -33,7 +32,6 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
                     'Reverse-dated filename copied to clipboard.')
             except:
                 self.view.show_popup('Error.')
-
 
 class UpdateFileCommand(sublime_plugin.TextCommand):
     """ copies the file to a new node with a backreference."""
