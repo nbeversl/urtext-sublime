@@ -114,12 +114,14 @@ class UrtextProject:
             self.tagnames[entry.tag_name][value].append(node)
     
   def build_sub_nodes(self, filename):
+      print (filename)
       """ takes a full path"""
       token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
 
       root_node_id = self.get_node_id(filename)
 
+      # clear all previous sub_nodes in case the file has changed
       for node_id in self.files[os.path.basename(filename)]:
         if node_id != root_node_id:
           del self.nodes[node_id]
@@ -143,10 +145,20 @@ class UrtextProject:
       remaining_contents = full_file_contents
       while subnode_regexp.search(remaining_contents):
         for sub_contents in subnode_regexp.findall(remaining_contents):      
-          stripped_contents = sub_contents.strip('{{').strip('}}')        
+          stripped_contents = sub_contents.strip('{{').strip('}}').strip()
           childnodes = token_regex.findall(stripped_contents)
-          sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents)        
-          self.nodes[sub_node.node_number] = sub_node
+          
+          print('stripped contents')
+          print(stripped_contents)
+          #
+          # right here is where the problem happens
+          sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents.replace(token,'')) #??
+          # also replace the 14 digits with nothing. No need to leave the tree-buliding stuff in here.
+          self.nodes[sub_node.node_number] = sub_node 
+          #
+          # the token is being added here and later find in the compiler.
+          #
+
           if not sub_node.node_number in tree:
             tree[sub_node.node_number] = []
           for child_node in token_regex.findall(stripped_contents): 
@@ -165,14 +177,15 @@ class UrtextProject:
       root = Node(root_node_id)
 
       def add_children(parent):
+        print(parent)
         for child in tree[parent.name]:
-          try:
+          #try:
             title = self.nodes[child].metadata.get_tag('title')[0]
             new_node = Node(child, parent=parent)
             add_children(new_node)
-          except:
-            print('ERROR')
-      
+          #except:
+          #    print(parent)
+
 
       add_children(root)
 
@@ -192,7 +205,8 @@ class UrtextProject:
     keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
     node_id_match = re.compile('\d{14}')
 
-    for match in keys.findall(self.nodes[node_id].contents):       
+    for match in keys.findall(self.nodes[node_id].contents):
+      print(match)       
       if node_id_match.search(match):
         compiled_node_id = node_id_match.search(match).group(0)
         entries = re.split(';|\n', match)
@@ -211,6 +225,7 @@ class UrtextProject:
               if right_value != None:
                 for other_node in self.tagnames[key][right_value]:
                   node_contents = strip_metadata(self.nodes[other_node].strip_inline_nodes()).strip()
+                  print(node_contents)
                   contents += node_contents + ' -> ' + other_node + '\n'
                   contents += '-----------------------\n'
           if atoms[0].lower() == 'metadata':          
@@ -229,31 +244,6 @@ class UrtextProject:
           self.nodes[compiled_node_id] = UrtextNode(compiled_node_id+'.txt', contents=contents+metadata)
           self.files[compiled_node_id+'.txt'] = [compiled_node_id]
 
-  def delete(self, filename):
-    """ only deletes a file-based node, not an inline node """
-
-    # delete its inline nodes from the Project node array:
-    for node_id in self.files[os.path.basename(filename)]:
-      del self.nodes[node_id]
-
-    # delete it from the Project node array:
-    node_id = self.get_node_id(os.path.basename(filename))
-    del self.nodes[node_id]
-
-    # delete its filename from the Project file array:
-    del self.files[os.path.basename(filename)]
-
-    # delete it from the self.tagnames array
-    for tagname in list(self.tagnames):
-      for value in list(self.tagnames[tagname]):
-        if node_id in list(self.tagnames[tagname][value]):
-          self.tagnames[tagname][value].remove(node_id)
-        if len(self.tagnames[tagname][value]) == 0:
-          del self.tagnames[tagname][value]
-
-    # delete it from the file system
-    os.remove(os.path.join(self.path, filename))
-
   def add(self, datestamp):
     node_id = urtext.datestimes.make_node_id(datestamp)
     filename = node_id + '.txt'
@@ -263,8 +253,6 @@ class UrtextProject:
     with open(os.path.join(self.path, filename), "w") as theFile:
       theFile.write(contents)
       theFile.close()
-    self.nodes[node_id] = UrtextNode(os.path.join(self.path, filename))
-    self.files[os.path.basename(filename)] = [node_id]
     
     return filename
 

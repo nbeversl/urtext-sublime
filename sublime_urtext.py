@@ -23,55 +23,90 @@ from watchdog.observers import Observer
 
 _UrtextProject = None
 
-
 class UrtextWatcher(FileSystemEventHandler):
     def __init__(self):
       self.just_modified = ''
 
     def on_created(self, event):
-        global _UrtextProject
+        
         print('CREATED!')
-        filename = event.src_path
-        if event.is_directory:
+        file = self.get_the_details(event)
+        if file == None:
           return
-        file = UrtextNode(filename)
-        node_id = _UrtextProject.get_node_id(os.path.basename(filename))
-
-        if '[[' in file.contents:
-          _UrtextProject.compile(os.path.basename(filename))
+        node_id = file.node_number
 
         # not yet working
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
         
         # this is redundant: also in add() method.
-        _UrtextProject.nodes[node_id] = file
-        _UrtextProject.files[os.path.basename(filename)] = [node_id]
-
-        # order is important
-        _UrtextProject.compile_all() # this is the key to continuous compiling
-        _UrtextProject.build_sub_nodes(filename)
-        _UrtextProject.build_tag_info()
-
-    def on_modified(self, event):
         global _UrtextProject
+        _UrtextProject.nodes[node_id] = file
+        _UrtextProject.files[os.path.basename(file.filename)] = [node_id]
+        self.rebuild(file.filename)
+        
+    def on_modified(self, event):
         print('MODIFIED!')
+        file = self.get_the_details(event)
+        if file == None:
+          return
+
+        global _UrtextProject
+        _UrtextProject.nodes[file.node_number] = file
+
+        if file.filename != self.just_modified:
+          _UrtextProject.compile_all()
+          _UrtextProject.build_sub_nodes(file.filename)
+          _UrtextProject.build_tag_info()
+          self.just_modified = file.filename
+
+    def on_deleted(self, event):
+        print('DELETED!')
+        filename = event.src_path
+        print(filename)
+  
+        # delete its inline nodes from the Project node array:
+        for node_id in _UrtextProject.files[os.path.basename(filename)]:
+          del _UrtextProject.nodes[node_id]
+
+        # delete it from the Project node array:
+        node_id = _UrtextProject.get_node_id(os.path.basename(filename))
+        del _UrtextProject.nodes[node_id]
+
+        # delete its filename from the Project file array:
+        del _UrtextProject.files[os.path.basename(filename)]
+
+        # delete it from the self.tagnames array
+        for tagname in list(_UrtextProject.tagnames):
+          for value in list(_UrtextProject.tagnames[tagname]):
+            if node_id in _UrtextProject.tagnames[tagname][value]:
+              _UrtextProject.tagnames[tagname][value].remove(node_id)
+            if len(_UrtextProject.tagnames[tagname][value]) == 0:
+              del _UrtextProject.tagnames[tagname][value]
+
+        _UrtextProject.build_tag_info() # must be done first when deleting
+        _UrtextProject.compile_all()
+
+    def get_the_details(self, event):
+        global _UrtextProject
         filename = event.src_path
         print(filename)
         if event.is_directory:
-          return
-        file = UrtextNode(filename)
-        _UrtextProject.nodes[file.node_number] = file
+          return None
+        return UrtextNode(filename)        
 
+    def rebuild(self, filename):
         # order is important        
+        _UrtextProject.build_sub_nodes(filename)
+        _UrtextProject.compile_all()
+        _UrtextProject.build_tag_info()
+        
 
-        if filename != self.just_modified:
-          _UrtextProject.compile_all()   
-          _UrtextProject.build_sub_nodes(filename)
-          _UrtextProject.build_tag_info()
-          self.just_modified = filename
 
-    # need to add on_deleted, i.e. to recompile the project when nodes are removed that might be included in dynamic nodes
+
+        
+
+    
 
 def refresh_nodes(window):
   global _UrtextProject
@@ -122,7 +157,6 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     new_view = self.view.window().open_file(os.path.join(path, selected_option[2])) 
     if selected_option[3] != None:
       self.locate_node(selected_option[3], new_view)
-
 
   def list_files(self, index):
     self.selected_value = self.values[index]
@@ -424,7 +458,6 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
       filename = _UrtextProject.get_file_name(links[0])
       file_view = self.view.window().open_file(os.path.join(path, filename))
 
-
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
   def run(self,edit):
@@ -446,9 +479,9 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
-      global _UrtextProject
       file_name = os.path.basename(self.view.file_name())
       if self.view.is_dirty():
           self.view.set_scratch(True)
       self.view.window().run_command('close_file')
-      _UrtextProject.delete(file_name)
+      global _UrtextProject      
+      os.remove(os.path.join(_UrtextProject.path, file_name))
