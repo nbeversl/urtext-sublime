@@ -1,3 +1,5 @@
+## this should be used in standalone mode only, not in text editor implementation
+
 import time
 from urtext.node import UrtextNode
 import os

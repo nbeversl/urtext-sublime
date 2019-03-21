@@ -25,7 +25,9 @@ _UrtextProject = None
 
 
 class UrtextWatcher(FileSystemEventHandler):
-        
+    def __init__(self):
+      self.just_modified = ''
+
     def on_created(self, event):
         global _UrtextProject
         print('CREATED!')
@@ -58,9 +60,12 @@ class UrtextWatcher(FileSystemEventHandler):
         _UrtextProject.nodes[file.node_number] = file
 
         # order is important        
-        _UrtextProject.compile_all()   
-        _UrtextProject.build_sub_nodes(filename)
-        _UrtextProject.build_tag_info()
+
+        if filename != self.just_modified:
+          _UrtextProject.compile_all()   
+          _UrtextProject.build_sub_nodes(filename)
+          _UrtextProject.build_tag_info()
+          self.just_modified = filename
 
     # need to add on_deleted, i.e. to recompile the project when nodes are removed that might be included in dynamic nodes
 

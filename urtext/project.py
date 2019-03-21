@@ -204,7 +204,7 @@ class UrtextProject:
             if atoms[1].lower() == 'metadata':
               key = atoms[2]
               value = atoms[3]
-              right_key = None
+              right_value = None
               for indexed_value in self.tagnames[key]:
                 if indexed_value.lower().strip() == value:
                   right_value = value  
