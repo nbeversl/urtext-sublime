@@ -4,55 +4,11 @@ import os
 from urtext.node import UrtextNode
 from anytree import Node, RenderTree
 import urtext.datestimes
-import watchdog
-
-import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-class MyHandler(FileSystemEventHandler):
-    def __init__(self, project):
-      self.project = project
-
-    def on_modified(self, event):
-        
-        filename = event.src_path
-        file = UrtextNode(filename)
-        try: # not a new file
-          self.project.nodes[file.node_number] = file
-          for node_number in self.project.files[os.path.basename(filename)]:
-            del self.project.nodes[node_number]
-          self.project.build_sub_nodes(filename)
-
-        except KeyError: # new file
-          self.project.nodes[file.node_number] = file
-          self.project.files[os.path.basename(filename)] = [file.node_number]
-
-        node_id = self.project.get_node_id(os.path.basename(filename))
-
-        if '[[' in self.project.nodes[node_id].contents:
-          self.project.compile(node_id)
-
-        # not yet working
-        #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
-        #  ShowInlineNodeTree.run(view)
-
-        # too much, revise later.
-        for node in list(self.project.nodes):
-          self.project.compile(node)
-        
-        self.project.build_tag_info()
-
-        print("Got it!")
 
 class UrtextProject:
 
   def __init__(self, path):
     self.path = path
-    self.event_handler = MyHandler(self)
-    observer = Observer()
-    observer.schedule(self.event_handler, path='/Users/nathanielbeversluis/Dropbox/txt', recursive=False)
-    observer.start()
-
     self.nodes = {}
     self.files = {}
     files = os.listdir(self.path)
@@ -294,13 +250,14 @@ class UrtextProject:
     node_id = urtext.datestimes.make_node_id(datestamp)
     filename = node_id + '.txt'
     contents  = "\n\n\n"
-    contents += "/- ID:" +node_id+'\n-/'
+    contents += "/- ID:" +node_id+' -/'
 
     with open(os.path.join(self.path, filename), "w") as theFile:
       theFile.write(contents)
       theFile.close()
     self.nodes[node_id] = UrtextNode(os.path.join(self.path, filename))
-    self.files[filename] = [node_id]
+    self.files[os.path.basename(filename)] = [node_id]
+    
     return filename
 
   def list_nodes(self):

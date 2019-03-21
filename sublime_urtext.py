@@ -9,6 +9,11 @@ from urtext.node import UrtextNode
 from urtext.project import UrtextProject
 import datetime
 
+#temporary
+from watchdog.events import FileSystemEventHandler
+import watchdog
+from watchdog.observers import Observer
+
 # TODOS
 # Have the node tree auto update on save.
 # Fix indexing not working in fuzzy search in panel
@@ -17,6 +22,65 @@ import datetime
 # investigate git and diff support
 
 _UrtextProject = None
+
+
+class UrtextWatcher(FileSystemEventHandler):
+        
+    def on_created(self, event):
+        global _UrtextProject
+        print('CREATED!')
+        print(event)  
+        filename = event.src_path
+        file = UrtextNode(filename)
+        node_id = _UrtextProject.get_node_id(os.path.basename(filename))
+
+        if '[[' in _UrtextProject.nodes[file.node_number].contents:
+          _UrtextProject.compile(file.node_number)
+
+        # not yet working
+        #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
+        #  ShowInlineNodeTree.run(view)
+
+        # too much, revise later.
+        for node in list(self.project.nodes):
+          self.project.compile(node)
+        
+        _UrtextProject.build_tag_info()
+
+    """def on_modified(self, event):
+        global _UrtextProject
+        print('MODIFIED!')
+        print(event)
+        filename = event.src_path
+        print(filename)
+        file = UrtextNode(filename)
+        _UrtextProject.nodes[file.node_number] = file
+        for node_number in _UrtextProject.files[os.path.basename(filename)]:
+          del _UrtextProject.nodes[node_number]
+        _UrtextProject.build_sub_nodes(filename)
+
+        if '[[' in _UrtextProject.nodes[file.node_number].contents:
+          _UrtextProject.compile(file.node_number)
+          _UrtextProject.compile(file.node_number)
+
+        _UrtextProject.build_tag_info()"""
+
+
+
+def refresh_nodes(window):
+  global _UrtextProject
+  if _UrtextProject == None:
+    print('_UrtextProject rebuilt')
+    _UrtextProject = UrtextProject(get_path(window))
+    event_handler = UrtextWatcher()
+    observer = Observer()
+    observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+    observer.start()
+ 
+
+
+
+  
 
 def get_path(window): # transfer this to an urtext .cfg file
   """ Returns the Urtext path from settings """
@@ -32,7 +96,6 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     self.tagnames = [ value for value in _UrtextProject.tagnames ]
-    print(self.tagnames)
     self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
   def list_values(self, index):
@@ -45,12 +108,10 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
   
     self.selected_value = self.values[index]
     menu = make_node_menu(_UrtextProject.tagnames[self.selected_tag][self.selected_value], menu=[])
-    print(menu)
     display_menu = sort_menu(menu)
     show_panel(self.view.window(), display_menu, self.open_the_file)
 
   def open_the_file(self, selected_option): # copied from below, refactor later.
-    print(selected_option)
     path = get_path(self.view.window())
     new_view = self.view.window().open_file(os.path.join(path, selected_option[2])) 
     if selected_option[3] != None:
@@ -138,11 +199,6 @@ def add_one_split(view):
   view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
   view.settings().set("word_wrap", False)
 
-def refresh_nodes(window):
-  global _UrtextProject
-  if _UrtextProject == None:
-    print('_UrtextProject rebuilt')
-    _UrtextProject = UrtextProject(get_path(window))  
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -170,7 +226,7 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       refresh_nodes(self.window)
       menu = make_node_menu(_UrtextProject.indexed_nodes(), menu = [])
       menu = make_node_menu(_UrtextProject.unindexed_nodes(), menu = menu)
-      display_menu = sort_menu(menu)      
+      display_menu = sort_menu(menu)
       show_panel(self.window, display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
@@ -364,19 +420,29 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
 
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
+
   def run(self,edit):
     global _UrtextProject
     refresh_nodes(self.view.window())
     new_view = self.view.window().new_file()
     output = _UrtextProject.list_nodes()
     new_view.run_command("insert", {"characters": output})
-    
+
+class NewNodeCommand(sublime_plugin.WindowCommand):
+
+  def run(self):
+      global _UrtextProject  
+      refresh_nodes(self.window)
+      self.path = _UrtextProject.path
+      filename = _UrtextProject.add(datetime.datetime.now())
+      new_view = self.window.open_file(os.path.join(self.path, filename))
+
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
-    def run(self, edit):
-        global _UrtextProject
-        file_name = os.path.basename(self.view.file_name())
-        if self.view.is_dirty():
-            self.view.set_scratch(True)
-        self.view.window().run_command('close_file')
-        _UrtextProject.delete(file_name)
+  def run(self, edit):
+      global _UrtextProject
+      file_name = os.path.basename(self.view.file_name())
+      if self.view.is_dirty():
+          self.view.set_scratch(True)
+      self.view.window().run_command('close_file')
+      _UrtextProject.delete(file_name)

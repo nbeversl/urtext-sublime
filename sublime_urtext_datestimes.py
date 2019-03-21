@@ -64,16 +64,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
             sublime.set_timeout(lambda: self.add_content(view), 10)
 
 
-class NewNodeCommand(sublime_plugin.WindowCommand):
-    """
-    Creates a new file with reverse-dated filename and initial metadata
-    """
-    def run(self):
-        sublime_urtext.refresh_nodes(self.window)
-        self.path = sublime_urtext._UrtextProject.path
-        filename = sublime_urtext._UrtextProject.add(datetime.datetime.now())
-        new_view = self.window.open_file(os.path.join(self.path, filename))
- 
+
 class ReFile(sublime_plugin.TextCommand):
     def run(self, edit):
         now = datetime.datetime.now()
