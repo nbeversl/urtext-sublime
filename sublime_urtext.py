@@ -154,38 +154,6 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
                              "contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
 
-class UrtextSave(sublime_plugin.EventListener):
-  """ This takes the place of an file watcher"""
-
-  def on_post_save(self, view):    
-
-    try: # not a new file
-      file = UrtextNode(view.file_name())
-      _UrtextProject.nodes[file.node_number] = file
-      for node_number in _UrtextProject.files[os.path.basename(view.file_name())]:
-        del _UrtextProject.nodes[node_number]
-      _UrtextProject.build_sub_nodes(view.file_name())
-
-    except KeyError: # new file
-      file = UrtextNode(view.file_name())
-      _UrtextProject.nodes[file.node_number] = file
-      _UrtextProject.files[os.path.basename(view.file_name())] = [file.node_number]
-
-    node_id = _UrtextProject.get_node_id(os.path.basename(view.file_name()))
-
-    if '[[' in _UrtextProject.nodes[node_id].contents:
-      _UrtextProject.compile(node_id)
-
-    if node_id+'TREE' in [view.name() for view in view.window().views()]:
-      # not yet working
-      ShowInlineNodeTree.run(view)
-
-    # too much, revise later.
-    for node in list(_UrtextProject.nodes):
-      _UrtextProject.compile(node)
-    
-    _UrtextProject.build_tag_info()
-
 class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     global _UrtextProject
