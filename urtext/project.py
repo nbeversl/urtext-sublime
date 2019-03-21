@@ -113,63 +113,74 @@ class UrtextProject:
               self.tagnames[entry.tag_name][value] = []
             self.tagnames[entry.tag_name][value].append(node)
     
-  def build_sub_nodes(self, filename):
-      print (filename)
-      """ takes a full path"""
+  def build_sub_nodes(self, filename): # needs to be reorganized but works
+      """ 
+      iterates over a single file to parse sub-nodes into the project object
+      builds a diagram of the nested nodes at the same time.
+      takes a full path
+      """
+
+      filename = os.path.basename(filename) # why not just pass a filename without path?
+
+      # string and pattern definitions
       token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
+      subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
+      # TODO - the second RegEx is better. I'm not sure why it doesn't work.
+      #
 
       root_node_id = self.get_node_id(filename)
 
-      # clear all previous sub_nodes in case the file has changed
-      for node_id in self.files[os.path.basename(filename)]:
+      # clear all nodes defined from this file in case the file has changed
+      for node_id in self.files[filename]:
         if node_id != root_node_id:
           del self.nodes[node_id]
 
-      self.files[os.path.basename(filename)] = []
+      # clear the filename in the project  
+      self.files[filename] = []
       
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
         full_file_contents = theFile.read()
         theFile.close()
 
-      subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
-      #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
-      # TODO - the second RegEx is better. I'm not sure why it doesn't work.
-      #
-      #
-      tree = {}
-      filename = os.path.basename(filename)
+      tree = {} # flat dict for each node as key and a list of its children as value 
       root_node_id = self.get_node_id(filename)
       tree[root_node_id] = []
 
       remaining_contents = full_file_contents
+      
+      # as long as a new subnode is seen:
       while subnode_regexp.search(remaining_contents):
+        
+        # regex finds the innermost nodes first, working outward :
         for sub_contents in subnode_regexp.findall(remaining_contents):      
-          stripped_contents = sub_contents.strip('{{').strip('}}').strip()
-          childnodes = token_regex.findall(stripped_contents)
+          stripped_contents = sub_contents.strip('{{').strip('}}')            # strip the wrapper out
+          childnodes = token_regex.findall(stripped_contents)                 # look for previously tokenized children inside
           
-          print('stripped contents')
-          print(stripped_contents)
-          #
-          # right here is where the problem happens
-          sub_node = UrtextNode(os.path.join(self.path,filename), contents=stripped_contents.replace(token,'')) #??
-          # also replace the 14 digits with nothing. No need to leave the tree-buliding stuff in here.
-          self.nodes[sub_node.node_number] = sub_node 
-          #
-          # the token is being added here and later find in the compiler.
-          #
+          # make a "clean" copy of the contents without the token to store in the project object
+          untokenized_contents = re.sub(token_regex,'',stripped_contents).strip()
 
+          # define a node and file in the project containing these contents (without the replacement token)
+          sub_node = UrtextNode(os.path.join(self.path, filename), contents=untokenized_contents)
+          self.nodes[sub_node.node_number] = sub_node 
+          self.files[filename].append(sub_node.node_number)
+          
+          # if the node number is not already in the node tree, add it
           if not sub_node.node_number in tree:
             tree[sub_node.node_number] = []
           for child_node in token_regex.findall(stripped_contents): 
             tree[sub_node.node_number].append(child_node[len(token):])   
           stripped_contents = re.sub(token_regex,'',stripped_contents)
+
+          # find position of this content within the original file contents to save a position marker
           identifier_text = '{{'+stripped_contents.split('{{')[0].split('/-')[0].rstrip()
           position = full_file_contents.find(identifier_text)
           self.nodes[sub_node.node_number].position = position
-          remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
-          self.files[os.path.basename(filename)].append(sub_node.node_number)
 
+          # add a token for the next iteration
+          remaining_contents = remaining_contents.replace(sub_contents,token + sub_node.node_number)
+          
       # this is now the root node; get all its children;
       for child_node in token_regex.findall(remaining_contents):   
         tree[root_node_id].append(child_node[len(token):])

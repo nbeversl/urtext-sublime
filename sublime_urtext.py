@@ -9,7 +9,6 @@ from urtext.node import UrtextNode
 from urtext.project import UrtextProject
 import datetime
 
-#temporary
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
