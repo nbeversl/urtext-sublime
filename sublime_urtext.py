@@ -43,7 +43,11 @@ class UrtextWatcher(FileSystemEventHandler):
         # not yet working
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
-   
+        
+        # this is redundant: also in add() method.
+        _UrtextProject.nodes[node_id] = file
+        _UrtextProject.files[os.path.basename(filename)] = [node_id]
+
         # order is important
         _UrtextProject.compile_all() # this is the key to continuous compiling
         _UrtextProject.build_sub_nodes(filename)
