@@ -118,13 +118,17 @@ class UrtextProject:
       token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
 
-      self.files[os.path.basename(filename)] = []
+      root_node_id = self.get_node_id(filename)
 
+      for node_id in self.files[os.path.basename(filename)]:
+        if node_id != root_node_id:
+          del self.nodes[node_id]
+
+      self.files[os.path.basename(filename)] = []
+      
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
         full_file_contents = theFile.read()
         theFile.close()
-
-      # may still need to add logic to remove old sub_nodes? removed this from event listener
 
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
       #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
@@ -180,6 +184,10 @@ class UrtextProject:
         #  print('Error parsing node in file: %s' % filename)
       self.nodes[root_node_id].tree = tree_render
 
+  def compile_all(self):
+    for node_id in self.nodes:
+      self.compile(node_id)
+
   def compile(self, node_id):
     keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
     node_id_match = re.compile('\d{14}')
@@ -202,9 +210,7 @@ class UrtextProject:
                   right_value = value  
               if right_value != None:
                 for other_node in self.tagnames[key][right_value]:
-                  node_contents = strip_metadata(self.nodes[other_node].contents).strip()
-                  node_contents = node_contents.replace('{{','')
-                  node_contents = node_contents.replace('}}','')
+                  node_contents = strip_metadata(self.nodes[other_node].strip_inline_nodes()).strip()
                   contents += node_contents + ' -> ' + other_node + '\n'
                   contents += '-----------------------\n'
           if atoms[0].lower() == 'metadata':          

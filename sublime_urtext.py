@@ -41,11 +41,10 @@ class UrtextWatcher(FileSystemEventHandler):
         # not yet working
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
-
-        # too much, revise later.
-        for node in list(_UrtextProject.nodes):
-          _UrtextProject.compile(node_id)
-        
+   
+        # order is important
+        _UrtextProject.compile_all() # this is the key to continuous compiling
+        _UrtextProject.build_sub_nodes(filename)
         _UrtextProject.build_tag_info()
 
     def on_modified(self, event):
@@ -57,20 +56,13 @@ class UrtextWatcher(FileSystemEventHandler):
           return
         file = UrtextNode(filename)
         _UrtextProject.nodes[file.node_number] = file
-        #
-        # removed <Thu., Mar. 21, 2019, 02:04 PM> for causing problems
-        #for node_number in _UrtextProject.files[os.path.basename(filename)]:
-        #  del _UrtextProject.nodes[node_number]
-        #
-        #
-        _UrtextProject.build_sub_nodes(filename)
 
-        if '[[' in _UrtextProject.nodes[file.node_number].contents:
-          _UrtextProject.compile(os.path.basename(filename))
-   
+        # order is important        
+        _UrtextProject.compile_all()   
+        _UrtextProject.build_sub_nodes(filename)
         _UrtextProject.build_tag_info()
 
-
+    # need to add on_deleted, i.e. to recompile the project when nodes are removed that might be included in dynamic nodes
 
 def refresh_nodes(window):
   global _UrtextProject
@@ -399,7 +391,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
 
       filenames = []
       for link in links:
-        filenames.append(s_UrtextProject.get_file_name(link))
+        filenames.append(_UrtextProject.get_file_name(link))
       if len(filenames) > 0 :
         path = get_path(window)
         window.focus_group(self.active_group + 1)

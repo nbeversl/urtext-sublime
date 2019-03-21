@@ -16,7 +16,6 @@ class UrtextNode:
     self.tree = None # until built by the project
     self.contents = contents
     self.metadata = NodeMetadata(self.contents)
-    self.nested_nodes = []
     self.dynamic = False
     if contents == '':
       with open(filename,'r',encoding='utf-8') as theFile:
@@ -29,11 +28,19 @@ class UrtextNode:
       except:
         print('There is is probably a node wrapper without an ID in %s' % self.filename)
     
-    self.metadata = NodeMetadata(self.contents)
+    self.metadata = NodeMetadata(self.strip_inline_nodes()) # clever shit.
     #self.title = 'test' #re.search(r'[^\d]+|$',filename).group(0)
     
     self.index = self.metadata.get_tag('index')
     
+
+  def strip_inline_nodes(self):
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+    stripped_contents = self.contents
+    while subnode_regexp.search(stripped_contents):
+      for inline_node in subnode_regexp.findall(stripped_contents): 
+          stripped_contents = stripped_contents.replace(inline_node, '')
+    return stripped_contents
 
   def set_index(self, new_index):
     self.index = new_index
