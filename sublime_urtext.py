@@ -29,41 +29,46 @@ class UrtextWatcher(FileSystemEventHandler):
     def on_created(self, event):
         global _UrtextProject
         print('CREATED!')
-        print(event)  
         filename = event.src_path
+        if event.is_directory:
+          return
         file = UrtextNode(filename)
         node_id = _UrtextProject.get_node_id(os.path.basename(filename))
 
-        if '[[' in _UrtextProject.nodes[file.node_number].contents:
-          _UrtextProject.compile(file.node_number)
+        if '[[' in file.contents:
+          _UrtextProject.compile(os.path.basename(filename))
 
         # not yet working
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
 
         # too much, revise later.
-        for node in list(self.project.nodes):
-          self.project.compile(node)
+        for node in list(_UrtextProject.nodes):
+          _UrtextProject.compile(node_id)
         
         _UrtextProject.build_tag_info()
 
-    """def on_modified(self, event):
+    def on_modified(self, event):
         global _UrtextProject
         print('MODIFIED!')
-        print(event)
         filename = event.src_path
         print(filename)
+        if event.is_directory:
+          return
         file = UrtextNode(filename)
         _UrtextProject.nodes[file.node_number] = file
-        for node_number in _UrtextProject.files[os.path.basename(filename)]:
-          del _UrtextProject.nodes[node_number]
+        #
+        # removed <Thu., Mar. 21, 2019, 02:04 PM> for causing problems
+        #for node_number in _UrtextProject.files[os.path.basename(filename)]:
+        #  del _UrtextProject.nodes[node_number]
+        #
+        #
         _UrtextProject.build_sub_nodes(filename)
 
         if '[[' in _UrtextProject.nodes[file.node_number].contents:
-          _UrtextProject.compile(file.node_number)
-          _UrtextProject.compile(file.node_number)
-
-        _UrtextProject.build_tag_info()"""
+          _UrtextProject.compile(os.path.basename(filename))
+   
+        _UrtextProject.build_tag_info()
 
 
 

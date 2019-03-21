@@ -114,6 +114,7 @@ class UrtextProject:
             self.tagnames[entry.tag_name][value].append(node)
     
   def build_sub_nodes(self, filename):
+      """ takes a full path"""
       token = '======#########CHILDNODE'
       token_regex = re.compile(token+'\d{14}')
 
@@ -123,6 +124,7 @@ class UrtextProject:
         full_file_contents = theFile.read()
         theFile.close()
 
+      # may still need to add logic to remove old sub_nodes? removed this from event listener
 
       subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
       #subnode_regexp = re.compile ('{{((?!{{)(?!}}).)+}}', flags=re.DOTALL ) # regex to match an innermost node <Mon., Mar. 11, 2019, 05:19 PM>
@@ -236,12 +238,12 @@ class UrtextProject:
     del self.files[os.path.basename(filename)]
 
     # delete it from the self.tagnames array
-    for tagname in self.tagnames:
-      for value in self.tagnames[tagname]:
-        if node_id in self.tagnames[tagname][value]:
+    for tagname in list(self.tagnames):
+      for value in list(self.tagnames[tagname]):
+        if node_id in list(self.tagnames[tagname][value]):
           self.tagnames[tagname][value].remove(node_id)
         if len(self.tagnames[tagname][value]) == 0:
-          self.tagnames[tagname].remove(value)
+          del self.tagnames[tagname][value]
 
     # delete it from the file system
     os.remove(os.path.join(self.path, filename))
