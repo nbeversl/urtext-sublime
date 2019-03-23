@@ -137,7 +137,7 @@ class UrtextProject:
         if node_id != root_node_id:
           del self.nodes[node_id]
 
-      # clear the filename in the project  
+      # clear the filename's existing subnodes in the project  
       self.files[filename] = []
       
       with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:

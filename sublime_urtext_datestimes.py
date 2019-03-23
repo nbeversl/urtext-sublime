@@ -8,6 +8,7 @@ import os
 import time
 import sublime_urtext
 import urtext.datestimes
+import urtext.metadata
 
 # = 12 dashes in a row starting a line, followed by a newline
 
@@ -37,7 +38,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
     """ copies the file to a new node with a backreference."""
     def run(self, edit):
         contents = self.view.substr(sublime.Region(0, self.view.size()))
-        self.contents = Urtext.meta.clear_meta(contents)
+        self.contents = urtext.metadata.clear_meta(contents)
         old_filename = self.view.file_name()
         self.old_filename = old_filename.split('/')[-1]
         now = datetime.datetime.now()
