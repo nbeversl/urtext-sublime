@@ -99,14 +99,7 @@ class UrtextWatcher(FileSystemEventHandler):
         _UrtextProject.build_sub_nodes(filename)
         _UrtextProject.compile_all()
         _UrtextProject.build_tag_info()
-        
-
-
-
-        
-
-    
-
+      
 def refresh_nodes(window):
   global _UrtextProject
   if _UrtextProject == None:
@@ -117,11 +110,6 @@ def refresh_nodes(window):
     observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
     observer.start()
  
-
-
-
-  
-
 def get_path(window): # transfer this to an urtext .cfg file
   """ Returns the Urtext path from settings """
   if window.project_data():

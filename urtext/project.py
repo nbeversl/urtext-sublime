@@ -209,8 +209,8 @@ class UrtextProject:
       self.nodes[root_node_id].tree = tree_render
 
   def compile_all(self):
-    for node_id in self.nodes:
-      self.compile(node_id)
+    for file in self.files:
+      self.compile(self.get_node_id(file))
 
   def compile(self, node_id):
     keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
