@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 import os
-import Urtext.urtext as Urtext
+import urtext
 import re
 import datetime
 

@@ -53,11 +53,25 @@ class UrtextWatcher(FileSystemEventHandler):
         global _UrtextProject
         _UrtextProject.nodes[file.node_number] = file
 
-        if file.filename != self.just_modified:
+        # something here has to stop looping.
+        # probably need to make an array of dynamic nodes.
+
+        #if file.filename != self.just_modified:
+        if 'dynamic' not in file.metadata.get_tag('kind'):
+          print('updating dynamic nodes')
           _UrtextProject.compile_all()
           _UrtextProject.build_sub_nodes(file.filename)
           _UrtextProject.build_tag_info()
           self.just_modified = file.filename
+
+        if 'dynamic' in file.metadata.get_tag('kind'):
+          #get a list of all dynamic nodes and compile them individually.
+          # but if they update each other, how do you know when it's done?
+          # keep an array of the files each dynamic node changes, 
+          # must disallow recursive dynamic updates.
+
+          pass
+
 
     def on_deleted(self, event):
         print('DELETED!')
@@ -259,8 +273,11 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def open_the_file(self, selected_option):
       path = get_path(self.window)
       new_view = self.window.open_file(os.path.join(path,selected_option[2])) 
-      if selected_option[3] != None:
-        self.locate_node(selected_option[3], new_view)
+
+      #TODO: FIX locating node positions
+      #print(selected_option)
+      #if selected_option[3] != None:
+      #  self.locate_node(selected_option[3], new_view)
 
     def locate_node(self, position, view):
       if not view.is_loading(): 
@@ -320,6 +337,7 @@ def sort_menu(menu):
   display_menu = []
   for item in menu: # there is probably a better way to copy this list.
     new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>'),item[2]]
+
     display_menu.append(new_item)
   return display_menu 
 
