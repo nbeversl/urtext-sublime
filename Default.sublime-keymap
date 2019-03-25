@@ -8,5 +8,8 @@
 	{ "keys": ["ctrl+shift+s"], "command": "rename_file"},
 	{ "keys": ["ctrl+shift+/"], "command": "open_node"},
 	{ "keys": ["ctrl+shift+super+;"], "command": "insert_node"},
+	{ "keys": ["ctrl+t"], "command": "insert_timestamp"},
+	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
 
 ]
+

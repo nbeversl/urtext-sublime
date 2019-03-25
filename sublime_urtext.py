@@ -20,8 +20,6 @@ from watchdog.observers import Observer
 # investigate multiple scopes
 # investigate git and diff support
 
-_UrtextProject = None
-
 class UrtextWatcher(FileSystemEventHandler):
     def __init__(self):
       self.just_modified = ''
@@ -53,24 +51,12 @@ class UrtextWatcher(FileSystemEventHandler):
         global _UrtextProject
         _UrtextProject.nodes[file.node_number] = file
 
-        # something here has to stop looping.
-        # probably need to make an array of dynamic nodes.
-
-        #if file.filename != self.just_modified:
-        if 'dynamic' not in file.metadata.get_tag('kind'):
-          print('updating dynamic nodes')
-          _UrtextProject.compile_all()
-          _UrtextProject.build_sub_nodes(file.filename)
-          _UrtextProject.build_tag_info()
-          self.just_modified = file.filename
-
-        if 'dynamic' in file.metadata.get_tag('kind'):
-          #get a list of all dynamic nodes and compile them individually.
-          # but if they update each other, how do you know when it's done?
-          # keep an array of the files each dynamic node changes, 
-          # must disallow recursive dynamic updates.
-
-          pass
+        print('updating dynamic nodes')
+        _UrtextProject.build_sub_nodes(file.filename)
+        _UrtextProject.build_tag_info()
+        _UrtextProject.compile_all()
+        
+        self.just_modified = file.filename
 
 
     def on_deleted(self, event):
@@ -490,3 +476,22 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
       self.view.window().run_command('close_file')
       global _UrtextProject      
       os.remove(os.path.join(_UrtextProject.path, file_name))
+
+class InsertTimestampCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit):
+
+    now = datetime.datetime.now()
+    datestamp = urtext.datestimes.timestamp(now)
+    for s in self.view.sel():
+        if s.empty():
+            self.view.insert(edit, s.a, datestamp)
+        else:
+            view.replace(edit, s, datestamp)
+
+
+try:
+  _UrtextProject = UrtextProject(get_path(window))
+except:
+  print('no urtext project selected yet')
+  _UrtextProject = None
