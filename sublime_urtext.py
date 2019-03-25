@@ -89,7 +89,6 @@ class UrtextWatcher(FileSystemEventHandler):
     def get_the_details(self, event):
         global _UrtextProject
         filename = event.src_path
-        print(filename)
         if event.is_directory:
           return None
         return UrtextNode(filename)        
@@ -244,9 +243,8 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     new_filename = _UrtextProject.rename(old_filename)
     v = self.view.window().find_open_file(old_filename)
     if v:
-      v.retarget(os.path.join(_UrtextProject.path,new_filename))
-      v.set_name(new_filename)
-
+      v.retarget(new_filename)
+ 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
       global _UrtextProject  
@@ -259,19 +257,15 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def open_the_file(self, selected_option):
       path = get_path(self.window)
       new_view = self.window.open_file(os.path.join(path,selected_option[2])) 
-
-      #TODO: FIX locating node positions
-      #print(selected_option)
-      #if selected_option[3] != None:
-      #  self.locate_node(selected_option[3], new_view)
+      self.locate_node(selected_option[3], new_view)
 
     def locate_node(self, position, view):
       if not view.is_loading(): 
         view.sel().clear()
-        view.show_at_center(position) 
-        view.sel().add(sublime.Region(position))
+        view.show_at_center(int(position)) 
+        view.sel().add(sublime.Region(int(position)))
       else:
-        sublime.set_timeout(lambda: self.locate_node(position, view), 10)
+        sublime.set_timeout(lambda: self.locate_node(int(position), view), 10)
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): 
     def run(self):
@@ -322,8 +316,10 @@ def make_node_menu(node_ids, menu=[]):
 def sort_menu(menu):
   display_menu = []
   for item in menu: # there is probably a better way to copy this list.
-    new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>'),item[2]]
-
+    if item[3] == None:
+      item[3] = '0'
+    item[3] = str(item[3])
+    new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>'),item[2], item[3]]
     display_menu.append(new_item)
   return display_menu 
 
@@ -489,6 +485,18 @@ class InsertTimestampCommand(sublime_plugin.TextCommand):
         else:
             view.replace(edit, s, datestamp)
 
+
+class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit):
+    now = datetime.datetime.now()
+    node_id = urtext.datestimes.make_node_id(now)
+    content = '[[ ID:'+node_id +'\n\n ]]'
+    for s in self.view.sel():
+        if s.empty():
+            self.view.insert(edit, s.a, content)
+        else:
+            view.replace(edit, s, content)
 
 try:
   _UrtextProject = UrtextProject(get_path(window))

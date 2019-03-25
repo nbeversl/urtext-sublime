@@ -10,6 +10,7 @@
 	{ "keys": ["ctrl+shift+super+;"], "command": "insert_node"},
 	{ "keys": ["ctrl+t"], "command": "insert_timestamp"},
 	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
+	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"}
 
 ]
 
