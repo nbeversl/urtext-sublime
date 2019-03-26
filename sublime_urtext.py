@@ -306,7 +306,10 @@ def make_node_menu(node_ids, menu=[]):
   for node_id in node_ids:
     item = []
     metadata = _UrtextProject.nodes[node_id].metadata
-    item.append(metadata.get_tag('title')[0])  # should title be a list or a string? 
+    title = metadata.get_tag('title')[0]
+    if title.strip() == '':
+      title = '(no title)' 
+    item.append(title)  
     item.append(urtext.datestimes.date_from_reverse_date(node_id))
     item.append(_UrtextProject.nodes[node_id].filename)
     item.append(_UrtextProject.nodes[node_id].position)
