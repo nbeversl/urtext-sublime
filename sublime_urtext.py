@@ -244,20 +244,20 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     v = self.view.window().find_open_file(old_filename)
     if v:
       v.retarget(new_filename)
- 
+
+
+
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
       global _UrtextProject  
       refresh_nodes(self.window)
-      menu = make_node_menu(_UrtextProject.indexed_nodes(), menu = [])
-      menu = make_node_menu(_UrtextProject.unindexed_nodes(), menu = menu)
-      display_menu = sort_menu(menu)
-      show_panel(self.window, display_menu, self.open_the_file)
+      self.menu = NodeBrowserMenu(_UrtextProject)
+      show_panel(self.window, self.menu.display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
       path = get_path(self.window)
-      new_view = self.window.open_file(os.path.join(path,selected_option[2])) 
-      self.locate_node(selected_option[3], new_view)
+      new_view = self.window.open_file(os.path.join(path,self.menu.get_values_from_index(selected_option).filename)) 
+      self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view)
 
     def locate_node(self, position, view):
       if not view.is_loading(): 
@@ -267,25 +267,65 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       else:
         sublime.set_timeout(lambda: self.locate_node(int(position), view), 10)
 
+
+class NodeBrowserMenu():
+  """ custom class to store more information on menu items than is displayed """
+
+  def __init__(self, project):
+    menu = make_node_menu(project.indexed_nodes(), menu = [])
+    self.full_menu = make_node_menu(project.unindexed_nodes(), menu = menu)
+    self.display_menu = sort_menu(self.full_menu)
+
+  def get_values_from_index(self, selected_option):
+    index = self.display_menu.index(selected_option)
+    return self.full_menu[index]
+
+class NodeInfo(): # for later use 
+    def __init__(self, node_id):
+      metadata = _UrtextProject.nodes[node_id].metadata
+      self.title = metadata.get_tag('title')[0]
+      if self.title.strip() == '':
+        self.title = '(no title)' 
+      self.date = urtext.datestimes.date_from_reverse_date(node_id)
+      self.filename = _UrtextProject.nodes[node_id].filename
+      self.position = _UrtextProject.nodes[node_id].position
+
+def make_node_menu(node_ids, menu=[]):
+  for node_id in node_ids:
+    item = NodeInfo(node_id)
+    menu.append(item)
+  return menu
+
+def sort_menu(menu):
+  display_menu = []
+  for item in menu: # there is probably a better way to copy this list.
+    if item.position == None:
+      item.position = '0'
+    item.position = str(item.position)
+    new_item = [item.title, item.date.strftime('<%a., %b. %d, %Y, %I:%M %p>')]
+    display_menu.append(new_item)
+  return display_menu 
+
+
+
 class LinkToNodeCommand(sublime_plugin.WindowCommand): 
     def run(self):
-      menu = make_node_menu(_UrtextProject.indexed_nodes(), menu = [])
-      menu = make_node_menu(_UrtextProject.unindexed_nodes(), menu = menu)
-      display_menu = sort_menu(menu)      
-      show_panel(self.window, display_menu, self.link_to_the_file)
+      self.menu = NodeBrowserMenu(_UrtextProject)
+      show_panel(self.window, self.menu.display_menu, self.link_to_the_file)
 
     def link_to_the_file(self, selected_option):
       view = self.window.active_view()
-      filename = os.path.basename(selected_option[2])
+      filename = os.path.basename(self.menu.get_values_from_index(selected_option).filename)
       view.run_command("insert", {"characters": ' -> '+ filename + ' | '})
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
       self.current_file = os.path.basename(self.window.active_view().file_name())
-      show_panel(self.window, self.link_from_the_file)
+      self.menu = NodeBrowserMenu(_UrtextProject)
+      show_panel(self.window, self.menu.display_menu, self.link_from_the_file)
 
     def link_from_the_file(self, selected_option):
-        new_view = self.window.open_file(selected_option[2])
+        new_view = self.window.open_file(self.menu.get_values_from_index(selected_option).filename)
         sublime.set_clipboard(' -> ' + self.current_file)
         self.show_tip(new_view)
 
@@ -302,29 +342,8 @@ def show_panel(window, menu, main_callback):
     main_callback(menu[index])
   window.show_quick_panel(menu, private_callback)
 
-def make_node_menu(node_ids, menu=[]):
-  for node_id in node_ids:
-    item = []
-    metadata = _UrtextProject.nodes[node_id].metadata
-    title = metadata.get_tag('title')[0]
-    if title.strip() == '':
-      title = '(no title)' 
-    item.append(title)  
-    item.append(urtext.datestimes.date_from_reverse_date(node_id))
-    item.append(_UrtextProject.nodes[node_id].filename)
-    item.append(_UrtextProject.nodes[node_id].position)
-    menu.append(item)
-  return menu
 
-def sort_menu(menu):
-  display_menu = []
-  for item in menu: # there is probably a better way to copy this list.
-    if item[3] == None:
-      item[3] = '0'
-    item[3] = str(item[3])
-    new_item = [item[0], item[1].strftime('<%a., %b. %d, %Y, %I:%M %p>'),item[2], item[3]]
-    display_menu.append(new_item)
-  return display_menu 
+
 
 def get_contents(view):
   contents = view.substr(sublime.Region(0, view.size()))
