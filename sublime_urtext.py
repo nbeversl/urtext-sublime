@@ -21,9 +21,7 @@ from watchdog.observers import Observer
 # investigate git and diff support
 
 class UrtextWatcher(FileSystemEventHandler):
-    def __init__(self):
-      self.just_modified = ''
-
+ 
     def on_created(self, event):
         
         print('CREATED!')
@@ -50,14 +48,11 @@ class UrtextWatcher(FileSystemEventHandler):
 
         global _UrtextProject
         _UrtextProject.nodes[file.node_number] = file
-
+        print(file.filename)
         print('updating dynamic nodes')
         _UrtextProject.build_sub_nodes(file.filename)
         _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
-        
-        self.just_modified = file.filename
-
 
     def on_deleted(self, event):
         print('DELETED!')
@@ -134,13 +129,14 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
   def display_files(self, index):
   
     self.selected_value = self.values[index]
-    menu = make_node_menu(_UrtextProject.tagnames[self.selected_tag][self.selected_value], menu=[])
-    display_menu = sort_menu(menu)
-    show_panel(self.view.window(), display_menu, self.open_the_file)
+    if self.selected_value == '< all >':
+      pass # fix this
+    self.menu = NodeBrowserMenu(_UrtextProject.tagnames[self.selected_tag][self.selected_value])
+    show_panel(self.view.window(), self.menu.display_menu, self.open_the_file)
 
   def open_the_file(self, selected_option): # copied from below, refactor later.
     path = get_path(self.view.window())
-    new_view = self.view.window().open_file(os.path.join(path, selected_option[2])) 
+    new_view = self.view.window().open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
     if selected_option[3] != None:
       self.locate_node(selected_option[3], new_view)
 
@@ -231,7 +227,7 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     node_id = urtext.datestimes.make_node_id(datetime.datetime.now())
     for region in self.view.sel():
       selection = self.view.substr(region)
-    node_wrapper = '{{ '+selection+'\n /- ID:'+node_id+' -/ }}'
+    node_wrapper = '{{ '+selection+'\n /-- ID:'+node_id+' --/ }}'
     self.view.run_command("insert_snippet", {
                              "contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
@@ -245,18 +241,18 @@ class RenameFileCommand(sublime_plugin.TextCommand):
     if v:
       v.retarget(new_filename)
 
-
-
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
       global _UrtextProject  
       refresh_nodes(self.window)
-      self.menu = NodeBrowserMenu(_UrtextProject)
+      self.menu = NodeBrowserMenu(_UrtextProject.indexed_nodes())
+      self.menu.add(_UrtextProject.unindexed_nodes())
+
       show_panel(self.window, self.menu.display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
       path = get_path(self.window)
-      new_view = self.window.open_file(os.path.join(path,self.menu.get_values_from_index(selected_option).filename)) 
+      new_view = self.window.open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
       self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view)
 
     def locate_node(self, position, view):
@@ -267,20 +263,23 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       else:
         sublime.set_timeout(lambda: self.locate_node(int(position), view), 10)
 
-
 class NodeBrowserMenu():
   """ custom class to store more information on menu items than is displayed """
 
-  def __init__(self, project):
-    menu = make_node_menu(project.indexed_nodes(), menu = [])
-    self.full_menu = make_node_menu(project.unindexed_nodes(), menu = menu)
+  global _UrtextProject
+  def __init__(self, node_ids):
+    self.full_menu = make_node_menu(node_ids)
     self.display_menu = sort_menu(self.full_menu)
 
   def get_values_from_index(self, selected_option):
     index = self.display_menu.index(selected_option)
     return self.full_menu[index]
 
-class NodeInfo(): # for later use 
+  def add(self, node_ids):
+    self.full_menu.extend(make_node_menu(_UrtextProject.unindexed_nodes()))
+    self.display_menu = sort_menu(self.full_menu)
+
+class NodeInfo():
     def __init__(self, node_id):
       metadata = _UrtextProject.nodes[node_id].metadata
       self.title = metadata.get_tag('title')[0]
@@ -290,7 +289,8 @@ class NodeInfo(): # for later use
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].position
 
-def make_node_menu(node_ids, menu=[]):
+def make_node_menu(node_ids):
+  menu = []
   for node_id in node_ids:
     item = NodeInfo(node_id)
     menu.append(item)

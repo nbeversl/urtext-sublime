@@ -8,8 +8,8 @@ import datetime
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """ List snippets of files in a timeline """
     def run(self,edit):
-        if Urtext._UrtextProject == None:
-          Urtext.refresh_nodes(self.view.window());
+        if urtext._UrtextProject == None:
+          urtext.refresh_nodes(self.view.window());
         found_stuff = []
         for node in Urtext._UrtextProject.nodes:
             full_contents = Urtext._UrtextProject.nodes[node].contents
