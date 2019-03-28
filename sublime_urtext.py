@@ -8,7 +8,7 @@ import sublime_urtext_datestimes
 from urtext.node import UrtextNode
 from urtext.project import UrtextProject
 import datetime
-
+import urtext.metadata
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
@@ -156,6 +156,49 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
       new_view.run_command("insert_snippet", { "contents": '\nFiles found for tag: %s with value %s\n\n' % (self.selected_tag, self.selected_value)})
       for node in _UrtextProject.tagnames[self.selected_tag][self.selected_value]:
         new_view.run_command("insert_snippet", { "contents": " -> " +node + "\n"})       
+
+
+class TagNodeCommand(sublime_plugin.TextCommand): #under construction
+
+  def run(self, edit):
+    self.tagnames = [ value for value in _UrtextProject.tagnames ]
+    self.view.window().show_quick_panel(self.tagnames, self.list_values)
+
+  def list_values(self, index):
+    self.selected_tag = self.tagnames[index]
+    self.values = [ value for value in _UrtextProject.tagnames[self.selected_tag]]
+    self.view.window().show_quick_panel(self.values, self.tag_this_node)
+
+  def tag_this_node(self, index):
+    selected_tag = self.values[index]
+    max_size = self.view.size()
+    region = self.view.sel()[0]
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+    selection = self.view.substr(region)
+    while not subnode_regexp.search(selection):
+      a = region.a
+      b = region.b
+      if selection[:2] != '{{':
+        a -= 1
+      if selection[-2:] != '}}':
+        b += 1
+      region = sublime.Region(a, b)
+      if a == 0 or b == max_size:
+        print('entire file.')
+        break
+      selection = self.view.substr(region)
+
+    metadata = urtext.metadata.NodeMetadata(selection[2:-2])
+    metadata.log()
+
+    # this all successfully identifies which node the cursor is in.
+    # from here this should probably be done in the metadata class, not here.
+    # get the metadata string out, probably using regex
+    # find a place where the tag is
+
+    if selected_tag not in metadata.get_tag(self.selected_tag):
+      print('ADD IT')
+
 
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):

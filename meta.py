@@ -178,18 +178,6 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
 
-
-
-def add_separator(view):
-  """
-  Adds a metadata separator if one is not already there.
-  :view: a Sublime view
-  """
-  if not has_meta(view):
-    view.run_command("move_to", {"to": "eof"})
-    view.run_command("insert_snippet", { "contents": "\n\n"+meta_separator()})
-    view.run_command("move_to", {"to": "bof"})
-
 def add_created_timestamp(view, timestamp):
   """
   Adds an initial "Created: " timestamp

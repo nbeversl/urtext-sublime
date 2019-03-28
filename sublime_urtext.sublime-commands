@@ -15,4 +15,5 @@
     { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
     { "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Show Inline Node Tree", "command" :"show_inline_node_tree"},
+    { "caption": "Urtext: Tag This Node", "command" :"tag_node"},
 ] 
