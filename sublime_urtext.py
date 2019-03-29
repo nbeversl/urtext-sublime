@@ -167,9 +167,16 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
   def list_values(self, index):
     self.selected_tag = self.tagnames[index]
     self.values = [ value for value in _UrtextProject.tagnames[self.selected_tag]]
-    self.view.window().show_quick_panel(self.values, self.tag_this_node)
+    self.view.window().show_quick_panel(self.values, self.insert_tag)
 
-  def tag_this_node(self, index):
+
+  def insert_tag(self, index):
+    self.selected_value = self.values[index]
+    tag = '/-- '+self.selected_tag+': '+self.selected_value+' --/'
+    self.view.run_command("insert_snippet", { "contents": tag})
+
+
+  def locate_from_in_node(self, index): # useful in the future.
     selected_tag = self.values[index]
     max_size = self.view.size()
     region = self.view.sel()[0]

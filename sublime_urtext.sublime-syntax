@@ -44,14 +44,13 @@ contexts:
 
   meta-block:
     - meta_scope: meta-block.urtext
-    - match: '--/'
-      scope: punctuation.section.generic.end.urtext
-      pop: true
     - include: tag-names
     - include: tag-values
     - include: datestamp
     - include: node_id
-    
+    - match: '--/'
+      scope: punctuation.section.generic.end.urtext
+      pop: true
 
   meta-key-terminator:
     - match: ';'
@@ -66,7 +65,7 @@ contexts:
       scope: entity.name.tag.urtext
 
   tag-values:
-    - match: (?<=\w:)\s[^(;|]*(?:(--/))?
+    - match: (?<=\w:)\s[^(;|]*?(!?:(--/))?
       scope: entity.name.value.urtext
 
   node_id:
