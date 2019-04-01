@@ -360,7 +360,7 @@ def sort_menu(menu):
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): 
     def run(self):
-      self.menu = NodeBrowserMenu(_UrtextProject)
+      self.menu = NodeBrowserMenu(_UrtextProject.nodes)
       show_panel(self.window, self.menu.display_menu, self.link_to_the_file)
 
     def link_to_the_file(self, selected_option):
@@ -371,7 +371,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand):
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
       self.current_file = os.path.basename(self.window.active_view().file_name())
-      self.menu = NodeBrowserMenu(_UrtextProject)
+      self.menu = NodeBrowserMenu(_UrtextProject.nodes)
       show_panel(self.window, self.menu.display_menu, self.link_from_the_file)
 
     def link_from_the_file(self, selected_option):
