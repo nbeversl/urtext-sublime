@@ -26,11 +26,10 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
         for region in self.view.sel():
             text = self.view.substr(region)
             try:
-                
                 date = datetime.datetime.strptime(text, urtext.datestimes.timestamp_format)
-                sublime.set_clipboard(make_reverse_date_filename(date))
+                sublime.set_clipboard(urtext.datestimes.make_node_id(date))
                 self.view.show_popup(
-                    'Reverse-dated filename copied to clipboard.')
+                'Reverse-dated filename copied to clipboard.')
             except:
                 self.view.show_popup('Error.')
 

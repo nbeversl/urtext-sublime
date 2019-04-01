@@ -238,6 +238,24 @@ Ideas Behind Urtext
 		A system, not an implementation.
 		Allows for metadata without relying on the filesystem
 
+
+Key Bindings: 
+
+	The 'Super' key is Command on Mac, Windows key on Windows.
+
+	ctrl+shift+; 			New Node
+	super+e 				Node Browser 
+	ctrl+shift+l 			update_file
+	super+r 				Toggle Traverse Mode
+	ctrl+shift+s. 			Auto rename file from node metadata
+	ctrl+shift+/ 			Open node (from an ID on the same line) 
+	ctrl+shift+super+;		New inline node
+	ctrl+shift+[ 			New inline node from selection
+	ctrl+t 					Insert timestamp
+	ctrl+shift+] 			New dynamic node definition
+	ctrl+shift+t 			Timeline view
+
+
 ------------
 Created <Thu., Feb. 07, 2019, 03:14 PM>
 Original filename: 79811024084551.txt

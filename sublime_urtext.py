@@ -165,12 +165,15 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
     self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
   def list_values(self, index):
+    if index == -1:
+      return
     self.selected_tag = self.tagnames[index]
     self.values = [ value for value in _UrtextProject.tagnames[self.selected_tag]]
     self.view.window().show_quick_panel(self.values, self.insert_tag)
 
-
   def insert_tag(self, index):
+    if index == -1:
+      return
     self.selected_value = self.values[index]
     tag = '/-- '+self.selected_tag+': '+self.selected_value+' --/'
     self.view.run_command("insert_snippet", { "contents": tag})

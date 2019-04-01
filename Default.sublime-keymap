@@ -1,5 +1,4 @@
 [
-	{ "keys": ["ctrl+shift+."], "command": "modified" },
 	{ "keys": ["ctrl+shift+l"], "command": "update_file" },
 	{ "keys": ["ctrl+shift+;"], "command": "new_node" },
 	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },

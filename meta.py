@@ -16,19 +16,6 @@ import sublime_urtext
 def meta_separator():
     return "------------" # to remove later
 
-
-class ModifiedCommand(sublime_plugin.TextCommand):
-  """ Adds a modification timestamp to the metadata. """
-  def run(self, edit):
-      if not has_meta(self.view):
-        add_separator(self.view)
-        self.view.run_command("move_to", {"to": "eof"})
-        self.view.run_command("insert_snippet", { "contents": "[ no existing metadata ]\n"})
-      timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
-      self.view.run_command("move_to", {"to": "eof"})
-      self.view.run_command("insert_snippet", { "contents": "Modified: "+timestamp+'\n'})
-      self.view.run_command("move_to", {"to": "bof"})
-
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
   # most of this is now in urtext module
