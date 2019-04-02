@@ -9,7 +9,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
     """ List snippets of files in a timeline """
     def run(self,edit):
         if urtext._UrtextProject == None:
-          urtext.refresh_nodes(self.view.window());
+          urtext.refresh_project(self.view.window());
         found_stuff = []
         for node in Urtext._UrtextProject.nodes:
             full_contents = Urtext._UrtextProject.nodes[node].contents

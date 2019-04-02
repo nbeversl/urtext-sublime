@@ -3,6 +3,9 @@ SublimeUrtext Documentation
 Updated: <Mon., Mar. 04, 2019, 05:32 PM>
 Version: 0.4
 
+ADD : "always_prompt_for_file_reload": false
+Will prevent dynamic nodes from showing pops
+
 {{ 	What This Is  
 	/-- ID:79810915120529 --/ 
 

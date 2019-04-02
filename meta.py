@@ -21,7 +21,7 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   # most of this is now in urtext module
 
   def run(self, edit):
-    sublime_urtext.refresh_nodes(self.view.window())
+    sublime_urtext.refresh_project(self.view.window())
     self.errors = []
     path = sublime_urtext._UrtextProject.path
     tree = NodePullTree(self.view.file_name(), path)
@@ -41,7 +41,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # Necessary to change it?
 
   def run(self, edit):
-    Urtext.refresh_nodes(self.view.window())
+    Urtext.refresh_project(self.view.window())
     self.path = Urtext.get_path(self.view.window())
     self.errors = [] 
     self.visited_files = []
