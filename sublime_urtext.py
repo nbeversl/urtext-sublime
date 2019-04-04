@@ -623,4 +623,20 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
         else:
             view.replace(edit, s, content)
 
+class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
+
+  def run(self, edit):
+    refresh_project(self.view.window())
+
+    # this part is copied from OpenNode, should be refactored
+    full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+    links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
+    if len(links) == 0:
+      return
+    path = get_path(self.view.window())
+    node_id = links[0]
+    ##
+
+    _UrtextProject.tag_node(node_id, 'tags','done')
+
 _UrtextProject = None
