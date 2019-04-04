@@ -566,11 +566,13 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
 
     sublime.set_clipboard(consolidate_metadata)
     self.view.show_popup('Consolidated metadata copied to the clipboard.')
+    
+    s = _UrtextProject.consolidate_metadata(node_id)
+    print(s)
     # now just need to remove existing tags.
     # could do this from cursor position within the document.
     # possibly make a grid object for each file, showing where the characters of each node
     # are located?
-    self.make_grid()
 
   def make_grid(self):
     contents = get_contents(self.view)
@@ -623,6 +625,11 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
         else:
             view.replace(edit, s, content)
 
+class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    s = _UrtextProject.find_node_territory_in_file('79810910082101')
+    print(s)
+    
 class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
