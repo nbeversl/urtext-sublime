@@ -128,7 +128,7 @@ Will prevent dynamic nodes from showing pops
 
 		- A timestamp anywhere in the value will be indexed as the timestamp for the metadata entry. If you put more than one timestamp in an entry, only the first one is read.
 		
-		- Indexing of metadata names is not case-sensitive.
+		- Indexing of metadata key names is not case-sensitive.
 
 	There are two reserved metadata names:
 
@@ -154,9 +154,22 @@ Will prevent dynamic nodes from showing pops
 
 {{ Dynamic Nodes
 	
-	Dynamic nodes are compilations of content in other nodes that can update in real time. Dynamic nodes are created from simple code within another node. To 
+	Dynamic nodes compile and update content from other nodes in real time. Dynamic nodes are created with a simple definition syntax that can be inserted into any node. Press Ctrl-Shift-] to insert a dynamic node definition. You'll see double square brackets enclosing a node ID numer
+
+						[[ ID:79810828011333   			<- the node ID this definition will populate
+							 include:metadata:<key>:<value>
+							 exclude:metadata:<key>:<value>
+							 sort:<key>
+							 metadata:<key>:<value>
+							 include: [ full_content | title ]
+					 	]]
+
+					 	
 
  /-- ID:79810911080130 --/ }}
+
+{{ 
+ /-- ID:79810828011333 --/ }}
 
 
 {{ Timeline View: /-- ID:79810913063637 --/

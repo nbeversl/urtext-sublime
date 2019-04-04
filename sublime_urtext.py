@@ -36,7 +36,7 @@ class UrtextWatcher(FileSystemEventHandler):
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
         
-        # this is redundant: also in add() method.
+        # this is redundant: also in add() method. Remove?
         global _UrtextProject
         _UrtextProject.nodes[node_id] = file
         _UrtextProject.files[os.path.basename(file.filename)] = [node_id]
@@ -57,32 +57,11 @@ class UrtextWatcher(FileSystemEventHandler):
         _UrtextProject.compile_all()
 
     def on_deleted(self, event):
-        print('DELETED!')
         filename = event.src_path
+        print('DELETED!')
         print(filename)
-  
-        # delete its inline nodes from the Project node array:
-        for node_id in _UrtextProject.files[os.path.basename(filename)]:
-          del _UrtextProject.nodes[node_id]
-
-        # delete it from the Project node array:
-        #node_id = _UrtextProject.get_node_id(os.path.basename(filename))
-        #del _UrtextProject.nodes[node_id]
-        # removed <Tue., Apr. 02, 2019, 03:00 PM>
-
-        # delete its filename from the Project file array:
-        del _UrtextProject.files[os.path.basename(filename)]
-
-        # delete it from the self.tagnames array
-        for tagname in list(_UrtextProject.tagnames):
-          for value in list(_UrtextProject.tagnames[tagname]):
-            if node_id in _UrtextProject.tagnames[tagname][value]:
-              _UrtextProject.tagnames[tagname][value].remove(node_id)
-            if len(_UrtextProject.tagnames[tagname][value]) == 0:
-              del _UrtextProject.tagnames[tagname][value]
-
-        _UrtextProject.build_tag_info() # must be done first when deleting
-        _UrtextProject.compile_all()
+        _UrtextProject.delete_file(filename)
+     
 
     def get_the_details(self, event):
         global _UrtextProject
