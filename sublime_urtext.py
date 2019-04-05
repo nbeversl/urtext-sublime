@@ -556,62 +556,25 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     refresh_project(self.view.window())
-    file_name = os.path.basename(self.view.file_name())
-    node_id = _UrtextProject.get_node_id(file_name)
-    
-    
-    t = self.locate_from_in_node(region = self.view.sel()[0])
-    print(t)
-    consolidate_metadata = _UrtextProject.nodes[t].consolidate_metadata()
+    position = self.view.sel()[0].begin()
+    node_id = self.locate_from_in_node(position)
+    consolidated_contents = _UrtextProject.consolidate_metadata(node_id)
+    print(consolidated_contents)
+    # just need to write this to the view.
 
-    sublime.set_clipboard(consolidate_metadata)
-    self.view.show_popup('Consolidated metadata copied to the clipboard.')
-    
-    s = _UrtextProject.consolidate_metadata(node_id)
-    print(s)
-    # now just need to remove existing tags.
-    # could do this from cursor position within the document.
-    # possibly make a grid object for each file, showing where the characters of each node
-    # are located?
-
-  def make_grid(self):
-    contents = get_contents(self.view)
+  def locate_from_in_node(self, position):
+    filename = self.view.file_name()
     nodes = {}
-    start = 0
-    previous_node_id = _UrtextProject.get_node_id(os.path.basename(self.view.file_name()))
-    for index in range(1, len(contents)):
-      node_id = self.locate_from_in_node(sublime.Region(index,index))   
-      if node_id != previous_node_id:
-        if previous_node_id not in nodes:
-          nodes[previous_node_id] = []
-        nodes[previous_node_id].append([start,index])
-        start = index
-      previous_node_id = node_id
-    print(nodes)
+    for node_id in _UrtextProject.files[os.path.basename(filename)]:
+      nodes[node_id] = _UrtextProject.find_node_territory_in_file(node_id)
+    print (nodes)
+    print(position)
+    for node_id in nodes:
+      for ranges in nodes[node_id]:
+        print(ranges)
 
-        
-  def locate_from_in_node(self, region): # useful in the future.
-  
-    #region = self.view.sel()[0]
-    max_size = self.view.size()
-    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
-    selection = self.view.substr(region)
-    while not subnode_regexp.search(selection):
-      a = region.a
-      b = region.b
-      if selection[:2] != '{{':
-        a -= 1
-      if selection[-2:] != '}}':
-        b += 1
-      region = sublime.Region(a, b)
-      if a == 0 or b == max_size:
-        file_name = os.path.basename(self.view.file_name())
-        return _UrtextProject.get_node_id(file_name)
-      selection = self.view.substr(region)
-
-    metadata = urtext.metadata.NodeMetadata(selection[2:-2])
-    node_id = metadata.get_tag('ID')[0]
-    return node_id
+        if position in range(ranges[0], ranges[1]):
+          return node_id
 
 class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
 
@@ -643,7 +606,6 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     path = get_path(self.view.window())
     node_id = links[0]
     ##
-
-    _UrtextProject.tag_node(node_id, 'tags','done')
+    _UrtextProject.tag_node(node_id, '/-- tags: done --/')
 
 _UrtextProject = None
