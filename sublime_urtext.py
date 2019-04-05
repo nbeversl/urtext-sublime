@@ -588,6 +588,22 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
         else:
             view.replace(edit, s, content)
 
+class SearchProjectCommand(sublime_plugin.TextCommand):
+
+  def run(self,edit):
+    refresh_project(self.view.window())
+    caption = 'Search String: '
+    print('hi')
+    #self.view.window().show_input_panel(caption, '', self.search, None, None)
+    self.search_project('check')
+
+  def search_project(self, string):
+    results = _UrtextProject.search(string)
+    new_view = self.view.window().new_file()
+    new_view.set_scratch(True)
+    new_view.run_command("insert_snippet", { "contents": results})
+
+
 class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     s = _UrtextProject.find_node_territory_in_file('79810910082101')
