@@ -12,6 +12,7 @@ import urtext.metadata
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
+import webbrowser
 
 # TODOS
 # Have the node tree auto update on save.
@@ -19,8 +20,6 @@ from watchdog.observers import Observer
 # update documentation
 # investigate multiple scopes
 # investigate git and diff support
-
-SUBLIME = True
 
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
@@ -114,9 +113,11 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     show_panel(self.view.window(), self.menu.display_menu, self.open_the_file)
 
   def open_the_file(self, selected_option): # copied from below, refactor later.
+    if selected_option == -1:
+      return
     path = get_path(self.view.window())
     new_view = self.view.window().open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
-    if selected_option[3] != None:
+    if selected_option[3] and selected_option[3] != None:
       self.locate_node(selected_option[3], new_view)
 
   def list_files(self, index):
@@ -596,6 +597,34 @@ class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
     s = _UrtextProject.find_node_territory_in_file('79810910082101')
     print(s)
     
+class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+    link = _UrtextProject.get_link(full_line)
+    if link == None:
+      return
+    if link[0] == 'HTTP':
+      if not webbrowser.get(browser_path).open(url):
+          sublime.error_message(
+              'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
+      return
+    if link[0] == 'NODE':
+      filename = _UrtextProject.get_filename(link[1])
+      file_view = self.view.window().open_file(os.path.join(path, filename))
+      position = int(link[2])
+      self.center_node(file_view, position)
+
+  def center_node(self, view, position): # copied from OpenNode. Refactor
+      if not view.is_loading():
+        view.sel().clear()
+        view.show_at_center(int(position)) 
+        view.sel().add(sublime.Region(int(position)))
+      else:
+        sublime.set_timeout(lambda: self.center_node(view, position), 10)
+
+  
+
+
 class ListNodesInViewCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     refresh_project(self.view.window())
