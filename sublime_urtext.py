@@ -20,9 +20,9 @@ from watchdog.observers import Observer
 # investigate multiple scopes
 # investigate git and diff support
 
+SUBLIME = True
 
-
-class UrtextWatcher(FileSystemEventHandler):
+class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
         
@@ -47,7 +47,6 @@ class UrtextWatcher(FileSystemEventHandler):
         file = self.get_the_details(event)
         if file == None:
           return
-
         global _UrtextProject
         _UrtextProject.nodes[file.node_number] = file
         print(file.filename)
@@ -79,9 +78,8 @@ class UrtextWatcher(FileSystemEventHandler):
 def refresh_project(window):
   global _UrtextProject
   if _UrtextProject == None:
-    print('_UrtextProject rebuilt')
     _UrtextProject = UrtextProject(get_path(window))
-    event_handler = UrtextWatcher()
+    event_handler = SublimeUrtextWatcher()
     observer = Observer()
     observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
     observer.start()
@@ -280,7 +278,6 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       refresh_project(self.window) 
       self.menu = NodeBrowserMenu(_UrtextProject.indexed_nodes())
       self.menu.add(_UrtextProject.unindexed_nodes())
-
       show_panel(self.window, self.menu.display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
@@ -502,7 +499,6 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
       filename = _UrtextProject.get_file_name(node_id)
       file_view = self.view.window().open_file(os.path.join(path, filename))
       position = _UrtextProject.nodes[node_id].position
-      print(position)
       self.center_node(file_view, position)
    
     def center_node(self, view, position):
@@ -512,8 +508,6 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
         view.sel().add(sublime.Region(int(position)))
       else:
         sublime.set_timeout(lambda: self.center_node(view, position), 10)
-
-     
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
@@ -567,12 +561,8 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
     nodes = {}
     for node_id in _UrtextProject.files[os.path.basename(filename)]:
       nodes[node_id] = _UrtextProject.find_node_territory_in_file(node_id)
-    print (nodes)
-    print(position)
     for node_id in nodes:
       for ranges in nodes[node_id]:
-        print(ranges)
-
         if position in range(ranges[0], ranges[1]):
           return node_id
 
@@ -588,14 +578,12 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
         else:
             view.replace(edit, s, content)
 
-class SearchProjectCommand(sublime_plugin.TextCommand):
+class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
 
   def run(self,edit):
     refresh_project(self.view.window())
     caption = 'Search String: '
-    print('hi')
-    #self.view.window().show_input_panel(caption, '', self.search, None, None)
-    self.search_project('check')
+    self.view.window().show_input_panel(caption, '', self.search_project, None, None)
 
   def search_project(self, string):
     results = _UrtextProject.search(string)
@@ -603,12 +591,21 @@ class SearchProjectCommand(sublime_plugin.TextCommand):
     new_view.set_scratch(True)
     new_view.run_command("insert_snippet", { "contents": results})
 
-
 class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     s = _UrtextProject.find_node_territory_in_file('79810910082101')
     print(s)
     
+class ListNodesInViewCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    refresh_project(self.view.window())
+    display = _UrtextProject.list()
+    new_view = self.view.window().new_file()
+    new_view.set_scratch(True)
+    for line in display.split('\n'):
+      new_view.run_command("insert_snippet", {"contents": line+'\n'})
+    new_view.run_command("move_to", {"to": "bof"})
+
 class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
