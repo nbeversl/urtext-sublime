@@ -77,11 +77,12 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
 def refresh_project(view):
   global _UrtextProject
   if _UrtextProject == None:
-    _UrtextProject = UrtextProject(get_path(view))
-    event_handler = SublimeUrtextWatcher()
-    observer = Observer()
-    observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-    observer.start()
+    if get_path(view) != None:
+      _UrtextProject = UrtextProject(get_path(view))
+      event_handler = SublimeUrtextWatcher()
+      observer = Observer()
+      observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+      observer.start()
  
 def get_path(view):
   ## makes the path persist as much as possible ##
@@ -89,6 +90,10 @@ def get_path(view):
     return _UrtextProject.path
   if view.file_name():
     return os.path.dirname(view.file_name())  
+  if view.window().project_data():
+    return view.window().project_data()['folders'][0]['path']
+  return None
+
 
 class ShowTagsCommand(sublime_plugin.TextCommand):
 
@@ -281,7 +286,7 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       show_panel(self.window, self.menu.display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
-      path = get_path(self.view)
+      path = get_path(self.window.active_view())
       new_view = self.window.open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
       self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view)
 
@@ -441,7 +446,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
     # Add a failsafe in case the user has closed the next group to the left
     # but traverse is still on. 
     #
-    
+    if not view.window():
+      return
     self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
     self.content_view = view.window().active_view_in_group(self.active_group)

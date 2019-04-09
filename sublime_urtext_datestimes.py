@@ -37,7 +37,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
     """ copies the file to a new node with a backreference."""
     def run(self, edit):
         contents = self.view.substr(sublime.Region(0, self.view.size()))
-        self.contents = urtext.metadata.clear_meta(contents)
+        self.contents = urtext.project.strip_metadata(contents)
         old_filename = self.view.file_name()
         self.old_filename = old_filename.split('/')[-1]
         now = datetime.datetime.now()
