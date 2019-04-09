@@ -53,6 +53,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         _UrtextProject.build_sub_nodes(file.filename)
         _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
+        
 
     def on_deleted(self, event):
         filename = event.src_path
@@ -262,6 +263,10 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
   """ inline only, does not make a new file """
   def run(self, edit):
     node_id = urtext.datestimes.make_node_id(datetime.datetime.now())
+    while node_id in _UrtextProject.nodes:
+      # this doesn't work because the project doesn't get saved between increments.
+      # also shouldn't the ID be decremented, not incremented?
+      node_id = urtext.datestimes.increment_node_id(node_id)
     for region in self.view.sel():
       selection = self.view.substr(region)
     node_wrapper = '{{ '+selection+'\n /-- ID:'+node_id+' --/ }}'
@@ -350,7 +355,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand):
     def link_to_the_file(self, selected_option):
       view = self.window.active_view()
       filename = os.path.basename(self.menu.get_values_from_index(selected_option).filename)
-      view.run_command("insert", {"characters": ' -> '+ filename + ' | '})
+      view.run_command("insert", {"characters":  filename})
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
@@ -361,7 +366,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
 
     def link_from_the_file(self, selected_option):
         new_view = self.window.open_file(self.menu.get_values_from_index(selected_option).filename)
-        sublime.set_clipboard(' -> ' + self.current_file)
+        sublime.set_clipboard(self.current_file)
         self.show_tip(new_view)
 
     def show_tip(self, view):
@@ -577,6 +582,8 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     now = datetime.datetime.now()
     node_id = urtext.datestimes.make_node_id(now)
+    while node_id in _UrtextProject.nodes:
+      node_id = urtext.datestimes.increment_node_id(node_id)
     content = '[[ ID:'+node_id +'\n\n ]]'
     for s in self.view.sel():
         if s.empty():
@@ -627,8 +634,6 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
       else:
         sublime.set_timeout(lambda: self.center_node(view, position), 10)
 
-  
-
 
 class ListNodesInViewCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -654,5 +659,20 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     node_id = links[0]
     ##
     _UrtextProject.tag_node(node_id, '/-- tags: done --/')
+
+ 
+class GenerateTimelineCommand(sublime_plugin.TextCommand):
+    def run(self,edit):
+      refresh_project(self.view);
+      new_view = self.view.window().new_file()
+      timeline = _UrtextProject.timeline(_UrtextProject.nodes)
+      self.show_stuff(new_view, timeline)
+
+    def show_stuff(self, view, timeline):
+          if not view.is_loading(): 
+            view.run_command("append", {"characters": timeline+'\n|'})
+          else:
+            sublime.set_timeout(lambda: self.show_stuff(view,timeline), 10)
+
 
 _UrtextProject = None

@@ -13,9 +13,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 from urtext.node_pull_tree import NodePullTree
 import sublime_urtext
 
-def meta_separator():
-    return "------------" # to remove later
-
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
   # most of this is now in urtext module
@@ -41,7 +38,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # Necessary to change it?
 
   def run(self, edit):
-    Urtext.refresh_project(self.view.window())
+    Urtext.refresh_project(self.view)
     self.path = Urtext.get_path(self.view.window())
     self.errors = [] 
     self.visited_files = []
