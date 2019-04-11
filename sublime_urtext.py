@@ -37,8 +37,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         
         # this is redundant: also in add() method. Remove?
         global _UrtextProject
-        _UrtextProject.nodes[node_id] = file
-        _UrtextProject.files[os.path.basename(file.filename)] = [node_id]
+        _UrtextProject.add_file(file.filename)
         self.rebuild(file.filename)
         
     def on_modified(self, event):
@@ -265,8 +264,7 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     node_id = urtext.datestimes.make_node_id(datetime.datetime.now())
     while node_id in _UrtextProject.nodes:
       # this doesn't work because the project doesn't get saved between increments.
-      # also shouldn't the ID be decremented, not incremented?
-      node_id = urtext.datestimes.increment_node_id(node_id)
+      node_id = urtext.datestimes.decrement_node_id(node_id)
     for region in self.view.sel():
       selection = self.view.substr(region)
     node_wrapper = '{{ '+selection+'\n /-- ID:'+node_id+' --/ }}'
@@ -533,7 +531,7 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
   def run(self):
       refresh_project(self.window.active_view())
       self.path = _UrtextProject.path
-      filename = _UrtextProject.add(datetime.datetime.now())
+      filename = _UrtextProject.new_node(datetime.datetime.now())
       new_view = self.window.open_file(os.path.join(self.path, filename))
 
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
@@ -583,7 +581,7 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
     now = datetime.datetime.now()
     node_id = urtext.datestimes.make_node_id(now)
     while node_id in _UrtextProject.nodes:
-      node_id = urtext.datestimes.increment_node_id(node_id)
+      node_id = urtext.datestimes.decrement_node_id(node_id)
     content = '[[ ID:'+node_id +'\n\n ]]'
     for s in self.view.sel():
         if s.empty():

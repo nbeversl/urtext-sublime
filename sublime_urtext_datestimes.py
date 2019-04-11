@@ -41,7 +41,7 @@ class UpdateFileCommand(sublime_plugin.TextCommand):
         old_filename = self.view.file_name()
         self.old_filename = old_filename.split('/')[-1]
         now = datetime.datetime.now()
-        new_filename = urtext.datestimes.make_reverse_date_filename(now)+'.txt'
+        new_filename = urtext.datestimes.make_node_id(now)+'.txt'
         self.view.insert(edit, self.view.size(), '\npulled to: -> '+new_filename +
                          '  | (editorial://open/'+new_filename+'?root=dropbox) ' + now.strftime(timestamp_format))
         self.view.run_command('save')
