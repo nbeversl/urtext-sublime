@@ -41,14 +41,11 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         self.rebuild(file.filename)
         
     def on_modified(self, event):
-        print('MODIFIED!')
         file = self.get_the_details(event)
         if file == None:
           return
         global _UrtextProject
         _UrtextProject.nodes[file.node_number] = file
-        print(file.filename)
-        print('updating dynamic nodes')
         _UrtextProject.build_sub_nodes(file.filename)
         _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
@@ -261,12 +258,11 @@ def add_one_split(view):
 class InsertNodeCommand(sublime_plugin.TextCommand):
   """ inline only, does not make a new file """
   def run(self, edit):
-    node_id = urtext.datestimes.make_node_id(datetime.datetime.now())
-    while node_id in _UrtextProject.nodes:
-      # this doesn't work because the project doesn't get saved between increments.
-      node_id = urtext.datestimes.decrement_node_id(node_id)
+    refresh_project(self.view)
+    filename = self.view.file_name()
     for region in self.view.sel():
       selection = self.view.substr(region)
+    node_id = _UrtextProject.add_inline_node(datetime.datetime.now(), filename, selection)
     node_wrapper = '{{ '+selection+'\n /-- ID:'+node_id+' --/ }}'
     self.view.run_command("insert_snippet", {
                              "contents": node_wrapper})  # (whitespace)
@@ -531,7 +527,7 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
   def run(self):
       refresh_project(self.window.active_view())
       self.path = _UrtextProject.path
-      filename = _UrtextProject.new_node(datetime.datetime.now())
+      filename = _UrtextProject.new_file_node(datetime.datetime.now())
       new_view = self.window.open_file(os.path.join(self.path, filename))
 
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
