@@ -7,6 +7,7 @@ import urtext.datestimes
 import sublime_urtext_datestimes
 from urtext.node import UrtextNode
 from urtext.project import UrtextProject
+from urtext.metadata import NodeMetadata
 import datetime
 import urtext.metadata
 from watchdog.events import FileSystemEventHandler
@@ -600,11 +601,49 @@ class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
 
 class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    s = _UrtextProject.find_node_territory_in_file('79810910082101')
-    print(s)
-    
+    contents = get_contents(self.view)
+    #root_node_id = self.get_node_id(self.nodes[node_id].filename)
+    #contents = self.nodes[root_node_id].contents
+
+    nested = 0
+    nested_levels = {0:[]}
+    nodes = {}
+
+    # THIS MEANS #
+    # that an inline node can't start a file. fix this? 
+    #if self.nodes[node_id].position == 0:
+    #  this_start = 0
+    #else:
+    #  this_start = self.nodes[node_id].position + 2
+    last_start = 0
+    index = 0
+    while index < len(contents):
+      if contents[index:index+2] == '{{':
+        nested_levels[nested].append([last_start, index])       
+        nested += 1
+        last_start = index
+        if nested not in nested_levels:
+          nested_levels[nested] = []
+      if contents[index:index+2] == '}}':
+        nested_levels[nested].append([last_start, index])
+        node_contents = ''
+        for range in nested_levels[nested]:
+          node_contents += contents[range[0]:range[1]]
+        meta = urtext.metadata.NodeMetadata(node_contents)
+        nodes[meta.get_tag('ID')[0]] = nested_levels[nested]
+        del nested_levels[nested]
+        nested -= 1
+        last_start = index
+      index += 1
+
+    # this doesn't work, need to loop for 
+    nodes[meta.get_tag('ID')[0]] = nested_levels[0]  
+
+    return nodes
+
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
+    refresh_project(self.view)
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
     if link == None:
@@ -614,6 +653,7 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
           sublime.error_message(
               'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
       return
+    print(link)
     if link[0] == 'NODE':
       filename = _UrtextProject.get_file_name(link[1])
       file_view = self.view.window().open_file(os.path.join(_UrtextProject.path, filename))
@@ -643,17 +683,15 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     refresh_project(self.view)
-
-    # this part is copied from OpenNode, should be refactored
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-    links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
+    links = re.findall('(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line)
     if len(links) == 0:
       return
     path = get_path(self.view)
     node_id = links[0]
-    ##
     _UrtextProject.tag_node(node_id, '/-- tags: done --/')
-
+    _UrtextProject.build_tag_info()
+    _UrtextProject.compile_all()
  
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     def run(self,edit):
