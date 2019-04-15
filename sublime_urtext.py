@@ -619,6 +619,8 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
     print(link)
     if link[0] == 'NODE':
       filename = _UrtextProject.get_file_name(link[1])
+      if filename == None:
+        return
       file_view = self.view.window().open_file(os.path.join(_UrtextProject.path, filename))
       position = int(link[2])
       self.center_node(file_view, position)
