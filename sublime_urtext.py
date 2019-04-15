@@ -3,6 +3,16 @@ import sublime
 import sublime_plugin
 import os
 import re
+
+import datetime
+import pprint
+import logging
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from urtext.node_pull_tree import NodePullTree
+import sublime_urtext
+
 import urtext.datestimes
 import sublime_urtext_datestimes
 from urtext.node import UrtextNode
@@ -679,5 +689,81 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
           else:
             sublime.set_timeout(lambda: self.show_stuff(view,timeline), 10)
 
+
+class ShowNodeTreeCommand(sublime_plugin.TextCommand):
+  """ Display a tree of all nodes connected to this one """
+  # most of this is now in urtext module
+
+  def run(self, edit):
+    sublime_urtext.refresh_project(self.view)
+    self.errors = []
+    path = sublime_urtext._UrtextProject.path
+    tree = NodePullTree(self.view.file_name(), path)
+    window = self.view.window()
+    window.focus_group(0) # always show the tree on the leftmost focus
+    new_view = self.view.window().new_file()
+    new_view.run_command("insert_snippet", { "contents": tree.render})
+    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
+
+class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
+  """ Display a tree of all nodes connected to this one """
+  # TODO: for files that link to the same place more than one time,
+  # show how many times on one tree node, instead of showing multiple nodes
+  # would this require building the tree after scanning all files?
+  #
+  # Also this command does not currently utilize the global array, it reads files manually.
+  # Necessary to change it?
+
+  def run(self, edit):
+    refresh_project(self.view)
+    filename = os.path.basename(self.view.file_name())
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    render = _UrtextProject.get_node_relationships(node_id)
+
+    def draw_tree(view, render ):
+      if not view.is_loading():
+        view.run_command("insert_snippet", { "contents": render })
+        view.set_scratch(True)
+      else:
+        sublime.set_timeout(lambda: draw_tree(view, render), 10)
+
+    window = self.view.window()
+    window.focus_group(0) # always show the tree on the leftmost focus'
+    new_view = window.new_file()
+    window.focus_view(new_view)
+    draw_tree(new_view, render)    
+
+
+class AddMetaToExistingFile(sublime_plugin.TextCommand):
+  """ Add metadata to a file that does not already have metadata.  """
+  def run(self, edit):
+      if not has_meta(self.view):
+        add_separator(self.view)
+        timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
+        filename = self.view.file_name().split('/')[-1]
+        self.view.run_command("move_to", {"to": "eof"})
+        self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
+        self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
+        self.view.run_command("move_to", {"to": "bof"})
+
+def add_created_timestamp(view, timestamp):
+  """
+  Adds an initial "Created: " timestamp
+  view: Sublime view
+  timestamp: a datetime.datetime object
+  """
+  filename = view.file_name().split('/')[-1]
+  text_timestamp = timestamp.strftime("<%a., %b. %d, %Y, %I:%M %p>")
+  view.run_command("insert_snippet", { "contents": text_timestamp+'\n'})
+
+def add_original_filename(view):
+  """
+  Adds an initial "Original Filename: " metadata stamp
+  """
+  filename = view.file_name().split('/')[-1]
+  view.run_command("move_to", {"to": "eof"})
+  view.run_command("insert_snippet", { "contents": "Original filename: "+filename+'\n'})
+  view.run_command("move_to", {"to": "bof"})
 
 _UrtextProject = None

@@ -3,12 +3,8 @@
 import sublime
 import sublime_plugin
 import datetime
-import urtext
 import os
 import time
-import sublime_urtext
-import urtext.datestimes
-import urtext.metadata
 
 # = 12 dashes in a row starting a line, followed by a newline
 
