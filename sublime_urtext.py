@@ -323,6 +323,8 @@ class NodeInfo():
       self.date = urtext.datestimes.date_from_reverse_date(node_id)
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
+      self.title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
+      self.node_id = _UrtextProject.nodes[node_id].node_number
 
 def make_node_menu(node_ids):
   menu = []
@@ -349,24 +351,30 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand):
 
     def link_to_the_file(self, selected_option):
       view = self.window.active_view()
-      filename = os.path.basename(self.menu.get_values_from_index(selected_option).filename)
-      view.run_command("insert", {"characters":  filename})
+      node_id = self.menu.get_values_from_index(selected_option).node_id
+      title = self.menu.get_values_from_index(selected_option).title
+      view.run_command("insert", {"characters":  title + ' '+node_id})
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
       refresh_project(self.window.active_view())
       self.current_file = os.path.basename(self.window.active_view().file_name())
+      self.position = self.window.active_view().sel()[0].a
       self.menu = NodeBrowserMenu(_UrtextProject.nodes)
       show_panel(self.window, self.menu.display_menu, self.link_from_the_file)
 
     def link_from_the_file(self, selected_option):
         new_view = self.window.open_file(self.menu.get_values_from_index(selected_option).filename)
-        sublime.set_clipboard(self.current_file)
         self.show_tip(new_view)
 
     def show_tip(self, view):
       if not view.is_loading(): 
-        view.show_popup('Link to ' + self.current_file + ' copied to the clipboard')
+        node_id = _UrtextProject.get_node_id_from_position(self.current_file, self.position)
+        
+        title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
+        link = title + ' ' + node_id
+        sublime.set_clipboard(link)
+        view.show_popup('Link to ' + link + ' copied to the clipboard')
       else:
         sublime.set_timeout(lambda: self.show_tip(view), 10)
 
