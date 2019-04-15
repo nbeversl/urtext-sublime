@@ -238,7 +238,7 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
       tree_view.erase(edit, sublime.Region(0,1000)) # TODO - not 1000. Entire view.
 
     render_tree(tree_view)
-
+ 
 def add_one_split(view):
   groups = view.window().num_groups() # copied from traverse. Should refactor
   active_group = view.window().active_group() # 0-indexed
@@ -322,7 +322,7 @@ class NodeInfo():
         self.title = '(no title)' 
       self.date = urtext.datestimes.date_from_reverse_date(node_id)
       self.filename = _UrtextProject.nodes[node_id].filename
-      self.position = _UrtextProject.nodes[node_id].position
+      self.position = _UrtextProject.nodes[node_id].ranges[0][0]
 
 def make_node_menu(node_ids):
   menu = []
@@ -504,7 +504,8 @@ class OpenNodeCommand(sublime_plugin.TextCommand):
       node_id = links[0]
       filename = _UrtextProject.get_file_name(node_id)
       file_view = self.view.window().open_file(os.path.join(path, filename))
-      position = _UrtextProject.nodes[node_id].position
+      position = _UrtextProject.nodes[node_id].ranges[0][0]
+      print( _UrtextProject.nodes[node_id].ranges)
       self.center_node(file_view, position)
    
     def center_node(self, view, position):
@@ -601,45 +602,7 @@ class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
 
 class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    contents = get_contents(self.view)
-    #root_node_id = self.get_node_id(self.nodes[node_id].filename)
-    #contents = self.nodes[root_node_id].contents
-
-    nested = 0
-    nested_levels = {0:[]}
-    nodes = {}
-
-    # THIS MEANS #
-    # that an inline node can't start a file. fix this? 
-    #if self.nodes[node_id].position == 0:
-    #  this_start = 0
-    #else:
-    #  this_start = self.nodes[node_id].position + 2
-    last_start = 0
-    index = 0
-    while index < len(contents):
-      if contents[index:index+2] == '{{':
-        nested_levels[nested].append([last_start, index])       
-        nested += 1
-        last_start = index
-        if nested not in nested_levels:
-          nested_levels[nested] = []
-      if contents[index:index+2] == '}}':
-        nested_levels[nested].append([last_start, index])
-        node_contents = ''
-        for range in nested_levels[nested]:
-          node_contents += contents[range[0]:range[1]]
-        meta = urtext.metadata.NodeMetadata(node_contents)
-        nodes[meta.get_tag('ID')[0]] = nested_levels[nested]
-        del nested_levels[nested]
-        nested -= 1
-        last_start = index
-      index += 1
-
-    # this doesn't work, need to loop for 
-    nodes[meta.get_tag('ID')[0]] = nested_levels[0]  
-
-    return nodes
+    pass
 
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
