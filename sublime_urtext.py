@@ -41,23 +41,19 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-
-        # not yet working
-        #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
-        #  ShowInlineNodeTree.run(view)
-
         _UrtextProject.add_file(filename)
-        self.rebuild(file.filename)
+        self.rebuild(filename)
         
     def on_modified(self, event):
         filename = os.path.basename(event.src_path)
-        global _UrtextProject
-        node_id = _UrtextProject.get_node_id(filename)
-        _UrtextProject.nodes[node_id] = UrtextNode(filename)
-        _UrtextProject.build_sub_nodes(filename)
-        _UrtextProject.build_tag_info()
-        _UrtextProject.compile_all()
-        
+        if filename in _UrtextProject.files:
+          global _UrtextProject
+          node_id = _UrtextProject.get_node_id(filename)
+          _UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
+          _UrtextProject.build_sub_nodes(filename)
+          _UrtextProject.build_tag_info()
+          _UrtextProject.compile_all()
+          
     def on_deleted(self, event):
         filename = os.path.basename(event.src_path)
         print('DELETED!')
