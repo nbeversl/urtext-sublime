@@ -6,19 +6,52 @@ Version: 0.4
 {{ 	What Sublime Urtext Is:  /-- ID:79810915120529 --/ 
 	
 		{{ 
-			Urtext is a syntax for writing, structuring, and reading files in plaintext that can be used on any platform. /-- ID:79810915120430;  tag: definition--/ }}		
+		Urtext is a syntax I invented for writing and organizing in plaintext. 
+			/-- ID:79810915120430;  tag: definition--/ }}		
 
 		Sublime is a modern, programmable text editor. 
 
 		This is an implementation of Urtext in Sublime Text. I call it Sublime Urtext. 
 
+
+ {{ Ideas Behind Urtext
+ 
+ 		Urtext is a system and a syntax, not an implementation. Urtext is a loose syntax for writing and structuring files in plaintext so it can be used on any platform.
+ 
+ 		Urtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines.
+ 
+ 		Characteristics:
+ 		-------------
+ 
+ 		All in plain text. No proprietary file format or structure.
+ 		Allow freeform text, without the need to adapt text to an existing system.
+ 		Be undistracted by manually naming, saving, and renaming of files.
+ 		Permit customizable metadata.
+ 		Content must be readable, creatable, and at least partially editable and organizible from a mobile text editing app.
+ 		Be capable of hyperlinks, both within and without the files. Files should be able to connect to one another.
+ 		Version control
+ 		Syntax highlighting
+ 		Fuzzy search
+ 		Allow both organized and disorganized use.
+ 		Must be backward compatible with older systems
+ 
+ 		Use of file system:
+ 			Never have to interact directly with a file system dialog from within the Urtext project.
+ 			Every node in a single folder, subfolders organization scheme.
+ 			Files of other types are in subfolders labeled by type: /img, /pdf, etc.
+ 
+ 		Every feature has a pencil and paper analogue.
+ 		Looesly structured but flexible format that can be transferred among platforms, devices and applications. 
+ 		Content remains in plain text. No reliance on proprietary applications, formats, platforms.
+ 		Extensible, customizable.
+ 		A system, not an implementation.
+ 		Allows for metadata without relying on the filesystem
+ 
+  /-- ID:79810822061956 --/ }}
+
 {{ Using this document:
 
-	This document is an Urtext file with several sub-nodes. It can be used in Sublime Text to try out the features described.
-
-	For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows.
-
-																					 /-- ID:79810822101322 --/ }}
+	This document is an Urtext file with several sub-nodes. It can be used in Sublime Text to try out the features described. For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows.	/-- ID:79810822101322 --/ }}
 
 {{ How to set it up : 
 
@@ -43,44 +76,34 @@ Version: 0.4
 			    
 			}
 
-	Whenever you want to use your project, just select Project -> Quick Switch Project (Ctrl-Cmd-P), select your Urtext project, and you'll be using the project. 	/-- ID:79810913063747 --/ }}
+	Whenever you want to use the project, select Project -> Quick Switch Project (Ctrl-Cmd-P), and select the Urtext project. 	/-- ID:79810913063747 --/ }}
 
-{{ Getting Started: /-- ID:79810913063739 --/
+{{ Basics: /-- ID:79810913063739 --/
 
-	Text is kept in nodes. A node can be a single file but a single file can also contain multiple nodes. Think of a node as a blank piece of paper. Nodes can be any length. 
+	Text is kept in nodes. A node can be a single file but a single file can also contain multiple nodes. Think of a node as a blank piece of paper, but it can be any length. 
 
-	To create a new blank, node press Control-Shift-; (Control-Shift-semicolon). You don't have to make a filename or interact with a file system dialog.
+	To create a new empty node press Control-Shift-; (Control-Shift-semicolon). There is no need to make a filename or interact with a file system dialog. The new node has whitespace on top and metadata tag with a node ID. By default, the first non-whitespace line is read as the node title. Write a title and anything else into the node. Save it with Command-S.
 
-	Every new node has whitespace on top and metadata tag with a node ID. By default, the first non-whitespace line is read as the node title. Write a title and anything else into the node. Save it with Command-S. Create another node the same way. Write something in it. Save it.
-
-	Now you have multiple nodes. To browse your nodes, press Super-E or select "Urtext: Show All Nodes" from the Sublime command palette (Shift-Command-P). By default, nodes are sorted by their time of creation, with the most recent first. They can also be sorted by index (see below). Find a node by typing part of its title. Open a node by selecting it and pressing enter. }}
+	Once you have multiple nodes, press Super-E or select "Urtext: Show All Nodes" from the Sublime command palette (Shift-Command-P) to browse them. Nodes are sorted by their time of creation, with the most recent first. They can also be sorted by index (see below). Find a node by typing part of its title. Open a node by selecting it and pressing enter. }}
 
 {{ Inline Nodes /-- ID:79810913060950 --/ 
 	
-	Inline nodes are nodes nested inside of other nodes, whether the parent node is a whole file or another inline node. The syntax for inline nodes is to wrap the content in double squiggly brackets, {{ like this text /-- ID:79810913060421 --/ }}. 
+	Inline nodes are nested inside of other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double squiggly brackets, {{ like this text /-- ID:79810913060421 --/ }}. To create an empty inline node, Shift-Ctrl-Super-; (Shift-Control-Super-semicolon). To wrap existing content into an inline node, use the same keypress with the content selected. Inside the double squiggly brackets is a new node with an auto-generated ID.
 
-	To create an empty inline node, Shift-Ctrl-Super-; (Shift-Control-Super-semicolon). To wrap existing content into an inline node, use the same keypress with the content selected. Inside the double squiggly brackets is a new node with an auto-generated ID.
+	Using inline nodes requires attention to syntax : every opening doubly squiggly bracket must be closed in the same file and requires an ID metadata tag between the opening an closing brackets, not nested in another node.
 
-	Note that creating inline nodes requires attention to syntax : every opening doubly squiggly bracket must be closed in the same file and requires an ID metadata tag between the opening an closing brackets, not nested in another node.
-
-	Inline nodes have their own identity in both content and metadata for all purposes within Urtext.
+	Inline nodes have their own identity in both content and metadata for all purposes within Urtext. Inline nodes can be nested arbitrarily deep.
 
 	{{ Inline Node Trees
 
-		For a diagram of all inline nodes within a single file, select "Urtext: Show Inline Node Tree" from the Sublime Command Palette. This tree is navigable using Traverse Mode ()
-		
-		 /-- ID:79810822060133 --/ }}
-
-
+		For a diagram of all inline nodes within a single file, select "Urtext: Show Inline Node Tree" from the Sublime Command Palette. This tree is navigable using Traverse Mode (Super-R) /-- ID:79810822060133 --/ }}
 }}
-
-
 
 {{ Linking Nodes: /-- ID:79810913063734 --/
 
-	You can build elaborate writing systems by linking nodes together. Any 14 digits in an Urtext project are treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. 
+	Elaborate writing systems are possible by linking nodes together. Since node IDs are 14 digits long (see below), any 14 digits in an Urtext project are treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. 
 
-	Note that linking does not require a filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See below for more information on file naming and Node IDs.
+	Linking does not require a filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See below for more information on file naming and Node IDs.
 
 	Two Sublime Command Palette commands can make linking quick and easy:
 
@@ -98,19 +121,19 @@ Version: 0.4
 	
 	Instead of a folder tree, Urtext uses nodeviews. A nodeview is a structured list or diagram of many nodes, itself written in plain text. It works like a virtual file tree.
 
-	To make a nodeview, just write several node links into a single node, with or without additional text or formatting. You can structure it arbitrarily: as a list, outline, tab-delimited nesting, in prose, etc.
+	To make a nodeview, write several node links into a single node, with or without additional text or formatting. You can structure it arbitrarily: as a list, outline, tab-delimited nesting, in prose, etc.
 
 		{{ /-- ID:79810822055818; title: Traverse Mode --/
+
 		Once you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second Sublime pane. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
 		
-			The status bar at the bottom of the Sublime window will indicate whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal.
+			The status bar at the bottom of the Sublime window indicates whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal.
 		  }}
 
 	All nodes are kept in a single project folder. It makes a single project easy to sync and use across multiple file systems where file and folder paths may not always resolve uniformly. It also avoids the need to interact directly with the file system to sort, organize and find files.
 
-	The exception is non-plaintext (non-node) files. If you reference (link) image, media, PDF or other types of files from an Urtext project, it is suggested to utilize subfolders of the project folder such as /img, /pdf, etc., with files of like type in the same folder. }}
+}}
 	
-
 {{ Metadata: /-- ID:79810913063707 --/
 
 	Metadata is enclosed in a forward-slashes followed or preceded by two dashes. Slash-double-dash begins metadata, double-dash-slash ends metadata. Example:
@@ -174,13 +197,13 @@ Version: 0.4
 		
 		- ID: (Required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste it's ID. Otherwise, a new file will be created with the specified ID.
 
-		- include:metadata: (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
+		- include:metadata:<tag name>:<tag values> (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
 
-		- exclude:metadata: (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Exclude lines will always supersede include lines, no matter the order. 
+		- exclude:metadata:<tag name>:<tag values> (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Exclude lines will always supersede include lines, no matter the order. 
 
-		- sort: (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. (sort:index)
+		- sort:index (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. (sort:index)
 
-		- metadata: (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title and index keys.
+		- metadata:<tag name>:<value> (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title and index keys.
 
 	Dynamic nodes will always automatically include the metadata key 'defined in' which will point to the node containing its definition.
 
@@ -190,7 +213,7 @@ Version: 0.4
 
 			{{ Source Node 1
 					Some text here.
-				 /-- ID:79810822101015; tag: example_node; index:00 --/ }}
+				 /-- ID:79810822101015; tag: example_node; index:02 --/ }}
 			{{ Source Node 2
 				 /-- ID:79810822101016; tag: example_node; index:05 --/ }}
 		 	{{ Source Node 3
@@ -228,7 +251,6 @@ defined in: -> 79810911080130
 
  		Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. (Saving is necessary to trigger the update.)
 
-
 		 /-- ID:79810911080130 --/ }}
 
 
@@ -239,7 +261,6 @@ defined in: -> 79810911080130
 {{ Timeline View: /-- ID:79810913063637 --/
 
 	A Timeline View gives scans the project for timestamps (defined above) and shows them in chronological order with nearby text. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. As everywhere in a project, nodes can be opened using Ctrl-/.  }}
-
 
 {{ Filenames: /-- ID:79810913063623 --/
 
@@ -277,51 +298,11 @@ defined in: -> 79810911080130
 
 	 /-- ID:79810822062009 --/ }}
 
-{{ Reserved Symbols and Syntax
-
-		Any text between the arrow (->) and the pipe (|) is read as a link.
-
- 	/-- ID:79810822062005 --/ }}
-
 {{ Syntax Highlighting
 
 		Sublime Urtext extends the Sixteen color scheme in Sublime. It also has a syntax definition file that can be used to add syntax highlighting in other color schemes.
-														/-- ID:79810822064026 --/ }}
+																											/-- ID:79810822064026 --/ }}
 
- {{  Ideas Behind Urtext
- 
- 		Urtext is a system and a syntax, not an implementation. Urtext is a loose syntax for writing and structuring files in plaintext that can be read by any platform.
- 
- 		Urtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. One of the design principles is that each feature should have a pencil and paper analogue.
- 
- 		Characteristics:
- 		-------------
- 
- 		All in plain text. No proprietary file format or structure.
- 		Allow freeform text, without the need to adapt text to an existing system.
- 		Be undistracted by manually naming, saving, and renaming of files.
- 		Permit customizable metadata.
- 		Content must be readable, creatable, and at least partially editable and organizible from a mobile text editing app.
- 		Be capable of hyperlinks, both within and without the files. Files should be able to connect to one another.
- 		Version control
- 		Syntax highlighting
- 		Fuzzy search
- 		Allow both organized and disorganized use.
- 		Must be backward compatible with older systems
- 
- 		Use of file system:
- 			Never have to interact directly with a file system dialog from within the Urtext project.
- 			Every node in a single folder, subfolders organization scheme.
- 			Files of other types are in subfolders labeled by type: /img, /pdf, etc.
- 
- 		Every feature has a pencil and paper analogue.
- 		Looesly structured but flexible format that can be transferred among platforms, devices and applications. 
- 		Content remains in plain text. No reliance on proprietary applications, formats, platforms.
- 		Extensible, customizable.
- 		A system, not an implementation.
- 		Allows for metadata without relying on the filesystem
- 
-  /-- ID:79810822061956 --/ }}
 
 {{ Key Bindings: 
 

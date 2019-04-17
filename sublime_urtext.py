@@ -37,45 +37,33 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     def on_created(self, event):
         
         print('CREATED!')
-        file = self.get_the_details(event)
-        if file == None:
-          return
-        node_id = file.node_number
+        global _UrtextProject
+        if event.is_directory:
+          return None
+        filename = event.src_path
 
         # not yet working
         #if node_id+'TREE' in [view.name() for view in view.window().views()]:  
         #  ShowInlineNodeTree.run(view)
-        
-        # this is redundant: also in add() method. Remove?
-        global _UrtextProject
-        _UrtextProject.add_file(file.filename)
+
+        _UrtextProject.add_file(filename)
         self.rebuild(file.filename)
         
     def on_modified(self, event):
-        file = self.get_the_details(event)
-        if file == None:
-          return
+        filename = os.path.basename(event.src_path)
         global _UrtextProject
-        _UrtextProject.nodes[file.node_number] = file
-        _UrtextProject.build_sub_nodes(file.filename)
+        node_id = _UrtextProject.get_node_id(filename)
+        _UrtextProject.nodes[node_id] = UrtextNode(filename)
+        _UrtextProject.build_sub_nodes(filename)
         _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
         
-
     def on_deleted(self, event):
-        filename = event.src_path
+        filename = os.path.basename(event.src_path)
         print('DELETED!')
-        print(filename)
-        _UrtextProject.delete_file(filename)
+        if filename in _UrtextProject[files]:
+          _UrtextProject.delete_file(filename)
      
-
-    def get_the_details(self, event):
-        global _UrtextProject
-        filename = event.src_path
-        if event.is_directory:
-          return None
-        return UrtextNode(filename)        
-
     def rebuild(self, filename):
         # order is important        
         _UrtextProject.build_sub_nodes(filename)
@@ -283,8 +271,8 @@ class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     refresh_project(self.view)
     old_filename = self.view.file_name()
-    new_filename = _UrtextProject.rename(old_filename)
     v = self.view.window().find_open_file(old_filename)
+    new_filename = _UrtextProject.rename_file_node(old_filename)
     if v:
       v.retarget(new_filename)
 
@@ -627,10 +615,11 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
     refresh_project(self.view)
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
+    print(link)
     if link == None:
       return
     if link[0] == 'HTTP':
-      if not webbrowser.get(browser_path).open(url):
+      if not webbrowser.get().open(link[1]):
           sublime.error_message(
               'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
       return
