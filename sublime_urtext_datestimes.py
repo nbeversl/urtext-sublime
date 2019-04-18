@@ -5,7 +5,10 @@ import sublime_plugin
 import datetime
 import os
 import time
-
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+import urtext
 # = 12 dashes in a row starting a line, followed by a newline
 
 def meta_separator():
@@ -21,13 +24,10 @@ class ShowReverseDateFilenameCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         for region in self.view.sel():
             text = self.view.substr(region)
-            try:
-                date = datetime.datetime.strptime(text, urtext.datestimes.timestamp_format)
-                sublime.set_clipboard(urtext.datestimes.make_node_id(date))
-                self.view.show_popup(
-                'Reverse-dated filename copied to clipboard.')
-            except:
-                self.view.show_popup('Error.')
+            date = datetime.datetime.strptime(text, urtext.datestimes.timestamp_format)
+            sublime.set_clipboard(urtext.datestimes.make_node_id(date))
+            self.view.show_popup(
+            'Reverse-dated filename copied to clipboard.')
 
 class UpdateFileCommand(sublime_plugin.TextCommand):
     """ copies the file to a new node with a backreference."""

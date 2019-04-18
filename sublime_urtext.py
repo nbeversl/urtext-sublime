@@ -36,16 +36,25 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
         
-        print('CREATED!')
         global _UrtextProject
         if event.is_directory:
           return None
         filename = event.src_path
-        _UrtextProject.add_file(filename)
-        self.rebuild(filename)
-        
+        print('CREATED triggered ; the next line is to add the file.')
+        if os.path.basename(filename) not in _UrtextProject.files:
+          if _UrtextProject.add_file(filename) != None:
+            self.rebuild(filename)
+        else:
+          print(filename + ' saw as created but actually modified. Updating the project object')
+          node_id = _UrtextProject.get_node_id(filename)
+          _UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
+          _UrtextProject.build_sub_nodes(filename)
+          _UrtextProject.build_tag_info()
+          _UrtextProject.compile_all()
+          
     def on_modified(self, event):
         filename = os.path.basename(event.src_path)
+        print(filename + ' MODIFIED')
         if filename in _UrtextProject.files:
           global _UrtextProject
           node_id = _UrtextProject.get_node_id(filename)
@@ -54,17 +63,19 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
           
-    def on_deleted(self, event):
-        filename = os.path.basename(event.src_path)
-        print('DELETED!')
-        if filename in _UrtextProject[files]:
-          _UrtextProject.delete_file(filename)
+    """def on_deleted(self, event):
+      filename = os.path.basename(event.src_path)
+      print(filename + ' DELETED')
+      if filename in _UrtextProject.files:
+          _UrtextProject.delete_file(filename)"""
      
     def rebuild(self, filename):
         # order is important        
         _UrtextProject.build_sub_nodes(filename)
         _UrtextProject.compile_all()
         _UrtextProject.build_tag_info()
+
+    ## There is no on_moved method. Needed?
       
 def refresh_project(view):
   global _UrtextProject
