@@ -78,18 +78,20 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
-  global _UrtextProject
-  if _UrtextProject == None:
+  if '_UrtextProject' not in vars():
+    global _UrtextProject
     if get_path(view) != None:
       _UrtextProject = UrtextProject(get_path(view))
       event_handler = SublimeUrtextWatcher()
       observer = Observer()
       observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
       observer.start()
+    else:
+      print('No Urtext Project.')
  
 def get_path(view):
   ## makes the path persist as much as possible ##
-  if _UrtextProject != None:
+  if '_UrtextProject' in vars():
     return _UrtextProject.path
   if view.file_name():
     return os.path.dirname(view.file_name())  
@@ -506,29 +508,6 @@ class TraverseFileTree(sublime_plugin.EventListener):
     else:
       sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
 
-class OpenNodeCommand(sublime_plugin.TextCommand):
-    def run(self, edit):      
-      refresh_project(self.view)
-      full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-      links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces 
-      if len(links) == 0:
-        return
-      path = get_path(self.view)
-      node_id = links[0]
-      filename = _UrtextProject.get_file_name(node_id)
-      file_view = self.view.window().open_file(os.path.join(path, filename))
-      position = _UrtextProject.nodes[node_id].ranges[0][0]
-      print( _UrtextProject.nodes[node_id].ranges)
-      self.center_node(file_view, position)
-   
-    def center_node(self, view, position):
-      if not view.is_loading():
-        view.sel().clear()
-        view.show_at_center(int(position)) 
-        view.sel().add(sublime.Region(int(position)))
-      else:
-        sublime.set_timeout(lambda: self.center_node(view, position), 10)
-
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
   def run(self,edit):
@@ -630,7 +609,6 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
           sublime.error_message(
               'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
       return
-    print(link)
     if link[0] == 'NODE':
       filename = _UrtextProject.get_file_name(link[1])
       if filename == None:

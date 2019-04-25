@@ -123,7 +123,7 @@ Version: 0.4
 
 	To make a nodeview, write several node links into a single node, with or without additional text or formatting. You can structure it arbitrarily: as a list, outline, tab-delimited nesting, in prose, etc.
 
-		{{ /-- ID:79810822055818; title: Traverse Mode --/
+	{{ Traverse Mode: /-- ID:79810822055818; title: Traverse Mode --/
 
 		Once you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second Sublime pane. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
 		
@@ -235,9 +235,9 @@ Version: 0.4
 		And here is the node with ID 79810822085456:
 
 			{{ 
- Source Node 1  79810822101015
+ Source Node 3  79810822101018
 -----------------------
-Source Node 3  79810822101018
+Source Node 1  79810822101015
 -----------------------
 Source Node 2  79810822101016
 -----------------------
@@ -326,4 +326,4 @@ ID: 79811024084551
 tags: urtext
 title: Urtext Documentation
 --/
-                                                                
+                                                                                  
