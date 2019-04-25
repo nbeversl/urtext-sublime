@@ -58,7 +58,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if filename in _UrtextProject.files:
           global _UrtextProject
           node_id = _UrtextProject.get_node_id(filename)
-          _UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
+          #_UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
           _UrtextProject.build_sub_nodes(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
@@ -742,6 +742,13 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
+
+class DebugCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    refresh_project(self.view)
+    filename = os.path.basename(self.view.file_name())
+    node_id = _UrtextProject.get_node_id(filename)
+    _UrtextProject.nodes[node_id].metadata.log()
 
 def add_created_timestamp(view, timestamp):
   """

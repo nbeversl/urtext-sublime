@@ -21,4 +21,5 @@
     { "caption": "Urtext: Fine Node Territory", "command" :"find_node_territory"},
     { "caption": "Urtext: Search", "command" :"urtext_search_project"},
     { "caption": "Urtext: List Nodes", "command" :"list_nodes_in_view"},
+    { "caption": "Urtext: Debug", "command" :"debug"},
 ] 
