@@ -24,6 +24,7 @@ from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
 import webbrowser
+from urtext.project_list import ProjectList
 
 # TODOS
 # Have the node tree auto update on save.
@@ -78,17 +79,23 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
+
   if '_UrtextProject' not in vars():
-    global _UrtextProject
-    if get_path(view) != None:
+    if get_path(view) != None:    
+      global _UrtextProject  
       _UrtextProject = UrtextProject(get_path(view))
-      event_handler = SublimeUrtextWatcher()
-      observer = Observer()
-      observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-      observer.start()
-    else:
-      print('No Urtext Project.')
- 
+      if _UrtextProject != None:
+        global _UrtextProjectList
+        _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
+        event_handler = SublimeUrtextWatcher()
+        observer = Observer()
+        observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+        observer.start()
+        return
+  
+  print('No Urtext Project.')
+  _UrtextProject = None
+
 def get_path(view):
   ## makes the path persist as much as possible ##
   if '_UrtextProject' in vars():
@@ -601,8 +608,12 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
     refresh_project(self.view)
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
-    print(link)
-    if link == None:
+    if link == None: # check to see if it's in another known project
+      other_project_node = _UrtextProjectList.get_node_link(full_line)
+      filename = other_project_node['filename']
+      path = other_project_node['project_path']
+      sublime.run_command("new_window")
+      sublime.active_window().open_file(filename)
       return
     if link[0] == 'HTTP':
       if not webbrowser.get().open(link[1]):
