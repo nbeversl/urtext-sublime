@@ -33,6 +33,9 @@ from urtext.project_list import ProjectList
 # investigate multiple scopes
 # investigate git and diff support
 
+_UrtextProject = None
+_UrtextProjectList = None
+
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
@@ -79,22 +82,21 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
-
-  if '_UrtextProject' not in vars():
-    if get_path(view) != None:    
-      global _UrtextProject  
-      _UrtextProject = UrtextProject(get_path(view))
-      if _UrtextProject != None:
-        global _UrtextProjectList
-        _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
-        event_handler = SublimeUrtextWatcher()
-        observer = Observer()
-        observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-        observer.start()
-        return
+  global _UrtextProject
+  global _UrtextProjectList
   
-  print('No Urtext Project.')
-  _UrtextProject = None
+  if _UrtextProject == None:
+    if get_path(view) != None: 
+      _UrtextProject = UrtextProject(get_path(view))
+
+  if _UrtextProjectList == None:        
+    _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
+
+  event_handler = SublimeUrtextWatcher()
+  observer = Observer()
+  observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+  observer.start()
+  return
 
 def get_path(view):
   ## makes the path persist as much as possible ##
@@ -294,6 +296,7 @@ class RenameFileCommand(sublime_plugin.TextCommand):
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
+      global _UrtextProject
       refresh_project(self.window.active_view()) 
       self.menu = NodeBrowserMenu(_UrtextProject.indexed_nodes())
       self.menu.add(_UrtextProject.unindexed_nodes())
@@ -757,5 +760,3 @@ def add_original_filename(view):
   view.run_command("move_to", {"to": "eof"})
   view.run_command("insert_snippet", { "contents": "Original filename: "+filename+'\n'})
   view.run_command("move_to", {"to": "bof"})
-
-_UrtextProject = None
