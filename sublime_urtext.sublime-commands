@@ -18,7 +18,7 @@
     { "caption": "Urtext: Tag This Node", "command" :"tag_node"},
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
     { "caption": "Urtext: Mark as Done from Other Node", "command" :"tag_from_other_node"},
-    { "caption": "Urtext: Fine Node Territory", "command" :"find_node_territory"},
+    { "caption": "Urtext: Find Node Territory", "command" :"find_node_territory"},
     { "caption": "Urtext: Search", "command" :"urtext_search_project"},
     { "caption": "Urtext: List Nodes", "command" :"list_nodes_in_view"},
     { "caption": "Urtext: Debug", "command" :"debug"},

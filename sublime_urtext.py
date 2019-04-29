@@ -33,9 +33,6 @@ from urtext.project_list import ProjectList
 # investigate multiple scopes
 # investigate git and diff support
 
-_UrtextProject = None
-_UrtextProjectList = None
-
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
@@ -82,21 +79,26 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
-  global _UrtextProject
-  global _UrtextProjectList
-  
+    
   if _UrtextProject == None:
+    global _UrtextProject
     if get_path(view) != None: 
       _UrtextProject = UrtextProject(get_path(view))
+      event_handler = SublimeUrtextWatcher()
+      observer = Observer()
+      observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+      observer.start()
+
+    else:
+      print('No Urtext Project')
+      return None
 
   if _UrtextProjectList == None:        
+    global _UrtextProjectList
+
     _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
 
-  event_handler = SublimeUrtextWatcher()
-  observer = Observer()
-  observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-  observer.start()
-  return
+  return _UrtextProject
 
 def get_path(view):
   ## makes the path persist as much as possible ##
@@ -198,8 +200,6 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
       selection = self.view.substr(region)
 
     metadata = urtext.metadata.NodeMetadata(selection[2:-2])
-    metadata.log()
-
     # this all successfully identifies which node the cursor is in.
     # from here this should probably be done in the metadata class, not here.
     # get the metadata string out, probably using regex
@@ -211,11 +211,14 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
 class ShowInlineNodeTree(sublime_plugin.TextCommand):
   def run(self, edit):
 
-    def render_tree(view):
+    if refresh_project(self.view) == None:
+      return
+
+    def render_tree(view, tree_render):
         if not view.is_loading():
-           view.run_command("insert_snippet", {"contents": _UrtextProject.nodes[node_id].tree})
+           view.run_command("insert_snippet", {"contents": _UrtextProject.show_tree_from(node_id)})
         else:
-          sublime.set_timeout(lambda: render_tree(view), 10)
+          sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
 
     def locate_view(name):
       all_views = self.view.window().views()
@@ -224,15 +227,15 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
           return view
       return None
 
-    refresh_project(self.view)
     filename = self.view.file_name()
-    node_id = _UrtextProject.get_node_id(os.path.basename(filename))  
-    tree_name = node_id + 'TREE'
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    tree_render = _UrtextProject.show_tree_from(node_id)
+    
+    tree_name = node_id + 'TREE' # Make a name for the view
     tree_view = locate_view(tree_name)
-    #
-    # See if a view is already named.
-    #
-    if tree_view == None:    
+
+    if tree_view == None:    # if a view is not already named.
       add_one_split(self.view)
       # these two values are duplicated in add_one_split .. better way?
       groups = self.view.window().num_groups() # copied from traverse. Should refactor
@@ -253,7 +256,7 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
     else:
       tree_view.erase(edit, sublime.Region(0,1000)) # TODO - not 1000. Entire view.
 
-    render_tree(tree_view)
+    render_tree(tree_view, tree_render)
  
 def add_one_split(view):
   groups = view.window().num_groups() # copied from traverse. Should refactor
@@ -296,8 +299,9 @@ class RenameFileCommand(sublime_plugin.TextCommand):
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
+      if refresh_project(self.window.active_view()) == None:
+        return
       global _UrtextProject
-      refresh_project(self.window.active_view()) 
       self.menu = NodeBrowserMenu(_UrtextProject.indexed_nodes())
       self.menu.add(_UrtextProject.unindexed_nodes())
       show_panel(self.window, self.menu.display_menu, self.open_the_file)
@@ -362,7 +366,8 @@ def sort_menu(menu):
 
 class LinkToNodeCommand(sublime_plugin.WindowCommand): 
     def run(self):
-      refresh_project(self.window.active_view())
+      if refresh_project(self.window.active_view()) == None:
+        return
       self.menu = NodeBrowserMenu(_UrtextProject.nodes)
       show_panel(self.window, self.menu.display_menu, self.link_to_the_file)
 
@@ -374,7 +379,8 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand):
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
-      refresh_project(self.window.active_view())
+      if refresh_project(self.window.active_view()) == None:
+        return
       self.current_file = os.path.basename(self.window.active_view().file_name())
       self.position = self.window.active_view().sel()[0].a
       self.menu = NodeBrowserMenu(_UrtextProject.nodes)
@@ -412,7 +418,8 @@ def get_contents(view):
 
 class ToggleTraverse(sublime_plugin.TextCommand):
   def run(self,edit): 
-    refresh_project(self.view) 
+    if refresh_project(self.view) == None :
+      return
     if self.view.settings().has('traverse'):
       if self.view.settings().get('traverse') == 'true':
         self.view.settings().set('traverse','false')
@@ -521,7 +528,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
   def run(self,edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     new_view = self.view.window().new_file()
     output = _UrtextProject.list_nodes()
     new_view.run_command("insert", {"characters": output})
@@ -529,7 +537,8 @@ class ShowAllNodesCommand(sublime_plugin.TextCommand):
 class NewNodeCommand(sublime_plugin.WindowCommand):
 
   def run(self):
-      refresh_project(self.window.active_view())
+      if refresh_project(self.window.active_view()) == None :
+        return
       self.path = _UrtextProject.path
       filename = _UrtextProject.new_file_node(datetime.datetime.now())
       new_view = self.window.open_file(os.path.join(self.path, filename))
@@ -537,7 +546,8 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
-      refresh_project(self.view)
+      if refresh_project(self.view) == None :
+        return
       file_name = os.path.basename(self.view.file_name())
       if self.view.is_dirty():
           self.view.set_scratch(True)
@@ -558,7 +568,8 @@ class InsertTimestampCommand(sublime_plugin.TextCommand):
 class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     position = self.view.sel()[0].begin()
     node_id = self.locate_from_in_node(position)
     consolidated_contents = _UrtextProject.consolidate_metadata(node_id)
@@ -592,7 +603,8 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
 class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
 
   def run(self,edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     caption = 'Search String: '
     self.view.window().show_input_panel(caption, '', self.search_project, None, None)
 
@@ -608,7 +620,8 @@ class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
 
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
     if link == None: # check to see if it's in another known project
@@ -642,7 +655,8 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
 class ListNodesInViewCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     display = _UrtextProject.list()
     new_view = self.view.window().new_file()
     new_view.set_scratch(True)
@@ -653,7 +667,8 @@ class ListNodesInViewCommand(sublime_plugin.TextCommand):
 class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     links = re.findall('(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line)
     if len(links) == 0:
@@ -666,7 +681,8 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
  
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     def run(self,edit):
-      refresh_project(self.view);
+      if refresh_project(self.view) == None :
+        return
       new_view = self.view.window().new_file()
       timeline = _UrtextProject.timeline(_UrtextProject.nodes)
       self.show_stuff(new_view, timeline)
@@ -683,7 +699,8 @@ class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   # most of this is now in urtext module
 
   def run(self, edit):
-    sublime_urtext.refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     self.errors = []
     path = sublime_urtext._UrtextProject.path
     tree = NodePullTree(self.view.file_name(), path)
@@ -703,7 +720,8 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
   # Necessary to change it?
 
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None :
+      return
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
@@ -735,28 +753,21 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
 
+class ShowTreeCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None:
+      return
+    filename = os.path.basename(self.view.file_name())
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    tree_render = _UrtextProject.show_tree_from(node_id)
+    print('nate')
+    print(tree_render)
+
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    refresh_project(self.view)
-    filename = os.path.basename(self.view.file_name())
-    node_id = _UrtextProject.get_node_id(filename)
-    _UrtextProject.nodes[node_id].metadata.log()
+    pass
 
-def add_created_timestamp(view, timestamp):
-  """
-  Adds an initial "Created: " timestamp
-  view: Sublime view
-  timestamp: a datetime.datetime object
-  """
-  filename = view.file_name().split('/')[-1]
-  text_timestamp = timestamp.strftime("<%a., %b. %d, %Y, %I:%M %p>")
-  view.run_command("insert_snippet", { "contents": text_timestamp+'\n'})
+_UrtextProject = None
+_UrtextProjectList = None
 
-def add_original_filename(view):
-  """
-  Adds an initial "Original Filename: " metadata stamp
-  """
-  filename = view.file_name().split('/')[-1]
-  view.run_command("move_to", {"to": "eof"})
-  view.run_command("insert_snippet", { "contents": "Original filename: "+filename+'\n'})
-  view.run_command("move_to", {"to": "bof"})
