@@ -216,64 +216,81 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
 
     def render_tree(view, tree_render):
         if not view.is_loading():
-           view.run_command("insert_snippet", {"contents": _UrtextProject.show_tree_from(node_id)})
+           view.run_command("insert_snippet", {"contents": tree_render})
         else:
           sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
-
-    def locate_view(name):
-      all_views = self.view.window().views()
-      for view in  all_views:
-        if view.name() == name:
-          return view
-      return None
 
     filename = self.view.file_name()
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
     tree_render = _UrtextProject.show_tree_from(node_id)
-    
-    tree_name = node_id + 'TREE' # Make a name for the view
-    tree_view = locate_view(tree_name)
-
-    if tree_view == None:    # if a view is not already named.
-      add_one_split(self.view)
-      # these two values are duplicated in add_one_split .. better way?
-      groups = self.view.window().num_groups() # copied from traverse. Should refactor
-      active_group = self.view.window().active_group() # 0-indexed
-
-      # move everything to the right
-      views = self.view.window().views_in_group(active_group)
-      index = 0
-      for view in views:
-        self.view.window().set_view_index(view, 
-          groups-1, # 0-indexed from 1-indexed value
-          index)  
-        index += 1
-    
-      self.view.window().focus_group(active_group)
-      tree_view = self.view.window().new_file()
-      tree_view.set_name(node_id+'TREE')
-    else:
-      tree_view.erase(edit, sublime.Region(0,1000)) # TODO - not 1000. Entire view.
-
+    tree_view = target_tree_view(self.view)
+    tree_view.erase(edit, sublime.Region(0, tree_view.size()))
     render_tree(tree_view, tree_render)
- 
-def add_one_split(view):
+
+class ShowTreeFromRootCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None:
+      return
+
+    def render_tree(view, tree_render):
+        if not view.is_loading():
+           view.run_command("insert_snippet", {"contents": tree_render})
+        else:
+          sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
+
+    filename = os.path.basename(self.view.file_name())
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    tree_render = _UrtextProject.show_tree_from_root_of(node_id)
+    tree_view = target_tree_view(self.view)
+    tree_view.erase(edit, sublime.Region(0, tree_view.size()))
+    render_tree(tree_view, tree_render)
+
+def target_tree_view(view):
+
+  filename = view.file_name()
+  if filename == None:
+    return
+
+  def locate_view(view, name):
+      all_views = view.window().views()
+      for view in all_views:
+        if view.name() == name:
+          return view
+      return None
+
+  tree_name = filename + 'TREE' # Make a name for the view
+  tree_view = locate_view(view, tree_name)
+  if tree_view == None:
+    tree_view = view.window().new_file()
+    tree_view.set_name(filename+'TREE')
+    tree_view.set_scratch(True)
+
   groups = view.window().num_groups() # copied from traverse. Should refactor
   active_group = view.window().active_group() # 0-indexed
-  groups += 1
-  
-  # side the panels (refactor this)
-  panel_size = 1 / groups
-  cols = [0]
-  cells = [[0,0,1,1]]
-  for index in range(1,groups):
-    cols.append(cols[index-1]+panel_size)
-    cells.append([index,0,index+1,1])
-  cols.append(1)
-  view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
-  view.settings().set("word_wrap", False)
+  if active_group == 0 or view.window().get_view_index(tree_view)[0] != active_group -1:    
+    groups += 1
+    panel_size = 1 / groups
+    cols = [0]
+    cells = [[0,0,1,1]]
+    for index in range(1,groups):
+      cols.append(cols[index-1]+panel_size)
+      cells.append([index,0,index+1,1])
+    cols.append(1)
+    view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+    view.settings().set("word_wrap", False)
 
+    sheets = tree_view.window().sheets_in_group(active_group)
+    index = 0
+    for sheet in sheets:
+      tree_view.window().set_sheet_index(sheet, 
+        groups-1, # 0-indexed from 1-indexed value
+        index)  
+      index += 1
+    view.window().set_view_index(tree_view, active_group,0)
+    view.window().focus_group(active_group)
+  return tree_view
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
   """ inline only, does not make a new file """
@@ -409,11 +426,11 @@ def show_panel(window, menu, main_callback):
   window.show_quick_panel(menu, private_callback)
 
 
-
-
 def get_contents(view):
-  contents = view.substr(sublime.Region(0, view.size()))
-  return contents
+  if view != None:
+    contents = view.substr(sublime.Region(0, view.size()))
+    return contents
+  return None
 
 
 class ToggleTraverse(sublime_plugin.TextCommand):
@@ -478,12 +495,12 @@ class TraverseFileTree(sublime_plugin.EventListener):
     # Add a failsafe in case the user has closed the next group to the left
     # but traverse is still on. 
     #
-    if not view.window():
+    if view.window() == None:
       return
     self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
-    self.content_view = view.window().active_view_in_group(self.active_group)
-    contents = get_contents(self.content_view)
+    self.content_sheet = view.window().active_sheet_in_group(self.active_group)
+    contents = get_contents(self.content_sheet.view())
     
     def move_to_location(view, position, tree_view):
         if not view.is_loading():
@@ -504,8 +521,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
       if len(links) ==0 : # might be an inline node view        
         link = full_line.strip('└── ').strip('├── ')
         position = self.content_view.find('{{\s+'+link, 0)
-        line = self.content_view.line(position)
-        self.content_view.sel().add(line)
+        line = self.content_sheet.view().line(position)
+        self.content_sheet.view().sel().add(line)
         move_to_location(view,position,tree_view)
         return
 
@@ -553,6 +570,7 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
           self.view.set_scratch(True)
       self.view.window().run_command('close_file')
       os.remove(os.path.join(_UrtextProject.path, file_name))
+      _UrtextProject.delete_file(file_name) # remove if adding delete back to watchdog
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
 
@@ -753,16 +771,6 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
         self.view.run_command("move_to", {"to": "bof"})
 
-class ShowTreeCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    if refresh_project(self.view) == None:
-      return
-    filename = os.path.basename(self.view.file_name())
-    position = self.view.sel()[0].a
-    node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    tree_render = _UrtextProject.show_tree_from(node_id)
-    print('nate')
-    print(tree_render)
 
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):

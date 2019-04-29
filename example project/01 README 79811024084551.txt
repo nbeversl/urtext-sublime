@@ -16,18 +16,18 @@ Version: 0.4
 
  {{ Ideas Behind Urtext
  
- 		Urtext is a system and a syntax, not an implementation. Urtext is a loose syntax for writing and structuring files in plaintext so it can be used on any platform.
+ 		Urtext is a system and a syntax for writing and structuring files in plaintext.
  
  		Urtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines.
  
- 		Characteristics:
- 		-------------
+ 		Requirements and Characteristics:
  
  		All in plain text. No proprietary file format or structure.
- 		Allow freeform text, without the need to adapt text to an existing system.
+ 		Allow freeform writing, without the need to adapt to a preexisting interface.
+ 		Loosely structured but flexible format that can be transferred among platforms, devices and applications. 
  		Be undistracted by manually naming, saving, and renaming of files.
- 		Permit customizable metadata.
- 		Content must be readable, creatable, and at least partially editable and organizible from a mobile text editing app.
+ 		Permit customizable metadata, without relying on the file system.
+ 		Content must be readable, creatable, and at least partially editable and organizable from a mobile text editing app.
  		Be capable of hyperlinks, both within and without the files. Files should be able to connect to one another.
  		Version control
  		Syntax highlighting
@@ -37,17 +37,12 @@ Version: 0.4
  
  		Use of file system:
  			Never have to interact directly with a file system dialog from within the Urtext project.
- 			Every node in a single folder, subfolders organization scheme.
+ 			Every text node in a single folder, no subfolders organization scheme.
  			Files of other types are in subfolders labeled by type: /img, /pdf, etc.
  
- 		Every feature has a pencil and paper analogue.
- 		Looesly structured but flexible format that can be transferred among platforms, devices and applications. 
  		Content remains in plain text. No reliance on proprietary applications, formats, platforms.
  		Extensible, customizable.
- 		A system, not an implementation.
- 		Allows for metadata without relying on the filesystem
- 
-  /-- ID:79810822061956 --/ }}
+ 		A system, not an implementation.												/-- ID:79810822061956 --/ }}
 
 {{ Using this document:
 
@@ -101,7 +96,7 @@ Version: 0.4
 
 {{ Linking Nodes: /-- ID:79810913063734 --/
 
-	Elaborate writing systems are possible by linking nodes together. Since node IDs are 14 digits long (see below), any 14 digits in an Urtext project are treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. 
+	Elaborate systems are possible by linking nodes together. Since node IDs are 14 digits long (see below), any 14 digits in an Urtext project are treated as a link. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. 
 
 	Linking does not require a filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See below for more information on file naming and Node IDs.
 
@@ -301,7 +296,7 @@ defined in: -> 79810911080130
 {{ Syntax Highlighting
 
 		Sublime Urtext extends the Sixteen color scheme in Sublime. It also has a syntax definition file that can be used to add syntax highlighting in other color schemes.
-																											/-- ID:79810822064026 --/ }}
+																							/-- ID:79810822064026 --/ }}
 
 
 {{ Key Bindings: 
