@@ -1,9 +1,48 @@
 SublimeUrtext Documentation 
 
-Updated: April 9, 2019
+Updated: April 29, 2019
 Version: 0.4
 
-{{ 	What Sublime Urtext Is:  /-- ID:79810915120529 --/ 
+{{
+Sublime Urtext Documentation 79811024084551
+├── Example Tree 79810802082407
+├── What Sublime Urtext Is   79810915120529
+│   ├── Urtext is a syntax I invented for writing and organizing in plaintext.  79810915120430
+│   └── Ideas Behind Urtext 79810822061956
+├── Using this document 79810822101322
+├── How to set it up 79810913063747
+├── Basics:  79810913063739
+├── Inline Nodes  79810913060950
+│   ├── like this text  79810913060421
+│   └── Inline Node Trees 79810822060133
+├── Linking Nodes:  79810913063734
+├── Seeing Node Relationships:  79810913063730
+├── File Organization:  79810913063726
+│   └── Traverse Mode 79810822055818
+├── Metadata (This tag overrides the default title) 79810913063707
+├── Finding nodes via Metadata:  79810913063640
+├── Dynamic Nodes 79810911080130
+│   ├── Example Source Node 1 79810822101015
+│   ├── Example Source Node 2 79810822101016
+│   ├── Example Source Node 3 79810822101018
+│   ├── Example Source Node 4 79810822101019
+│   ├── Example Dynamic Node Title 79810822085456
+│   └── Node Definition for the Table of Contents 79810802081948
+├── Timestamps:  79810913063635
+├── Timeline View:  79810913063637
+├── Filenames:  79810913063623
+├── Node IDs:  79810913063619
+├── Linking to URLS and to Files Outside the Project: 79810822062009
+├── Syntax Highlighting 79810822064026
+└── Key Bindings:  79810822064039
+/-- ID: 79810802082407
+title: Example Tree
+kind: dynamic
+defined in: -> 79810802081948
+ --/ }}
+
+
+{{ 	What Sublime Urtext Is  /-- ID:79810915120529 --/ 
 	
 		{{ 
 		Urtext is a syntax I invented for writing and organizing in plaintext. 
@@ -42,13 +81,13 @@ Version: 0.4
  
  		Content remains in plain text. No reliance on proprietary applications, formats, platforms.
  		Extensible, customizable.
- 		A system, not an implementation.												/-- ID:79810822061956 --/ }}
+ 		A system, not an implementation.												/-- ID:79810822061956 --/ }} }}
 
-{{ Using this document:
+{{ Using this document
 
 	This document is an Urtext file with several sub-nodes. It can be used in Sublime Text to try out the features described. For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows.	/-- ID:79810822101322 --/ }}
 
-{{ How to set it up : 
+{{ How to set it up
 
 	- You'll need an empty Sublime Project. Create one by opening a new empty folder (File -> Open) and then save it as a project (Project -> Save Project As ...).
 
@@ -168,7 +207,7 @@ Version: 0.4
 
 			If for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:
 
-			/-- title: < Title Of Node > --/
+			/-- title: Metadata (This tag overrides the default title)  --/
 
 		index:
 
@@ -206,14 +245,14 @@ Version: 0.4
 
 		Here are four inline nodes with example tags and indexes.
 
-			{{ Source Node 1
+			{{ Example Source Node 1
 					Some text here.
 				 /-- ID:79810822101015; tag: example_node; index:02 --/ }}
-			{{ Source Node 2
+			{{ Example Source Node 2
 				 /-- ID:79810822101016; tag: example_node; index:05 --/ }}
-		 	{{ Source Node 3
+		 	{{ Example Source Node 3
 			 	 /-- ID:79810822101018; tag: example_node; index:01 --/ }}
-			{{ Source Node 4
+			{{ Example Source Node 4
 				 /-- ID:79810822101019; tag: example_node; index:05  --/ }}
 
 
@@ -224,27 +263,41 @@ Version: 0.4
 				exclude:metadata:tag:exclude_this
 				sort:index
 				show:title
-				metadata:title:Example Title
+				metadata:title:Example Dynamic Node Title
 		 	]]
 
 		And here is the node with ID 79810822085456:
 
 			{{ 
- Source Node 3  79810822101018
+ Example Source Node 3  79810822101018
 -----------------------
-Source Node 1  79810822101015
+Example Source Node 1  79810822101015
 -----------------------
-Source Node 2  79810822101016
+Example Source Node 4  79810822101019
 -----------------------
-Source Node 4  79810822101019
+Example Source Node 2  79810822101016
 -----------------------
 /-- ID: 79810822085456
-title: Example Title
+title: Example Dynamic Node Title
 kind: dynamic
 defined in: -> 79810911080130
  --/ }}
 
  		Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. (Saving is necessary to trigger the update.)
+
+		{{ Node Definition for the Table of Contents
+
+			Here is another example dynamic definition, which creates the tree at the top of this file:
+				[[ ID:79810802082407
+					tree:79811024084551
+					metadata:title:Example Tree
+				 ]]  
+
+			Changing the titles or nesting of sections will dynamically update the tree.
+		/-- ID:79810802081948 --/ }} 		
+
+
+
 
 		 /-- ID:79810911080130 --/ }}
 
@@ -316,9 +369,13 @@ defined in: -> 79810911080130
 	ctrl+shift+t 			Timeline view
 
  						/-- ID:79810822064039 --/ }}
+
+ 
+
+
 /--
 ID: 79811024084551
 tags: urtext
-title: Urtext Documentation
+title: Sublime Urtext Documentation
 --/
                                                                                   

@@ -269,27 +269,31 @@ def target_tree_view(view):
 
   groups = view.window().num_groups() # copied from traverse. Should refactor
   active_group = view.window().active_group() # 0-indexed
-  if active_group == 0 or view.window().get_view_index(tree_view)[0] != active_group -1:    
-    groups += 1
-    panel_size = 1 / groups
-    cols = [0]
-    cells = [[0,0,1,1]]
-    for index in range(1,groups):
-      cols.append(cols[index-1]+panel_size)
-      cells.append([index,0,index+1,1])
-    cols.append(1)
-    view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
-    view.settings().set("word_wrap", False)
+  if active_group == 0 or view.window().get_view_index(tree_view)[0] != active_group -1: 
+    print(groups)
+    if groups > 1 and view.window().active_view_in_group(active_group - 1).file_name() == None:
+      view.window().set_view_index(tree_view, active_group-1, 0)
+    else:
+      groups += 1
+      panel_size = 1 / groups
+      cols = [0]
+      cells = [[0,0,1,1]]
+      for index in range(1,groups):
+        cols.append(cols[index-1]+panel_size)
+        cells.append([index,0,index+1,1])
+      cols.append(1)
+      view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+      view.settings().set("word_wrap", False)
 
-    sheets = tree_view.window().sheets_in_group(active_group)
-    index = 0
-    for sheet in sheets:
-      tree_view.window().set_sheet_index(sheet, 
-        groups-1, # 0-indexed from 1-indexed value
-        index)  
-      index += 1
-    view.window().set_view_index(tree_view, active_group,0)
-    view.window().focus_group(active_group)
+      sheets = tree_view.window().sheets_in_group(active_group)
+      index = 0
+      for sheet in sheets:
+        tree_view.window().set_sheet_index(sheet, 
+          groups-1, # 0-indexed from 1-indexed value
+          index)  
+        index += 1
+      view.window().set_view_index(tree_view, active_group,0)
+      view.window().focus_group(active_group)
   return tree_view
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
@@ -486,7 +490,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     self.view.window().focus_group(active_group)
 
 
-class TraverseFileTree(sublime_plugin.EventListener):
+"""class TraverseFileTree(sublime_plugin.EventListener):
 
   def on_selection_modified(self, view):
 
@@ -499,7 +503,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
       return
     self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
-    self.content_sheet = view.window().active_sheet_in_group(self.active_group)
+    #self.content_sheet = view.window().active_sheet_in_group(self.active_group)
     contents = get_contents(self.content_sheet.view())
     
     def move_to_location(view, position, tree_view):
@@ -540,7 +544,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
         view.window().focus_view(return_view)
         view.window().focus_group(self.active_group)
     else:
-      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
+      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)"""
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
@@ -777,6 +781,19 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
 
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
+    filename = os.path.basename(self.view.file_name())
+    node_id = _UrtextProject.get_node_id(filename)
+    """print('strip_metadata')
+    print(_UrtextProject.nodes[node_id].strip_metadata())
+    print('strip_inline_nodes')
+    print(_UrtextProject.nodes[node_id].strip_inline_nodes())
+    print('strip_dynamic_definitions')
+    print(_UrtextProject.nodes[node_id].strip_dynamic_definitions())
+    print('CONTNET ONLY')
+    print(_UrtextProject.nodes[node_id].content_only())"""
+    print(_UrtextProject.nodes[node_id].ranges)
+    print(_UrtextProject.nodes[node_id].contents)
+
     pass
 
 _UrtextProject = None
