@@ -742,7 +742,10 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       return
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
+    print(position)
+
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    print(node_id)
     render = _UrtextProject.get_node_relationships(node_id)
 
     def draw_tree(view, render ):
