@@ -746,10 +746,7 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
       return
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
-    print(position)
-
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    print(node_id)
     render = _UrtextProject.get_node_relationships(node_id)
 
     def draw_tree(view, render ):
@@ -782,15 +779,8 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     filename = os.path.basename(self.view.file_name())
-    node_id = _UrtextProject.get_node_id(filename)
-    """print('strip_metadata')
-    print(_UrtextProject.nodes[node_id].strip_metadata())
-    print('strip_inline_nodes')
-    print(_UrtextProject.nodes[node_id].strip_inline_nodes())
-    print('strip_dynamic_definitions')
-    print(_UrtextProject.nodes[node_id].strip_dynamic_definitions())
-    print('CONTNET ONLY')
-    print(_UrtextProject.nodes[node_id].content_only())"""
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
     print(_UrtextProject.nodes[node_id].ranges)
     print(_UrtextProject.nodes[node_id].contents)
 
