@@ -592,8 +592,10 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
-    position = self.view.sel()[0].begin()
-    node_id = self.locate_from_in_node(position)
+    self.view.run_command('save') # TODO insert notification
+    filename = os.path.basename(self.view.file_name())
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
     consolidated_contents = _UrtextProject.consolidate_metadata(node_id)
     print(consolidated_contents)
     # just need to write this to the view.
