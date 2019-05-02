@@ -24,6 +24,16 @@ contexts:
       embed_scope: urtext.html
       escape: 'END-HTML'
       escape-captures: 0
+    - match: 'SCOPE-JSON'
+      embed: Packages/JavaScript/JSON.sublime-syntax
+      embed_scope: urtext.json
+      escape: 'END-JSON'
+      escape-captures: 0
+    - match: 'SCOPE-MARKDOWN'
+      embed: Packages/Markdown/Markdown.sublime-syntax
+      embed_scope: urtext.markdown
+      escape: 'END-MARKDOWN'
+      escape-captures: 0
 
   inline-node: 
     - meta_scope: inline_node 
@@ -68,13 +78,13 @@ contexts:
 
   tag-names:
     - match: '[\w\s]+:'
-      scope: entity.name.tag.urtext
+      scope: entity.name.tagname.urtext
 
   tag-values:
     - match: (?<=\w:\s)((?!--\/)[^;|])*
       scope: entity.name.value.urtext
     - match: (?<=|\s)((?!--\/)[^;|])*
-      scope: entity.name.value.urtext
+      scope: entity.name.tagvalue.urtext
 
   tagname-separator:
     - match: ';'

@@ -1,14 +1,16 @@
 Sublime Urtext Documentation 79811024084551
 ├── Example Tree 79810802082407
-├── What Sublime Urtext Is 79810915120529
+├── What Sublime-Urtext Is 79810915120529
 │   ├── Urtext is a syntax I invented for writing and organizing in plaintext. 79810915120430
-│   └── Ideas Behind Urtext 79810822061956
+│   └── Ideas Behind Urtext 79810729063456
+│       ├── Basic Requirements: 79810822061956
+│       ├── Additional Features: 79810729061009
+│       └── Characteristics 79810729060942
 ├── Using this document 79810822101322
 ├── How to set it up 79810913063747
 ├── Basics: 79810913063739
-├──  79810913060950
-│   ├── like this text 79810913060421
-│   └── Inline Node Trees 79810822060133
+├── like this text 79810913060421
+├── Inline Node Trees 79810822060133
 ├── Linking Nodes: 79810913063734
 ├── Seeing Node Relationships: 79810913063730
 ├── File Organization: 79810913063726
@@ -27,7 +29,7 @@ Sublime Urtext Documentation 79811024084551
 ├── Filenames: 79810913063623
 ├── Node IDs: 79810913063619
 ├── Linking to URLS and to Files Outside the Project: 79810822062009
-├── Syntax Highlighting 79810822064026
+├── Syntax Highlighting and Readability 79810822064026
 └── Key Bindings: 79810822064039
 /-- ID: 79810802082903
 kind: dynamic

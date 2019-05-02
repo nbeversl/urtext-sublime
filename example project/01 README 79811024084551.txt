@@ -1,4 +1,4 @@
-SublimeUrtext Documentation 
+Sublime-Urtext Documentation 
 
 Updated: April 29, 2019
 Version: 0.4
@@ -6,15 +6,17 @@ Version: 0.4
 {{
 Sublime Urtext Documentation 79811024084551
 ├── Example Tree 79810802082407
-├── What Sublime Urtext Is 79810915120529
+├── What Sublime-Urtext Is 79810915120529
 │   ├── Urtext is a syntax I invented for writing and organizing in plaintext. 79810915120430
-│   └── Ideas Behind Urtext 79810822061956
+│   └── Ideas Behind Urtext 79810729063456
+│       ├── Basic Requirements: 79810822061956
+│       ├── Additional Features: 79810729061009
+│       └── Characteristics 79810729060942
 ├── Using this document 79810822101322
 ├── How to set it up 79810913063747
 ├── Basics: 79810913063739
-├──  79810913060950
-│   ├── like this text 79810913060421
-│   └── Inline Node Trees 79810822060133
+├── like this text 79810913060421
+├── Inline Node Trees 79810822060133
 ├── Linking Nodes: 79810913063734
 ├── Seeing Node Relationships: 79810913063730
 ├── File Organization: 79810913063726
@@ -33,7 +35,7 @@ Sublime Urtext Documentation 79811024084551
 ├── Filenames: 79810913063623
 ├── Node IDs: 79810913063619
 ├── Linking to URLS and to Files Outside the Project: 79810822062009
-├── Syntax Highlighting 79810822064026
+├── Syntax Highlighting and Readability 79810822064026
 └── Key Bindings: 79810822064039
 /-- ID: 79810802082407
 title: Example Tree
@@ -41,61 +43,79 @@ kind: dynamic
 defined in: -> 79810802081948
  --/ }}
 
+{{  What Sublime-Urtext Is                                                                       /--ID:79810915120529--/
+    {{ 
+    Urtext is a syntax I invented for writing and organizing in plaintext.      /--ID:79810915120430;tag:definition--/}}
+    Sublime is a modern, programmable text editor. 
 
+    This is an implementation of Urtext in Sublime Text 3. I call it Sublime-Urtext. 
 
-{{  What Sublime Urtext Is                                                                   /-- ID:79810915120529 --/ 
-    
-        {{ 
-        Urtext is a syntax I invented for writing and organizing in plaintext.
-                                                                               /--ID:79810915120430;tag:definition--/}}
+{{  Ideas Behind Urtext
 
-        Sublime is a modern, programmable text editor. 
+    Urtext is a system and a syntax for writing and structuring files in plaintext. There are many tools available for writing and organizing. None of them were what I wanted, so I wrote my own.
 
-        This is an implementation of Urtext in Sublime Text. I call it Sublime Urtext. 
+    The Urtext idea could be implemented using any text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. The version in Sublime is just an example implementation that uses the scripting capability of Sublime Text 3.
 
+    {{  Basic Requirements:
 
- {{ Ideas Behind Urtext
- 
-        Urtext is a system and a syntax for writing and structuring files in plaintext.
- 
-        Urtext could be implemented using any another text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines.
- 
-        Requirements and Characteristics:
- 
-        All in plain text. No proprietary file format or structure.
-        Allow freeform writing, without the need to adapt to a preexisting interface.
-        Loosely structured but flexible format that can be transferred among platforms, devices and applications. 
-        Be undistracted by manually naming, saving, and renaming of files.
-        Permit customizable metadata, without relying on the file system.
-        Content must be readable, creatable, and at least partially editable and organizable from a mobile text editing app.
-        Be capable of hyperlinks, both within and without the files. Files should be able to connect to one another.
-        Version control
-        Syntax highlighting
-        Fuzzy search
-        Allow both organized and disorganized use.
-        Must be backward compatible with older systems
- 
+        The original requirements were so specific as to eliminate just about every tool already available:
+
+        All in plain text. No proprietary file formats or structure. Usable across multiple platforms and devices.
+        Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform writing without adapting to a preexisting interface or feature set. Permit gradual aggregation of content with other content.
+        Be undistracted by interacting with the file system (naming, saving, organizing of files).  
+        Customizable metadata, without relying on the file system.        
+        Content at least partially editable and organizable from mobile devices.        
+        Be capable of hyperlinks, both within and without the files.         
+        Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical way, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
+        
+        Must be extensible and customizable. This year's needs might not be next year's needs.
+        Does not require years to master. (I'm looking at you, Org Mode. I gave you a good solid try.)
+        Future-proof. No reliance on anything that may no longer exist in 10 or 100 years.
+                                                                                               /--ID:79810822061956--/}}
+    {{  Additional Features:
+
+        In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
+
+        Basic syntax highlighting, if only to delineate content from structural/syntactical elements of the tool.
+
+        Fuzzy search within files
+            - This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor environment.   
+
+        Version control (using Git, for example).
+            - This possiblity may be self evident from the commitment to plaintext, but it's important enough to mention.    
+                                                                                               /--ID:79810729061009--/}}
+
+    {{  Characteristics
+
+        As a result of the above, Urtext came out having the following characteristics:
+       
         Use of file system:
-            Never have to interact directly with a file system dialog from within the Urtext project.
-            Every text node in a single folder, no subfolders organization scheme.
-            Files of other types are in subfolders labeled by type: /img, /pdf, etc.
- 
+             Never have to interact directly with a file system dialog from within the Urtext project.
+             Every text node in a single folder, no subfolders organization scheme.
+             Files of other types are in subfolders labeled by type: /img, /pdf, etc.
+     
         Content remains in plain text. No reliance on proprietary applications, formats, platforms.
-        Extensible, customizable.
-        A system, not an implementation.                                                /-- ID:79810822061956 --/ }} }}
 
-{{ Using this document
 
-    This document is an Urtext file with several sub-nodes. It can be used in Sublime Text to try out the features described. For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows./-- ID:79810822101322 --/ }}
+        It has a somewhat code-like syntax and has a code-like appearance in the editor.
 
-{{ How to set it up
+                                                                                        /-- ID:79810729060942 --/ }}
+                                                                                             /--ID:79810729063456--/}} 
+                                                                                                                      }}
+{{  Using this document
+
+    This file is an Urtext node with several sub-nodes. It can be used in Sublime Text to try out the features described. For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows.
+                                                                                               /--ID:79810822101322--/}}
+
+{{  How to set it up
 
     - You'll need an empty Sublime Project. Create one by opening a new empty folder (File -> Open) and then save it as a project (Project -> Save Project As ...).
 
     - You are prompted to save a file with a .sublime-project extension. Name it anything, save it anywhere you like. For simplicity, you could save it inside the empty folder you just created. 
 
     Your .sublime-project file might look like this:
-
+    SCOPE-JSON
+            
             {
                 "folders":
                 [
@@ -110,11 +130,15 @@ defined in: -> 79810802081948
                 },
                 
             }
+            
+    END-JSON
 
     Whenever you want to use the project, select Project -> Quick Switch Project (Ctrl-Cmd-P), and select the Urtext project. 
-                                                                                           /-- ID:79810913063747 --/ }}
 
-{{ Basics:                                                                                    /-- ID:79810913063739 --/
+    For some basic syntax highlighting that makes it easier to use, select the Sixteen (for light) or the Monokai (for dark) color schemes in Preferences -> Color Scheme ... See 79810822064026 for more on syntax highlighting.
+                                                                                               /--ID:79810913063747--/}}
+
+{{  Basics:                                                                                      /--ID:79810913063739--/
 
     Text is kept in nodes. A node can be a single file but a single file can also contain multiple nodes. Think of a node as a blank piece of paper, but it can be any length. 
 
@@ -122,8 +146,7 @@ defined in: -> 79810802081948
 
     Once you have multiple nodes, press Super-E or select "Urtext: Show All Nodes" from the Sublime command palette (Shift-Command-P) to browse them. Nodes are sorted by their time of creation, with the most recent first. They can also be sorted by index (see below). Find a node by typing part of its title. Open a node by selecting it and pressing enter. }}
 
-{{ Inline Nodes                                                                 
-{{                                                                                           /-- ID:79810913060950 --/ 
+{{  Inline Nodes                                                                 
     
     Inline nodes are nested inside of other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double squiggly brackets, {{ like this text /-- ID:79810913060421 --/ }}. To create an empty inline node, Shift-Ctrl-Super-; (Shift-Control-Super-semicolon). To wrap existing content into an inline node, use the same keypress with the content selected. Inside the double squiggly brackets is a new node with an auto-generated ID.
 
@@ -134,8 +157,8 @@ defined in: -> 79810802081948
     {{ Inline Node Trees
 
         For a diagram of all inline nodes within a single file, select "Urtext: Show Inline Node Tree" from the Sublime Command Palette.
-        This tree is navigable using Traverse Mode (Super-R)                               /-- ID:79810822060133 --/ }}
-}}
+        This tree is navigable using Traverse Mode (Super-R)                                   /--ID:79810822060133--/}}
+                                                                                                                    
 
 {{ Linking Nodes:                                                                             /-- ID:79810913063734 --/
 
@@ -294,23 +317,19 @@ defined in: -> 79810911080130
                  ]]  
 
             Changing the titles or nesting of sections will dynamically update the tree.
-                                                                                           /-- ID:79810802081948 --/ }}        
+                                                                                               /--ID:79810802081948--/}}
+                                                                                               /--ID:79810911080130--/}}
 
 
-
-
-                                                                                           /-- ID:79810911080130 --/ }}
-
-
-{{ Timestamps:                                                                                /-- ID:79810913063635 --/
+{{ Timestamps:                                                                                   /--ID:79810913063635--/
 
     Timestamps: Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime, insert one anywhere by pressing Control-T. Timestamps can be written inline or as elements of metadata (see below). Urtext parses timestamps throughout the project, not only in the metadata block. }}
 
-{{ Timeline View:                                                                             /-- ID:79810913063637 --/
+{{ Timeline View:                                                                                /--ID:79810913063637--/
 
     A Timeline View gives scans the project for timestamps (defined above) and shows them in chronological order with nearby text. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. As everywhere in a project, nodes can be opened using Ctrl-/.  }}
 
-{{ Filenames:                                                                                 /-- ID:79810913063623 --/
+{{ Filenames:                                                                                    /--ID:79810913063623--/
 
     Other than the 14-digit node ID created by Urtext (see 79810913063619), file names are arbitrary. You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename.
 
@@ -327,10 +346,8 @@ defined in: -> 79810911080130
         <node id> <title>.txt
 
     This system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so. Any naming system will work as long as the node ID is somewhere in the filename.
-
-  }}
-
-{{ Node IDs:                                                                                  /-- ID:79810913063619 --/
+                                                                                                                      }}
+{{ Node IDs:                                                                                     /--ID:79810913063619--/
 
     Nodes have 14-digit ID numbers. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that have limited or inconvenient filelist sorting and viewing capabilities. 
     
@@ -344,12 +361,13 @@ defined in: -> 79810911080130
 
     Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as -> www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
 
-                                                                                           /-- ID:79810822062009 --/ }}
+                                                                                               /--ID:79810822062009--/}}
 
-{{ Syntax Highlighting
+{{  Syntax Highlighting and Readability
 
-        Sublime Urtext extends the Sixteen color scheme in Sublime. It also has a syntax definition file that can be used to add syntax highlighting in other color schemes.
-                                                                                           /-- ID:79810822064026 --/ }}
+        Sublime Urtext offers some basic syntax highlighting by extending the Sixteen and Monokai color scheme in Sublime. It also has a syntax definition .YML file that can be used to add syntax highlighting in other color schemes.
+
+                                                                                               /--ID:79810822064026--/}}
 
 
 {{ Key Bindings: 
