@@ -1,20 +1,20 @@
 Sublime Urtext Documentation 79811024084551
 ├── Example Tree 79810802082407
-├── What Sublime Urtext Is   79810915120529
-│   ├── Urtext is a syntax I invented for writing and organizing in plaintext.  79810915120430
+├── What Sublime Urtext Is 79810915120529
+│   ├── Urtext is a syntax I invented for writing and organizing in plaintext. 79810915120430
 │   └── Ideas Behind Urtext 79810822061956
 ├── Using this document 79810822101322
 ├── How to set it up 79810913063747
-├── Basics:  79810913063739
-├── Inline Nodes  79810913060950
-│   ├── like this text  79810913060421
+├── Basics: 79810913063739
+├──  79810913060950
+│   ├── like this text 79810913060421
 │   └── Inline Node Trees 79810822060133
-├── Linking Nodes:  79810913063734
-├── Seeing Node Relationships:  79810913063730
-├── File Organization:  79810913063726
+├── Linking Nodes: 79810913063734
+├── Seeing Node Relationships: 79810913063730
+├── File Organization: 79810913063726
 │   └── Traverse Mode 79810822055818
 ├── Metadata (This tag overrides the default title) 79810913063707
-├── Finding nodes via Metadata:  79810913063640
+├── Finding nodes via Metadata: 79810913063640
 ├── Dynamic Nodes 79810911080130
 │   ├── Example Source Node 1 79810822101015
 │   ├── Example Source Node 2 79810822101016
@@ -22,13 +22,13 @@ Sublime Urtext Documentation 79811024084551
 │   ├── Example Source Node 4 79810822101019
 │   ├── Example Dynamic Node Title 79810822085456
 │   └── Node Definition for the Table of Contents 79810802081948
-├── Timestamps:  79810913063635
-├── Timeline View:  79810913063637
-├── Filenames:  79810913063623
-├── Node IDs:  79810913063619
+├── Timestamps: 79810913063635
+├── Timeline View: 79810913063637
+├── Filenames: 79810913063623
+├── Node IDs: 79810913063619
 ├── Linking to URLS and to Files Outside the Project: 79810822062009
 ├── Syntax Highlighting 79810822064026
-└── Key Bindings:  79810822064039
+└── Key Bindings: 79810822064039
 /-- ID: 79810802082903
 kind: dynamic
 defined in: -> 79810802082905

@@ -596,7 +596,8 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    consolidated_contents = _UrtextProject.consolidate_metadata(node_id)
+    consolidated_contents = _UrtextProject.consolidate_metadata(node_id, one_line=True)
+    
     print(consolidated_contents)
     # just need to write this to the view.
 
@@ -708,7 +709,8 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
       if refresh_project(self.view) == None :
         return
       new_view = self.view.window().new_file()
-      timeline = _UrtextProject.timeline(_UrtextProject.nodes)
+      nodes = [_UrtextProject.nodes[node_id] for node_id in _UrtextProject.nodes]
+      timeline = _UrtextProject.timeline(nodes)
       self.show_stuff(new_view, timeline)
 
     def show_stuff(self, view, timeline):
@@ -778,15 +780,39 @@ class AddMetaToExistingFile(sublime_plugin.TextCommand):
         self.view.run_command("move_to", {"to": "bof"})
 
 
+class RightAlignGroupCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    selection = self.view.substr(self.view.sel()[0])
+    line_position = self.view.rowcol(self.view.sel()[0].a)[1]
+    new_line = ' ' * (119 - len(selection) - line_position) 
+    new_line += selection
+    lines = selection.split('\n')
+    new_text = ''
+    for line in lines:
+      new_text += ' ' * (120 - len(line))
+      new_text += line + '\n'
+    self.view.replace(edit,self.view.sel()[0],new_line)
+    
+
+class RightAlignHereCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    line_region = self.view.line(self.view.sel()[0])
+    cursor_pos = self.view.rowcol(self.view.sel()[0].a)[1]
+    print(cursor_pos)
+    line_contents = self.view.substr(line_region)
+    left = line_contents[:cursor_pos]
+    right = line_contents[cursor_pos:].replace(' ','')
+    new_right = ' ' * (120 - len(right) - cursor_pos) 
+    new_right += right
+    self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(line_contents[cursor_pos:])),new_right)
+
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
     print(_UrtextProject.nodes[node_id].ranges)
-    print(_UrtextProject.nodes[node_id].contents)
 
-    pass
 
 _UrtextProject = None
 _UrtextProjectList = None
