@@ -20,6 +20,8 @@ Sublime Urtext Documentation 79811024084551
 │   └── Node Trees 79810822060133
 │       ├── From a selected node 79810728095518
 │       └── From the root 79810728095432
+├── Timestamps 79810913063635
+│   └── Timeline View: 79810913063637
 ├── Links: 79810913063734
 │   ├── Linking to other nodes 79810728094039
 │   │   └── Sublime Text tools to help with linking 79810728102411
@@ -28,17 +30,16 @@ Sublime Urtext Documentation 79811024084551
 │       └── Files 79810728093600
 ├── File and Node Organization: 79810913063726
 │   ├── Tree-like: Extending node trees beyond the file level 79810728101527
-│   │   └── Therefore nodes can only have one parent (at a time), although multiple nodes may share the same par 79810728081437
-│   ├── Virtual Tree 79810728091838
+│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 79810728081437
 │   ├── Acyclic or Wiki/Web-like 79810728092425
 │   │   └── Viewing 79810728085016
-│   ├──  79810728101824
 │   └── Traverse Mode 79810822055818
 ├── Metadata: 79810913063707
-│   ├── Title (This tag overrides the default title) 79810728093349
-│   ├── index: 79810728093344
-│   └── parent: 79810728093341
-├── Finding nodes via Metadata: 79810913063640
+│   ├── Reserved words 79810728072553
+│   │   ├── Title (This tag overrides the default title) 79810728093349
+│   │   ├── index 79810728093344
+│   │   └── parent 79810728093341
+│   └── Finding nodes by Metadata: 79810913063640
 ├── Dynamic Nodes 79810911080130
 │   ├── Example Source Node 1 79810822101015
 │   ├── Example Source Node 2 79810822101016
@@ -46,9 +47,7 @@ Sublime Urtext Documentation 79811024084551
 │   ├── Example Source Node 4 79810822101019
 │   ├── Example Dynamic Node Title 79810822085456
 │   └── Node Definition for the Table of Contents 79810802081948
-├── Timestamps: 79810913063635
-├── Timeline View: 79810913063637
-├── Filenames: 79810913063623
+├── Filenames 79810913063623
 ├── Node IDs: 79810913063619
 ├── Linking to URLS and to Files Outside the Project: 79810822062009
 ├── Syntax Highlighting and Readability 79810822064026
@@ -187,7 +186,17 @@ defined in: 79810802081948
                                                                                               /--ID:79810822060133--/ }}
                                                                                                 /-- ID:79810728103313 --/ }}
 
-{{  Links:                                                                             /-- ID:79810913063734 --/
+{{  Timestamps                                                                                   /--ID:79810913063635--/
+
+    One of the most important features for organizing and tracking writing is timestamps. Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime Urtext, insert a timestamp for the current date and time ("now") anywhere by pressing Control-T.
+
+    Timestamps can be part of Metadata (see below) but can also be inserted anywhere else. Urtext utilizes a "loose" parsing of inline timestamps, meaning they can be placed anywhere and will be recognized and parsed by a timeline view.
+
+    {{  Timeline View:                                                                           /--ID:79810913063637--/
+
+        Since Node IDs are a derivation of the node's creation time (see 79810913063619), they can be used to order the nodes in time. Urtext will parse these along with manually added timestamps into a detailed overview of the project's timeline. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. Each Node ID or timestamp is shown in chronological order with nearby text. As everywhere in a project, node IDs shown are links that can be opened using Ctrl-/.  }}    }}
+
+{{  Links:                                                                                     /-- ID:79810913063734 --/
 
     {{  Linking to other nodes
 
@@ -232,112 +241,91 @@ defined in: 79810802081948
             - The tree permits nesting both within and beyond the individual file level.
             - The tree can be displayed from any arbitrary starting point, whether or not its branches are within or beyond a particular file level.
 
-       Note that a "tree" here is a strict hierarchical structure that resolves to a single root. {{ Therefore nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728091838. /-- ID:79810728081437 --/ }} The intended use for this feature is to link separate individual files into trees. Using it in other ways, such as adding a `parent` tag to a inline node that already has a parent, will override this and, while possible, may have confusing results. Instead, see "Virtual Trees" below (79810728091838).
+       Note that a "tree" here is a strict hierarchical structure that resolves to a single root. Therefore, {{  nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728091838. /-- ID:79810728081437 --/ }} The intended use for this feature is to link separate individual files into trees. Using it in other ways, such as adding a `parent` tag to a inline node that already has a parent, will override this and, while possible, may have confusing results. Instead, see "Virtual Trees" below (79810728091838).
                                                                                             /-- ID:79810728101527 --/ }}
-
-    {{  Virtual Tree
-
-        It is stated above that a node can only have one parent at a time (79810728081437), however its parent can be modified dynamically. You may, for example, want to create more than one hierarchy of some or all of the same content. This can be done with a virtual tree by creating a hierarchy in plain text and then "assigning" node relationships from it.
-                                                                                            /-- ID:79810728091838 --/ }}
-
 
     {{  Acyclic or Wiki/Web-like
 
-        Elaborate writing, notetaking, organizing, and reference systems are possible by linking nodes together in more tangled and intricate ways than a tree can accomodate. For flexible linking without the constraints of a tree, immediately precede a link to any node (79810913063734) by the right angle bracket, such as: >79810728091838. This method has no limit on number of "parent" elements per node, and no limit on link depth, can produce messier, web-like relational diagrams similar to acyclic graphs. 
+        Elaborate writing, notetaking, and reference systems are possible by linking nodes together in tangled and intricate ways that a tree will not accomodate. To do so, immediately precede a link to a node (see 79810913063734) by the right angle bracket, such as: >79810728091838. 
 
         {{  Viewing
         
-            While Urtext cannot yet draw acyclic graphs in plaintext, it can represent these acyclic relationships from the perspective of any one node. Positioning the cursor in the desired node and and selecting "Urtext : Show Linked Relationships..." from the Sublime command palette will open a split view similar to that in 79810822060133. The currently selected node will be displayed as root; all nodes linking into this nodes, and recursively into those nodes, will be displayed above the root; all files linked from this node, and recursively from those nodes, will be displayed below. Circular references are represented past one iteration.
+            While Urtext cannot draw acyclic graphs in plaintext, it can represent these acyclic relationships from the perspective of any one node. Positioning the cursor in the desired node and and selecting "Urtext : Show Linked Relationships..." from the Sublime command palette will open a split view similar to that in 79810822060133. The currently selected node will be displayed as root; all nodes linking into this nodes, and recursively into those nodes, will be displayed above the root; all files linked from this node, and recursively from those nodes, will be displayed below. Circular references are represented up to one iteration.
 
-            Like trees (79810728103313), these diagrams are displayed as Sublime "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use and will not update when a node/file changes. To make permanent and dynamically updated diagramns, see 79810911080130.
+            Like trees (79810728103313), these diagrams are displayed as Sublime "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use and will not update when a node/file changes. To make permanent and dynamically updated diagrams, see 79810911080130.
                                                                                             /-- ID:79810728085016 --/ }}
- 
-       
-                                                                                             /-- ID:79810728092425 --/ }}                                                            
-      
-
-
-
-    {{ 
-
-     /-- ID:79810728101824 --/ }}
-
-
+                                                                                             /-- ID:79810728092425 --/ }}                                                                  
     {{ Traverse Mode:                                                    /-- ID:79810822055818; title: Traverse Mode --/
 
         Once you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second Sublime pane. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
         
-            The status bar at the bottom of the Sublime window indicates whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal.
-          }}
+        The status bar at the bottom of the Sublime window indicates whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal. 
+        
+        TODO fix Traverse Mode
 
+        }}
+                                                                                                                      }}
     
+{{  Metadata:                                                                                  /-- ID:79810913063707 --/
 
-}}
-    
-{{ Metadata:                                                                                  /-- ID:79810913063707 --/
-
-    Metadatais enclosed in a forward-slashes followed or preceded by two dashes. Slash-double-dash begins metadata, double-dash-slash ends metadata. Example:
-
-        /-- example_key: value --/
-
-    Other than two reserved words (see below), metadata can be have aribitrary names and values, with open-ended length. Keys and values of metadata tags are indexed automatically.
-
-    Each metadata entry can be written on its own line, in the format:
+    Metadata tags can be placed anywhere inside the double curly braces of the node they reference. Metadata tags open with a forward-slash followed by two dashes and close with two dashes followed by a forward slash. The syntax is:
         
         <optional key> : <optional value with optional timestamp> 
 
-    For example:
+    Examples:
 
-            /-- Purpose : work-related <Tue., Mar. 05, 2019, 03:25 PM> --/
-    Or:
+        /-- Purpose: work-related <Tue., Mar. 05, 2019, 03:25 PM> --/
+        /-- kind: gift_list --/
 
-            /-- kind: gift list --/
+    You can also string several entries together on one line, separated by semicolons:
 
-    You can also string several entries together on one line, separated by a semicolon:
+        /-- note: example note ; tag: groceries --/
 
-            /-- note: example note ; tag: groceries --/
+    Other than three reserved words (see below), metadata can be have aribitrary names and values, with open-ended length. Keys and values of metadata tags are indexed automatically and are searchable within the Urtext project. 
 
     Note that: 
 
-        - a colon separates the metadata name from the value 
+        -   A colon separates the metadata key from the value 
+        -   All three values are optional; any content preceding a colon (if one is present) is interpreted as a key; content following the (first) colon is interpreted as a value.
+        -   A timestamp anywhere in the value will be indexed as the timestamp for the whole entry. If you put more than one timestamp in an entry, only the first one is read.
+        -   Indexing of metadata keys and values is not case-sensitive.
 
-        - All three values are optional.
+    {{ Reserved words
+                                                       
+        There are three reserved metadata names:
+   
+           {{   title
+           
+                If for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:
+           
+                   /-- title: Title (This tag overrides the default title)  --/
+                                                                                            /-- ID:79810728093349 --/ }}
+   
+           {{   index
+           
+                You can optionally add a two-digit sort index (00-99) to a node, such as:
+   
+                   /-- index: 03 --/    
+   
+                Index tags will sort the files in the node browser (Super-E). Any indexed nodes will before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.
+   
+                See Filenames for another way to use for indexes.                            /-- ID:79810728093344 --/ }}
+   
+          {{    parent
 
-        - A timestamp anywhere in the value will be indexed as the timestamp for the whole entry. If you put more than one timestamp in an entry, only the first one is read.
-        
-        - Indexing of metadata key names is not case-sensitive.
+                As described in 79810728101527, you add give a node a parent to incorporate it into a node tree beyond the file level, or for other purposes. Example:
 
-    There are three reserved metadata names:
+                    /-- parent: 79810728073039 --/
+                This tag redundantly sets the parent of the present node to 79810728072553, which it already is; however, change the node ID in the tag and look at the table of contents tree to try out unusual results.
+          
+                                                                                      /-- ID:79810728093341 --/ }}                             
+                                                                                            /-- ID:79810728072553 --/ }}
 
-        {{ title:
-        
-                    If for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:
-        
-                    /-- title: Title (This tag overrides the default title)  --/
-         /-- ID:79810728093349 --/ }}
+    {{  Finding nodes by Metadata:                                                            /-- ID:79810913063640 --/
 
-        {{ index:
-        
-                    You can optionally add a two-digit sort index (00-99) to a node, such as:
-        
-                    /-- index: 03 --/
-        
-                    Index tags will sort the files in the node browser (Super-E). Any indexed nodes will before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.
-        
-                    See Filenames for another way to use for indexes. 
-        
-         /-- ID:79810728093344 --/ }}
+        To browse nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
 
-       {{  parent:
-       
-        /-- ID:79810728093341 --/ }}
-
-
-            }}
-    
-{{ Finding nodes via Metadata:                                                                /-- ID:79810913063640 --/
-
-    To navigate to nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
+                                                                                            /-- ID:79810728073039 --/ }}
 
 {{ Dynamic Nodes
     
@@ -345,19 +333,19 @@ defined in: 79810802081948
 
     The definition has the following keys:
         
-        - ID: (required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste it's ID. Otherwise, a new file will be created with the specified ID.
+        - ID: (required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste its ID. Otherwise, a new file will be created with the specified ID.
 
         - include:metadata:<tag name>:<tag values> (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
 
-        - exclude:metadata:<tag name>:<tag values> (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Exclude lines will always supersede include lines, no matter the order. 
+        - exclude:metadata:<tag name>:<tag values> (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Excluding will always supersede including, no matter the order listed in the definition. 
 
-        - sort:index (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. (sort:index)
+        - sort:index:<index> (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. The index is a zero-padded number between 00 and 99 that determines sort order.
 
-        - metadata:<tag name>:<value> (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title and index keys.
+        - metadata:<tag name>:<value> (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title, index and parent keys.
 
         - tree: <root id> : Populates the node with a tree with the provided node ID as root.
 
-    Dynamic nodes will always automatically include the metadata key 'defined in' which will point to the node containing its definition.
+        Dynamic nodes will always automatically include the metadata key 'defined in' which will point to the node containing its definition.
 
     Example:
 
@@ -366,10 +354,13 @@ defined in: 79810802081948
             {{ Example Source Node 1
                     Some text here.
                  /-- ID:79810822101015; tag: example_node; index:02 --/ }}
+
             {{ Example Source Node 2
                  /-- ID:79810822101016; tag: example_node; index:05 --/ }}
+            
             {{ Example Source Node 3
                  /-- ID:79810822101018; tag: example_node; index:01 --/ }}
+            
             {{ Example Source Node 4
                  /-- ID:79810822101019; tag: example_node; index:05  --/ }}
 
@@ -384,20 +375,17 @@ defined in: 79810802081948
                 metadata:title:Example Dynamic Node Title
             ]]
 
-        And here is the node with ID 79810822085456:
+        Here is the node defined by the definition above. Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. Saving is necessary to trigger the update.
 
-            {{ 
- Example Source Node 3  79810822101018
+{{  Example Source Node 3  79810822101018
 Example Source Node 1  79810822101015
-Example Source Node 4  79810822101019
 Example Source Node 2  79810822101016
+Example Source Node 4  79810822101019
 /-- ID: 79810822085456
 title: Example Dynamic Node Title
 kind: dynamic
 defined in: 79810911080130
  --/ }}
-
-        Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. (Saving is necessary to trigger the update.)
 
         {{ Node Definition for the Table of Contents
 
@@ -407,20 +395,12 @@ defined in: 79810911080130
                     metadata:title:Example Tree
                  ]]  
 
-            Changing the titles or nesting of sections will dynamically update the tree.
-                                                                                               /--ID:79810802081948--/}}
+            Changing the titles or nesting of sections in this document will dynamically update the tree.
+                                                                                           /--ID:79810802081948--/}}
                                                                                                /--ID:79810911080130--/}}
 
 
-{{ Timestamps:                                                                                   /--ID:79810913063635--/
-
-    Timestamps: Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime, insert one anywhere by pressing Control-T. Timestamps can be written inline or as elements of metadata (see below). Urtext parses timestamps throughout the project, not only in the metadata block. }}
-
-{{ Timeline View:                                                                                /--ID:79810913063637--/
-
-    A Timeline View gives scans the project for timestamps (defined above) and shows them in chronological order with nearby text. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. As everywhere in a project, nodes can be opened using Ctrl-/.  }}
-
-{{ Filenames:                                                                                    /--ID:79810913063623--/
+{{ Filenames                                                                                 /--ID:79810913063623--/
 
     Other than the 14-digit node ID created by Urtext (see 79810913063619), file names are arbitrary. You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename.
 

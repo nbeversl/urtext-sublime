@@ -48,8 +48,8 @@
 	        { 
 		        "scope" : "entity.name.tagvalue_separator.urtext",
 		        "foreground": "var(blue-gray)"
-	        }
-
+	        },
+	         
 
 	],
 

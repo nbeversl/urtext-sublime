@@ -16,7 +16,7 @@ contexts:
       push: meta-block
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
-      push: inline-node
+      push: inline-node-1
     - match: '}}'
       scope: invalid.illegal.stray-bracket-end
     - match: 'SCOPE-HTML'
@@ -35,14 +35,57 @@ contexts:
       escape: 'END-MARKDOWN'
       escape-captures: 0
 
-  inline-node: 
-    - meta_scope: inline_node 
+  inline-node-1: 
+    - meta_scope: inline_node_1 
+    - include: datestamp
+    - match: '{{'
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node-2
+    - match: '}}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
+    - include: main
+   
+  inline-node-2: 
+    - meta_scope: inline_node_2 
+    - include: datestamp
+    - match: '}}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
+    - match: '{{'
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node-3
+    - include: main
+
+  inline-node-3: 
+    - meta_scope: inline_node_3
+    - include: datestamp
+    - match: '}}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
+    - match: '{{'
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node-4
+    - include: main
+
+  inline-node-4: 
+    - meta_scope: inline_node_4
+    - include: datestamp
+    - match: '}}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
+    - match: '{{'
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node-5
+    - include: main
+
+  inline-node-5: 
+    - meta_scope: inline_node_5
     - include: datestamp
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
     - include: main
-    
 
   link:
     - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
@@ -93,9 +136,6 @@ contexts:
   tagvalue-separator:
     - match: '\|'
       scope: entity.name.tagvalue_separator.urtext
-
-
-
 
   node_id:
     - match: '\b\d{14}\b'

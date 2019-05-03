@@ -639,10 +639,6 @@ class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
     new_view.set_scratch(True)
     new_view.run_command("insert_snippet", { "contents": results})
 
-class FindNodeTerritoryCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    pass
-
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
@@ -793,18 +789,17 @@ class RightAlignGroupCommand(sublime_plugin.TextCommand):
       new_text += line + '\n'
     self.view.replace(edit,self.view.sel()[0],new_line)
     
-
 class RightAlignHereCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     line_region = self.view.line(self.view.sel()[0])
     cursor_pos = self.view.rowcol(self.view.sel()[0].a)[1]
-    print(cursor_pos)
     line_contents = self.view.substr(line_region)
     left = line_contents[:cursor_pos]
-    right = line_contents[cursor_pos:].replace(' ','')
-    new_right = ' ' * (120 - len(right) - cursor_pos) 
-    new_right += right
-    self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(line_contents[cursor_pos:])),new_right)
+    right = line_contents[cursor_pos:]
+    new_right = ' ' * ((120 - len(right.strip(' '))) - cursor_pos) 
+    new_right += right.strip(' ')
+    print(new_right)
+    self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(right)),new_right)
 
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):

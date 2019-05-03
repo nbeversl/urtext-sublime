@@ -1,54 +1,79 @@
 {
 	"name": "Urtext Monkai",
     "variables": {
-		 "dark": "#CBC8C7",
+		 "unobtrusive": "hsl(0, 0%, 25%)",
 		 "almost-invisible": "#3A3A3A",
-		 "blue-bright" : "#0661EE",
-		 "blue-gray": "#E2E1EF"
+		 "blue-bright" : "hsl(225, 80%, 40%",
+		 "blue-brighter" : "hsl(225, 80%, 60%",
+		 "green":"hsl(117, 57%, 63%",
+		 "inline1" : "hsl(70, 8%, 17%)",
+		 "inline2" : "hsl(70, 8%, 19%)",
+		 "inline3" : "hsl(70, 8%, 21%)",
+		 "inline4" : "hsl(70, 8%, 23%)",
+		 "inline5" : "hsl(70, 8%, 25%)",
 	},
 	
 	"rules": [
 			{
 				"scope": "punctuation.section.generic.begin.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 			{
 				"scope": "punctuation.section.generic.end.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
 				"scope": "punctuation.section.braces.begin.inline_node.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
 				"scope": "punctuation.section.braces.end.inline_node.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(unobtrusive)",
 	  		},		
 	  		{
 	  			"scope":"entity.name.struct.datestamp.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(green)",
 	  		},
 	  		{
 	  			"scope":"entity.name.struct.node_id.urtext",
-	  			"foreground": "var(almost-invisible)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
 		        "scope" : "entity.name.tagname.urtext",
-		        "foreground": "var(almost-invisible)"
+		        "foreground": "var(blue-bright)"
 	        },
 	        { 
 		        "scope" : "entity.name.tagvalue.urtext",
-		        "foreground": "var(almost-invisible)"
+		        "foreground": "var(blue-brighter)"
 	        },
 	       	{ 
 		        "scope" : "entity.name.tagname_separator.urtext",
-		        "foreground": "var(almost-invisible)"
+		        "foreground": "var(unobtrusive)"
 	        },
 	        { 
 		        "scope" : "entity.name.tagvalue_separator.urtext",
-		        "foreground": "var(almost-invisible)"
+		        "foreground": "var(unobtrusive)"
+	        },
+	        { 
+		        "scope" : "inline_node_1",
+		        "background": "var(inline1)"
+	        },
+	        { 
+		        "scope" : "inline_node_2",
+		        "background": "var(inline2)"
+	        },
+	        { 
+		        "scope" : "inline_node_3",
+		        "background": "var(inline3)"
+	        },
+	        { 
+		        "scope" : "inline_node_4",
+		        "background": "var(inline4)"
+	        },
+	        { 
+		        "scope" : "inline_node_5",
+		        "background": "var(inline5)"
 	        }
-
 
 
 	],
