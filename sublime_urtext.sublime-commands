@@ -23,4 +23,5 @@
     { "caption": "Urtext: Debug", "command" :"debug"},
     { "caption": "Urtext: Show Tree From Root", "command" :"show_tree_from_root"},
     { "caption": "Urtext: RightAlignHere", "command" :"right_align_here"},
+    { "caption": "Urtext: Import Project", "command" :"import_project"},
 ] 

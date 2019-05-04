@@ -1,0 +1,10 @@
+launchd information for keeping apps running
+
+https://apple.stackexchange.com/questions/837/automatically-relaunch-a-closed-application
+https://apple.stackexchange.com/questions/37188/stopping-launchagents-and-daemons
+https://medium.com/@fahimhossain_16989/adding-startup-scripts-to-launch-daemon-on-mac-os-x-sierra-10-12-6-7e0318c74de1
+
+/-- ID:79810728010010
+<Fri., May. 03, 2019, 10:59 PM>
+tags: 
+ --/

@@ -14,6 +14,8 @@ Sublime Urtext Documentation 79811024084551
 │       └── Characteristics 79810729060942
 ├── Using this document 79810822101322
 ├── Setup 79810913063747
+│   ├── Empty Project 79810728022245
+│   └── Importing existing files 79810728021521
 ├── Basics 79810913063739
 ├── Inline Nodes 79810728103313
 │   ├── example inline node text 79810913060421
@@ -57,7 +59,7 @@ Sublime Urtext Documentation 79811024084551
 /-- ID: 79810802082407
 title: Example Tree
 kind: dynamic
-defined in: 79810802081948
+defined in: -> 79810802081948
  --/ }}
 
 {{  What Sublime-Urtext Is                                                                       /--ID:79810915120529--/
@@ -141,7 +143,20 @@ defined in: 79810802081948
 
 {{  Setup
 
-    Once the package is installed, it will look for any .txt files in open folders and attempt to compile them. You don't need to explicitly set a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. 
+    Once the package is installed, it will look for any .txt files in open folders and attempt to compile them. To open a folder as an Urtext project in Sublime, just open the folder or a project that includes the folder.
+
+    {{  Empty Project
+
+        The package will use any existing open folder as a project. You don't need to explicitly set a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. 
+    
+     /-- ID:79810728022245 --/ }}
+    
+     {{ Importing existing files
+
+        To use existing plaintext files, the filenames need to contain a 14-digit Node ID. Sublime Urtext will add this automatically from on the file's creation/modification date and time by selecting "Urtext : Import Project" from the Sublime Command palette. Note that the renaming will occur without a confirmation dialog.
+
+      /-- ID:79810728021521 --/ }}
+
 
     For syntax and node depth highlighting that makes using Urtext easier, this package adds customizations to two of Sublime's default color schemes. Use the "Sixteen" color scheme for light or "Monokai" for dark. (Select the scheme using Preferences -> Color Scheme ...) See 79810822064026 for more on syntax highlighting. 
                                                                                                /--ID:79810913063747--/}}
@@ -384,7 +399,7 @@ Example Source Node 4  79810822101019
 /-- ID: 79810822085456
 title: Example Dynamic Node Title
 kind: dynamic
-defined in: 79810911080130
+defined in: -> 79810911080130
  --/ }}
 
         {{ Node Definition for the Table of Contents

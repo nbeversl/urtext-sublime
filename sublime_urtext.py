@@ -362,6 +362,7 @@ class NodeInfo():
       self.title = metadata.get_tag('title')[0]
       if self.title.strip() == '':
         self.title = '(no title)' 
+      print(node_id)
       self.date = urtext.datestimes.date_from_reverse_date(node_id)
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
@@ -808,6 +809,10 @@ class DebugCommand(sublime_plugin.TextCommand):
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
     print(_UrtextProject.nodes[node_id].ranges)
 
+class ImportProjectCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    global _UrtextProject
+    _UrtextProject = UrtextProject(get_path(self.view), import_project=True)
 
 _UrtextProject = None
 _UrtextProjectList = None
