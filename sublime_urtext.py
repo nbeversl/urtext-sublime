@@ -79,31 +79,41 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
-    
-  if _UrtextProject == None:
-    global _UrtextProject
-    if get_path(view) != None: 
-      _UrtextProject = UrtextProject(get_path(view))
-      event_handler = SublimeUrtextWatcher()
-      observer = Observer()
-      observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-      observer.start()
 
+  global _UrtextProject
+  current_path = get_path(view)
+
+  if '_UrtextProject' in vars():  
+    if current_path == _UrtextProject.path:
+      return _UrtextProject
     else:
-      print('No Urtext Project')
-      return None
+      return focus_urtext_project(current_path)
+
+  # no Urtext project yet defined
+  if current_path != None: 
+    _UrtextProject = focus_urtext_project(current_path)
+  else:
+    print('No Urtext Project')
+    return None
 
   if _UrtextProjectList == None:        
     global _UrtextProjectList
-
     _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
 
   return _UrtextProject
 
-def get_path(view):
-  ## makes the path persist as much as possible ##
-  if '_UrtextProject' in vars():
-    return _UrtextProject.path
+
+def focus_urtext_project(path):
+  global _UrtextProject
+  _UrtextProject = UrtextProject(path)
+  event_handler = SublimeUrtextWatcher()
+  observer = Observer()
+  observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+  observer.start()
+  return _UrtextProject
+
+def get_path(view): ## makes the path persist as much as possible ##
+  
   if view.file_name():
     return os.path.dirname(view.file_name())  
   if view.window().project_data():
@@ -194,8 +204,7 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
       if selection[-2:] != '}}':
         b += 1
       region = sublime.Region(a, b)
-      if a == 0 or b == max_size:
-        print('entire file.')
+      if a == 0 or b == max_size: # entire file
         break
       selection = self.view.substr(region)
 
@@ -329,16 +338,17 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
 
     def open_the_file(self, selected_option):
       path = get_path(self.window.active_view())
+      title = self.menu.get_values_from_index(selected_option).title
       new_view = self.window.open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
-      self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view)
+      self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view, title)
 
-    def locate_node(self, position, view):
+    def locate_node(self, position, view, title):
       if not view.is_loading(): 
         view.sel().clear()
         view.show_at_center(int(position)) 
         view.sel().add(sublime.Region(int(position)))
       else:
-        sublime.set_timeout(lambda: self.locate_node(int(position), view), 10)
+        sublime.set_timeout(lambda: self.locate_node(int(position), view, title), 10)
 
 class NodeBrowserMenu():
   """ custom class to store more information on menu items than is displayed """
@@ -799,7 +809,6 @@ class RightAlignHereCommand(sublime_plugin.TextCommand):
     right = line_contents[cursor_pos:]
     new_right = ' ' * ((120 - len(right.strip(' '))) - cursor_pos) 
     new_right += right.strip(' ')
-    print(new_right)
     self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(right)),new_right)
 
 class DebugCommand(sublime_plugin.TextCommand):
@@ -807,7 +816,7 @@ class DebugCommand(sublime_plugin.TextCommand):
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    print(_UrtextProject.nodes[node_id].ranges)
+    print(self.view.file_name())
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):
