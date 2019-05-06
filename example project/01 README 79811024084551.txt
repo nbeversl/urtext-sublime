@@ -6,6 +6,7 @@ Version: 0.4
 {{
 Sublime Urtext Documentation 79811024084551
 ├── Example Tree 79810802082407
+├── Add: 79810725120658
 ├── What Sublime-Urtext Is 79810915120529
 │   ├── Urtext is a syntax I invented for writing and organizing in plaintext. 79810915120430
 │   └── Ideas and Requirements Behind Urtext 79810729063456
@@ -59,9 +60,16 @@ Sublime Urtext Documentation 79811024084551
 /-- ID: 79810802082407
 title: Example Tree
 kind: dynamic
-defined in: -> 79810802081948
+defined in: 79810802081948
  --/ }}
 
+
+{{ Add:
+  That Urtext syntax has to be selected for syntax highlighting to work.
+
+ /-- ID:79810725120658 --/ }}
+
+ 
 {{  What Sublime-Urtext Is                                                                       /--ID:79810915120529--/
     {{ 
     Urtext is a syntax I invented for writing and organizing in plaintext.      /--ID:79810915120430; tag:definition--/}}
@@ -399,7 +407,7 @@ Example Source Node 4  79810822101019
 /-- ID: 79810822085456
 title: Example Dynamic Node Title
 kind: dynamic
-defined in: -> 79810911080130
+defined in: 79810911080130
  --/ }}
 
         {{ Node Definition for the Table of Contents
