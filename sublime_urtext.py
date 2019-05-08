@@ -29,9 +29,11 @@ from urtext.project_list import ProjectList
 # TODOS
 # Have the node tree auto update on save.
 # Fix indexing not working in fuzzy search in panel
-# update documentation
 # investigate multiple scopes
 # investigate git and diff support
+
+_UrtextProject = None
+_UrtextProjectList = None
 
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
@@ -823,6 +825,17 @@ class ImportProjectCommand(sublime_plugin.TextCommand):
     global _UrtextProject
     _UrtextProject = UrtextProject(get_path(self.view), import_project=True)
 
-_UrtextProject = None
-_UrtextProjectList = None
-
+class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
+  def run(self):
+    active_window = sublime.active_window()
+    this_file_path = os.path.dirname(__file__)
+    open_windows = sublime.windows()
+    for window in open_windows:
+      help_view = window.find_open_file(os.path.join(this_file_path,"example project/01 README 79811024084551.txt"))
+      if help_view != None:
+        window.focus_view(help_view)
+        if window != active_window:
+          sublime.message_dialog('Urtext help is open in another window. Use Super - ~ to switch between windows  ')
+        return
+    sublime.run_command("new_window")
+    help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/01 README 79811024084551.txt"))
