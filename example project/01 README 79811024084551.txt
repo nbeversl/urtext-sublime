@@ -128,11 +128,11 @@ defined in: 79810802081948
 
                 I. Static plaintext files in a loosely specified syntax.
 
-                II. A processor that reads, organizes, and compiles the files in real time.
+                II. A compiler that reads, organizes, and compiles the files in real time.
 
-            Like any data format (such as JSON, XML, etc.), the processing could be done in any language, given the right rules. This particular implementation uses Python, embedded into a Sublime plugin to provide more Sublime-specific editing tools, also using Python, which is Sublime's scripting language.
+            Like any data format (such as JSON, XML, etc.), the compiling could be done in any language, given the right rules. This particular implementation uses Python, embedded into a Sublime plugin to provide more Sublime-specific editing tools, also using Python, which is Sublime's scripting language.
 
-            The processor runs continuously in "watchdog" mode. (The latter was inspired by the ``npm run watch`` tool for React development.)
+            The compiler runs continuously in "watchdog" mode. (The latter was inspired by the ``npm run watch`` tool for React development.)
 
             No need to interact directly with a file system dialog or manually organize files. 
 
@@ -404,8 +404,8 @@ defined in: 79810802081948
 
 {{  Example Source Node 3  79810822101018
 Example Source Node 1  79810822101015
-Example Source Node 4  79810822101019
 Example Source Node 2  79810822101016
+Example Source Node 4  79810822101019
 /-- ID: 79810822085456
 title: Example Dynamic Node Title
 kind: dynamic
@@ -481,9 +481,8 @@ defined in: 79810911080130
     The 'Super' key is Command on Mac, Windows key on Windows.
 
     ctrl+shift+;            New Node
-    super+e                 Node Browser 
-    ctrl+shift+l            update_file
-    super+r                 Toggle Traverse Mode
+    ctrl+shift+e            Node Browser 
+    ctrl+shift+r            Toggle Traverse Mode
     ctrl+shift+s.           Auto rename file from node metadata
     ctrl+shift+/            Open node (from an ID on the same line) 
     ctrl+shift+super+;      New inline node

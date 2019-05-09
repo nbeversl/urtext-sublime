@@ -85,7 +85,7 @@ def refresh_project(view):
   global _UrtextProject
   current_path = get_path(view)
 
-  if '_UrtextProject' in vars():  
+  if _UrtextProject != None:  
     if current_path == _UrtextProject.path:
       return _UrtextProject
     else:
@@ -188,7 +188,8 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
     if index == -1:
       return
     self.selected_value = self.values[index]
-    tag = '/-- '+self.selected_tag+': '+self.selected_value+' --/'
+    timestamp = urtext.datestimes.timestamp(datetime.datetime.now())
+    tag = '/-- '+self.selected_tag+': '+self.selected_value+' '+timestamp+' --/'
     self.view.run_command("insert_snippet", { "contents": tag})
 
 
@@ -370,15 +371,13 @@ class NodeBrowserMenu():
 
 class NodeInfo():
     def __init__(self, node_id):
-      metadata = _UrtextProject.nodes[node_id].metadata
-      self.title = metadata.get_tag('title')[0]
+      self.title = _UrtextProject.nodes[node_id].get_title()
       if self.title.strip() == '':
         self.title = '(no title)' 
-      print(node_id)
       self.date = urtext.datestimes.date_from_reverse_date(node_id)
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
-      self.title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
+      self.title = _UrtextProject.nodes[node_id].get_title()
       self.node_id = _UrtextProject.nodes[node_id].node_number
 
 def make_node_menu(node_ids):
@@ -428,7 +427,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
       if not view.is_loading(): 
         node_id = _UrtextProject.get_node_id_from_position(self.current_file, self.position)
         
-        title = _UrtextProject.nodes[node_id].metadata.get_tag('title')[0]
+        title = _UrtextProject.nodes[node_id].get_title()
         link = title + ' ' + node_id
         sublime.set_clipboard(link)
         view.show_popup('Link to ' + link + ' copied to the clipboard')
@@ -709,7 +708,9 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
       return
     path = get_path(self.view)
     node_id = links[0]
-    _UrtextProject.tag_node(node_id, '/-- tags: done --/')
+    timestamp = urtext.datestimes.timestamp(datetime.datetime.now())
+    tag = '/-- tags: done '+timestamp+' --/'
+    _UrtextProject.tag_node(node_id, tag)
     _UrtextProject.build_tag_info()
     _UrtextProject.compile_all()
  

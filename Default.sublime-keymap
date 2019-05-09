@@ -1,9 +1,8 @@
 [
-	{ "keys": ["ctrl+shift+l"], "command": "update_file" },
 	{ "keys": ["ctrl+shift+;"], "command": "new_node" },
 	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },
-	{ "keys": ["super+e"], "command": "node_browser"},
-	{ "keys": ["super+r"], "command": "toggle_traverse"},
+	{ "keys": ["ctrl+shift+e"], "command": "node_browser"},
+	{ "keys": ["ctrl+shift+r"], "command": "toggle_traverse"},
 	{ "keys": ["ctrl+shift+s"], "command": "rename_file"},
 	{ "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
 	{ "keys": ["ctrl+shift+super+;"], "command": "insert_node"},
@@ -12,7 +11,5 @@
 	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},
 	{ "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
 	{ "keys": ["ctrl+shift+'"], "command": "right_align_here"}
-
-
 ]
 
