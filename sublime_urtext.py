@@ -722,13 +722,13 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
       nodes = [_UrtextProject.nodes[node_id] for node_id in _UrtextProject.nodes]
       timeline = _UrtextProject.timeline(nodes)
       self.show_stuff(new_view, timeline)
+      new_view.set_scratch(True)
 
     def show_stuff(self, view, timeline):
           if not view.is_loading(): 
             view.run_command("append", {"characters": timeline+'\n|'})
           else:
             sublime.set_timeout(lambda: self.show_stuff(view,timeline), 10)
-
 
 class ShowNodeTreeCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """

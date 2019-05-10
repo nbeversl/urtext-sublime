@@ -10,7 +10,7 @@ Sublime Urtext Documentation 79811024084551
 ├── Example Tree 79810802082407
 ├── Add: 79810725120658
 ├── What Sublime-Urtext Is 79810915120529
-│   ├── Urtext is a syntax I invented for writing and organizing in plaintext. 79810915120430
+│   ├──  79810915120430
 │   └── Ideas and Requirements Behind Urtext 79810729063456
 │       ├── Basic Project Requirements: 79810822061956
 │       ├── Additional Features: 79810729061009
@@ -35,7 +35,7 @@ Sublime Urtext Documentation 79811024084551
 │       └── Files 79810728093600
 ├── File and Node Organization: 79810913063726
 │   ├── Tree-like: Extending node trees beyond the file level 79810728101527
-│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 79810728081437
+│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728081437
 │   ├── Acyclic or Wiki/Web-like 79810728092425
 │   │   └── Viewing 79810728085016
 │   └── Traverse Mode 79810822055818
@@ -146,7 +146,7 @@ defined in: 79810802081948
 
 {{  Using this document
 
-    This file is an Urtext node with several sub-nodes. It can be used in Sublime Text to try out the features described. For the purpose of this documentation, the 'Super' key is Command key on Mac, Windows key on Windows.
+    This file is an Urtext node with several sub-nodes. It can be used in Sublime Text to try out the features described.
 
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See 79810822064026 for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a 14-digit link like.)
                                                                                                /--ID:79810822101322--/}}
