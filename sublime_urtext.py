@@ -814,6 +814,19 @@ class RightAlignHereCommand(sublime_plugin.TextCommand):
     new_right += right.strip(' ')
     self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(right)),new_right)
 
+class RightAlignSelectionCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    selection = self.view.split_by_newlines(self.view.line(self.view.sel()[0]))
+    difference = 0
+    for region in selection:
+      region = sublime.Region(region.a + difference, region.b + difference)
+      original_content = self.view.substr(region)
+      stripped_content = original_content.strip()
+      new_right = ' ' * (120 - len(stripped_content))
+      new_right += stripped_content
+      difference += len(new_right) - len(original_content)
+      self.view.replace(edit, region, new_right)
+
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     filename = os.path.basename(self.view.file_name())

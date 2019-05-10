@@ -490,6 +490,7 @@ defined in: 79810911080130
     ctrl+t                  Insert timestamp
     ctrl+shift+]            New dynamic node definition
     ctrl+shift+t            Timeline view
+    ctrl+shift+-            Align selected lines to the right (120 character width)
                                                                                            /-- ID:79810822064039 --/ }}
 
  
