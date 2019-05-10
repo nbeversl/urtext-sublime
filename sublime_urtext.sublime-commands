@@ -25,4 +25,6 @@
     { "caption": "Urtext: RightAlignHere", "command" :"right_align_here"},
     { "caption": "Urtext: Import Project", "command" :"import_project"},
     { "caption": "Urtext: Help", "command" :"show_urtext_help"},
+    { "caption": "Urtext: Datestamp From Node ID", "command" :"datestamp_from_node_id"},
+      
 ] 

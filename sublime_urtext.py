@@ -819,7 +819,6 @@ class DebugCommand(sublime_plugin.TextCommand):
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    print(self.view.file_name())
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -840,3 +839,22 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
         return
     sublime.run_command("new_window")
     help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/01 README 79811024084551.txt"))
+
+class DatestampFromNodeId(sublime_plugin.TextCommand):
+  def run(self, edit):
+    region = self.view.sel()[0]
+    id_regexp = re.compile(r'\d{14}')
+    a = region.a
+    match = False
+    selection = self.view.substr(sublime.Region(a,a+14))    
+    for index in range(1, 14):
+      if id_regexp.search(selection):
+        match = True
+        break
+      a -= 1 
+      selection = self.view.substr(sublime.Region(a,a+14))
+    if match:
+      timestamp = urtext.datestimes.timestamp(urtext.datestimes.date_from_reverse_date(selection))
+      sublime.set_clipboard(timestamp) 
+      self.view.show_popup(timestamp.strip('>').strip('<'))
+
