@@ -10,6 +10,8 @@
 	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
 	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},
 	{ "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
-	{ "keys": ["ctrl+shift+'"], "command": "right_align_here"}
+	{ "keys": ["ctrl+shift+'"], "command": "right_align_here"},
+	{ "keys": ["ctrl+shift+y"], "command": "show_tags"}
+
 ]
 
