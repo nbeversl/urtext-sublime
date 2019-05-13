@@ -653,16 +653,6 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
     print(consolidated_contents)
     # just need to write this to the view.
 
-  def locate_from_in_node(self, position):
-    filename = self.view.file_name()
-    nodes = {}
-    for node_id in _UrtextProject.files[os.path.basename(filename)]:
-      nodes[node_id] = _UrtextProject.find_node_territory_in_file(node_id)
-    for node_id in nodes:
-      for ranges in nodes[node_id]:
-        if position in range(ranges[0], ranges[1]):
-          return node_id
-
 class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
