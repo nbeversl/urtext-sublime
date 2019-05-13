@@ -659,6 +659,7 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
     link = _UrtextProject.get_link(full_line)
     if link == None: # check to see if it's in another known project
       other_project_node = _UrtextProjectList.get_node_link(full_line)
+      _UrtextProject.navigation.append(other_project_node)
       filename = other_project_node['filename']
       path = other_project_node['project_path']
       sublime.run_command("new_window")
@@ -670,20 +671,28 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
               'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
       return
     if link[0] == 'NODE':
-      filename = _UrtextProject.get_file_name(link[1])
-      if filename == None:
-        return
-      file_view = self.view.window().open_file(os.path.join(_UrtextProject.path, filename))
-      position = int(link[2])
-      self.center_node(file_view, position)
+      del _UrtextProject.navigation[_UrtextProject.nav_index+1:]
+      _UrtextProject.navigation.append(link[1])
+      _UrtextProject.nav_index += 1
+      print(_UrtextProject.navigation)
+      open_urtext_node(self.view, link[1], link[2])
+    
 
-  def center_node(self, view, position): # copied from OpenNode. Refactor
+def open_urtext_node(view, node_id, position):
+
+  def center_node(view, position): # copied from OpenNode. Refactor
       if not view.is_loading():
         view.sel().clear()
         view.show_at_center(int(position)) 
         view.sel().add(sublime.Region(int(position)))
       else:
-        sublime.set_timeout(lambda: self.center_node(view, position), 10)
+        sublime.set_timeout(lambda: center_node(view, position), 10)
+  filename = _UrtextProject.get_file_name(node_id)
+  if filename == None:
+    return
+  file_view = view.window().open_file(os.path.join(_UrtextProject.path, filename))
+  position = int(position)
+  center_node(file_view, position)
 
 
 class ListNodesInViewCommand(sublime_plugin.TextCommand):
@@ -871,3 +880,26 @@ class DatestampFromNodeId(sublime_plugin.TextCommand):
       sublime.set_clipboard(timestamp) 
       self.view.show_popup(timestamp.strip('>').strip('<'))
 
+class NavigateBackwardCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    print(_UrtextProject.nav_index)
+    print(_UrtextProject.navigation)
+    if _UrtextProject.nav_index == 0:
+      return
+    _UrtextProject.nav_index -= 1
+    last_node = _UrtextProject.navigation[_UrtextProject.nav_index]          
+    open_urtext_node(self.view, last_node, 0)
+
+class NavigateForwardCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    print(_UrtextProject.nav_index)
+    print(_UrtextProject.navigation)
+    if _UrtextProject.nav_index == len(_UrtextProject.navigation):
+      return
+    _UrtextProject.nav_index += 1
+    last_node = _UrtextProject.navigation[_UrtextProject.nav_index]          
+    open_urtext_node(self.view, last_node, 0)
