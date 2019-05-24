@@ -418,7 +418,7 @@ class NodeInfo():
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
       self.title = _UrtextProject.nodes[node_id].get_title()
-      self.node_id = _UrtextProject.nodes[node_id].node_number
+      self.node_id = _UrtextProject.nodes[node_id].id
 
 def make_node_menu(node_ids):
   menu = []

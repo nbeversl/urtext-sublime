@@ -57,7 +57,7 @@ Sublime Urtext Documentation 79811024084551
 ├── Linking to URLS and to Files Outside the Project: 79810822062009
 ├── Syntax Highlighting and Readability 79810822064026
 ├── Formatting and Conventions 79810728091813
-├── Architecture : The Code Extension and Customization 79810728091322
+├── Architecture : Extension and Customization 79810728091322
 └── Reference: Key Bindings 79810822064039
 /-- ID: 79810802082407
 title: Example Tree
@@ -255,7 +255,7 @@ defined in: 79810802081948
 
 {{ File and Node Organization:                                                                 /-- ID:79810913063726 --/
     
-    Urtext does not depend on the organization of files at the filesystem level. All files are kept in a single project folder. Instead, you can link file-level nodes together in several ways:
+    Urtext does not depend on organization of files at the filesystem level. All files are kept in a single project folder. Instead, you can link file-level nodes together in several ways:
 
     {{ Tree-like: Extending node trees beyond the file level
       
@@ -427,21 +427,21 @@ defined in: 79810911080130
 
 {{ Filenames                                                                                 /--ID:79810913063623--/
 
-    Other than the 14-digit node ID created by Urtext (see 79810913063619), file names are arbitrary. You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc. The 14-digit node ID must appear someplace in the filename.
+    You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc.
 
-    Urtext can rename files automatically in a few convenient formats based on their title and/or index. Renaming by index is useful if you want to see nodes appear in a file system, mobile app, or other app's file browser in the same order as they appear within Sublime Urtext. Note that files renamed using this feature still contain the Node ID, since Urtext requires it.
+    Urtext can also rename files automatically in a few convenient formats based on their title and/or index. Renaming by index is useful, for instance, if you want to see nodes appear in a file system, mobile app, or other file browser in the same order they appear within Sublime Urtext.
 
     To rename a file, select "Rename File from Meta" from the command palette (Command-P). This will rename the file in one of the following schema:
 
     If an index is present:
 
-        <index> <title> <node id>.txt
+        <index> <title>.txt
 
     If no index is present:
 
         <node id> <title>.txt
 
-    This system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so. Any naming system will work as long as the node ID is somewhere in the filename.
+    This system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so.
                                                                                                                       }}
 {{ Node IDs:                                                                                     /--ID:79810913063619--/
 
@@ -455,7 +455,7 @@ defined in: 79810911080130
 
         <any text> -> <link to anything> | <any other text>
 
-    Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as -> www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
+    Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
 
                                                                                                /--ID:79810822062009--/}}
 
@@ -470,9 +470,10 @@ defined in: 79810911080130
 
                                                                                             /-- ID:79810728091813 --/ }}
 
-{{ Architecture : The Code Extension and Customization
+{{ Architecture : Extension and Customization
 
     Some features described in this document are specific to this Sublime Text implementation, (though they could be reproduced in any scriptable text editor), but most are features of Urtext itself. Where there is question, you can find out fairly be inspecting the code. Anything that is 
+    [ TO BE COMPLETED ]
 
  /-- ID:79810728091322 --/ }}
 
