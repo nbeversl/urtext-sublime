@@ -25,6 +25,7 @@ import watchdog
 from watchdog.observers import Observer
 import webbrowser
 from urtext.project_list import ProjectList
+from urtext.project import node_id_regex
 
 # TODOS
 # Have the node tree auto update on save.
@@ -38,6 +39,8 @@ _UrtextProjectList = None
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
+        if _UrtextProject.watch == False:
+            return
         
         global _UrtextProject
         if event.is_directory:
@@ -49,19 +52,19 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
             self.rebuild(filename)
         else:
           print(filename + ' saw as created but actually modified. Updating the project object')
-          node_id = _UrtextProject.get_node_id(filename)
-          _UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
           _UrtextProject.build_sub_nodes(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
           
     def on_modified(self, event):
+        if _UrtextProject.watch == False:
+          return
         filename = os.path.basename(event.src_path)
         print(filename + ' MODIFIED')
+        if filename == "urtext_log.txt":
+          return
         if filename in _UrtextProject.files:
           global _UrtextProject
-          node_id = _UrtextProject.get_node_id(filename)
-          #_UrtextProject.nodes[node_id] = UrtextNode(os.path.join(_UrtextProject.path, filename))
           _UrtextProject.build_sub_nodes(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
@@ -365,10 +368,8 @@ class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     refresh_project(self.view)
     old_filename = self.view.file_name()
-    v = self.view.window().find_open_file(old_filename)
     new_filename = _UrtextProject.rename_file_node(old_filename)
-    if v:
-      v.retarget(new_filename)
+    self.view.retarget(os.path.join(_UrtextProject.path, new_filename))
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -414,7 +415,7 @@ class NodeInfo():
       self.title = _UrtextProject.nodes[node_id].get_title()
       if self.title.strip() == '':
         self.title = '(no title)' 
-      self.date = urtext.datestimes.date_from_reverse_date(node_id)
+      self.date = _UrtextProject.nodes[node_id].date
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
       self.title = _UrtextProject.nodes[node_id].get_title()
@@ -572,7 +573,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
 
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
-      links = re.findall('->\s(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      links = re.findall('->\s(?:[^\|]*\s)?('+node_id_regex +')(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
       
       if len(links) ==0 : # might be an inline node view        
         link = full_line.strip('└── ').strip('├── ')
@@ -687,14 +688,15 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
       return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
-    if link == None: # check to see if it's in another known project
-      other_project_node = _UrtextProjectList.get_node_link(full_line)
+    """if link == None: # check to see if it's in another known project
+      #other_project_node = _UrtextProjectList.get_node_link(full_line)
       _UrtextProject.navigation.append(other_project_node)
       filename = other_project_node['filename']
       path = other_project_node['project_path']
       sublime.run_command("new_window")
       sublime.active_window().open_file(filename)
       return
+    """
     if link[0] == 'HTTP':
       if not webbrowser.get().open(link[1]):
           sublime.error_message(
@@ -742,7 +744,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     if refresh_project(self.view) == None :
       return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-    links = re.findall('(?:[^\|]*\s)?(\d{14})(?:\s[^\|]*)?\|?',full_line)
+    links = re.findall('(?:[^\|]*\s)?('+node_id_regex+')(?:\s[^\|]*)?\|?',full_line)
     if len(links) == 0:
       return
     path = get_path(self.view)
@@ -868,9 +870,10 @@ class RightAlignSelectionCommand(sublime_plugin.TextCommand):
 
 class DebugCommand(sublime_plugin.TextCommand):
   def run(self, edit):
-    filename = os.path.basename(self.view.file_name())
-    position = self.view.sel()[0].a
-    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    if refresh_project(self.view) == None :
+      return
+    global _UrtextProject
+    _UrtextProject.reindex_files()
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -895,7 +898,7 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
 class DatestampFromNodeId(sublime_plugin.TextCommand):
   def run(self, edit):
     region = self.view.sel()[0]
-    id_regexp = re.compile(r'\d{14}')
+    id_regexp = re.compile(node_id_regex)
     a = region.a
     match = False
     selection = self.view.substr(sublime.Region(a,a+14))    
