@@ -39,8 +39,6 @@ _UrtextProjectList = None
 class SublimeUrtextWatcher(FileSystemEventHandler):
  
     def on_created(self, event):
-        if _UrtextProject.watch == False:
-            return
         
         global _UrtextProject
         if event.is_directory:
@@ -57,8 +55,6 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           _UrtextProject.compile_all()
           
     def on_modified(self, event):
-        if _UrtextProject.watch == False:
-          return
         filename = os.path.basename(event.src_path)
         print(filename + ' MODIFIED')
         if filename == "urtext_log.txt":
@@ -354,14 +350,14 @@ def target_tree_view(view):
 class InsertNodeCommand(sublime_plugin.TextCommand):
   """ inline only, does not make a new file """
   def run(self, edit):
-    refresh_project(self.view)
+    if refresh_project(self.view) == None:
+        return
     filename = self.view.file_name()
     for region in self.view.sel():
       selection = self.view.substr(region)
     node_id = _UrtextProject.add_inline_node(datetime.datetime.now(), filename, selection)
-    node_wrapper = '{{ '+selection+'\n /-- ID:'+node_id+' --/ }}'
-    self.view.run_command("insert_snippet", {
-                             "contents": node_wrapper})  # (whitespace)
+    node_wrapper = '{{ '+selection+' /-- ID:'+node_id+' --/ }}'
+    self.view.run_command("insert_snippet", {"contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
 
 class RenameFileCommand(sublime_plugin.TextCommand):
@@ -614,7 +610,7 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
       if refresh_project(self.window.active_view()) == None :
         return
       self.path = _UrtextProject.path
-      filename = _UrtextProject.new_file_node(datetime.datetime.now())
+      filename = _UrtextProject.new_file_node()
       new_view = self.window.open_file(os.path.join(self.path, filename))
 
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
@@ -744,7 +740,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     if refresh_project(self.view) == None :
       return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-    links = re.findall('(?:[^\|]*\s)?('+node_id_regex+')(?:\s[^\|]*)?\|?',full_line)
+    links = re.findall('(?:[^\|]*\s)?>('+node_id_regex+')(?:\s[^\|]*)?\|?',full_line)
     if len(links) == 0:
       return
     path = get_path(self.view)
@@ -868,12 +864,29 @@ class RightAlignSelectionCommand(sublime_plugin.TextCommand):
       difference += len(new_right) - len(original_content)
       self.view.replace(edit, region, new_right)
 
-class DebugCommand(sublime_plugin.TextCommand):
+class ReIndexFilesCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
     global _UrtextProject
     _UrtextProject.reindex_files()
+
+class AddNodeIdCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    global _UrtextProject
+    new_id = _UrtextProject.next_index()
+    self.view.run_command("insert_snippet", { "contents": "/-- ID: "+new_id+" --/"})
+
+class DebugCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    filename = self.view.file_name()
+    position = self.view.sel()[0].a
+    node_id = _UrtextProject.get_node_id_from_position(filename, position)
+    _UrtextProject.nodes[node_id].metadata.log()
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -893,32 +906,12 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
           sublime.message_dialog('Urtext help is open in another window. Use Super - ~ to switch between windows  ')
         return
     sublime.run_command("new_window")
-    help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/01 README 79811024084551.txt"))
-
-class DatestampFromNodeId(sublime_plugin.TextCommand):
-  def run(self, edit):
-    region = self.view.sel()[0]
-    id_regexp = re.compile(node_id_regex)
-    a = region.a
-    match = False
-    selection = self.view.substr(sublime.Region(a,a+14))    
-    for index in range(1, 14):
-      if id_regexp.search(selection):
-        match = True
-        break
-      a -= 1 
-      selection = self.view.substr(sublime.Region(a,a+14))
-    if match:
-      timestamp = urtext.datestimes.timestamp(urtext.datestimes.date_from_reverse_date(selection))
-      sublime.set_clipboard(timestamp) 
-      self.view.show_popup(timestamp.strip('>').strip('<'))
+    help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/README.txt"))
 
 class NavigateBackwardCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
-    print(_UrtextProject.nav_index)
-    print(_UrtextProject.navigation)
     if _UrtextProject.nav_index == 0:
       return
     _UrtextProject.nav_index -= 1
@@ -929,8 +922,6 @@ class NavigateForwardCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
-    print(_UrtextProject.nav_index)
-    print(_UrtextProject.navigation)
     if _UrtextProject.nav_index == len(_UrtextProject.navigation):
       return
     _UrtextProject.nav_index += 1

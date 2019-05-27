@@ -6,7 +6,7 @@
 	{ "keys": ["ctrl+shift+s"], "command": "rename_file"},
 	{ "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
 	{ "keys": ["ctrl+shift+super+;"], "command": "insert_node"},
-	{ "keys": ["ctrl+t"], "command": "insert_timestamp"},
+	{ "keys": ["ctrl+t"], 			"command": "insert_timestamp"},
 	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
 	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},
 	{ "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
@@ -14,6 +14,7 @@
 	{ "keys": ["ctrl+shift+-"], "command": "right_align_selection"},
 	{ "keys": ["ctrl+shift+i"], "command": "navigate_backward"},
 	{ "keys": ["ctrl+shift+o"], "command": "navigate_forward"},
-	{ "keys": ["ctrl+shift+y"], "command": "show_tags"}
+	{ "keys": ["ctrl+shift+y"], "command": "show_tags"},
+	{ "keys": ["ctrl+shift+i"], "command": "add_node_id"}
 ]
 
