@@ -38,6 +38,12 @@
 	  			"scope":"entity.name.struct.node_id.urtext",
 	  			"foreground": "var(unobtrusive)",
 	  		},
+	  		{"scope":"link.urtext",
+	  			"foreground": "var(unobtrusive)",
+	  		},
+	  		{"scope":"link_prefix.urtext",
+	  			"foreground": "green",
+	  		},
 	  		{
 		        "scope" : "entity.name.tagname.urtext",
 		        "foreground": "var(blue-bright)"

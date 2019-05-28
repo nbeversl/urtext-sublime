@@ -10,7 +10,6 @@
     { "caption": "Urtext: Show Linked Relationships ...", "command" : "show_file_relationships"},
   	{ "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
   	{ "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
-    { "caption": "Urtext: Create Node ID from Timestamp", "command":"show_reverse_date_filename"},
     { "caption": "Urtext: Open Node", "command":"open_node"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
@@ -28,5 +27,7 @@
     { "caption": "Urtext: Help", "command" :"show_urtext_help"},
     { "caption": "Urtext: Datestamp From Node ID", "command" :"datestamp_from_node_id"},
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
-      
+    { "caption": "Urtext: Log", "command" :"open_urtext_log"},
+    { "caption": "Urtext: Home", "command" :"urtext_home"},
+
 ] 

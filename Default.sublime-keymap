@@ -15,6 +15,7 @@
 	{ "keys": ["ctrl+shift+i"], "command": "navigate_backward"},
 	{ "keys": ["ctrl+shift+o"], "command": "navigate_forward"},
 	{ "keys": ["ctrl+shift+y"], "command": "show_tags"},
-	{ "keys": ["ctrl+shift+i"], "command": "add_node_id"}
+	{ "keys": ["ctrl+shift+i"], "command": "add_node_id"},
+	{ "keys": ["ctrl+shift+h"], "command": "urtext_home"}
 ]
 

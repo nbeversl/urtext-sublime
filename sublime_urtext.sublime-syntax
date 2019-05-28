@@ -10,6 +10,7 @@ contexts:
   main:    
     - include: datestamp
     - include: link
+    - include: link_prefix
     - include: task-status
     - match: '/--'
       scope: punctuation.section.generic.begin.urtext
@@ -87,8 +88,12 @@ contexts:
       pop: true
     - include: main
 
+  link_prefix:
+    - match: '>(?=([0-9,a-z]{3}))'
+      scope: link_prefix.urtext
+
   link:
-    - match: '(?<=->)\s+([\w\.\/]+)(\s\|)?'
+    - match: '(?<=>)[0-9,a-z]{3}'
       scope: link.urtext
 
   url: # not yet styled
@@ -138,6 +143,6 @@ contexts:
       scope: entity.name.tagvalue_separator.urtext
 
   node_id:
-    - match: '\b\d{14}\b'
+    - match: '\b[0-9,a-z]{3}\b'
       scope: entity.name.struct.node_id.urtext
 

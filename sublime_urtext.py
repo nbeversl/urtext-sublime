@@ -44,39 +44,32 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-        print('CREATED triggered ; the next line is to add the file.')
+        print('CREATED.')
         if os.path.basename(filename) not in _UrtextProject.files:
           if _UrtextProject.add_file(filename) != None:
             self.rebuild(filename)
         else:
           print(filename + ' saw as created but actually modified. Updating the project object')
-          _UrtextProject.build_sub_nodes(filename)
+          _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
           
     def on_modified(self, event):
+        global _UrtextProject
         filename = os.path.basename(event.src_path)
-        print(filename + ' MODIFIED')
-        if filename == "urtext_log.txt":
+        if filename ==  _UrtextProject.settings['logfile']:
           return
         if filename in _UrtextProject.files:
-          global _UrtextProject
-          _UrtextProject.build_sub_nodes(filename)
+          _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
           
-    """def on_deleted(self, event):
+    def on_deleted(self, event):
       filename = os.path.basename(event.src_path)
       print(filename + ' DELETED')
       if filename in _UrtextProject.files:
-          _UrtextProject.delete_file(filename)"""
+          _UrtextProject.delete_file(filename)
      
-    def rebuild(self, filename):
-        # order is important        
-        _UrtextProject.build_sub_nodes(filename)
-        _UrtextProject.compile_all()
-        _UrtextProject.build_tag_info()
-
     ## There is no on_moved method. Needed?
       
 def refresh_project(view):
@@ -364,8 +357,8 @@ class RenameFileCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     refresh_project(self.view)
     old_filename = self.view.file_name()
-    new_filename = _UrtextProject.rename_file_node(old_filename)
-    self.view.retarget(os.path.join(_UrtextProject.path, new_filename))
+    new_filenames = _UrtextProject.rename_file_nodes(old_filename)
+    self.view.retarget(os.path.join(_UrtextProject.path, new_filenames[os.path.basename(old_filename)]))
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -907,6 +900,20 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
         return
     sublime.run_command("new_window")
     help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/README.txt"))
+
+class OpenUrtextLogCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    file_view = self.view.window().open_file( os.path.join(_UrtextProject.path, _UrtextProject.settings['logfile']))
+
+class UrtextHomeCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    node_id = _UrtextProject.settings['home']
+    open_urtext_node(self.view, node_id, 0)
+
 
 class NavigateBackwardCommand(sublime_plugin.TextCommand):
   def run(self, edit):
