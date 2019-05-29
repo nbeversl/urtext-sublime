@@ -44,12 +44,12 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-        print('CREATED.')
+        _UrtextProject.log(filename + ' CREATED')
         if os.path.basename(filename) not in _UrtextProject.files:
           if _UrtextProject.add_file(filename) != None:
             self.rebuild(filename)
         else:
-          print(filename + ' saw as created but actually modified. Updating the project object')
+          _UrtextProject.log(filename + ' saw as created but actually modified. Updating the project object')
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
@@ -57,16 +57,20 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     def on_modified(self, event):
         global _UrtextProject
         filename = os.path.basename(event.src_path)
-        if filename ==  _UrtextProject.settings['logfile']:
+        print(filename)
+        if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
+        _UrtextProject.log('MODIFIED ' + filename)
         if filename in _UrtextProject.files:
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
+        else:
+          _UrtextProject.log('not found in project: '+filename)
           
     def on_deleted(self, event):
       filename = os.path.basename(event.src_path)
-      print(filename + ' DELETED')
+      _UrtextProject.log(filename + ' DELETED')
       if filename in _UrtextProject.files:
           _UrtextProject.delete_file(filename)
      
@@ -677,15 +681,15 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
       return
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
     link = _UrtextProject.get_link(full_line)
-    """if link == None: # check to see if it's in another known project
+    if link == None: # check to see if it's in another known project
       #other_project_node = _UrtextProjectList.get_node_link(full_line)
-      _UrtextProject.navigation.append(other_project_node)
+      """_UrtextProject.navigation.append(other_project_node)
       filename = other_project_node['filename']
       path = other_project_node['project_path']
       sublime.run_command("new_window")
-      sublime.active_window().open_file(filename)
+      sublime.active_window().open_file(filename)"""
       return
-    """
+
     if link[0] == 'HTTP':
       if not webbrowser.get().open(link[1]):
           sublime.error_message(
