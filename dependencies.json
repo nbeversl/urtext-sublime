@@ -2,8 +2,7 @@
    "*": {
       "*": [
          "pathtools",
-         "watchdog",
-         "dateutil"
+         "watchdog"
       ]
    }
 }

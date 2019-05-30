@@ -3,7 +3,6 @@ import sublime
 import sublime_plugin
 import os
 import re
-
 import datetime
 import pprint
 import logging
@@ -11,14 +10,10 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from urtext.node_pull_tree import NodePullTree
-import sublime_urtext
 
-import urtext.datestimes
-import sublime_urtext_datestimes
 from urtext.node import UrtextNode
 from urtext.project import UrtextProject
 from urtext.metadata import NodeMetadata
-import datetime
 import urtext.metadata
 from watchdog.events import FileSystemEventHandler
 import watchdog
@@ -56,8 +51,9 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           
     def on_modified(self, event):
         global _UrtextProject
+        if event.is_directory:
+          return None
         filename = os.path.basename(event.src_path)
-        print(filename)
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
         _UrtextProject.log('MODIFIED ' + filename)
@@ -224,7 +220,7 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
     if index == -1:
       return
     self.selected_value = self.values[index]
-    timestamp = urtext.datestimes.timestamp(datetime.datetime.now())
+    timestamp = self.timestamp(datetime.datetime.now())
     tag = '/-- '+self.selected_tag+': '+self.selected_value+' '+timestamp+' --/'
     self.view.run_command("insert_snippet", { "contents": tag})
 
@@ -625,8 +621,11 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 class InsertTimestampCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+
     now = datetime.datetime.now()
-    datestamp = urtext.datestimes.timestamp(now)
+    datestamp = _UrtextProject.timestamp(now)
     for s in self.view.sel():
         if s.empty():
             self.view.insert(edit, s.a, datestamp)
@@ -651,9 +650,7 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
 
   def run(self, edit):
     now = datetime.datetime.now()
-    node_id = urtext.datestimes.make_node_id(now)
-    while node_id in _UrtextProject.nodes:
-      node_id = urtext.datestimes.decrement_node_id(node_id)
+    node_id = _UrtextProject.next_index()
     content = '[[ ID:'+node_id +'\n\n ]]'
     for s in self.view.sel():
         if s.empty():
@@ -742,7 +739,9 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
       return
     path = get_path(self.view)
     node_id = links[0]
-    timestamp = urtext.datestimes.timestamp(datetime.datetime.now())
+    timestamp = _UrtextProject.timestamp(datetime.datetime.now())
+
+    # TODO move this into urtext, not Sublime
     tag = '/-- tags: done '+timestamp+' --/'
     _UrtextProject.tag_node(node_id, tag)
     _UrtextProject.build_tag_info()
