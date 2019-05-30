@@ -44,7 +44,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           if _UrtextProject.add_file(filename) != None:
             self.rebuild(filename)
         else:
-          _UrtextProject.log(filename + ' saw as created but actually modified. Updating the project object')
+          _UrtextProject.log(filename + ' modified. Updating the project object')
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
@@ -56,7 +56,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         filename = os.path.basename(event.src_path)
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
-        _UrtextProject.log('MODIFIED ' + filename)
+        _UrtextProject.log('MODIFIED ' + filename +' - Updating the project object')
         if filename in _UrtextProject.files:
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
@@ -895,7 +895,7 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
     this_file_path = os.path.dirname(__file__)
     open_windows = sublime.windows()
     for window in open_windows:
-      help_view = window.find_open_file(os.path.join(this_file_path,"example project/01 README 79811024084551.txt"))
+      help_view = window.find_open_file(os.path.join(this_file_path,"example project/README.txt"))
       if help_view != None:
         window.focus_view(help_view)
         if window != active_window:
