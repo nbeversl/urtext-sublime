@@ -1,80 +1,79 @@
 Sublime-Urtext Documentation 
 
-Updated: May 9, 2019
-Version: 0.41
+Updated: <Thu., May. 30, 2019, 02:49 PM>
+Version: 0.6
 
 You can always open this help document by choosing "Urtext: Help" from the command pallette.
 
 {{
-Sublime Urtext Documentation 79811024084551
-├── Example Tree 79810802082407
-├── Add: 79810725120658
-├── What Sublime-Urtext Is 79810915120529
-│   ├──  79810915120430
-│   └── Ideas and Requirements Behind Urtext 79810729063456
-│       ├── Basic Project Requirements: 79810822061956
-│       ├── Additional Features: 79810729061009
-│       └── Characteristics 79810729060942
-├── Using this document 79810822101322
-├── Setup 79810913063747
-│   ├── Empty Project 79810728022245
-│   └── Importing existing files 79810728021521
-├── Basics 79810913063739
-├── Inline Nodes 79810728103313
-│   ├── example inline node text 79810913060421
-│   └── Node Trees 79810822060133
-│       ├── From a selected node 79810728095518
-│       └── From the root 79810728095432
-├── Timestamps 79810913063635
-│   └── Timeline View: 79810913063637
-├── Links: 79810913063734
-│   ├── Linking to other nodes 79810728094039
-│   │   └── Sublime Text tools to help with linking 79810728102411
-│   └── Linking to outside resources 79810728093917
-│       ├── Web 79810728093857
-│       └── Files 79810728093600
-├── File and Node Organization: 79810913063726
-│   ├── Tree-like: Extending node trees beyond the file level 79810728101527
-│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728081437
-│   ├── Acyclic or Wiki/Web-like 79810728092425
-│   │   └── Viewing 79810728085016
-│   └── Traverse Mode 79810822055818
-├── Metadata: 79810913063707
-│   ├── Reserved words 79810728072553
-│   │   ├── Title (This tag overrides the default title) 79810728093349
-│   │   ├── index 79810728093344
-│   │   └── parent 79810728093341
-│   └── Finding nodes by Metadata: 79810913063640
-├── Dynamic Nodes 79810911080130
-│   ├── Example Source Node 1 79810822101015
-│   ├── Example Source Node 2 79810822101016
-│   ├── Example Source Node 3 79810822101018
-│   ├── Example Source Node 4 79810822101019
-│   ├── Example Dynamic Node Title 79810822085456
-│   └── Node Definition for the Table of Contents 79810802081948
-├── Filenames 79810913063623
-├── Node IDs: 79810913063619
-├── Linking to URLS and to Files Outside the Project: 79810822062009
-├── Syntax Highlighting and Readability 79810822064026
-├── Formatting and Conventions 79810728091813
-├── Architecture : Extension and Customization 79810728091322
-└── Reference: Key Bindings 79810822064039
-/-- ID: 79810802082407
+Sublime Urtext Documentation >01k
+├── Example Tree >001
+├── What Sublime-Urtext Is >003
+│   ├── Urtext is a syntax I invented for writing and organizing in plaintext. >004
+│   └── Ideas and Requirements Behind Urtext >008
+│       ├── Basic Project Requirements: >005
+│       ├── Additional Features: >006
+│       └── Characteristics >007
+├── Using this document >009
+├── Setup >00c
+│   ├── Empty Project >00a
+│   └── Importing existing files >00b
+├── Basics >00d
+├── Inline Nodes >00i
+│   ├── example inline node text >00e
+│   └── Node Trees >00h
+│       ├── From a selected node >00f
+│       └── From the root >00g
+├── Timestamps >00j
+│   └── Timeline View: >00k
+├── Links: >00l
+│   ├── Linking to other nodes >002
+│   │   └── Sublime Text tools to help with linking >00m
+│   └── Linking to outside resources >00q
+│       ├── Web >00o
+│       └── Files >00p
+├── File and Node Organization: >00r
+│   ├── Tree-like: Extending node trees beyond the file level >00t
+│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 >00s
+│   ├── Acyclic or Wiki/Web-like >00v
+│   │   └── Viewing >00u
+│   └── Traverse Mode >00w
+├── Metadata: >00x
+│   ├── Reserved words >011
+│   │   ├── Title (This tag overrides the default title) >00y
+│   │   ├── index >00z
+│   │   └── parent >010
+│   └── Finding nodes by Metadata: >012
+├── Dynamic Nodes >01c
+│   ├── Example Source Node 1 >014
+│   ├── Example Source Node 2 >015
+│   ├── Example Source Node 3 >016
+│   ├── Example Source Node 4 >017
+│   ├── Example Dynamic Node Title >019
+│   └── Node Definition for the Table of Contents >01b
+├── Filenames >01d
+├── Node IDs: >01e
+├── Linking to URLS and to Files Outside the Project: >01f
+├── Syntax Highlighting and Readability >01g
+├── Formatting and Conventions >01h
+├── Architecture : Extension and Customization >01i
+└── Reference: Key Bindings >01j
+/-- ID: 01a
 title: Example Tree
 kind: dynamic
-defined in: 79810802081948
+defined in: >01b
  --/ }}
 
 
 {{ Add:
   That Urtext syntax has to be selected for syntax highlighting to work.
 
- /-- ID:79810725120658 --/ }}
-
+ /-- ID:002 --/ }}
+                                                                                                                        
  
-{{  What Sublime-Urtext Is                                                                       /--ID:79810915120529--/
+{{  What Sublime-Urtext Is                                                                       /--ID:003--/
     {{ 
-    Urtext is a syntax I invented for writing and organizing in plaintext.      /--ID:79810915120430; tag:definition--/}}
+    Urtext is a syntax I invented for writing and organizing in plaintext.      /--ID:004; tag:definition--/}}
     Sublime is a modern, programmable text editor. 
 
     This is an implementation of Urtext in Sublime Text 3. I call it Sublime-Urtext. 
@@ -107,7 +106,7 @@ defined in: 79810802081948
 
             Does not require years to master. (Looking at you Org Mode.)
 
-            Future-proof. No reliance on anything that may no longer exist in 5 or 100 years.    /--ID:79810822061956--/}}
+            Future-proof. No reliance on anything that may no longer exist in 5 or 100 years.    /--ID:005--/}}
 
     {{  Additional Features:
 
@@ -118,7 +117,7 @@ defined in: 79810802081948
             Fuzzy search within files. This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor environment.   
 
             Version control (using Git, for example). This possiblity is implicit in the commitment to plaintext but important enough to mention.
-                                                                                               /--ID:79810729061009--/}}
+                                                                                               /--ID:006--/}}
 
     {{  Characteristics
 
@@ -140,16 +139,16 @@ defined in: 79810802081948
 
             Filenaming is automatic using a 14-digit derivation of creation time, which also ensures every filename is unique. Further manual naming is possible, provided the 14 digit string is retained in the filename.
            
-                                                                                        /-- ID:79810729060942 --/ }}
-                                                                                             /--ID:79810729063456--/}} 
+                                                                                        /-- ID:007 --/ }}
+                                                                                             /--ID:008--/}} 
                                                                                                                       }}
 
 {{  Using this document
 
     This file is an Urtext node with several sub-nodes. It can be used in Sublime Text to try out the features described.
 
-    To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See 79810822064026 for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a 14-digit link like.)
-                                                                                               /--ID:79810822101322--/}}
+    To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a 14-digit link like.)
+                                                                                               /--ID:009--/}}
 
 {{  Setup
 
@@ -159,19 +158,19 @@ defined in: 79810802081948
 
         The package will use any existing open folder as a project. You don't need to explicitly set a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. 
     
-     /-- ID:79810728022245 --/ }}
+     /-- ID:00a --/ }}
     
      {{ Importing existing files
 
         To use existing plaintext files, the filenames need to contain a 14-digit Node ID. Sublime Urtext will add this automatically from on the file's creation/modification date and time by selecting "Urtext : Import Project" from the Sublime Command palette. Note that the renaming will occur without a confirmation dialog.
 
-      /-- ID:79810728021521 --/ }}
+      /-- ID:00b --/ }}
 
 
-    For syntax and node depth highlighting that makes using Urtext easier, this package adds customizations to two of Sublime's default color schemes. Use the "Sixteen" color scheme for light or "Monokai" for dark. (Select the scheme using Preferences -> Color Scheme ...) See 79810822064026 for more on syntax highlighting. 
-                                                                                               /--ID:79810913063747--/}}
+    For syntax and node depth highlighting that makes using Urtext easier, this package adds customizations to two of Sublime's default color schemes. Use the "Sixteen" color scheme for light or "Monokai" for dark. (Select the scheme using Preferences -> Color Scheme ...) See >01g for more on syntax highlighting. 
+                                                                                               /--ID:00c--/}}
 
-{{  Basics                                                                                       /--ID:79810913063739--/
+{{  Basics                                                                                       /--ID:00d--/
 
     Text is kept in nodes. A node can be a single file but a single file can also contain multiple nodes. Think of a node as a blank piece of paper. Nodes can be of any length. 
 
@@ -181,13 +180,13 @@ defined in: 79810802081948
 
  {{  Inline Nodes                                                                 
      
-     Nodes can be nested inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this: {{ example inline node text /-- ID:79810913060421 --/ }}. To create an empty inline node, press Shift-Ctrl-{ (Shift - Control - left curly brace). To wrap existing content into an inline node, first select the content and use the same keypress. Inside the double curly braces is a new node with an auto-generated ID. Note that syntactically, the curly braces are part of the enclosed node, not the enclosing node. File-level nodes have and require no curly-braces.
+     Nodes can be nested inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this: {{ example inline node text /-- ID:00e --/ }}. To create an empty inline node, press Shift-Ctrl-{ (Shift - Control - left curly brace). To wrap existing content into an inline node, first select the content and use the same keypress. Inside the double curly braces is a new node with an auto-generated ID. Note that syntactically, the curly braces are part of the enclosed node, not the enclosing node. File-level nodes have and require no curly-braces.
  
      Using inline nodes requires attention to syntax : every opening doubly squiggly bracket must be closed in the same file and requires an ID metadata tag between the opening an closing brackets and not nested in another node.
  
      Inline nodes have their own identity in both content and metadata for all purposes within Urtext. Inline nodes can be nested arbitrarily deep.
 
-     When syntax highlighting is used (see 79810822064026), inline nodes will have subtle background shading that shows nesting up to five layers deep. More levels can be added by altering the file sublime_urtext.sublime-syntax.
+     When syntax highlighting is used (>01g), inline nodes will have subtle background shading that shows nesting up to five layers deep. More levels can be added by altering the file sublime_urtext.sublime-syntax.
  
      {{ Node Trees
  
@@ -196,38 +195,38 @@ defined in: 79810802081948
          {{ From a selected node
 
             Position the cursor in the node you want to see as root (outermost) and select "Urtext: Show Tree From Current Node" from the Sublime Command Palette. This will add a new split view to the left side of the current view in Sublime, containing a tree with the selected node as root. 
-                                                                                            /-- ID:79810728095518 --/ }}
+                                                                                            /-- ID:00f --/ }}
 
          {{  From the root
 
              Position the cursor anywhere in the node/file and select "Urtext: Show Tree From Root". This will do the same as above, but the tree will include everything back to the node's root. If the tree extends upward beyond the current file, that will also be included.
-                                                                                            /-- ID:79810728095432 --/ }}
+                                                                                            /-- ID:00g --/ }}
          
         Note that each branch of the resulting file tree contains a 14-digit Node ID that works like a link. You can navigate the links on the tree as normal using Shift-Control-/ .
 
         File trees are displayed in Sublime's "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use and will not update when a node/file changes. To make permanent and dynamically updated trees, see 79810911080130.
 
         CREDIT: The tree display uses the module anytree (https://pypi.org/project/anytree/.)
-                                                                                              /--ID:79810822060133--/ }}
-                                                                                                /-- ID:79810728103313 --/ }}
+                                                                                              /--ID:00h--/ }}
+                                                                                                /-- ID:00i --/ }}
 
-{{  Timestamps                                                                                   /--ID:79810913063635--/
+{{  Timestamps                                                                                   /--ID:00j--/
 
     One of the most important features for organizing and tracking writing is timestamps. Urtext utilizes human-readable Timestamps in the format: <Thu., Feb. 07, 2019, 05:57 PM>. In Sublime Urtext, insert a timestamp for the current date and time ("now") anywhere by pressing Control-T.
 
     Timestamps can be part of Metadata (see below) but can also be inserted anywhere else. Urtext utilizes a "loose" parsing of inline timestamps, meaning they can be placed anywhere and will be recognized and parsed by a timeline view.
 
-    {{  Timeline View:                                                                           /--ID:79810913063637--/
+    {{  Timeline View:                                                                           /--ID:00k--/
 
-        Since Node IDs are a derivation of the node's creation time (see 79810913063619), they can be used to order the nodes in time. Urtext will parse these along with manually added timestamps into a detailed overview of the project's timeline. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. Each Node ID or timestamp is shown in chronological order with nearby text. As everywhere in a project, node IDs shown are links that can be opened using Ctrl-/.  }}    }}
+        Urtext will parse node timestamp along with inline timestamps into a detailed overview of the project timeline. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. Each node or inline timestamp is shown in chronological order with nearby text. As everywhere in a project, node IDs shown are links that can be opened using Ctrl-/.  }}    }}
 
-{{  Links:                                                                                     /-- ID:79810913063734 --/
+{{  Links:                                                                                     
 
-    {{  Linking to other nodes
+    {{  Linking to other nodes 
 
-        Since node IDs are 14 digits long (see 79810913063619), any 14 consecutive digits in an Urtext project are read as a link. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. If the linked node is inline, Sublime will jump to and center its starting point. Note that Urtext reads node regions on every save, so cursor location may be imprecise if the file has been altered since the last save.
+        To write a link, using the "greater than" angular bracket (>) followed by a node ID. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. If the linked node is inline, Sublime will jump to and center its starting point. Note that Urtext reads node regions on every save, so cursor location may be imprecise if the file has been altered since the last save.
 
-        Linking does not require a filename, only a 14-digit Node ID (created automatically when a new node is made). Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See 79810913063619 for more information on file naming and Node IDs.
+        Linking does not require a filename, only a Node ID. Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See 79810913063619 for more information on file naming and Node IDs.
 
         {{  Sublime Text tools to help with linking    
             Two Sublime Command Palette commands can make linking quick and easy:
@@ -237,50 +236,50 @@ defined in: 79810802081948
      
             Urtext: Link From ...
                 Links TO the current node FROM another node. When you select this command, a link to the current node will be copied to the clipboard. You can then paste the reference into the node you open in the quick panel.
-                                                                                            /-- ID:79810728102411 --/ }} 
-                                                                                            /-- ID:79810728094039 --/ }}
+                                                                                            /-- ID:00m --/ }} 
+                                                                               /-- ID: 0y2 --/             }}
 
     {{ Linking to outside resources
 
         {{ Web
 
             HTTP links are recognized automatically and will open in the default browser.
-            Example: http://fantutti.com                                                    /-- ID:79810728093857 --/ }}
+            Example: http://fantutti.com                                                    /-- ID:00o --/ }}
 
         {{ Files
             TODO  <Fri., May. 03, 2019, 02:24 PM>
-                                                                                        /-- ID:79810728093600 --/ }}
-                                                                                            /-- ID:79810728093917 --/ }}
-                                                                                                                         }}
+                                                                                        /-- ID:00p --/ }}
+                                                                                            /-- ID:00q --/ }}
+                                                                                                      /-- ID:00l --/                   }}
 
-{{ File and Node Organization:                                                                 /-- ID:79810913063726 --/
+{{ File and Node Organization:                                                                 /-- ID:00r --/
     
     Urtext does not depend on organization of files at the filesystem level. All files are kept in a single project folder. Instead, you can link file-level nodes together in several ways:
 
     {{ Tree-like: Extending node trees beyond the file level
       
-       Nested inline nodes have an inherent hierarchy that Urtext can represent as a tree, as described above in 79810913063730. You can extend this tree either higher or lower beyond individual file level, mimicking file-system organization. To do so, add the metadata tag `parent`, following by a target Node ID. This will link the tagged node to the targeted node in a child-parent relationship. (See 79810913063707 for more information on metadata.) The resulting tree relationship(s) will be understood and displayed accordingly by Urtext (see 79810822060133). 
+       Nested inline nodes have an inherent hierarchy that Urtext can represent as a tree, as described above in 79810913063730. You can extend this tree either higher or lower beyond individual file level, mimicking file-system organization. To do so, add the metadata tag `parent`, following by a target Node ID. This will link the tagged node to the targeted node in a child-parent relationship. (See >00x for more information on metadata.) The resulting tree relationship(s) will be understood and displayed accordingly by Urtext (see 79810822060133). 
 
        The advantages here are many, including:
             - The tree represents the hierachy of actual content, rather than the files containing the content.
             - The tree permits nesting both within and beyond the individual file level.
             - The tree can be displayed from any arbitrary starting point, whether or not its branches are within or beyond a particular file level.
 
-       Note that a "tree" here is a strict hierarchical structure that resolves to a single root. Therefore, {{  nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728091838. /-- ID:79810728081437 --/ }} The intended use for this feature is to link separate individual files into trees. Using it in other ways, such as adding a `parent` tag to a inline node that already has a parent, will override this and, while possible, may have confusing results. Instead, see "Virtual Trees" below (79810728091838).
-                                                                                            /-- ID:79810728101527 --/ }}
+       Note that a "tree" here is a strict hierarchical structure that resolves to a single root. Therefore, {{  nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 79810728091838. /-- ID:00s --/ }} The intended use for this feature is to link separate individual files into trees. Using it in other ways, such as adding a `parent` tag to a inline node that already has a parent, will override this and, while possible, may have confusing results. Instead, see "Virtual Trees" below (79810728091838).
+                                                                                            /-- ID:00t --/ }}
 
     {{  Acyclic or Wiki/Web-like
 
-        Elaborate writing, notetaking, and reference systems are possible by linking nodes together in tangled and intricate ways that a tree will not accomodate. To do so, immediately precede a link to a node (see 79810913063734) by the right angle bracket, such as: >79810728091838. 
+        Elaborate writing, notetaking, and reference systems are possible by linking nodes together in tangled and intricate ways that a tree will not accomodate. To do so, immediately precede a link to a node (see >00l) by the right angle bracket, such as: 79810728091838. 
 
         {{  Viewing
         
             While Urtext cannot draw acyclic graphs in plaintext, it can represent these acyclic relationships from the perspective of any one node. Positioning the cursor in the desired node and and selecting "Urtext : Show Linked Relationships..." from the Sublime command palette will open a split view similar to that in 79810822060133. The currently selected node will be displayed as root; all nodes linking into this nodes, and recursively into those nodes, will be displayed above the root; all files linked from this node, and recursively from those nodes, will be displayed below. Circular references are represented up to one iteration.
 
             Like trees (79810728103313), these diagrams are displayed as Sublime "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use and will not update when a node/file changes. To make permanent and dynamically updated diagrams, see 79810911080130.
-                                                                                            /-- ID:79810728085016 --/ }}
-                                                                                             /-- ID:79810728092425 --/ }}                                                                  
-    {{ Traverse Mode:                                                    /-- ID:79810822055818; title: Traverse Mode --/
+                                                                                            /-- ID:00u --/ }}
+                                                                                             /-- ID:00v --/ }}                                                                  
+    {{ Traverse Mode:                                                    /-- ID:00w; title: Traverse Mode --/
 
         Once you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second Sublime pane. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
         
@@ -291,7 +290,7 @@ defined in: 79810802081948
         }}
                                                                                                                       }}
     
-{{  Metadata:                                                                                  /-- ID:79810913063707 --/
+{{  Metadata:                                                                                  /-- ID:00x --/
 
     Metadata tags can be placed anywhere inside the double curly braces of the node they reference. Metadata tags open with a forward-slash followed by two dashes and close with two dashes followed by a forward slash. The syntax is:
         
@@ -324,7 +323,7 @@ defined in: 79810802081948
                 If for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:
            
                    /-- title: Title (This tag overrides the default title)  --/
-                                                                                            /-- ID:79810728093349 --/ }}
+                                                                                            /-- ID:00y --/ }}
    
            {{   index
            
@@ -334,23 +333,23 @@ defined in: 79810802081948
    
                 Index tags will sort the files in the node browser (Super-E). Any indexed nodes will before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.
    
-                See Filenames for another way to use for indexes.                            /-- ID:79810728093344 --/ }}
+                See Filenames for another way to use for indexes.                            /-- ID:00z --/ }}
    
           {{    parent
 
                 As described in 79810728101527, you add give a node a parent to incorporate it into a node tree beyond the file level, or for other purposes. Example:
 
-                    /-- parent: 79810728073039 --/
+                    /-- parent: 00z  --/
                 This tag redundantly sets the parent of the present node to 79810728072553, which it already is; however, change the node ID in the tag and look at the table of contents tree to try out unusual results.
           
-                                                                                      /-- ID:79810728093341 --/ }}                             
-                                                                                            /-- ID:79810728072553 --/ }}
+                                                                                      /-- ID:010 --/ }}                             
+                                                                                            /-- ID:011 --/ }}
 
-    {{  Finding nodes by Metadata:                                                            /-- ID:79810913063640 --/
+    {{  Finding nodes by Metadata:                                                            /-- ID:012 --/
 
         To browse nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
 
-                                                                                            /-- ID:79810728073039 --/ }}
+                                                                         /-- ID:056 --/                   }}
 
 {{ Dynamic Nodes
     
@@ -358,7 +357,7 @@ defined in: 79810802081948
 
     The definition has the following keys:
         
-        - ID: (required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste its ID. Otherwise, a new file will be created with the specified ID.
+        - IDDD: (required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste its ID. Otherwise, a new file will be created with the specified ID.
 
         - include:metadata:<tag name>:<tag values> (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
 
@@ -378,54 +377,54 @@ defined in: 79810802081948
 
             {{ Example Source Node 1
                     Some text here.
-                 /-- ID:79810822101015; tag: example_node; index:02 --/ }}
+                 /-- ID:014; tag: example_node; index:02 --/ }}
 
             {{ Example Source Node 2
-                 /-- ID:79810822101016; tag: example_node; index:05 --/ }}
+                 /-- ID:015; tag: example_node; index:05 --/ }}
             
             {{ Example Source Node 3
-                 /-- ID:79810822101018; tag: example_node; index:01 --/ }}
+                 /-- ID:016; tag: example_node; index:01 --/ }}
             
             {{ Example Source Node 4
-                 /-- ID:79810822101019; tag: example_node; index:05  --/ }}
+                 /-- ID:017; tag: example_node; index:05  --/ }}
 
 
-        Here is an example dynamic node definition targeting node ID 79810822085456
+        Here is an example dynamic node definition targeting node ID >018
 
-            [[ ID:79810822085456
+            [[ ID:019
                 include:metadata:tag:example_node
                 exclude:metadata:tag:exclude_this
                 sort:index
                 show:title
                 metadata:title:Example Dynamic Node Title
-            ]]
+            ]] >018
 
         Here is the node defined by the definition above. Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. Saving is necessary to trigger the update.
 
-{{  Example Source Node 3  79810822101018
-Example Source Node 1  79810822101015
-Example Source Node 2  79810822101016
-Example Source Node 4  79810822101019
-/-- ID: 79810822085456
+{{  Example Source Node 3  >016
+Example Source Node 1  >014
+Example Source Node 2  >015
+Example Source Node 4  >017
+/-- ID: 019
 title: Example Dynamic Node Title
 kind: dynamic
-defined in: 79810911080130
+defined in: >01c
  --/ }}
 
         {{ Node Definition for the Table of Contents
 
             Here is another example dynamic definition, which creates the tree at the top of this file:
-                [[ ID:79810802082407
-                    tree:79811024084551
+                [[ ID:001
+                    tree:01k
                     metadata:title:Example Tree
                  ]]  
 
             Changing the titles or nesting of sections in this document will dynamically update the tree.
-                                                                                           /--ID:79810802081948--/}}
-                                                                                               /--ID:79810911080130--/}}
+                                                                                           /--ID:01b--/}}
+                                                                                               /--ID:01c--/}}
 
 
-{{ Filenames                                                                                 /--ID:79810913063623--/
+{{ Filenames                                                                                 /--ID:01d--/
 
     You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc.
 
@@ -443,7 +442,7 @@ defined in: 79810911080130
 
     This system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so.
                                                                                                                       }}
-{{ Node IDs:                                                                                     /--ID:79810913063619--/
+{{ Node IDs:                                                                                     /--ID:01e--/
 
     Nodes have 14-digit ID numbers. The 14 digits are an inverse representation of the year, month, day, hour, minute and second they were created. The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. Creation date is inverted in filenames to force files sorting with the most recent node first. It's useful in mobile applications that have limited or inconvenient filelist sorting and viewing capabilities. 
     
@@ -457,25 +456,25 @@ defined in: 79810911080130
 
     Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
 
-                                                                                               /--ID:79810822062009--/}}
+                                                                                               /--ID:01f--/}}
 
 {{  Syntax Highlighting and Readability
 
         Sublime Urtext offers some basic syntax highlighting by extending the Sixteen and Monokai color scheme in Sublime. It also has a syntax definition .YML file that can be used to add syntax highlighting in other color schemes.
 
-                                                                                               /--ID:79810822064026--/}}
+                                                                                               /--ID:01g--/}}
 
 {{ Formatting and Conventions
 
 
-                                                                                            /-- ID:79810728091813 --/ }}
+                                                                                            /-- ID:01h --/ }}
 
 {{ Architecture : Extension and Customization
 
     Some features described in this document are specific to this Sublime Text implementation, (though they could be reproduced in any scriptable text editor), but most are features of Urtext itself. Where there is question, you can find out fairly be inspecting the code. Anything that is 
     [ TO BE COMPLETED ]
 
- /-- ID:79810728091322 --/ }}
+ /-- ID:01i --/ }}
 
 {{ Reference: Key Bindings
 
@@ -492,11 +491,11 @@ defined in: 79810911080130
     ctrl+shift+]            New dynamic node definition
     ctrl+shift+t            Timeline view
     ctrl+shift+-            Align selected lines to the right (120 character width)
-                                                                                           /-- ID:79810822064039 --/ }}
+                                                                                           /-- ID:01j --/ }}
 
  
                                                                                                                     /--
-                                                                                                     ID: 79811024084551
+                                                                                                                ID:01k
                                                                                                            tags: urtext
                                                                                     title: Sublime Urtext Documentation
                                                                                                                     --/

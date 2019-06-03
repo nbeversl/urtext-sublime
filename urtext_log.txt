@@ -18,3 +18,110 @@ problem in example-urtext-project.sublime-project
 problem in example-urtext-project.sublime-workspace
 problem in sublime_urtext-default.sublime-settings
 problem in sublime_urtext.py
+2019-05-30 14:49:41,225 INFO Root node without ID: dependencies.json
+2019-05-30 14:49:41,233 INFO UnicodeDecode Error .DS_Store
+2019-05-30 14:49:41,239 INFO Node missing ID in example-urtext-project.sublime-workspace
+2019-05-30 14:49:41,240 INFO Root node without ID: example-urtext-project.sublime-project
+2019-05-30 14:49:41,242 INFO Node missing ID in sublime_urtext.sublime-syntax
+2019-05-30 14:49:41,244 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-05-30 14:49:41,245 INFO Root node without ID: Default.sublime-settings
+2019-05-30 14:49:41,247 INFO Root node without ID: urtext_log.txt
+2019-05-30 14:49:41,249 INFO Root node without ID: .gitmodules
+2019-05-30 14:49:41,252 INFO Root node without ID: tags.sublime-snippet
+2019-05-30 14:49:41,265 INFO Node missing ID in sublime_urtext.py
+2019-05-30 14:49:41,267 INFO Root node without ID: .gitignore
+2019-05-30 14:49:41,270 INFO Root node without ID: Default.sublime-keymap
+2019-05-30 14:49:41,274 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-05-30 14:49:41,276 INFO Root node without ID: urtext.tmPreferences
+2019-05-30 14:49:46,674 INFO Root node without ID: urtext_log.txt
+2019-05-30 14:49:46,736 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:49:46,742 INFO reparsing
+2019-05-30 14:49:46,819 INFO reparsing
+2019-05-30 14:49:46,820 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:49:53,213 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:49:53,321 INFO reparsing
+2019-05-30 14:49:53,322 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:49:53,335 INFO reparsing
+2019-05-30 14:49:53,427 INFO reparsing
+2019-05-30 14:49:53,428 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:02,942 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:50:03,046 INFO reparsing
+2019-05-30 14:50:03,049 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:03,059 INFO reparsing
+2019-05-30 14:50:03,137 INFO reparsing
+2019-05-30 14:50:03,138 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,306 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:50:24,382 INFO reparsing
+2019-05-30 14:50:24,383 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,474 INFO reparsing
+2019-05-30 14:50:24,475 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,534 INFO reparsing
+2019-05-30 14:50:24,535 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,536 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:50:24,594 INFO reparsing
+2019-05-30 14:50:24,594 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,651 INFO reparsing
+2019-05-30 14:50:24,652 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:50:24,712 INFO reparsing
+2019-05-30 14:50:24,713 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:51:53,517 INFO Node 013 is not in the project
+2019-05-30 14:51:59,805 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:51:59,888 INFO reparsing
+2019-05-30 14:51:59,889 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:51:59,970 INFO reparsing
+2019-05-30 14:51:59,971 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:00,036 INFO reparsing
+2019-05-30 14:52:00,037 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:20,891 INFO Node 013 is not in the project
+2019-05-30 14:52:21,995 INFO Node 013 is not in the project
+2019-05-30 14:52:23,779 INFO Node 013 is not in the project
+2019-05-30 14:52:35,289 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:52:35,393 INFO reparsing
+2019-05-30 14:52:35,394 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:35,500 INFO reparsing
+2019-05-30 14:52:35,501 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:35,555 INFO reparsing
+2019-05-30 14:52:35,556 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:49,949 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:52:50,054 INFO reparsing
+2019-05-30 14:52:50,057 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:50,143 INFO reparsing
+2019-05-30 14:52:50,144 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:50,209 INFO reparsing
+2019-05-30 14:52:50,209 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:59,661 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:52:59,768 INFO reparsing
+2019-05-30 14:52:59,770 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:59,856 INFO reparsing
+2019-05-30 14:52:59,857 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:52:59,916 INFO reparsing
+2019-05-30 14:52:59,916 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-05-30 14:53:45,767 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:53:45,804 INFO Node missing ID in README.txt
+2019-05-30 14:53:54,209 INFO Node 00l is not in the project
+2019-05-30 14:54:02,158 INFO MODIFIED README.txt - Updating the project object
+2019-05-30 14:54:06,481 INFO Node 00l is not in the project
+2019-05-30 14:54:19,330 INFO MODIFIED sublime_urtext.py - Updating the project object
+2019-05-30 14:54:24,784 INFO Root node without ID: urtext_log.txt
+2019-05-30 14:54:24,813 INFO Node missing ID in README.txt
+2019-05-30 14:54:24,815 INFO Node 00l is not in the project
+2019-05-30 14:54:44,315 INFO Node 00l is not in the project
+2019-05-30 14:54:48,463 INFO Node 00l is not in the project
+2019-05-30 14:56:56,846 INFO Root node without ID: dependencies.json
+2019-05-30 14:56:56,849 INFO UnicodeDecode Error .DS_Store
+2019-05-30 14:56:56,854 INFO Node missing ID in example-urtext-project.sublime-workspace
+2019-05-30 14:56:56,856 INFO Root node without ID: example-urtext-project.sublime-project
+2019-05-30 14:56:56,857 INFO Node missing ID in sublime_urtext.sublime-syntax
+2019-05-30 14:56:56,859 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-05-30 14:56:56,860 INFO Root node without ID: Default.sublime-settings
+2019-05-30 14:56:56,870 INFO Root node without ID: urtext_log.txt
+2019-05-30 14:56:56,871 INFO Root node without ID: .gitmodules
+2019-05-30 14:56:56,873 INFO Root node without ID: tags.sublime-snippet
+2019-05-30 14:56:56,885 INFO Node missing ID in sublime_urtext.py
+2019-05-30 14:56:56,886 INFO Root node without ID: .gitignore
+2019-05-30 14:56:56,889 INFO Root node without ID: Default.sublime-keymap
+2019-05-30 14:56:56,893 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-05-30 14:56:56,895 INFO Root node without ID: urtext.tmPreferences
+2019-05-30 14:57:01,353 INFO Root node without ID: urtext_log.txt
+2019-05-30 14:57:01,375 INFO Node missing ID in README.txt
+2019-05-30 14:57:08,791 INFO Node 00b is not in the project

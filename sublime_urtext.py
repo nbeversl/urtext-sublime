@@ -39,12 +39,12 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-        _UrtextProject.log(filename + ' CREATED')
+        _UrtextProject.log.info(filename + ' CREATED')
         if os.path.basename(filename) not in _UrtextProject.files:
           if _UrtextProject.add_file(filename) != None:
             self.rebuild(filename)
         else:
-          _UrtextProject.log(filename + ' modified. Updating the project object')
+          _UrtextProject.log.info(filename + ' modified. Updating the project object')
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
@@ -56,17 +56,17 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         filename = os.path.basename(event.src_path)
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
-        _UrtextProject.log('MODIFIED ' + filename +' - Updating the project object')
+        _UrtextProject.log.info('MODIFIED ' + filename +' - Updating the project object')
         if filename in _UrtextProject.files:
           _UrtextProject.add_file(filename)
           _UrtextProject.build_tag_info()
           _UrtextProject.compile_all()
         else:
-          _UrtextProject.log('not found in project: '+filename)
+          _UrtextProject.log.info('not found in project: '+filename)
           
     def on_deleted(self, event):
       filename = os.path.basename(event.src_path)
-      _UrtextProject.log(filename + ' DELETED')
+      _UrtextProject.log.info(filename + ' DELETED')
       if filename in _UrtextProject.files:
           _UrtextProject.delete_file(filename)
      
@@ -630,7 +630,7 @@ class InsertTimestampCommand(sublime_plugin.TextCommand):
         if s.empty():
             self.view.insert(edit, s.a, datestamp)
         else:
-            view.replace(edit, s, datestamp)
+            self.view.replace(edit, s, datestamp)
 
 class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
 
