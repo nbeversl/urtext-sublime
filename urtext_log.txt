@@ -125,3 +125,32 @@ problem in sublime_urtext.py
 2019-05-30 14:57:01,353 INFO Root node without ID: urtext_log.txt
 2019-05-30 14:57:01,375 INFO Node missing ID in README.txt
 2019-05-30 14:57:08,791 INFO Node 00b is not in the project
+2019-06-03 15:46:04,242 INFO UnicodeDecode Error .DS_Store
+2019-06-03 15:46:04,244 INFO Root node without ID: .gitignore
+2019-06-03 15:46:04,244 INFO Root node without ID: .gitmodules
+2019-06-03 15:46:04,245 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 15:46:04,245 INFO Root node without ID: Default.sublime-settings
+2019-06-03 15:46:04,245 INFO Root node without ID: dependencies.json
+2019-06-03 15:46:04,246 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 15:46:04,257 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 15:46:04,257 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 15:46:04,261 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+    selection = self.view.su
+                                                  ^
+2019-06-03 15:46:04,262 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 15:46:04,263 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext
+      push: inline-node-1
+    - match: '}}'
+      scope: invalid.illegal.stray-bracket-end
+                                                  ^
+2019-06-03 15:46:04,263 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 15:46:04,263 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 15:46:04,267 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 15:46:20,650 INFO MODIFIED sublime_urtext.py - Updating the project object
+2019-06-03 15:46:20,650 INFO not found in project: sublime_urtext.py

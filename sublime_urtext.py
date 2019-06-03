@@ -438,7 +438,7 @@ class LinkToNodeCommand(sublime_plugin.WindowCommand):
       view = self.window.active_view()
       node_id = self.menu.get_values_from_index(selected_option).node_id
       title = self.menu.get_values_from_index(selected_option).title
-      view.run_command("insert", {"characters":  title + ' '+node_id})
+      view.run_command("insert", {"characters":  title + ' >'+node_id})
 
 class LinkNodeFromCommand(sublime_plugin.WindowCommand): 
     def run(self):
@@ -458,7 +458,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
         node_id = _UrtextProject.get_node_id_from_position(self.current_file, self.position)
         
         title = _UrtextProject.nodes[node_id].get_title()
-        link = title + ' ' + node_id
+        link = title + ' >' + node_id
         sublime.set_clipboard(link)
         view.show_popup('Link to ' + link + ' copied to the clipboard')
       else:
@@ -676,9 +676,12 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
+    position = self.view.sel()[0].a
+    column = self.view.rowcol(position)[1]
     full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-    link = _UrtextProject.get_link(full_line)
-    if link == None: # check to see if it's in another known project
+    link = _UrtextProject.get_link(full_line, position=column)
+    if link == None: 
+      # check to see if it's in another known project
       #other_project_node = _UrtextProjectList.get_node_link(full_line)
       """_UrtextProject.navigation.append(other_project_node)
       filename = other_project_node['filename']
