@@ -29,5 +29,5 @@
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
     { "caption": "Urtext: Log", "command" :"open_urtext_log"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},
-
+    { "caption": "Urtext: Reload Project", "command" :"urtext_reload_project"},
 ] 

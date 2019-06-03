@@ -50,6 +50,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           _UrtextProject.compile_all()
           
     def on_modified(self, event):
+        # this is also called on files being added
         global _UrtextProject
         if event.is_directory:
           return None
@@ -57,12 +58,9 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
         _UrtextProject.log.info('MODIFIED ' + filename +' - Updating the project object')
-        if filename in _UrtextProject.files:
-          _UrtextProject.add_file(filename)
-          _UrtextProject.build_tag_info()
-          _UrtextProject.compile_all()
-        else:
-          _UrtextProject.log.info('not found in project: '+filename)
+        _UrtextProject.add_file(filename)
+        _UrtextProject.build_tag_info()
+        _UrtextProject.compile_all()
           
     def on_deleted(self, event):
       filename = os.path.basename(event.src_path)
@@ -912,6 +910,16 @@ class OpenUrtextLogCommand(sublime_plugin.TextCommand):
     if refresh_project(self.view) == None :
       return
     file_view = self.view.window().open_file( os.path.join(_UrtextProject.path, _UrtextProject.settings['logfile']))
+    
+    def go_to_end(view):
+      if not view.is_loading(): 
+          view.sel().add(sublime.Region(view.size()))
+          view.show_at_center(sublime.Region(view.size()))
+      else:
+        sublime.set_timeout(lambda: self.go_to_end(view), 10)    
+
+    go_to_end(file_view)
+
 
 class UrtextHomeCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -919,6 +927,22 @@ class UrtextHomeCommand(sublime_plugin.TextCommand):
       return
     node_id = _UrtextProject.settings['home']
     open_urtext_node(self.view, node_id, 0)
+
+class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return  
+    if current_path != None: 
+      _UrtextProject = focus_urtext_project(current_path)
+    else:
+      print('No Urtext Project')
+      return None
+
+    if _UrtextProjectList == None:        
+      global _UrtextProjectList
+      _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
+
+    return _UrtextProject
 
 
 class NavigateBackwardCommand(sublime_plugin.TextCommand):
