@@ -154,3 +154,541 @@ n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern,
                                                   ^
 2019-06-03 15:46:20,650 INFO MODIFIED sublime_urtext.py - Updating the project object
 2019-06-03 15:46:20,650 INFO not found in project: sublime_urtext.py
+2019-06-03 17:42:16,884 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:42:16,885 INFO Root node without ID: .gitignore
+2019-06-03 17:42:16,885 INFO Root node without ID: .gitmodules
+2019-06-03 17:42:16,885 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:42:16,886 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:42:16,886 INFO Root node without ID: dependencies.json
+2019-06-03 17:42:16,886 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:42:16,887 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:42:16,887 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:42:16,891 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:42:16,892 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:42:16,892 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:42:16,892 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:42:16,893 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:42:16,896 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:42:36,823 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:42:36,950 INFO Node missing ID in urtext_log.txt
+ess Ctrl-U. }}
+            ^
+2019-06-03 17:42:36,951 INFO parsed <Mon., Jan. 28, 2019, 11:50 AM> as <Mon., Jan. 28, 2019, 11:50 AM>
+2019-06-03 17:42:36,951 INFO parsed <Fri., Feb. 08, 2019, 04:32 PM> as <Fri., Feb. 08, 2019, 04:32 PM>
+2019-06-03 17:42:36,951 INFO parsed <Wed., Jan. 23, 2019, 02:53 PM> as <Wed., Jan. 23, 2019, 02:53 PM>
+2019-06-03 17:42:36,951 INFO parsed <Tue., Jan. 22, 2019, 12:37 PM> as <Tue., Jan. 22, 2019, 12:37 PM>
+2019-06-03 17:42:36,951 INFO parsed <Tue., Jan. 15, 2019, 04:03 PM> as <Tue., Jan. 15, 2019, 04:03 PM>
+2019-06-03 17:42:36,951 INFO parsed <Wed., Apr. 03, 2019, 10:55 AM> as <Wed., Apr. 03, 2019, 10:55 AM>
+2019-06-03 17:42:36,951 INFO parsed <Wed., Apr. 03, 2019, 02:35 PM> as <Wed., Apr. 03, 2019, 02:35 PM>
+2019-06-03 17:42:36,951 INFO parsed <Tue., Jan. 15, 2019, 03:44 PM> as <Tue., Jan. 15, 2019, 03:44 PM>
+2019-06-03 17:42:36,952 INFO parsed <Wed., Mar. 27, 2019, 05:32 PM> as <Wed., Mar. 27, 2019, 05:32 PM>
+2019-06-03 17:42:36,952 INFO parsed <Wed., Mar. 27, 2019, 10:40 AM> as <Wed., Mar. 27, 2019, 10:40 AM>
+2019-06-03 17:42:36,952 INFO parsed <Wed., Mar. 27, 2019, 02:37 PM> as <Wed., Mar. 27, 2019, 02:37 PM>
+2019-06-03 17:42:36,952 INFO parsed <Tue., Mar. 26, 2019, 04:56 PM> as <Tue., Mar. 26, 2019, 04:56 PM>
+2019-06-03 17:42:36,952 INFO parsed <Wed., Mar. 27, 2019, 10:03 AM> as <Wed., Mar. 27, 2019, 10:03 AM>
+2019-06-03 17:42:36,952 INFO parsed <Tue., Apr. 30, 2019, 05:22 PM> as <Tue., Apr. 30, 2019, 05:22 PM>
+2019-06-03 17:42:36,952 INFO parsed <Tue., Apr. 30, 2019, 05:36 PM> as <Tue., Apr. 30, 2019, 05:36 PM>
+2019-06-03 17:42:36,952 INFO parsed <Tue., Apr. 30, 2019, 05:26 PM> as <Tue., Apr. 30, 2019, 05:26 PM>
+2019-06-03 17:42:36,952 INFO parsed <Tue., Apr. 30, 2019, 05:28 PM> as <Tue., Apr. 30, 2019, 05:28 PM>
+2019-06-03 17:42:36,953 INFO parsed <Tue., Apr. 30, 2019, 05:36 PM> as <Tue., Apr. 30, 2019, 05:36 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., May. 01, 2019, 12:42 PM> as <Wed., May. 01, 2019, 12:42 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., May. 01, 2019, 12:18 PM> as <Wed., May. 01, 2019, 12:18 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., Mar. 20, 2019, 05:34 PM> as <Wed., Mar. 20, 2019, 05:34 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., Mar. 20, 2019, 05:51 PM> as <Wed., Mar. 20, 2019, 05:51 PM>
+2019-06-03 17:42:36,953 INFO parsed <Tue., May. 21, 2019, 05:38 PM> as <Tue., May. 21, 2019, 05:38 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., Mar. 20, 2019, 05:20 PM> as <Wed., Mar. 20, 2019, 05:20 PM>
+2019-06-03 17:42:36,953 INFO parsed <Wed., Feb. 06, 2019, 12:52 PM> as <Wed., Feb. 06, 2019, 12:52 PM>
+2019-06-03 17:42:36,953 INFO parsed <Fri., Mar. 22, 2019, 10:00 AM> as <Fri., Mar. 22, 2019, 10:00 AM>
+2019-06-03 17:42:36,954 INFO parsed <Tue., May. 21, 2019, 05:15 PM> as <Tue., May. 21, 2019, 05:15 PM>
+2019-06-03 17:42:36,954 INFO parsed <Wed., Feb. 20, 2019, 10:40 AM> as <Wed., Feb. 20, 2019, 10:40 AM>
+2019-06-03 17:42:36,954 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:42:36,954 INFO parsed <Wed., May. 22, 2019, 12:26 PM> as <Wed., May. 22, 2019, 12:26 PM>
+2019-06-03 17:42:36,954 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:42:36,954 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:42:36,954 INFO parsed <Wed., Feb. 06, 2019, 12:23 PM> as <Wed., Feb. 06, 2019, 12:23 PM>
+2019-06-03 17:42:36,954 INFO parsed <Fri., Jan. 18, 2019, 05:57 PM> as <Fri., Jan. 18, 2019, 05:57 PM>
+2019-06-03 17:42:36,954 INFO parsed <Tue., Jan. 22, 2019, 10:04 AM> as <Tue., Jan. 22, 2019, 10:04 AM>
+2019-06-03 17:42:36,955 INFO parsed <Tue., Jan. 22, 2019, 03:27 PM> as <Tue., Jan. 22, 2019, 03:27 PM>
+2019-06-03 17:42:36,955 INFO parsed <Mon., May. 13, 2019, 10:43 AM> as <Mon., May. 13, 2019, 10:43 AM>
+2019-06-03 17:42:36,955 INFO parsed <Thu., May. 23, 2019, 04:48 PM> as <Thu., May. 23, 2019, 04:48 PM>
+2019-06-03 17:42:36,955 INFO parsed <Thu., May. 09, 2019, 10:43 AM> as <Thu., May. 09, 2019, 10:43 AM>
+2019-06-03 17:42:36,955 INFO parsed <Wed., May. 08, 2019, 12:11 PM> as <Wed., May. 08, 2019, 12:11 PM>
+2019-06-03 17:42:36,955 INFO parsed <Mon., May. 13, 2019, 11:25 AM> as <Mon., May. 13, 2019, 11:25 AM>
+2019-06-03 17:42:36,955 INFO parsed <Thu., Mar. 21, 2019, 03:39 PM> as <Thu., Mar. 21, 2019, 03:39 PM>
+2019-06-03 17:42:36,955 INFO parsed <Mon., May. 06, 2019, 03:42 PM> as <Mon., May. 06, 2019, 03:42 PM>
+2019-06-03 17:42:36,955 INFO parsed <Tue., Apr. 30, 2019, 05:49 PM> as <Tue., Apr. 30, 2019, 05:49 PM>
+2019-06-03 17:42:36,956 INFO parsed <Wed., May. 08, 2019, 11:06 AM> as <Wed., May. 08, 2019, 11:06 AM>
+2019-06-03 17:42:36,956 INFO parsed <Mon., May. 06, 2019, 04:17 PM> as <Mon., May. 06, 2019, 04:17 PM>
+2019-06-03 17:42:36,956 INFO parsed <Mon., May. 20, 2019, 11:06 AM> as <Mon., May. 20, 2019, 11:06 AM>
+2019-06-03 17:42:36,956 INFO parsed <Thu., May. 16, 2019, 03:57 PM> as <Thu., May. 16, 2019, 03:57 PM>
+2019-06-03 17:42:36,956 INFO parsed <Mon., May. 20, 2019, 01:40 PM> as <Mon., May. 20, 2019, 01:40 PM>
+2019-06-03 17:42:36,956 INFO parsed <Thu., May. 16, 2019, 10:11 AM> as <Thu., May. 16, 2019, 10:11 AM>
+2019-06-03 17:42:36,956 INFO parsed <Thu., May. 16, 2019, 10:11 AM> as <Thu., May. 16, 2019, 10:11 AM>
+2019-06-03 17:42:36,956 INFO parsed <Thu., May. 16, 2019, 01:27 PM> as <Thu., May. 16, 2019, 01:27 PM>
+2019-06-03 17:42:36,956 INFO parsed <Thu., May. 16, 2019, 01:22 PM> as <Thu., May. 16, 2019, 01:22 PM>
+2019-06-03 17:42:36,957 INFO parsed <Tue., Apr. 16, 2019, 10:37 AM> as <Tue., Apr. 16, 2019, 10:37 AM>
+2019-06-03 17:42:36,957 INFO parsed <Wed., Apr. 10, 2019, 12:28 PM> as <Wed., Apr. 10, 2019, 12:28 PM>
+2019-06-03 17:42:36,957 INFO parsed <Thu., Apr. 25, 2019, 03:09 PM> as <Thu., Apr. 25, 2019, 03:09 PM>
+2019-06-03 17:42:36,957 INFO parsed <Tue., Apr. 23, 2019, 03:03 PM> as <Tue., Apr. 23, 2019, 03:03 PM>
+2019-06-03 17:42:36,957 INFO parsed <Thu., May. 23, 2019, 12:11 PM> as <Thu., May. 23, 2019, 12:11 PM>
+2019-06-03 17:42:36,957 INFO parsed <Mon., Apr. 29, 2019, 05:35 PM> as <Mon., Apr. 29, 2019, 05:35 PM>
+2019-06-03 17:42:36,957 INFO parsed <Mon., Apr. 29, 2019, 04:47 PM> as <Mon., Apr. 29, 2019, 04:47 PM>
+2019-06-03 17:42:36,958 INFO parsed <Mon., Jun. 03, 2019, 02:53 PM> as <Mon., Jun. 03, 2019, 02:53 PM>
+2019-06-03 17:42:36,958 INFO parsed <Tue., Apr. 30, 2019, 01:25 PM> as <Tue., Apr. 30, 2019, 01:25 PM>
+2019-06-03 17:42:36,958 INFO parsed <Fri., Mar. 22, 2019, 10:12 AM> as <Fri., Mar. 22, 2019, 10:12 AM>
+2019-06-03 17:42:36,958 INFO parsed <Mon., Apr. 29, 2019, 01:24 PM> as <Mon., Apr. 29, 2019, 01:24 PM>
+2019-06-03 17:42:36,958 INFO parsed <Tue., Apr. 16, 2019, 01:30 PM> as <Tue., Apr. 16, 2019, 01:30 PM>
+2019-06-03 17:42:36,958 INFO parsed <Mon., Apr. 29, 2019, 04:47 PM> as <Mon., Apr. 29, 2019, 04:47 PM>
+2019-06-03 17:42:36,958 INFO parsed <Mon., Apr. 29, 2019, 03:48 PM> as <Mon., Apr. 29, 2019, 03:48 PM>
+2019-06-03 17:42:36,958 INFO parsed <Thu., Jan. 17, 2019, 04:27 PM> as <Thu., Jan. 17, 2019, 04:27 PM>
+2019-06-03 17:42:36,958 INFO parsed <Tue., Jan. 15, 2019, 11:32 AM> as <Tue., Jan. 15, 2019, 11:32 AM>
+2019-06-03 17:42:36,959 INFO parsed <Thu., Jan. 17, 2019, 04:21 PM> as <Thu., Jan. 17, 2019, 04:21 PM>
+2019-06-03 17:42:36,959 INFO parsed <Mon., Jan. 14, 2019, 03:55 PM> as <Mon., Jan. 14, 2019, 03:55 PM>
+2019-06-03 17:42:36,959 INFO parsed <Tue., Apr. 30, 2019, 05:23 PM> as <Tue., Apr. 30, 2019, 05:23 PM>
+2019-06-03 17:42:36,959 INFO parsed <Fri., Feb. 08, 2019, 01:29 PM> as <Fri., Feb. 08, 2019, 01:29 PM>
+2019-06-03 17:42:36,959 INFO parsed <Fri., Jan. 25, 2019, 05:25 PM> as <Fri., Jan. 25, 2019, 05:25 PM>
+2019-06-03 17:42:36,959 INFO parsed <Fri., Mar. 15, 2019, 04:12 PM> as <Fri., Mar. 15, 2019, 04:12 PM>
+2019-06-03 17:42:36,959 INFO parsed <Fri., Mar. 15, 2019, 10:27 AM> as <Fri., Mar. 15, 2019, 10:27 AM>
+2019-06-03 17:42:36,959 INFO parsed <Mon., Apr. 01, 2019, 04:57 PM> as <Mon., Apr. 01, 2019, 04:57 PM>
+2019-06-03 17:42:36,959 INFO parsed <Thu., Jan. 24, 2019, 05:51 PM> as <Thu., Jan. 24, 2019, 05:51 PM>
+2019-06-03 17:42:36,960 INFO parsed <Wed., Jan. 23, 2019, 10:20 AM> as <Wed., Jan. 23, 2019, 10:20 AM>
+2019-06-03 17:42:36,960 INFO parsed <Fri., Jan. 25, 2019, 01:11 PM> as <Fri., Jan. 25, 2019, 01:11 PM>
+2019-06-03 17:42:36,960 INFO parsed <Fri., Jan. 25, 2019, 03:30 PM> as <Fri., Jan. 25, 2019, 03:30 PM>
+2019-06-03 17:42:36,960 INFO parsed <Wed., Jan. 23, 2019, 01:17 PM> as <Wed., Jan. 23, 2019, 01:17 PM>
+2019-06-03 17:42:36,960 INFO parsed <Tue., Apr. 09, 2019, 01:25 PM> as <Tue., Apr. 09, 2019, 01:25 PM>
+2019-06-03 17:42:36,960 INFO parsed <Thu., Feb. 07, 2019, 03:14 PM> as <Thu., Feb. 07, 2019, 03:14 PM>
+2019-06-03 17:42:36,960 INFO parsed <Wed., Jan. 23, 2019, 02:53 PM> as <Wed., Jan. 23, 2019, 02:53 PM>
+2019-06-03 17:42:36,961 INFO parsed <Thu., Jan. 24, 2019, 11:33 AM> as <Thu., Jan. 24, 2019, 11:33 AM>
+2019-06-03 17:42:36,961 INFO parsed <Wed., Mar. 20, 2019, 10:08 AM> as <Wed., Mar. 20, 2019, 10:08 AM>
+2019-06-03 17:42:36,961 INFO parsed <Tue., Jan. 22, 2019, 03:22 PM> as <Tue., Jan. 22, 2019, 03:22 PM>
+2019-06-03 17:42:36,961 INFO parsed <Tue., Mar. 19, 2019, 03:40 PM> as <Tue., Mar. 19, 2019, 03:40 PM>
+2019-06-03 17:42:36,961 INFO parsed <Tue., Mar. 19, 2019, 03:02 PM> as <Tue., Mar. 19, 2019, 03:02 PM>
+2019-06-03 17:42:36,961 INFO parsed <Wed., Mar. 20, 2019, 03:43 PM> as <Wed., Mar. 20, 2019, 03:43 PM>
+2019-06-03 17:42:36,961 INFO parsed <Wed., Mar. 20, 2019, 11:53 AM> as <Wed., Mar. 20, 2019, 11:53 AM>
+2019-06-03 17:42:36,961 INFO parsed <Wed., Mar. 20, 2019, 10:49 AM> as <Wed., Mar. 20, 2019, 10:49 AM>
+2019-06-03 17:42:36,961 INFO parsed <Wed., Mar. 20, 2019, 10:20 AM> as <Wed., Mar. 20, 2019, 10:20 AM>
+2019-06-03 17:42:36,962 INFO parsed <Thu., Jan. 17, 2019, 10:32 AM> as <Thu., Jan. 17, 2019, 10:32 AM>
+2019-06-03 17:42:36,962 INFO parsed <Thu., Jan. 17, 2019, 03:02 PM> as <Thu., Jan. 17, 2019, 03:02 PM>
+2019-06-03 17:42:36,962 INFO parsed <Mon., Mar. 18, 2019, 12:37 PM> as <Mon., Mar. 18, 2019, 12:37 PM>
+2019-06-03 17:42:36,962 INFO parsed <Mon., Mar. 18, 2019, 12:37 PM> as <Mon., Mar. 18, 2019, 12:37 PM>
+2019-06-03 17:42:36,962 INFO parsed <Tue., Mar. 19, 2019, 02:53 PM> as <Tue., Mar. 19, 2019, 02:53 PM>
+2019-06-03 17:42:36,962 INFO parsed <Tue., Mar. 19, 2019, 02:50 PM> as <Tue., Mar. 19, 2019, 02:50 PM>
+2019-06-03 17:42:36,962 INFO parsed <Tue., Mar. 19, 2019, 10:24 AM> as <Tue., Mar. 19, 2019, 10:24 AM>
+2019-06-03 17:42:36,962 INFO parsed <Thu., Jan. 31, 2019, 11:10 AM> as <Thu., Jan. 31, 2019, 11:10 AM>
+2019-06-03 17:42:36,963 INFO parsed <Thu., Mar. 21, 2019, 03:38 PM> as <Thu., Mar. 21, 2019, 03:38 PM>
+2019-06-03 17:42:36,963 INFO parsed <Tue., Apr. 16, 2019, 11:13 AM> as <Tue., Apr. 16, 2019, 11:13 AM>
+2019-06-03 17:42:36,963 INFO parsed <Thu., Apr. 25, 2019, 04:34 PM> as <Thu., Apr. 25, 2019, 04:34 PM>
+2019-06-03 17:42:36,963 INFO parsed <Mon., Mar. 25, 2019, 03:18 PM> as <Mon., Mar. 25, 2019, 03:18 PM>
+2019-06-03 17:42:36,963 INFO parsed <Mon., Apr. 15, 2019, 05:26 PM> as <Mon., Apr. 15, 2019, 05:26 PM>
+2019-06-03 17:42:36,963 INFO parsed <Tue., Apr. 16, 2019, 10:37 AM> as <Tue., Apr. 16, 2019, 10:37 AM>
+2019-06-03 17:42:36,963 INFO parsed <Mon., Feb. 04, 2019, 02:26 PM> as <Mon., Feb. 04, 2019, 02:26 PM>
+2019-06-03 17:42:36,963 INFO parsed <Mon., Mar. 18, 2019, 12:36 PM> as <Mon., Mar. 18, 2019, 12:36 PM>
+2019-06-03 17:42:36,963 INFO parsed <Mon., Mar. 11, 2019, 04:04 PM> as <Mon., Mar. 11, 2019, 04:04 PM>
+2019-06-03 17:42:36,964 INFO parsed <Fri., Mar. 08, 2019, 11:59 AM> as <Fri., Mar. 08, 2019, 11:59 AM>
+2019-06-03 17:42:36,964 INFO parsed <Tue., Mar. 05, 2019, 04:22 PM> as <Tue., Mar. 05, 2019, 04:22 PM>
+2019-06-03 17:42:36,964 INFO parsed <Tue., Mar. 19, 2019, 11:38 AM> as <Tue., Mar. 19, 2019, 11:38 AM>
+2019-06-03 17:42:36,964 INFO parsed <Tue., Mar. 19, 2019, 11:37 AM> as <Tue., Mar. 19, 2019, 11:37 AM>
+2019-06-03 17:42:36,964 INFO parsed <Thu., Mar. 14, 2019, 10:58 AM> as <Thu., Mar. 14, 2019, 10:58 AM>
+2019-06-03 17:42:36,964 INFO parsed <Thu., Mar. 14, 2019, 12:07 PM> as <Thu., Mar. 14, 2019, 12:07 PM>
+2019-06-03 17:42:36,964 INFO parsed <Wed., Feb. 27, 2019, 02:41 PM> as <Wed., Feb. 27, 2019, 02:41 PM>
+2019-06-03 17:42:36,964 INFO parsed <Tue., Mar. 05, 2019, 10:10 AM> as <Tue., Mar. 05, 2019, 10:10 AM>
+2019-06-03 17:42:36,964 INFO parsed <Wed., Mar. 13, 2019, 11:33 AM> as <Wed., Mar. 13, 2019, 11:33 AM>
+2019-06-03 17:42:36,965 INFO parsed <Wed., Mar. 06, 2019, 06:03 PM> as <Wed., Mar. 06, 2019, 06:03 PM>
+2019-06-03 17:42:36,965 INFO parsed <Thu., Mar. 14, 2019, 10:43 AM> as <Thu., Mar. 14, 2019, 10:43 AM>
+2019-06-03 17:42:36,965 INFO parsed <Wed., Mar. 13, 2019, 03:39 PM> as <Wed., Mar. 13, 2019, 03:39 PM>
+2019-06-03 17:42:36,965 INFO parsed <Tue., Mar. 19, 2019, 10:29 AM> as <Tue., Mar. 19, 2019, 10:29 AM>
+2019-06-03 17:42:36,965 INFO parsed <Wed., Mar. 13, 2019, 05:24 PM> as <Wed., Mar. 13, 2019, 05:24 PM>
+2019-06-03 17:42:36,965 INFO parsed <Mon., Feb. 18, 2019, 03:55 PM> as <Mon., Feb. 18, 2019, 03:55 PM>
+2019-06-03 17:42:36,965 INFO parsed <Mon., Feb. 18, 2019, 03:35 PM> as <Mon., Feb. 18, 2019, 03:35 PM>
+2019-06-03 17:42:36,965 INFO parsed <Tue., Feb. 19, 2019, 03:34 PM> as <Tue., Feb. 19, 2019, 03:34 PM>
+2019-06-03 17:42:36,966 INFO parsed <Mon., Apr. 15, 2019, 01:01 PM> as <Mon., Apr. 15, 2019, 01:01 PM>
+2019-06-03 17:42:36,966 INFO parsed <Fri., Mar. 15, 2019, 12:13 PM> as <Fri., Mar. 15, 2019, 12:13 PM>
+2019-06-03 17:42:36,966 INFO parsed <Fri., Mar. 15, 2019, 12:24 PM> as <Fri., Mar. 15, 2019, 12:24 PM>
+2019-06-03 17:42:36,966 INFO parsed <Mon., Feb. 04, 2019, 12:55 PM> as <Mon., Feb. 04, 2019, 12:55 PM>
+2019-06-03 17:42:36,966 INFO parsed <Mon., Apr. 15, 2019, 03:05 PM> as <Mon., Apr. 15, 2019, 03:05 PM>
+2019-06-03 17:42:36,966 INFO parsed <Tue., Feb. 12, 2019, 02:57 PM> as <Tue., Feb. 12, 2019, 02:57 PM>
+2019-06-03 17:42:36,966 INFO parsed <Tue., Mar. 26, 2019, 10:38 AM> as <Tue., Mar. 26, 2019, 10:38 AM>
+2019-06-03 17:42:36,966 INFO parsed <Fri., Feb. 08, 2019, 02:52 PM> as <Fri., Feb. 08, 2019, 02:52 PM>
+2019-06-03 17:42:36,991 INFO reparsing
+2019-06-03 17:43:04,504 INFO MODIFIED sublime_urtext.py - Updating the project object
+2019-06-03 17:43:04,505 INFO Urtext not including sublime_urtext.py
+2019-06-03 17:43:04,531 INFO reparsing
+2019-06-03 17:44:22,544 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:44:22,544 INFO Root node without ID: .gitignore
+2019-06-03 17:44:22,544 INFO Root node without ID: .gitmodules
+2019-06-03 17:44:22,545 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:44:22,545 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:44:22,545 INFO Root node without ID: dependencies.json
+2019-06-03 17:44:22,545 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:44:22,547 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:44:22,547 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:44:22,550 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:44:22,551 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:44:22,552 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:44:22,552 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:44:22,552 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:44:22,556 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:44:24,430 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:44:24,559 INFO Node missing ID in urtext_log.txt
+ess Ctrl-U. }}
+            ^
+2019-06-03 17:44:24,560 INFO parsed <Tue., Apr. 09, 2019, 01:25 PM> as <Tue., Apr. 09, 2019, 01:25 PM>
+2019-06-03 17:44:24,560 INFO parsed <Thu., Feb. 07, 2019, 03:14 PM> as <Thu., Feb. 07, 2019, 03:14 PM>
+2019-06-03 17:44:24,560 INFO parsed <Fri., Feb. 08, 2019, 02:52 PM> as <Fri., Feb. 08, 2019, 02:52 PM>
+2019-06-03 17:44:24,560 INFO parsed <Tue., Feb. 12, 2019, 02:57 PM> as <Tue., Feb. 12, 2019, 02:57 PM>
+2019-06-03 17:44:24,560 INFO parsed <Fri., Feb. 08, 2019, 04:32 PM> as <Fri., Feb. 08, 2019, 04:32 PM>
+2019-06-03 17:44:24,560 INFO parsed <Mon., Feb. 18, 2019, 03:55 PM> as <Mon., Feb. 18, 2019, 03:55 PM>
+2019-06-03 17:44:24,561 INFO parsed <Mon., Feb. 18, 2019, 03:35 PM> as <Mon., Feb. 18, 2019, 03:35 PM>
+2019-06-03 17:44:24,561 INFO parsed <Tue., Mar. 19, 2019, 10:29 AM> as <Tue., Mar. 19, 2019, 10:29 AM>
+2019-06-03 17:44:24,561 INFO parsed <Wed., Mar. 13, 2019, 05:24 PM> as <Wed., Mar. 13, 2019, 05:24 PM>
+2019-06-03 17:44:24,561 INFO parsed <Fri., Mar. 15, 2019, 12:13 PM> as <Fri., Mar. 15, 2019, 12:13 PM>
+2019-06-03 17:44:24,561 INFO parsed <Fri., Mar. 15, 2019, 12:24 PM> as <Fri., Mar. 15, 2019, 12:24 PM>
+2019-06-03 17:44:24,561 INFO parsed <Tue., Feb. 19, 2019, 03:34 PM> as <Tue., Feb. 19, 2019, 03:34 PM>
+2019-06-03 17:44:24,562 INFO parsed <Tue., Mar. 19, 2019, 10:24 AM> as <Tue., Mar. 19, 2019, 10:24 AM>
+2019-06-03 17:44:24,562 INFO parsed <Mon., Apr. 15, 2019, 01:01 PM> as <Mon., Apr. 15, 2019, 01:01 PM>
+2019-06-03 17:44:24,562 INFO parsed <Mon., Apr. 15, 2019, 03:05 PM> as <Mon., Apr. 15, 2019, 03:05 PM>
+2019-06-03 17:44:24,562 INFO parsed <Tue., Apr. 16, 2019, 11:13 AM> as <Tue., Apr. 16, 2019, 11:13 AM>
+2019-06-03 17:44:24,562 INFO parsed <Thu., Mar. 14, 2019, 10:58 AM> as <Thu., Mar. 14, 2019, 10:58 AM>
+2019-06-03 17:44:24,562 INFO parsed <Wed., Mar. 06, 2019, 06:03 PM> as <Wed., Mar. 06, 2019, 06:03 PM>
+2019-06-03 17:44:24,562 INFO parsed <Thu., Mar. 14, 2019, 10:43 AM> as <Thu., Mar. 14, 2019, 10:43 AM>
+2019-06-03 17:44:24,563 INFO parsed <Wed., Mar. 13, 2019, 03:39 PM> as <Wed., Mar. 13, 2019, 03:39 PM>
+2019-06-03 17:44:24,563 INFO parsed <Tue., Mar. 05, 2019, 10:10 AM> as <Tue., Mar. 05, 2019, 10:10 AM>
+2019-06-03 17:44:24,563 INFO parsed <Wed., Mar. 13, 2019, 11:33 AM> as <Wed., Mar. 13, 2019, 11:33 AM>
+2019-06-03 17:44:24,563 INFO parsed <Fri., Mar. 08, 2019, 11:59 AM> as <Fri., Mar. 08, 2019, 11:59 AM>
+2019-06-03 17:44:24,563 INFO parsed <Tue., Mar. 05, 2019, 04:22 PM> as <Tue., Mar. 05, 2019, 04:22 PM>
+2019-06-03 17:44:24,563 INFO parsed <Mon., Mar. 18, 2019, 12:36 PM> as <Mon., Mar. 18, 2019, 12:36 PM>
+2019-06-03 17:44:24,563 INFO parsed <Mon., Mar. 11, 2019, 04:04 PM> as <Mon., Mar. 11, 2019, 04:04 PM>
+2019-06-03 17:44:24,564 INFO parsed <Tue., Mar. 19, 2019, 11:37 AM> as <Tue., Mar. 19, 2019, 11:37 AM>
+2019-06-03 17:44:24,564 INFO parsed <Tue., Apr. 30, 2019, 05:23 PM> as <Tue., Apr. 30, 2019, 05:23 PM>
+2019-06-03 17:44:24,564 INFO parsed <Wed., Apr. 10, 2019, 12:28 PM> as <Wed., Apr. 10, 2019, 12:28 PM>
+2019-06-03 17:44:24,564 INFO parsed <Thu., Jan. 17, 2019, 10:32 AM> as <Thu., Jan. 17, 2019, 10:32 AM>
+2019-06-03 17:44:24,564 INFO parsed <Mon., Mar. 25, 2019, 03:18 PM> as <Mon., Mar. 25, 2019, 03:18 PM>
+2019-06-03 17:44:24,564 INFO parsed <Wed., May. 01, 2019, 12:42 PM> as <Wed., May. 01, 2019, 12:42 PM>
+2019-06-03 17:44:24,564 INFO parsed <Wed., May. 01, 2019, 12:18 PM> as <Wed., May. 01, 2019, 12:18 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Apr. 30, 2019, 05:28 PM> as <Tue., Apr. 30, 2019, 05:28 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Apr. 30, 2019, 05:36 PM> as <Tue., Apr. 30, 2019, 05:36 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Apr. 30, 2019, 05:36 PM> as <Tue., Apr. 30, 2019, 05:36 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Apr. 30, 2019, 05:26 PM> as <Tue., Apr. 30, 2019, 05:26 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Mar. 19, 2019, 02:53 PM> as <Tue., Mar. 19, 2019, 02:53 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Mar. 19, 2019, 02:50 PM> as <Tue., Mar. 19, 2019, 02:50 PM>
+2019-06-03 17:44:24,565 INFO parsed <Tue., Mar. 19, 2019, 03:40 PM> as <Tue., Mar. 19, 2019, 03:40 PM>
+2019-06-03 17:44:24,566 INFO parsed <Tue., Mar. 19, 2019, 03:02 PM> as <Tue., Mar. 19, 2019, 03:02 PM>
+2019-06-03 17:44:24,566 INFO parsed <Wed., Mar. 20, 2019, 10:08 AM> as <Wed., Mar. 20, 2019, 10:08 AM>
+2019-06-03 17:44:24,566 INFO parsed <Wed., Mar. 27, 2019, 02:37 PM> as <Wed., Mar. 27, 2019, 02:37 PM>
+2019-06-03 17:44:24,566 INFO parsed <Wed., Mar. 20, 2019, 10:49 AM> as <Wed., Mar. 20, 2019, 10:49 AM>
+2019-06-03 17:44:24,566 INFO parsed <Wed., Mar. 20, 2019, 10:20 AM> as <Wed., Mar. 20, 2019, 10:20 AM>
+2019-06-03 17:44:24,566 INFO parsed <Wed., Mar. 20, 2019, 03:43 PM> as <Wed., Mar. 20, 2019, 03:43 PM>
+2019-06-03 17:44:24,567 INFO parsed <Wed., Apr. 03, 2019, 02:35 PM> as <Wed., Apr. 03, 2019, 02:35 PM>
+2019-06-03 17:44:24,567 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:44:24,567 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:44:24,567 INFO parsed <Thu., Mar. 21, 2019, 11:56 AM> as <Thu., Mar. 21, 2019, 11:56 AM>
+2019-06-03 17:44:24,567 INFO parsed <Thu., Mar. 21, 2019, 03:38 PM> as <Thu., Mar. 21, 2019, 03:38 PM>
+2019-06-03 17:44:24,567 INFO parsed <Thu., Mar. 21, 2019, 03:39 PM> as <Thu., Mar. 21, 2019, 03:39 PM>
+2019-06-03 17:44:24,568 INFO parsed <Fri., Mar. 22, 2019, 10:00 AM> as <Fri., Mar. 22, 2019, 10:00 AM>
+2019-06-03 17:44:24,568 INFO parsed <Tue., Mar. 26, 2019, 10:38 AM> as <Tue., Mar. 26, 2019, 10:38 AM>
+2019-06-03 17:44:24,568 INFO parsed <Mon., Apr. 01, 2019, 04:57 PM> as <Mon., Apr. 01, 2019, 04:57 PM>
+2019-06-03 17:44:24,568 INFO parsed <Wed., Mar. 20, 2019, 05:20 PM> as <Wed., Mar. 20, 2019, 05:20 PM>
+2019-06-03 17:44:24,568 INFO parsed <Wed., Mar. 20, 2019, 05:34 PM> as <Wed., Mar. 20, 2019, 05:34 PM>
+2019-06-03 17:44:24,568 INFO parsed <Wed., Mar. 20, 2019, 05:51 PM> as <Wed., Mar. 20, 2019, 05:51 PM>
+2019-06-03 17:44:24,568 INFO parsed <Thu., Mar. 14, 2019, 12:07 PM> as <Thu., Mar. 14, 2019, 12:07 PM>
+2019-06-03 17:44:24,569 INFO parsed <Wed., Jan. 23, 2019, 02:53 PM> as <Wed., Jan. 23, 2019, 02:53 PM>
+2019-06-03 17:44:24,569 INFO parsed <Wed., Feb. 27, 2019, 02:41 PM> as <Wed., Feb. 27, 2019, 02:41 PM>
+2019-06-03 17:44:24,569 INFO parsed <Tue., Jan. 15, 2019, 03:44 PM> as <Tue., Jan. 15, 2019, 03:44 PM>
+2019-06-03 17:44:24,569 INFO parsed <Tue., Jan. 15, 2019, 11:32 AM> as <Tue., Jan. 15, 2019, 11:32 AM>
+2019-06-03 17:44:24,569 INFO parsed <Mon., Apr. 15, 2019, 05:26 PM> as <Mon., Apr. 15, 2019, 05:26 PM>
+2019-06-03 17:44:24,569 INFO parsed <Tue., Apr. 16, 2019, 01:30 PM> as <Tue., Apr. 16, 2019, 01:30 PM>
+2019-06-03 17:44:24,569 INFO parsed <Tue., Apr. 16, 2019, 10:37 AM> as <Tue., Apr. 16, 2019, 10:37 AM>
+2019-06-03 17:44:24,570 INFO parsed <Tue., Jan. 15, 2019, 04:03 PM> as <Tue., Jan. 15, 2019, 04:03 PM>
+2019-06-03 17:44:24,570 INFO parsed <Fri., Mar. 22, 2019, 10:12 AM> as <Fri., Mar. 22, 2019, 10:12 AM>
+2019-06-03 17:44:24,570 INFO parsed <Thu., May. 16, 2019, 01:27 PM> as <Thu., May. 16, 2019, 01:27 PM>
+2019-06-03 17:44:24,570 INFO parsed <Thu., May. 16, 2019, 01:22 PM> as <Thu., May. 16, 2019, 01:22 PM>
+2019-06-03 17:44:24,570 INFO parsed <Thu., May. 16, 2019, 10:11 AM> as <Thu., May. 16, 2019, 10:11 AM>
+2019-06-03 17:44:24,570 INFO parsed <Thu., May. 16, 2019, 10:11 AM> as <Thu., May. 16, 2019, 10:11 AM>
+2019-06-03 17:44:24,570 INFO parsed <Mon., May. 20, 2019, 01:40 PM> as <Mon., May. 20, 2019, 01:40 PM>
+2019-06-03 17:44:24,571 INFO parsed <Mon., May. 20, 2019, 11:06 AM> as <Mon., May. 20, 2019, 11:06 AM>
+2019-06-03 17:44:24,571 INFO parsed <Thu., May. 16, 2019, 03:57 PM> as <Thu., May. 16, 2019, 03:57 PM>
+2019-06-03 17:44:24,571 INFO parsed <Wed., May. 08, 2019, 11:06 AM> as <Wed., May. 08, 2019, 11:06 AM>
+2019-06-03 17:44:24,571 INFO parsed <Mon., May. 06, 2019, 04:17 PM> as <Mon., May. 06, 2019, 04:17 PM>
+2019-06-03 17:44:24,571 INFO parsed <Mon., May. 06, 2019, 03:42 PM> as <Mon., May. 06, 2019, 03:42 PM>
+2019-06-03 17:44:24,571 INFO parsed <Tue., Apr. 30, 2019, 05:49 PM> as <Tue., Apr. 30, 2019, 05:49 PM>
+2019-06-03 17:44:24,571 INFO parsed <Mon., May. 13, 2019, 11:25 AM> as <Mon., May. 13, 2019, 11:25 AM>
+2019-06-03 17:44:24,572 INFO parsed <Mon., May. 13, 2019, 10:43 AM> as <Mon., May. 13, 2019, 10:43 AM>
+2019-06-03 17:44:24,572 INFO parsed <Thu., May. 09, 2019, 10:43 AM> as <Thu., May. 09, 2019, 10:43 AM>
+2019-06-03 17:44:24,572 INFO parsed <Wed., May. 08, 2019, 12:11 PM> as <Wed., May. 08, 2019, 12:11 PM>
+2019-06-03 17:44:24,572 INFO parsed <Mon., Apr. 29, 2019, 04:47 PM> as <Mon., Apr. 29, 2019, 04:47 PM>
+2019-06-03 17:44:24,572 INFO parsed <Mon., Apr. 29, 2019, 03:48 PM> as <Mon., Apr. 29, 2019, 03:48 PM>
+2019-06-03 17:44:24,572 INFO parsed <Mon., Apr. 29, 2019, 01:24 PM> as <Mon., Apr. 29, 2019, 01:24 PM>
+2019-06-03 17:44:24,572 INFO parsed <Thu., Apr. 25, 2019, 04:34 PM> as <Thu., Apr. 25, 2019, 04:34 PM>
+2019-06-03 17:44:24,573 INFO parsed <Tue., Apr. 30, 2019, 01:25 PM> as <Tue., Apr. 30, 2019, 01:25 PM>
+2019-06-03 17:44:24,573 INFO parsed <Mon., Apr. 29, 2019, 05:35 PM> as <Mon., Apr. 29, 2019, 05:35 PM>
+2019-06-03 17:44:24,573 INFO parsed <Mon., Apr. 29, 2019, 04:47 PM> as <Mon., Apr. 29, 2019, 04:47 PM>
+2019-06-03 17:44:24,573 INFO parsed <Mon., Jun. 03, 2019, 02:53 PM> as <Mon., Jun. 03, 2019, 02:53 PM>
+2019-06-03 17:44:24,573 INFO parsed <Mon., Feb. 04, 2019, 12:55 PM> as <Mon., Feb. 04, 2019, 12:55 PM>
+2019-06-03 17:44:24,573 INFO parsed <Mon., Feb. 04, 2019, 02:26 PM> as <Mon., Feb. 04, 2019, 02:26 PM>
+2019-06-03 17:44:24,573 INFO parsed <Thu., Apr. 25, 2019, 03:09 PM> as <Thu., Apr. 25, 2019, 03:09 PM>
+2019-06-03 17:44:24,574 INFO parsed <Tue., Apr. 23, 2019, 03:03 PM> as <Tue., Apr. 23, 2019, 03:03 PM>
+2019-06-03 17:44:24,574 INFO parsed <Tue., Apr. 16, 2019, 10:37 AM> as <Tue., Apr. 16, 2019, 10:37 AM>
+2019-06-03 17:44:24,574 INFO parsed <Tue., Apr. 30, 2019, 05:22 PM> as <Tue., Apr. 30, 2019, 05:22 PM>
+2019-06-03 17:44:24,574 INFO parsed <Mon., Jan. 14, 2019, 03:55 PM> as <Mon., Jan. 14, 2019, 03:55 PM>
+2019-06-03 17:44:24,574 INFO parsed <Tue., Mar. 26, 2019, 04:56 PM> as <Tue., Mar. 26, 2019, 04:56 PM>
+2019-06-03 17:44:24,574 INFO parsed <Wed., Mar. 27, 2019, 10:03 AM> as <Wed., Mar. 27, 2019, 10:03 AM>
+2019-06-03 17:44:24,575 INFO parsed <Tue., Mar. 19, 2019, 11:38 AM> as <Tue., Mar. 19, 2019, 11:38 AM>
+2019-06-03 17:44:24,575 INFO parsed <Wed., Mar. 27, 2019, 10:40 AM> as <Wed., Mar. 27, 2019, 10:40 AM>
+2019-06-03 17:44:24,575 INFO parsed <Thu., Jan. 17, 2019, 04:27 PM> as <Thu., Jan. 17, 2019, 04:27 PM>
+2019-06-03 17:44:24,575 INFO parsed <Fri., Feb. 08, 2019, 01:29 PM> as <Fri., Feb. 08, 2019, 01:29 PM>
+2019-06-03 17:44:24,575 INFO parsed <Thu., Jan. 31, 2019, 11:10 AM> as <Thu., Jan. 31, 2019, 11:10 AM>
+2019-06-03 17:44:24,575 INFO parsed <Fri., Mar. 15, 2019, 10:27 AM> as <Fri., Mar. 15, 2019, 10:27 AM>
+2019-06-03 17:44:24,575 INFO parsed <Mon., Jan. 28, 2019, 11:50 AM> as <Mon., Jan. 28, 2019, 11:50 AM>
+2019-06-03 17:44:24,576 INFO parsed <Fri., Jan. 25, 2019, 05:25 PM> as <Fri., Jan. 25, 2019, 05:25 PM>
+2019-06-03 17:44:24,576 INFO parsed <Fri., Mar. 15, 2019, 04:12 PM> as <Fri., Mar. 15, 2019, 04:12 PM>
+2019-06-03 17:44:24,576 INFO parsed <Fri., Jan. 25, 2019, 01:11 PM> as <Fri., Jan. 25, 2019, 01:11 PM>
+2019-06-03 17:44:24,576 INFO parsed <Fri., Jan. 25, 2019, 03:30 PM> as <Fri., Jan. 25, 2019, 03:30 PM>
+2019-06-03 17:44:24,576 INFO parsed <Thu., Jan. 24, 2019, 05:51 PM> as <Thu., Jan. 24, 2019, 05:51 PM>
+2019-06-03 17:44:24,576 INFO parsed <Wed., Feb. 06, 2019, 12:23 PM> as <Wed., Feb. 06, 2019, 12:23 PM>
+2019-06-03 17:44:24,576 INFO parsed <Wed., Jan. 23, 2019, 02:53 PM> as <Wed., Jan. 23, 2019, 02:53 PM>
+2019-06-03 17:44:24,577 INFO parsed <Thu., Jan. 24, 2019, 11:33 AM> as <Thu., Jan. 24, 2019, 11:33 AM>
+2019-06-03 17:44:24,577 INFO parsed <Wed., Jan. 23, 2019, 01:17 PM> as <Wed., Jan. 23, 2019, 01:17 PM>
+2019-06-03 17:44:24,577 INFO parsed <Wed., Mar. 27, 2019, 05:32 PM> as <Wed., Mar. 27, 2019, 05:32 PM>
+2019-06-03 17:44:24,577 INFO parsed <Thu., May. 23, 2019, 12:11 PM> as <Thu., May. 23, 2019, 12:11 PM>
+2019-06-03 17:44:24,577 INFO parsed <Wed., Jan. 23, 2019, 10:20 AM> as <Wed., Jan. 23, 2019, 10:20 AM>
+2019-06-03 17:44:24,577 INFO parsed <Tue., Jan. 22, 2019, 12:37 PM> as <Tue., Jan. 22, 2019, 12:37 PM>
+2019-06-03 17:44:24,577 INFO parsed <Wed., May. 22, 2019, 12:26 PM> as <Wed., May. 22, 2019, 12:26 PM>
+2019-06-03 17:44:24,578 INFO parsed <Wed., Feb. 20, 2019, 10:40 AM> as <Wed., Feb. 20, 2019, 10:40 AM>
+2019-06-03 17:44:24,578 INFO parsed <Wed., Apr. 03, 2019, 10:55 AM> as <Wed., Apr. 03, 2019, 10:55 AM>
+2019-06-03 17:44:24,578 INFO parsed <Thu., Jan. 17, 2019, 04:21 PM> as <Thu., Jan. 17, 2019, 04:21 PM>
+2019-06-03 17:44:24,578 INFO parsed <Thu., May. 23, 2019, 04:48 PM> as <Thu., May. 23, 2019, 04:48 PM>
+2019-06-03 17:44:24,578 INFO parsed <Thu., Jan. 17, 2019, 03:02 PM> as <Thu., Jan. 17, 2019, 03:02 PM>
+2019-06-03 17:44:24,578 INFO parsed <Mon., Mar. 18, 2019, 12:37 PM> as <Mon., Mar. 18, 2019, 12:37 PM>
+2019-06-03 17:44:24,578 INFO parsed <Mon., Mar. 18, 2019, 12:37 PM> as <Mon., Mar. 18, 2019, 12:37 PM>
+2019-06-03 17:44:24,579 INFO parsed <Wed., Mar. 20, 2019, 11:53 AM> as <Wed., Mar. 20, 2019, 11:53 AM>
+2019-06-03 17:44:24,579 INFO parsed <Tue., May. 21, 2019, 05:38 PM> as <Tue., May. 21, 2019, 05:38 PM>
+2019-06-03 17:44:24,579 INFO parsed <Tue., May. 21, 2019, 05:15 PM> as <Tue., May. 21, 2019, 05:15 PM>
+2019-06-03 17:44:24,579 INFO parsed <Tue., Jan. 22, 2019, 03:27 PM> as <Tue., Jan. 22, 2019, 03:27 PM>
+2019-06-03 17:44:24,579 INFO parsed <Tue., Jan. 22, 2019, 10:04 AM> as <Tue., Jan. 22, 2019, 10:04 AM>
+2019-06-03 17:44:24,579 INFO parsed <Wed., Feb. 06, 2019, 12:52 PM> as <Wed., Feb. 06, 2019, 12:52 PM>
+2019-06-03 17:44:24,580 INFO parsed <Tue., Jan. 22, 2019, 03:22 PM> as <Tue., Jan. 22, 2019, 03:22 PM>
+2019-06-03 17:44:24,580 INFO parsed <Fri., Jan. 18, 2019, 05:57 PM> as <Fri., Jan. 18, 2019, 05:57 PM>
+2019-06-03 17:44:24,580 INFO reparsing
+2019-06-03 17:44:34,988 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:44:35,104 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:44:35,105 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:44:35,123 INFO reparsing
+2019-06-03 17:44:35,123 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:44:35,125 INFO reparsing
+2019-06-03 17:47:08,314 INFO MODIFIED sublime_urtext.py - Updating the project object
+2019-06-03 17:47:08,314 INFO Urtext not including sublime_urtext.py
+2019-06-03 17:47:08,334 INFO reparsing
+2019-06-03 17:47:08,335 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:47:08,337 INFO reparsing
+2019-06-03 17:47:08,404 INFO MODIFIED README.txt - Updating the project object
+2019-06-03 17:47:08,421 INFO reparsing
+2019-06-03 17:47:08,422 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:47:08,439 INFO reparsing
+2019-06-03 17:47:08,439 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:47:08,441 INFO reparsing
+2019-06-03 17:49:55,795 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:49:55,795 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:49:55,796 INFO Root node without ID: .gitignore
+2019-06-03 17:49:55,796 INFO Root node without ID: .gitignore
+2019-06-03 17:49:55,796 INFO Root node without ID: .gitmodules
+2019-06-03 17:49:55,796 INFO Root node without ID: .gitmodules
+2019-06-03 17:49:55,797 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:49:55,797 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:49:55,797 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:49:55,797 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:49:55,797 INFO Root node without ID: dependencies.json
+2019-06-03 17:49:55,797 INFO Root node without ID: dependencies.json
+2019-06-03 17:49:55,798 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:49:55,798 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:49:55,799 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:49:55,799 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:49:55,799 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:49:55,799 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:49:55,803 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:49:55,803 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:49:55,804 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:49:55,804 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:49:55,804 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:49:55,804 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:49:55,805 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:49:55,805 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:49:55,805 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:49:55,805 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:49:55,809 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:49:55,809 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:49:58,363 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:49:58,363 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:49:58,487 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:49:58,487 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:49:58,487 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,487 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,507 INFO reparsing
+2019-06-03 17:49:58,507 INFO reparsing
+2019-06-03 17:49:58,508 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,508 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,510 INFO reparsing
+2019-06-03 17:49:58,510 INFO reparsing
+2019-06-03 17:49:58,550 INFO MODIFIED README.txt - Updating the project object
+2019-06-03 17:49:58,550 INFO MODIFIED README.txt - Updating the project object
+2019-06-03 17:49:58,568 INFO reparsing
+2019-06-03 17:49:58,568 INFO reparsing
+2019-06-03 17:49:58,568 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,568 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,587 INFO reparsing
+2019-06-03 17:49:58,587 INFO reparsing
+2019-06-03 17:49:58,588 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,588 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:49:58,590 INFO reparsing
+2019-06-03 17:49:58,590 INFO reparsing
+2019-06-03 17:50:31,867 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:50:31,867 INFO Root node without ID: .gitignore
+2019-06-03 17:50:31,868 INFO Root node without ID: .gitmodules
+2019-06-03 17:50:31,868 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:50:31,868 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:50:31,869 INFO Root node without ID: dependencies.json
+2019-06-03 17:50:31,869 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:50:31,870 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:50:31,870 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:50:31,873 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:50:31,874 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:50:31,875 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:50:31,875 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:50:31,875 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:50:31,879 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:50:34,419 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:50:34,536 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:50:34,536 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:50:34,553 INFO reparsing
+2019-06-03 17:50:34,553 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:50:34,555 INFO reparsing
+2019-06-03 17:50:59,978 INFO MODIFIED sublime_urtext.py - Updating the project object
+2019-06-03 17:50:59,978 INFO Urtext not including sublime_urtext.py
+2019-06-03 17:50:59,996 INFO reparsing
+2019-06-03 17:50:59,997 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:50:59,999 INFO reparsing
+2019-06-03 17:51:40,184 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:51:40,298 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:51:40,299 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:51:40,316 INFO reparsing
+2019-06-03 17:51:40,316 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:51:40,318 INFO reparsing
+2019-06-03 17:53:00,355 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:53:00,355 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:53:00,355 INFO Root node without ID: .gitignore
+2019-06-03 17:53:00,355 INFO Root node without ID: .gitignore
+2019-06-03 17:53:00,356 INFO Root node without ID: .gitmodules
+2019-06-03 17:53:00,356 INFO Root node without ID: .gitmodules
+2019-06-03 17:53:00,356 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:53:00,356 INFO Root node without ID: Default.sublime-keymap
+2019-06-03 17:53:00,356 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:53:00,356 INFO Root node without ID: Default.sublime-settings
+2019-06-03 17:53:00,357 INFO Root node without ID: dependencies.json
+2019-06-03 17:53:00,357 INFO Root node without ID: dependencies.json
+2019-06-03 17:53:00,357 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:53:00,357 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-03 17:53:00,358 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:53:00,358 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:53:00,358 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:53:00,358 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-03 17:53:00,362 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:53:00,362 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-03 17:53:00,363 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:53:00,363 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-03 17:53:00,363 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:53:00,363 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-03 17:53:00,364 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:53:00,364 INFO Root node without ID: tags.sublime-snippet
+2019-06-03 17:53:00,364 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:53:00,364 INFO Root node without ID: urtext.tmPreferences
+2019-06-03 17:53:00,367 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:53:00,367 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-03 17:53:09,171 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:53:09,171 INFO UnicodeDecode Error .DS_Store
+2019-06-03 17:53:09,286 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:53:09,286 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 17:53:09,286 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:53:09,286 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:53:09,303 INFO reparsing
+2019-06-03 17:53:09,303 INFO reparsing
+2019-06-03 17:53:09,303 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:53:09,303 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 17:53:09,305 INFO reparsing
+2019-06-03 17:53:09,305 INFO reparsing
+2019-06-03 18:06:25,457 INFO UnicodeDecode Error .DS_Store
+2019-06-03 18:06:25,573 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-03 18:06:25,575 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-03 18:06:25,577 INFO reparsing
+2019-06-03 18:06:25,594 INFO reparsing
+2019-06-03 18:06:25,594 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>

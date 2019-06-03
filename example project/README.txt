@@ -64,7 +64,6 @@ kind: dynamic
 defined in: >01b
  --/ }}
 
-
 {{ Add:
   That Urtext syntax has to be selected for syntax highlighting to work.
 
@@ -88,35 +87,34 @@ defined in: >01b
 
         The original requirements were stringent enough to eliminate every tool already available:
 
-            All in plain text. No proprietary file formats or structure. Usable across multiple platforms and devices.
+            - All in plain text. No proprietary file formats or structure. Usable across multiple platforms and devices.
 
-            Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform writing without adapting to a preexisting interface or feature set. Permit gradual aggregation of content with other content.
+            - Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform writing without adapting to a preexisting - interface or feature set. Permit gradual aggregation of content with other content.
 
-            Be undistracted by interacting with the file system (naming, saving, organizing of files).  
+            - Be undistracted by interacting with the file system (naming, saving, organizing of files).  
+ 
+            - Customizable metadata, without relying on the file system.
 
-            Customizable metadata, without relying on the file system.
+            - Content at least partially editable and organizable from mobile devices.        
 
-            Content at least partially editable and organizable from mobile devices.        
+            - Be capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to - anything.         
 
-            Be capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to anything.         
+            - Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical way, such as wiki or flat database style. Files - must be able to able to have multiple, not just single, tree-like or other relationships.
+            - Extensible and customizable. This year's needs might not be next year's.
 
-            Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical way, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
-            
-            Extensible and customizable. This year's needs might not be next year's.
+            - Does not require years to master. (Looking at you Org Mode.)
 
-            Does not require years to master. (Looking at you Org Mode.)
-
-            Future-proof. No reliance on anything that may no longer exist in 5 or 100 years.    /--ID:005--/}}
+            - Future-proof. No reliance on anything that may no longer exist in 5 or 100 years.    /--ID:005--/}}
 
     {{  Additional Features:
 
-            In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
+            - In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
 
-            Basic syntax highlighting, if only to delineate content from structure/syntax.
+            - Basic syntax highlighting, if only to delineate content from structure/syntax.
 
-            Fuzzy search within files. This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor environment.   
+            - Fuzzy search within files. This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor environment.   
 
-            Version control (using Git, for example). This possiblity is implicit in the commitment to plaintext but important enough to mention.
+            - Version control (using Git, for example). This possiblity is implicit in the commitment to plaintext but important enough to mention.
                                                                                                /--ID:006--/}}
 
     {{  Characteristics
@@ -137,15 +135,13 @@ defined in: >01b
 
             No subfolder organization scheme. All files are kept in a single folder. Organization of files, file groups, and file relationships is entirely done within the system. This makes it easy to sync and use across devices and platforms where file and folder paths may not always resolve uniformly, and it avoids broken file paths from moved/renamed/reorganized files.
 
-            Filenaming is automatic using a 14-digit derivation of creation time, which also ensures every filename is unique. Further manual naming is possible, provided the 14 digit string is retained in the filename.
-           
-                                                                                        /-- ID:007 --/ }}
+            Filenaming is automatic using a 14-digit derivation of creation time, which also ensures every filename is unique. Further manual naming is possible, provided the 14 digit string is retained in the filename./-- ID:007 --/ }}
                                                                                              /--ID:008--/}} 
                                                                                                                       }}
 
 {{  Using this document
 
-    This file is an Urtext node with several sub-nodes. It can be used in Sublime Text to try out the features described.
+    This file is an Urtext file node with several inline nodes. It can be used in Sublime Text to try out the features described.
 
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a 14-digit link like.)
                                                                                                /--ID:009--/}}
@@ -156,18 +152,19 @@ defined in: >01b
 
     {{  Empty Project
 
-        The package will use any existing open folder as a project. You don't need to explicitly set a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. 
+        The package will use any existing open folder as a project. You don't need to define a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. 
     
      /-- ID:00a --/ }}
     
      {{ Importing existing files
 
-        To use existing plaintext files, the filenames need to contain a 14-digit Node ID. Sublime Urtext will add this automatically from on the file's creation/modification date and time by selecting "Urtext : Import Project" from the Sublime Command palette. Note that the renaming will occur without a confirmation dialog.
+        To use existing plaintext files, you must add metadata (>00x) containing a Node ID. Sublime Urtext can append metadata automatically to the end of existing text files by selecting "Urtext : Import Project" from the Sublime Command palette. Appending will append an `ID` (>01e) and `Timestamp` (>00j) metadata value to the node.
 
-      /-- ID:00b --/ }}
+        Note that the append will occur without a confirmation dialog, so if you are just experimenting with this system, consider making a copy of your file folder so you can revert without removing the metadata.
 
+        /-- ID:00b --/ }}
 
-    For syntax and node depth highlighting that makes using Urtext easier, this package adds customizations to two of Sublime's default color schemes. Use the "Sixteen" color scheme for light or "Monokai" for dark. (Select the scheme using Preferences -> Color Scheme ...) See >01g for more on syntax highlighting. 
+    For syntax and node depth highlighting that makes using Urtext easier in Sublime, this package adds customizations to two of Sublime's default color schemes. Use the "Sixteen" color scheme for light or "Monokai" for dark. (Select the scheme using Preferences -> Color Scheme ...) See >01g for more on syntax highlighting. 
                                                                                                /--ID:00c--/}}
 
 {{  Basics                                                                                       /--ID:00d--/
@@ -465,6 +462,8 @@ defined in: >01c
                                                                                                /--ID:01g--/}}
 
 {{ Formatting and Conventions
+
+      to be added
 
 
                                                                                             /-- ID:01h --/ }}

@@ -371,6 +371,18 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       path = get_path(self.window.active_view())
       title = self.menu.get_values_from_index(selected_option).title
       new_view = self.window.open_file(os.path.join(path, self.menu.get_values_from_index(selected_option).filename)) 
+
+      # delete any nodes in front of this one (making a new navigation branch)
+      del _UrtextProject.navigation[_UrtextProject.nav_index+1:]
+
+      # add the newly opened file as the new "HEAD"
+      _UrtextProject.navigation.append(self.menu.get_values_from_index(selected_option).node_id)
+      
+      # increment the index to match
+      _UrtextProject.nav_index += 1
+
+      print(_UrtextProject.navigation)
+
       self.locate_node(self.menu.get_values_from_index(selected_option).position, new_view, title)
 
     def locate_node(self, position, view, title):
@@ -694,10 +706,18 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
               'Could not open tab using your "web_browser_path" setting: {}'.format(browser_path))
       return
     if link[0] == 'NODE':
+
+      # delete any nodes in front of this one (making a new navigation branch)
       del _UrtextProject.navigation[_UrtextProject.nav_index+1:]
+
+      # add the newly opened file as the new "HEAD"
       _UrtextProject.navigation.append(link[1])
+      
+      # increment the index to match
       _UrtextProject.nav_index += 1
+
       print(_UrtextProject.navigation)
+
       open_urtext_node(self.view, link[1], link[2])
     
 
@@ -710,11 +730,13 @@ def open_urtext_node(view, node_id, position):
         view.sel().add(sublime.Region(int(position)))
       else:
         sublime.set_timeout(lambda: center_node(view, position), 10)
+  
   filename = _UrtextProject.get_file_name(node_id)
   if filename == None:
     return
   file_view = view.window().open_file(os.path.join(_UrtextProject.path, filename))
   position = int(position)
+
   center_node(file_view, position)
 
 
@@ -949,18 +971,65 @@ class NavigateBackwardCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return
-    if _UrtextProject.nav_index == 0:
+
+    # return if there are no saved locations
+    if len( _UrtextProject.navigation) == 0:
+      print('There is no nav history')
       return
+
+    print(_UrtextProject.nav_index)
+
+    # return if the index is already at the beginning
+    if _UrtextProject.nav_index == 0:
+      print('index is already at the beginning.')
+      return
+
+    # otherwise, move backwards one
     _UrtextProject.nav_index -= 1
+
+    # and open this node
     last_node = _UrtextProject.navigation[_UrtextProject.nav_index]          
-    open_urtext_node(self.view, last_node, 0)
+    position = _UrtextProject.nodes[last_node].ranges[0][0]
+    open_urtext_node(self.view, last_node, position)
 
 class NavigateForwardCommand(sublime_plugin.TextCommand):
   def run(self, edit):
+
     if refresh_project(self.view) == None :
       return
-    if _UrtextProject.nav_index == len(_UrtextProject.navigation):
+
+    # return if there are no saved locations
+    if len( _UrtextProject.navigation) == 0:
+      print('There is no more nav history')
       return
+
+    print(_UrtextProject.nav_index)
+
+    # return if the index is already at the end
+    if _UrtextProject.nav_index == len(_UrtextProject.navigation) - 1:
+      print('index is already at the end.')
+      return
+
+    # otherwise move it forward by one
     _UrtextProject.nav_index += 1
+
+    # and open this node
     last_node = _UrtextProject.navigation[_UrtextProject.nav_index]          
-    open_urtext_node(self.view, last_node, 0)
+    position = _UrtextProject.nodes[last_node].ranges[0][0]
+    open_urtext_node(self.view, last_node, position)
+
+class NavigateLastLinkCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+        return
+
+    # return only if there are no saved locations
+    if len( _UrtextProject.navigation) == 0: 
+      print('There is no more nav history')
+      return
+
+    # and open this node
+    last_node = _UrtextProject.navigation[_UrtextProject.nav_index]          
+    position = _UrtextProject.nodes[last_node].ranges[0][0]
+    open_urtext_node(self.view, last_node, position)
+
