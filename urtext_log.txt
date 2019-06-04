@@ -692,3 +692,581 @@ n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern,
 2019-06-03 18:06:25,577 INFO reparsing
 2019-06-03 18:06:25,594 INFO reparsing
 2019-06-03 18:06:25,594 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:55:44,568 INFO UnicodeDecode Error .DS_Store
+2019-06-04 16:55:44,569 INFO Root node without ID: .gitignore
+2019-06-04 16:55:44,569 INFO Root node without ID: .gitmodules
+2019-06-04 16:55:44,619 INFO Root node without ID: Default.sublime-keymap
+2019-06-04 16:55:44,638 INFO Root node without ID: Default.sublime-settings
+2019-06-04 16:55:44,639 INFO Root node without ID: dependencies.json
+2019-06-04 16:55:44,640 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-04 16:55:44,641 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 16:55:44,642 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-04 16:55:44,645 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-04 16:55:44,657 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-04 16:55:44,662 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-04 16:55:44,680 INFO Root node without ID: tags.sublime-snippet
+2019-06-04 16:55:44,701 INFO Root node without ID: urtext.tmPreferences
+2019-06-04 16:55:44,706 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 16:56:03,339 INFO UnicodeDecode Error .DS_Store
+2019-06-04 16:56:03,340 INFO Root node without ID: .gitignore
+2019-06-04 16:56:03,340 INFO Root node without ID: .gitmodules
+2019-06-04 16:56:03,341 INFO Root node without ID: Default.sublime-keymap
+2019-06-04 16:56:03,341 INFO Root node without ID: Default.sublime-settings
+2019-06-04 16:56:03,341 INFO Root node without ID: dependencies.json
+2019-06-04 16:56:03,341 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-04 16:56:03,342 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 16:56:03,345 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-04 16:56:03,348 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-04 16:56:03,350 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-04 16:56:03,350 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-04 16:56:03,350 INFO Root node without ID: tags.sublime-snippet
+2019-06-04 16:56:03,351 INFO Root node without ID: urtext.tmPreferences
+2019-06-04 16:56:03,354 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 16:56:06,651 INFO UnicodeDecode Error .DS_Store
+2019-06-04 16:56:06,769 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-04 16:56:06,770 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:56:06,792 INFO reparsing
+2019-06-04 16:56:06,793 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:56:06,811 INFO reparsing
+2019-06-04 16:56:06,811 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:56:12,097 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:56:12,118 INFO reparsing
+2019-06-04 16:56:12,120 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:56:12,139 INFO reparsing
+2019-06-04 16:56:12,139 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:56:12,161 INFO reparsing
+2019-06-04 16:56:12,161 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:20,154 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:57:20,174 INFO reparsing
+2019-06-04 16:57:20,174 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:20,195 INFO reparsing
+2019-06-04 16:57:20,196 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:20,214 INFO reparsing
+2019-06-04 16:57:20,215 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:29,994 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:57:30,016 INFO reparsing
+2019-06-04 16:57:30,017 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:30,036 INFO reparsing
+2019-06-04 16:57:30,036 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:30,055 INFO reparsing
+2019-06-04 16:57:30,055 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:30,056 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:57:30,072 INFO reparsing
+2019-06-04 16:57:30,073 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:30,090 INFO reparsing
+2019-06-04 16:57:30,091 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:30,108 INFO reparsing
+2019-06-04 16:57:30,109 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:48,385 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:57:48,407 INFO reparsing
+2019-06-04 16:57:48,408 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:48,426 INFO reparsing
+2019-06-04 16:57:48,427 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:48,445 INFO reparsing
+2019-06-04 16:57:48,445 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:53,817 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:57:53,838 INFO reparsing
+2019-06-04 16:57:53,839 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:53,858 INFO reparsing
+2019-06-04 16:57:53,858 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:57:53,876 INFO reparsing
+2019-06-04 16:57:53,876 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:03,537 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:03,559 INFO reparsing
+2019-06-04 16:58:03,560 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:03,578 INFO reparsing
+2019-06-04 16:58:03,579 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:03,596 INFO reparsing
+2019-06-04 16:58:03,597 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:08,545 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:08,567 INFO reparsing
+2019-06-04 16:58:08,568 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:08,588 INFO reparsing
+2019-06-04 16:58:08,589 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:08,607 INFO reparsing
+2019-06-04 16:58:08,608 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:10,985 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:11,006 INFO reparsing
+2019-06-04 16:58:11,007 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:11,026 INFO reparsing
+2019-06-04 16:58:11,027 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:11,045 INFO reparsing
+2019-06-04 16:58:11,045 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:13,521 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:13,544 INFO reparsing
+2019-06-04 16:58:13,545 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:13,564 INFO reparsing
+2019-06-04 16:58:13,564 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:13,582 INFO reparsing
+2019-06-04 16:58:13,582 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:14,775 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:14,799 INFO reparsing
+2019-06-04 16:58:14,800 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:14,819 INFO reparsing
+2019-06-04 16:58:14,819 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:14,838 INFO reparsing
+2019-06-04 16:58:14,838 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:38,905 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:38,925 INFO reparsing
+2019-06-04 16:58:38,925 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:38,944 INFO reparsing
+2019-06-04 16:58:38,944 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:38,962 INFO reparsing
+2019-06-04 16:58:38,962 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:43,696 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:58:43,719 INFO reparsing
+2019-06-04 16:58:43,720 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:43,739 INFO reparsing
+2019-06-04 16:58:43,739 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:58:43,757 INFO reparsing
+2019-06-04 16:58:43,757 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:02,774 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:59:02,794 INFO reparsing
+2019-06-04 16:59:02,795 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:02,813 INFO reparsing
+2019-06-04 16:59:02,813 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:02,831 INFO reparsing
+2019-06-04 16:59:02,831 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:28,866 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:59:28,885 INFO reparsing
+2019-06-04 16:59:28,886 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:28,905 INFO reparsing
+2019-06-04 16:59:28,905 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:28,923 INFO reparsing
+2019-06-04 16:59:28,923 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:38,472 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:59:38,494 INFO reparsing
+2019-06-04 16:59:38,495 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:38,515 INFO reparsing
+2019-06-04 16:59:38,515 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:38,533 INFO reparsing
+2019-06-04 16:59:38,533 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:49,735 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 16:59:49,760 INFO reparsing
+2019-06-04 16:59:49,762 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:49,782 INFO reparsing
+2019-06-04 16:59:49,783 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 16:59:49,800 INFO reparsing
+2019-06-04 16:59:49,800 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:04,315 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:00:04,334 INFO reparsing
+2019-06-04 17:00:04,335 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:04,354 INFO reparsing
+2019-06-04 17:00:04,355 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:04,372 INFO reparsing
+2019-06-04 17:00:04,372 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:23,365 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:00:23,385 INFO reparsing
+2019-06-04 17:00:23,385 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:23,404 INFO reparsing
+2019-06-04 17:00:23,404 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:23,422 INFO reparsing
+2019-06-04 17:00:23,422 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:27,953 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:00:27,974 INFO reparsing
+2019-06-04 17:00:27,975 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:27,994 INFO reparsing
+2019-06-04 17:00:27,994 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:00:28,012 INFO reparsing
+2019-06-04 17:00:28,012 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:01:48,033 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:01:48,054 INFO reparsing
+2019-06-04 17:01:48,054 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:01:48,073 INFO reparsing
+2019-06-04 17:01:48,073 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:01:48,091 INFO reparsing
+2019-06-04 17:01:48,091 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:43,502 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:02:43,524 INFO reparsing
+2019-06-04 17:02:43,524 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:43,543 INFO reparsing
+2019-06-04 17:02:43,543 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:43,562 INFO reparsing
+2019-06-04 17:02:43,562 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:48,774 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:02:48,813 INFO reparsing
+2019-06-04 17:02:48,813 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:48,832 INFO reparsing
+2019-06-04 17:02:48,833 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:48,851 INFO reparsing
+2019-06-04 17:02:48,851 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:55,378 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:02:55,399 INFO reparsing
+2019-06-04 17:02:55,400 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:55,420 INFO reparsing
+2019-06-04 17:02:55,420 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:02:55,438 INFO reparsing
+2019-06-04 17:02:55,438 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:06,521 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:03:06,542 INFO reparsing
+2019-06-04 17:03:06,543 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:06,562 INFO reparsing
+2019-06-04 17:03:06,563 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:06,582 INFO reparsing
+2019-06-04 17:03:06,582 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:39,282 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:03:39,302 INFO reparsing
+2019-06-04 17:03:39,302 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:39,321 INFO reparsing
+2019-06-04 17:03:39,322 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:39,340 INFO reparsing
+2019-06-04 17:03:39,341 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:40,528 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:03:40,551 INFO reparsing
+2019-06-04 17:03:40,552 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:40,571 INFO reparsing
+2019-06-04 17:03:40,571 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:40,589 INFO reparsing
+2019-06-04 17:03:40,589 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:43,496 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:03:43,517 INFO reparsing
+2019-06-04 17:03:43,518 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:43,537 INFO reparsing
+2019-06-04 17:03:43,537 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:43,555 INFO reparsing
+2019-06-04 17:03:43,556 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:55,608 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:03:55,630 INFO reparsing
+2019-06-04 17:03:55,631 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:55,650 INFO reparsing
+2019-06-04 17:03:55,650 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:03:55,668 INFO reparsing
+2019-06-04 17:03:55,669 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:04:11,147 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:04:11,166 INFO reparsing
+2019-06-04 17:04:11,166 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:04:11,185 INFO reparsing
+2019-06-04 17:04:11,185 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:04:11,202 INFO reparsing
+2019-06-04 17:04:11,203 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:19,746 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:05:19,767 INFO reparsing
+2019-06-04 17:05:19,767 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:19,786 INFO reparsing
+2019-06-04 17:05:19,786 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:19,804 INFO reparsing
+2019-06-04 17:05:19,804 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:30,816 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:05:30,837 INFO reparsing
+2019-06-04 17:05:30,838 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:30,858 INFO reparsing
+2019-06-04 17:05:30,858 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:30,876 INFO reparsing
+2019-06-04 17:05:30,877 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:34,448 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:05:34,470 INFO reparsing
+2019-06-04 17:05:34,470 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:34,512 INFO reparsing
+2019-06-04 17:05:34,512 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:34,530 INFO reparsing
+2019-06-04 17:05:34,530 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:36,383 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 17:05:36,406 INFO reparsing
+2019-06-04 17:05:36,407 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:36,427 INFO reparsing
+2019-06-04 17:05:36,427 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 17:05:36,446 INFO reparsing
+2019-06-04 17:05:36,446 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:14,035 INFO UnicodeDecode Error .DS_Store
+2019-06-04 18:01:14,035 INFO Root node without ID: .gitignore
+2019-06-04 18:01:14,036 INFO Root node without ID: .gitmodules
+2019-06-04 18:01:14,036 INFO Root node without ID: Default.sublime-keymap
+2019-06-04 18:01:14,036 INFO Root node without ID: Default.sublime-settings
+2019-06-04 18:01:14,037 INFO Root node without ID: dependencies.json
+2019-06-04 18:01:14,037 INFO Root node without ID: example-urtext-project.sublime-project
+2019-06-04 18:01:14,038 INFO Node missing ID in example-urtext-project.sublime-workspace
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 18:01:14,038 INFO Root node without ID: sublime_urtext-default.sublime-settings
+2019-06-04 18:01:14,042 INFO Node missing ID in sublime_urtext.py
+    subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+                                                  ^
+2019-06-04 18:01:14,043 INFO Root node without ID: sublime_urtext.sublime-commands
+2019-06-04 18:01:14,043 INFO Node missing ID in sublime_urtext.sublime-syntax
+de.urtext}}'
+         ^
+2019-06-04 18:01:14,043 INFO Root node without ID: tags.sublime-snippet
+2019-06-04 18:01:14,044 INFO Root node without ID: urtext.tmPreferences
+2019-06-04 18:01:14,047 INFO Node missing ID in urtext_log.txt
+n\t\t\t\t/- ID:79810915120430;  tag: definition-/ }}\n\n\t\tSublime is a modern, programmable text e
+                                                  ^
+2019-06-04 18:01:17,891 INFO UnicodeDecode Error .DS_Store
+2019-06-04 18:01:18,007 INFO Node missing ID in urtext_log.txt
+}}
+^
+2019-06-04 18:01:18,014 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:18,014 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:18,032 INFO reparsing
+2019-06-04 18:01:18,032 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:18,033 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:18,051 INFO reparsing
+2019-06-04 18:01:18,051 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:18,051 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:24,458 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:01:24,479 INFO reparsing
+2019-06-04 18:01:24,479 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:24,480 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:24,499 INFO reparsing
+2019-06-04 18:01:24,499 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:24,499 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:24,519 INFO reparsing
+2019-06-04 18:01:24,520 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:24,520 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:39,923 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:01:39,943 INFO reparsing
+2019-06-04 18:01:39,944 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:39,944 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:39,963 INFO reparsing
+2019-06-04 18:01:39,963 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:39,963 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:39,982 INFO reparsing
+2019-06-04 18:01:39,982 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:39,982 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:55,539 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:01:55,559 INFO reparsing
+2019-06-04 18:01:55,560 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:55,560 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:55,579 INFO reparsing
+2019-06-04 18:01:55,579 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:55,579 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:01:55,600 INFO reparsing
+2019-06-04 18:01:55,600 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:01:55,601 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:01,409 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:01,431 INFO reparsing
+2019-06-04 18:02:01,431 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:01,432 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:01,451 INFO reparsing
+2019-06-04 18:02:01,451 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:01,451 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:01,471 INFO reparsing
+2019-06-04 18:02:01,471 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:01,471 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:09,344 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:09,365 INFO reparsing
+2019-06-04 18:02:09,366 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:09,366 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:09,385 INFO reparsing
+2019-06-04 18:02:09,385 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:09,385 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:09,404 INFO reparsing
+2019-06-04 18:02:09,404 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:09,404 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:14,879 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:14,900 INFO reparsing
+2019-06-04 18:02:14,901 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:14,901 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:14,920 INFO reparsing
+2019-06-04 18:02:14,920 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:14,921 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:14,940 INFO reparsing
+2019-06-04 18:02:14,940 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:14,940 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:24,645 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:24,676 INFO reparsing
+2019-06-04 18:02:24,676 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:24,676 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:24,695 INFO reparsing
+2019-06-04 18:02:24,695 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:24,695 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:24,714 INFO reparsing
+2019-06-04 18:02:24,714 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:24,714 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:26,871 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:26,892 INFO reparsing
+2019-06-04 18:02:26,893 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:26,893 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:26,912 INFO reparsing
+2019-06-04 18:02:26,912 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:26,912 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:26,931 INFO reparsing
+2019-06-04 18:02:26,931 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:26,931 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:36,791 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:36,813 INFO reparsing
+2019-06-04 18:02:36,813 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:36,813 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:36,833 INFO reparsing
+2019-06-04 18:02:36,833 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:36,834 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:36,854 INFO reparsing
+2019-06-04 18:02:36,854 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:36,854 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:38,730 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:38,753 INFO reparsing
+2019-06-04 18:02:38,753 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:38,753 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:38,772 INFO reparsing
+2019-06-04 18:02:38,772 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:38,773 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:38,791 INFO reparsing
+2019-06-04 18:02:38,792 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:38,792 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:52,246 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:02:52,324 INFO reparsing
+2019-06-04 18:02:52,325 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:52,325 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:52,344 INFO reparsing
+2019-06-04 18:02:52,344 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:52,344 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:02:52,371 INFO reparsing
+2019-06-04 18:02:52,371 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:02:52,372 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:05,778 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:03:05,800 INFO reparsing
+2019-06-04 18:03:05,801 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:05,802 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:05,820 INFO reparsing
+2019-06-04 18:03:05,821 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:05,821 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:05,840 INFO reparsing
+2019-06-04 18:03:05,840 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:05,840 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:11,175 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:03:11,197 INFO reparsing
+2019-06-04 18:03:11,197 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:11,198 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:11,216 INFO reparsing
+2019-06-04 18:03:11,216 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:11,216 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:11,235 INFO reparsing
+2019-06-04 18:03:11,236 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:11,236 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:27,539 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:03:27,559 INFO reparsing
+2019-06-04 18:03:27,559 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:27,559 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:27,578 INFO reparsing
+2019-06-04 18:03:27,578 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:27,578 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:27,596 INFO reparsing
+2019-06-04 18:03:27,596 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:27,597 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:38,303 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:03:38,325 INFO reparsing
+2019-06-04 18:03:38,325 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:38,325 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:38,345 INFO reparsing
+2019-06-04 18:03:38,345 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:38,345 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:38,365 INFO reparsing
+2019-06-04 18:03:38,365 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:38,365 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:59,051 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:03:59,071 INFO reparsing
+2019-06-04 18:03:59,072 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:59,072 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:59,090 INFO reparsing
+2019-06-04 18:03:59,091 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:59,091 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:03:59,110 INFO reparsing
+2019-06-04 18:03:59,110 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:03:59,110 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:18,731 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:04:18,751 INFO reparsing
+2019-06-04 18:04:18,752 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:18,752 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:18,771 INFO reparsing
+2019-06-04 18:04:18,771 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:18,771 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:18,789 INFO reparsing
+2019-06-04 18:04:18,789 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:18,789 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:31,127 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:04:31,148 INFO reparsing
+2019-06-04 18:04:31,149 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:31,149 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:31,168 INFO reparsing
+2019-06-04 18:04:31,168 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:31,168 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:31,187 INFO reparsing
+2019-06-04 18:04:31,188 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:31,188 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:33,471 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:04:33,492 INFO reparsing
+2019-06-04 18:04:33,493 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:33,493 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:33,513 INFO reparsing
+2019-06-04 18:04:33,513 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:33,514 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:33,532 INFO reparsing
+2019-06-04 18:04:33,533 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:33,533 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:49,674 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:04:49,693 INFO reparsing
+2019-06-04 18:04:49,694 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:49,694 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:49,712 INFO reparsing
+2019-06-04 18:04:49,712 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:49,712 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:04:49,731 INFO reparsing
+2019-06-04 18:04:49,731 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:04:49,731 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:42,955 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:05:42,975 INFO reparsing
+2019-06-04 18:05:42,975 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:42,975 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:42,994 INFO reparsing
+2019-06-04 18:05:42,994 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:42,994 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:43,013 INFO reparsing
+2019-06-04 18:05:43,013 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:43,013 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:49,704 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:05:49,726 INFO reparsing
+2019-06-04 18:05:49,727 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:49,727 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:49,745 INFO reparsing
+2019-06-04 18:05:49,746 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:49,746 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:05:49,765 INFO reparsing
+2019-06-04 18:05:49,766 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:05:49,766 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:46,619 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:06:46,640 INFO reparsing
+2019-06-04 18:06:46,640 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:46,640 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:46,659 INFO reparsing
+2019-06-04 18:06:46,659 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:46,659 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:46,678 INFO reparsing
+2019-06-04 18:06:46,678 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:46,678 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:59,935 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:06:59,956 INFO reparsing
+2019-06-04 18:06:59,957 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:59,958 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:59,977 INFO reparsing
+2019-06-04 18:06:59,977 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:59,977 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:06:59,996 INFO reparsing
+2019-06-04 18:06:59,996 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:06:59,996 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:07:06,158 INFO MODIFIED README.txt - Updating the project object
+2019-06-04 18:07:06,180 INFO reparsing
+2019-06-04 18:07:06,180 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:07:06,180 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:07:06,200 INFO reparsing
+2019-06-04 18:07:06,200 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:07:06,201 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
+2019-06-04 18:07:06,221 INFO reparsing
+2019-06-04 18:07:06,221 INFO parsed <Tue., Mar. 05, 2019, 03:25 PM> as <Tue., Mar. 05, 2019, 03:25 PM>
+2019-06-04 18:07:06,221 INFO parsed <Tue., Jun. 04, 2019, 05:32 PM> as <Tue., Jun. 04, 2019, 05:32 PM>
