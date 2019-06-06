@@ -5,7 +5,6 @@
 	{ "keys": ["ctrl+shift+r"], "command": "toggle_traverse"},
 	{ "keys": ["ctrl+shift+s"], "command": "rename_file"},
 	{ "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
-	{ "keys": ["ctrl+shift+super+;"], "command": "insert_node"},
 	{ "keys": ["ctrl+t"], 			"command": "insert_timestamp"},
 	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
 	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},

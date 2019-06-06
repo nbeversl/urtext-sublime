@@ -9,7 +9,6 @@ import logging
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-from urtext.node_pull_tree import NodePullTree
 
 from urtext.node import UrtextNode
 from urtext.project import UrtextProject
@@ -250,7 +249,7 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
     if selected_tag not in metadata.get_tag(self.selected_tag):
       print('ADD IT')
 
-class ShowInlineNodeTree(sublime_plugin.TextCommand):
+class ShowTreeFromNode(sublime_plugin.TextCommand):
   def run(self, edit):
 
     if refresh_project(self.view) == None:
@@ -269,6 +268,7 @@ class ShowInlineNodeTree(sublime_plugin.TextCommand):
     tree_view = target_tree_view(self.view)
     tree_view.erase(edit, sublime.Region(0, tree_view.size()))
     render_tree(tree_view, tree_render)
+
 
 class ShowTreeFromRootCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -723,7 +723,7 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
 def open_urtext_node(view, node_id, position):
 
-  def center_node(view, position): # copied from OpenNode. Refactor
+  def center_node(view, position): # copied from old OpenNode. Refactor
       if not view.is_loading():
         view.sel().clear()
         view.show_at_center(int(position)) 
@@ -738,18 +738,6 @@ def open_urtext_node(view, node_id, position):
   position = int(position)
 
   center_node(file_view, position)
-
-
-class ListNodesInViewCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    if refresh_project(self.view) == None :
-      return
-    display = _UrtextProject.list()
-    new_view = self.view.window().new_file()
-    new_view.set_scratch(True)
-    for line in display.split('\n'):
-      new_view.run_command("insert_snippet", {"contents": line+'\n'})
-    new_view.run_command("move_to", {"to": "bof"})
 
 class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
@@ -786,23 +774,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
           else:
             sublime.set_timeout(lambda: self.show_stuff(view,timeline), 10)
 
-class ShowNodeTreeCommand(sublime_plugin.TextCommand):
-  """ Display a tree of all nodes connected to this one """
-  # most of this is now in urtext module
-
-  def run(self, edit):
-    if refresh_project(self.view) == None :
-      return
-    self.errors = []
-    path = sublime_urtext._UrtextProject.path
-    tree = NodePullTree(self.view.file_name(), path)
-    window = self.view.window()
-    window.focus_group(0) # always show the tree on the leftmost focus
-    new_view = self.view.window().new_file()
-    new_view.run_command("insert_snippet", { "contents": tree.render})
-    new_view.run_command("insert_snippet", { "contents": '\n'.join(self.errors)})
-
-class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
+class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
   """ Display a tree of all nodes connected to this one """
   # TODO: for files that link to the same place more than one time,
   # show how many times on one tree node, instead of showing multiple nodes
@@ -831,19 +803,6 @@ class ShowFileRelationshipsCommand(sublime_plugin.TextCommand):
     new_view = window.new_file()
     window.focus_view(new_view)
     draw_tree(new_view, render)    
-
-
-class AddMetaToExistingFile(sublime_plugin.TextCommand):
-  """ Add metadata to a file that does not already have metadata.  """
-  def run(self, edit):
-      if not has_meta(self.view):
-        add_separator(self.view)
-        timestamp = (datetime.datetime.now().strftime("<%a., %b. %d, %Y, %I:%M %p>"))
-        filename = self.view.file_name().split('/')[-1]
-        self.view.run_command("move_to", {"to": "eof"})
-        self.view.run_command("insert_snippet", { "contents": "Metadata added to existing file: "+timestamp+'\n'})
-        self.view.run_command("insert_snippet", { "contents": "Existing filename: "+filename+'\n'})
-        self.view.run_command("move_to", {"to": "bof"})
 
 
 class RightAlignGroupCommand(sublime_plugin.TextCommand):
@@ -954,6 +913,8 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
       return  
+    global _UrtextProject
+    current_path = get_path(self.view)
     if current_path != None: 
       _UrtextProject = focus_urtext_project(current_path)
     else:
