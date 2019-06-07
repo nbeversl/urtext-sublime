@@ -1,0 +1,21 @@
+Setup
+
+Once the package is installed, it will look for any .txt files in open folders and attempt to compile them. To open a folder as an Urtext project in Sublime, just open the folder or a project that includes the folder.
+
+{{  Empty Project
+
+    The package will use any existing open folder as a project. You don't need to define a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. See https://www.sublimetext.com/docs/3/projects.html for information on Sublime Projects.   /-- ID:00a --/ }}
+
+ {{ Importing existing files
+
+    To use existing plaintext files, some metadata (>00x) must be added containing at least a Node ID. Sublime Urtext can append metadata automatically to the end of existing text files by selecting "Urtext : Import Project" from the Sublime Command palette. Appending will append an `ID` (>01e) and `Timestamp` (>00j) metadata value to the node.
+
+    Note that the append will occur without a confirmation dialog, so if you are just experimenting with this system, consider making a copy of your file folder so you can revert without removing the metadata.
+
+                                                                                   /-- ID:00b --/ }}
+
+
+/-- ID:003
+Timestamp:<Fri., Jun. 07, 2019, 04:12 PM>
+tags: urtext_documentation
+ --/

@@ -38,15 +38,13 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-        _UrtextProject.log.info(filename + ' CREATED')
-        if os.path.basename(filename) not in _UrtextProject.files:
-          if _UrtextProject.add_file(filename) != None:
-            self.rebuild(filename)
-        else:
-          _UrtextProject.log.info(filename + ' modified. Updating the project object')
-          _UrtextProject.add_file(filename)
-          _UrtextProject.build_tag_info()
-          _UrtextProject.compile_all()
+        if _UrtextProject.parse_file(filename) == None:
+          _UrtextProject.log.info(filename + ' not added.')
+          return
+        print(filename + ' MODIFIED')
+        _UrtextProject.log.info(filename + ' modified. Updating the project object')
+        _UrtextProject.build_tag_info()
+        _UrtextProject.compile_all()
           
     def on_modified(self, event):
         # this is also called on files being added
@@ -57,7 +55,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
         _UrtextProject.log.info('MODIFIED ' + filename +' - Updating the project object')
-        _UrtextProject.add_file(filename)
+        _UrtextProject.parse_file(filename)
         _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
           

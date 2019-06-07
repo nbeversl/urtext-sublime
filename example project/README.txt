@@ -8,21 +8,21 @@ You can always open this help document by choosing "Urtext: Help" from the comma
 {{
 Sublime Urtext Documentation >01k
 ├── Table of Contents >01a
-├── Add: >002
+├── TODOs Add: >002
 ├── Using this document >009
-├── Setup >00c
+├── Setup >003
 │   ├── Empty Project >00a
 │   └── Importing existing files >00b
 ├── File-Level Nodes >00d
-├── Inline Nodes >00i
+├── Inline Nodes >004
 │   ├── example inline node text >00e
 │   ├── NOTE: File-level nodes do not use curly-braces. >001
 │   └── Node Trees >00h
 │       ├── From a selected node >00f
 │       └── From the root >00g
-├── Timestamps >00j
+├── Timestamps >005
 │   └── Timeline View: >00k
-├── Links: >00l
+├── Links: >006
 │   ├── Linking to other nodes >0y2
 │   │   └── Sublime Text tools to help with linking >00m
 │   └── Linking to outside resources >00q
@@ -61,16 +61,8 @@ index: 00
 kind: dynamic
 defined in: >01b
  --/ }}
- 
 
-
- 
-{{ Add:
-  That Urtext syntax has to be selected for syntax highlighting to work.
-
- /-- ID:002 --/ }}
-
- >>00n
+insert todos >>002
 
 {{  Using this document
 
@@ -79,23 +71,7 @@ defined in: >01b
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
                                                                                           /--ID:009--/}}
 
-{{  Setup
-
-    Once the package is installed, it will look for any .txt files in open folders and attempt to compile them. To open a folder as an Urtext project in Sublime, just open the folder or a project that includes the folder.
-
-    {{  Empty Project
-
-        The package will use any existing open folder as a project. You don't need to define a Sublime Project, but if you intend to do more than one thing at a time in Sublime, it's more convenient to use one; you can then use Select Project -> Quick Switch Project (Ctrl-Cmd-P) to switch among them. See https://www.sublimetext.com/docs/3/projects.html for information on Sublime Projects.   /-- ID:00a --/ }}
-    
-     {{ Importing existing files
-
-        To use existing plaintext files, some metadata (>00x) must be added containing at least a Node ID. Sublime Urtext can append metadata automatically to the end of existing text files by selecting "Urtext : Import Project" from the Sublime Command palette. Appending will append an `ID` (>01e) and `Timestamp` (>00j) metadata value to the node.
-
-        Note that the append will occur without a confirmation dialog, so if you are just experimenting with this system, consider making a copy of your file folder so you can revert without removing the metadata.
-
-                                                                                       /-- ID:00b --/ }}
-                                                                                               /--ID:00c--/}}
-
+Setup >>003
 
 {{  File-Level Nodes                                                                                  /--ID:00d--/
 
@@ -107,94 +83,11 @@ defined in: >01b
 
     Once you have multiple nodes, press Control-Shift-E or select "Urtext: Node Browser" from the Sublime command palette (Shift-Super-P) to browse them. In the Node Browser, nodes are sorted by their time of creation, with most recent first. They can also be sorted by index (see >00z). Find a node by typing part of its title. Open a node by selecting it and pressing return. }}
 
- {{  Inline Nodes                                                                 
-     
-     Nodes can be nested arbitrarily deep inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this {{ example inline node text /-- ID:00e --/ }}. To create an empty inline node, press Shift-Ctrl-{ (Shift-Control-left-curly -brace). Inside the double curly braces is a new node with an auto-generated ID. 
+Inline Nodes >>004
 
+Timeline >>005
 
-     To wrap existing content into an inline node, first select the content and use the same keypress.
-
-     Using inline nodes requires attention to syntax : every opening doubly squiggly bracket must be closed in the same file and requires an ID metadata tag between the opening an closing brackets and not nested in another node.
-
-     {{  
-     NOTE: File-level nodes do not use curly-braces.  /-- tags:important; ID:001 --/ 
-     }} 
-     
-     Inline nodes have their own identity in both content and metadata for all purposes within Urtext.
-
-     When syntax highlighting is used (>01g), inline nodes will have background shading that shows nesting up to five layers deep. More levels can be added, if you need them, by altering the file sublime_urtext.sublime-syntax.
- 
-     {{ Node Trees
- 
-         Once nodes are nested, you can view a tree of their hierarchy in two ways:         
-
-         {{ From a selected node
-
-            Position the cursor in the node you want to see as root (outermost) and select "Urtext: Show Tree From Current Node" from the Sublime Command Palette. This will add a new split view to the left side of the current view in Sublime, containing a tree with the selected node as root. 
-                                                                                            /-- ID:00f --/ }}
-
-         {{  From the root
-
-             Position the cursor anywhere in the node/file and select "Urtext: Show Tree From Root". This will do the same as above, but the tree will include everything back to the node's root. If the tree extends upward beyond the current file, that will also be included.
-                                                                                            /-- ID:00g --/ }}
-         
-        Note that each branch of the resulting file tree contains Node ID that works like a link. You can navigate the links on the tree as normal using Shift-Control-/ (see >0y2).
-
-        File trees are displayed in Sublime's "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use, will not have a filename, and will not update when a node/file changes. To make permanent and dynamically updated trees, see >00t.
-
-        The tree display utilizes the `anytree` module (https://pypi.org/project/anytree/.)
-                                                                                              /--ID:00h--/ }}
-                                                                                                /-- ID:00i --/ }}
-
-{{  Timestamps                                                                                   /--ID:00j--/
-
-    Text between two angled brackets (<  >) is interpreted as a timestamp. Insert a timestamp for the current date and time anywhere by pressing Control-T.
-
-    Node timestamps are part of metadata (see Metadata >00x). Urtext also utilizes a "loose" parsing of inline timestamps, meaning they can be placed anywhere and will be recognized and parsed; these are called inline timestamps.
-
-    Timestamps are read and written utilizing Python's `strftime` directives. The default format is  `.%a., %b. %d, %Y, %I:%M %p`, which creates timestamps like: <Tue., Jun. 04, 2019, 08:51 PM>. The format can be customized in the project_settings node (see project_settings Node  >000). For information on `strftime` directives, see https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior.
-    
-    {{  Timeline View:                                                                           /--ID:00k--/
-
-        Urtext will parse node timestamps along with inline timestamps into a project timeline. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. Each node and inline timestamp is shown in chronological order with nearby text. You can try it with this example project, but note that since many nodes in this document are undated, they have a default date of Thu., Jan. 01, 1970, 12:00AM.
-
-        As everywhere in a project, node IDs shown are links that can be opened using Ctrl-/.   }}    }}
-
-
-{{  Links:                                                                                     
-
-    {{  Linking to other nodes 
-
-        To make a link, use the right angle bracket (>) followed immediately by a node ID. Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. If the linked node is inline, Sublime will jump to and center its starting point. 
-
-        Note that Urtext reads node regions on every save, so cursor location may be imprecise if the file has been altered since the last save.
-
-        Linking does not require a filename, only a Node ID. Any other information around the Node ID (such as the rest of the filename, or arbitrary text), will be ignored. See >00r for more information on file naming and Node IDs.
-
-        {{  Sublime Text tools to help with linking    
-            Two Sublime Command Palette commands can make linking quick and easy:
-         
-            Urtext : Link To ...
-                Links from the currently viewed node to another node which you can select in the selection panel. When you select a node in the quick panel, a link to that node will be inserted at the cursor.
-     
-            Urtext: Link From ...
-                Links TO the current node FROM another node. When you select this command, a link to the current node will be copied to the clipboard. You can then paste the reference into the node you open in the quick panel.
-                                                                                            /-- ID:00m --/ }} 
-                                                                               /-- ID: 0y2 --/             }}
-
-    {{ Linking to outside resources
-
-        {{ Web
-
-            HTTP links are recognized automatically and will open in the default browser.
-            Example: http://fantutti.com                                                    /-- ID:00o --/ }}
-
-        {{ Files
-            TODO  <Fri., May. 03, 2019, 02:24 PM>
-                                                                                        /-- ID:00p --/ }}
-                                                                                            /-- ID:00q --/ }}
-                                                                                                      /-- ID:00l --/                   }}
-
+Links >>006
 
 {{  project_settings Node
         
