@@ -59,7 +59,7 @@ defined in: >01c
 
         {{ Node Definition for the Table of Contents
 
-            Here is another example dynamic definition, which creates the tree at the top of this file:
+            Here is another example dynamic definition, which creates the table of contents for this documentation:
                 [[ ID:01a
                     tree:01k
                     metadata:title:Table of Contents

@@ -40,7 +40,7 @@ What Sublime-Urtext Is
 
             - Future-proof. No reliance on anything that may not exist in 5 or 100 years.    /--ID:005--/}}
 
-    {{  Additional Features:
+    {{  Additional Features
 
             In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
 

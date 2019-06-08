@@ -21,6 +21,12 @@ Sublime Urtext Documentation >01k
 ├── Using this document >009
 ├── Table of Contents >01a
 ├── TODOs Add: >002
+├── What Sublime-Urtext Is >013
+│   ├── Inline Nodes >004
+│   └── Ideas and Requirements Behind Urtext >008
+│       ├── Basic Requirements: >005
+│       ├── Additional Features >006
+│       └── Characteristics >007
 ├── Setup >003
 │   ├── Empty Project >00a
 │   └── Importing existing files >00b
@@ -36,7 +42,6 @@ Sublime Urtext Documentation >01k
 │   │   ├── title (This tag overrides the default title) >00y
 │   │   └── index >00z
 │   └── Finding nodes by Metadata: >012
-├── Basic Requirements: >005
 ├── Links: >00j
 │   ├── Linking to other nodes >0y2
 │   │   └── Sublime Text tools to help with linking >00m
@@ -56,11 +61,12 @@ Sublime Urtext Documentation >01k
 │   ├── Example Source Node 4 >017
 │   ├── Example Dynamic Node Title >019
 │   └── Node Definition for the Table of Contents >01b
-├── Filenames >01d
-├── Node IDs: >01e
-├── Syntax Highlighting and Readability >01g
-├── Formatting and Conventions >01h
-├── Architecture : Extension and Customization >01i
+├── Node IDs >01l
+├── Filenames >01m
+│   └── NEEDS TO BE UPDATED >01n
+├── Architecture : Extension and Customization >01o
+├── Formatting, Conventions, Readability >01h
+│   └── Syntax Highlighting >01g
 └── Reference: Key Bindings >018
 /-- ID: 01a
 title: Table of Contents
@@ -70,67 +76,23 @@ defined in: >01b
  --/ }}
 
     insert todos >>002 
+    What Sublime Urtext Is >>013
     Setup >>003
     File Level Nodes >>01j
     Inline Nodes >>004
     Metadata >>00x
-    Timeline >>005
     Links >>00j
     File and Node Organization >>00r
     Dynamic Nodes >>01c
-    
-   
-{{ Filenames                                                                                 /--ID:01d--/
-
-    You can use any naming convention you want to make filenames easy for purposes such as browsing files via the file system, reading and editing nodes using mobile apps, etc.
-
-    Urtext can also rename files automatically in a few convenient formats based on their title and/or index. Renaming by index is useful, for instance, if you want to see nodes appear in a file system, mobile app, or other file browser in the same order they appear within Sublime Urtext.
-
-    To rename a file, select "Rename File from Meta" from the command palette (Command-P). This will rename the file in one of the following schema:
-
-    If an index is present:
-
-        <index> <title>.txt
-
-    If no index is present:
-
-        <node id> <title>.txt
-
-    This system preserves automatic numerical sorting within the filesystem, such that the most recent un-indexed nodes appear first. If you want to use another system, such as putting the title first, you can do so.
-                                                                                                                      }}
-
-{{ Node IDs:                                                                                     
-
-   The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. 
-    
-          /--ID:01e--/      }}
-  
-
-{{  Syntax Highlighting and Readability
-
-        Sublime Urtext offers some basic syntax highlighting by extending the Sixteen and Monokai color scheme in Sublime. It also has a syntax definition .YML file that can be used to add syntax highlighting in other color schemes.
-
-                                                                                               /--ID:01g--/}}
-
-{{ Formatting and Conventions
-
-      to be added
-
-
-                                                                                            /-- ID:01h --/ }}
-
-{{ Architecture : Extension and Customization
-
-    Some features described in this document are specific to this Sublime Text implementation, (though they could be reproduced in any scriptable text editor), but most are features of Urtext itself. Where there is question, you can find out fairly be inspecting the code. Anything that is 
-    [ TO BE COMPLETED ]
-
- /-- ID:01i --/ }}
-
-    Key Bindings >>018
+    Node IDs >>01l
+    Filenames >>01m  
+    Extension >>01o
+    Formatting, Conventions, Readbility >>01h
+    Reference: Key Bindings >>018
  
-                                                                                                                    /--
-                                                                                                                ID:01k
-                                                                                                           tags: urtext
-                                                                                    title: Sublime Urtext Documentation
-                                                                                                                    --/
+/--
+ID:01k
+tags: urtext
+title: Sublime Urtext Documentation
+--/
                                                                                   

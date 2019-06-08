@@ -25,28 +25,28 @@ Node Metadata
 
         -   Indexing of metadata keys and values is not case-sensitive.
 
-    {{ Reserved words
-                                                       
-        There are two reserved metadata names:
-   
-           {{   title
-           
-                If for some reason you want to override the automatic title and assign a title manually, add a title tag to the metadata block:
-           
-                   /-- title: title (This tag overrides the default title)  --/
-                                                                                            /-- ID:00y --/ }}
-   
-           {{   index
-           
-                You can optionally add a two-digit sort index (00-99) to a node, such as:
-   
-                   /-- index: 03 --/    
-   
-                Index tags will sort the files in the node browser (Ctrl-Shift-e). Any indexed nodes will sort before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.   				/-- ID:00z --/ }}
-                                
-                                                                                            /-- ID:011 --/ }}
+{{ Reserved words
+                                                   
+    There are two reserved metadata names:
 
-    {{  Finding nodes by Metadata:                                                            /-- ID:012 --/
+       {{   title
+       
+            If for you want to override the automatic title and assign a title manually, use title tag in the metadata block:
+       
+               /-- title: title (This tag overrides the default title)  --/
+                                                                                        /-- ID:00y --/ }}
+
+       {{   index
+       
+            You can optionally add a two-digit sort index (00-99) to a node, such as:
+
+               /-- index: 03 --/    
+
+            Index tags will sort the files in the node browser (Ctrl-Shift-e). Any indexed nodes will sort before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.   				/-- ID:00z --/ }}
+                            
+                                                                                        /-- ID:011 --/ }}
+
+{{  Finding nodes by Metadata:                                                            /-- ID:012 --/
 
         To browse nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
 
