@@ -28,13 +28,26 @@ Links:
             Example: http://fantutti.com                                                    /-- ID:00o --/ }}
 
         {{ Files
+            
             TODO  <Fri., May. 03, 2019, 02:24 PM>
                                                                                         /-- ID:00p --/ }}
+
+
+
+    {{ Linking to URLS and to Files Outside the Project:
+
+    Ctrl-/ works to open a link anywhere in an Urtext project. The syntax for making a link is:
+
+        <any text> -> <link to anything> | <any other text>
+
+    Command palette. HTTP (internet) URLs are recognized and open in the default browser, such as www.google.com  | You can link to assets (img, pdf, etc.) within the Urtext project using the native folder separators for your operating system. 
+
+                                                                                               /--ID:01f--/}}
+                                                                                               
                                                                                             /-- ID:00q --/ }}
 
 
-
-/-- ID:006
+/-- ID:00j
 Timestamp:<Fri., Jun. 07, 2019, 05:26 PM>
 tags: 
  --/

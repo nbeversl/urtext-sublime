@@ -52,6 +52,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = os.path.basename(event.src_path)
+        print(filename + ' MODIFIED')
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
         _UrtextProject.log.info('MODIFIED ' + filename +' - Updating the project object')
