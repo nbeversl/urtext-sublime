@@ -38,7 +38,7 @@ What Sublime-Urtext Is
 
             - Does not require years to master. (Looking at you Org Mode.)
 
-            - Future-proof. No reliance on anything that may not exist in 5 or 100 years.    /--ID:010--/}}
+            - Future-proof. No reliance on anything that may not exist in 5 or 100 years.    /--ID:01d--/}}
 
     {{  Additional Features
 
