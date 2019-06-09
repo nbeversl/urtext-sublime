@@ -66,8 +66,13 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       if filename in _UrtextProject.files:
           _UrtextProject.delete_file(filename)
      
-    ## There is no on_moved method. Needed?
-      
+    def on_moved(self, event):
+        old_filename = os.path.basename(event.src_path)
+        new_filename = os.path.basename(event.dest_path)
+        if old_filename in _UrtextProject.files:
+             _UrtextProject.log.info('RENAMED '+ old_filename +' to ' + new_filename)
+             _UrtextProject.handle_renamed(old_filename, new_filename)
+
 def refresh_project(view):
 
   global _UrtextProject
