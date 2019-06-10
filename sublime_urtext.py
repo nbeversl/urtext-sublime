@@ -82,11 +82,12 @@ def refresh_project(view):
     if current_path == _UrtextProject.path:
       return _UrtextProject
     else:
-      return focus_urtext_project(current_path)
+      return focus_urtext_project(current_path, view)
 
   # no Urtext project yet defined
   if current_path != None: 
-    _UrtextProject = focus_urtext_project(current_path)
+    _UrtextProject = focus_urtext_project(current_path, view)
+  
   else:
     print('No Urtext Project')
     return None
@@ -98,9 +99,13 @@ def refresh_project(view):
   return _UrtextProject
 
 
-def focus_urtext_project(path):
+def focus_urtext_project(path, view):
   global _UrtextProject
   _UrtextProject = UrtextProject(path)
+  results = _UrtextProject.build_response
+  results_view = view.window().new_file()
+  results_view.set_scratch(True)
+  results_view.run_command("insert_snippet", { "contents": results})     
   event_handler = SublimeUrtextWatcher()
   observer = Observer()
   observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
@@ -920,7 +925,7 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
     global _UrtextProject
     current_path = get_path(self.view)
     if current_path != None: 
-      _UrtextProject = focus_urtext_project(current_path)
+      _UrtextProject = focus_urtext_project(current_path, self.view)
     else:
       print('No Urtext Project')
       return None
