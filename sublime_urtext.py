@@ -882,19 +882,23 @@ class ImportProjectCommand(sublime_plugin.TextCommand):
 
 class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
   def run(self):
+    global _UrtextProject
     active_window = sublime.active_window()
     this_file_path = os.path.dirname(__file__)
     open_windows = sublime.windows()
-    for window in open_windows:
-      help_view = window.find_open_file(os.path.join(this_file_path,"example project/README.txt"))
-      if help_view != None:
+    #for window in open_windows:
+    _UrtextProject = UrtextProject(os.path.join(os.path.dirname(__file__),"example project"))
+
+    """if help_view != None:
         window.focus_view(help_view)
         if window != active_window:
           sublime.message_dialog('Urtext help is open in another window. Use Super - ~ to switch between windows  ')
-        return
+        return"""
     sublime.run_command("new_window")
-    help_view = sublime.active_window().open_file(os.path.join(this_file_path,"example project/README.txt"))
-
+    
+    help_view = sublime.active_window().new_file()
+    open_urtext_node(help_view, _UrtextProject.settings['home'], 0)
+    
 class OpenUrtextLogCommand(sublime_plugin.TextCommand):
   def run(self, edit):
     if refresh_project(self.view) == None :
