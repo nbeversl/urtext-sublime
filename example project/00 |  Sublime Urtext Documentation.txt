@@ -20,27 +20,54 @@ Version: 0.6
 Sublime Urtext Documentation >01k
 ├── Using this document >009
 ├── Table of Contents >01a
-├── todos >014
-│   ├── TODOs Add: >015
-│   └── additional fixes: >01e
 ├── What Sublime-Urtext Is >013
 │   ├── Urtext is a syntax I invented for writing and organizing in plaintext. >00d
 │   └── Ideas and Requirements Behind Urtext >008
 │       ├── Basic Requirements: >010
 │       ├── Additional Features >006
 │       └── Characteristics >007
+├── Setup >003
+│   ├── Empty Project >00a
+│   └── Importing existing files >00b
+├── File-Level Nodes >01j
+├── Inline Nodes >004
+│   ├── example inline node text >00e
+│   ├── NOTE: File-level nodes do not use curly-braces. >001
+│   └── Node Trees >00h
+│       ├── From a selected node >00f
+│       └── From the root >00g
+├── Node Metadata >00x
+│   ├── Reserved words >011
+│   │   ├── title (This tag overrides the default title) >00y
+│   │   └── index >00z
+│   └── Finding nodes by Metadata: >012
+├── Links: >00j
+│   ├── Linking to other nodes >0y2
+│   │   └── Sublime Text tools to help with linking >00m
+│   └── Linking to outside resources >00q
+│       ├── Web >00o
+│       ├── Files >00p
+│       └── Linking to URLS and to Files Outside the Project: >01f
+├── File and Node Organization >00r
+│   ├── Tree-like: Extending node trees beyond the file level >00t
+│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 >00s
+│   ├── Acyclic or Wiki/Web-like >00v
+│   │   └── Viewing >00u
+│   └── Traverse Mode >00w
 ├── Dynamic Nodes >01r
-│   ├── Example Source Node 1 .... >017
-│   ├── Example Source Node 2 >02d
+│   ├── Example Source Node 1 >017
+│   ├── Example Dynamic Node Title >019
 │   ├── Example Source Node 3 >01b
 │   ├── Example Source Node 4 >01c
-│   ├── Example Dynamic Node Title >019
 │   ├── Example Dynamic Node Title >016
 │   └── Node Definition for the Table of Contents >029
-└── Node IDs >01l
+├── Node IDs >01l
+├── Filenames >01m
+│   └── NEEDS TO BE UPDATED >01n
+├── Architecture : Extension and Customization >01o
+└── Reference: Key Bindings >018
 /-- ID: 01a
 title: Table of Contents
-index: 00
 kind: dynamic
 defined in: >029
  --/ }}
@@ -63,6 +90,7 @@ defined in: >029
 /--
 ID:01k
 tags: urtext
+index:00
 title: Sublime Urtext Documentation
 --/
                                                                                   
