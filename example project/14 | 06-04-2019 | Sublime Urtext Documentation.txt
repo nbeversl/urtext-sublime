@@ -26,9 +26,6 @@ Sublime Urtext Documentation >01k
 │       ├── Basic Requirements: >010
 │       ├── Additional Features >006
 │       └── Characteristics >007
-├── Setup >003
-│   ├── Empty Project >00a
-│   └── Importing existing files >00b
 ├── File-Level Nodes >01j
 ├── Inline Nodes >004
 │   ├── example inline node text >00e
@@ -41,19 +38,6 @@ Sublime Urtext Documentation >01k
 │   │   ├── title (This tag overrides the default title) >00y
 │   │   └── index >00z
 │   └── Finding nodes by Metadata: >012
-├── Links: >00j
-│   ├── Linking to other nodes >0y2
-│   │   └── Sublime Text tools to help with linking >00m
-│   └── Linking to outside resources >00q
-│       ├── Web >00o
-│       ├── Files >00p
-│       └── Linking to URLS and to Files Outside the Project: >01f
-├── File and Node Organization >00r
-│   ├── Tree-like: Extending node trees beyond the file level >00t
-│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 >00s
-│   ├── Acyclic or Wiki/Web-like >00v
-│   │   └── Viewing >00u
-│   └── Traverse Mode >00w
 ├── Dynamic Nodes >01r
 │   ├── Example Source Node 1 >017
 │   ├── Example Dynamic Node Title >019
