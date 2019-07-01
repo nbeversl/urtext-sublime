@@ -680,10 +680,12 @@ class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
     self.view.window().show_input_panel(caption, '', self.search_project, None, None)
 
   def search_project(self, string):
-    results = _UrtextProject.search(string)
+    results = _UrtextProject.search(string).split('\n')
+
     new_view = self.view.window().new_file()
     new_view.set_scratch(True)
-    new_view.run_command("insert_snippet", { "contents": results})
+    for line in results:
+      new_view.run_command("insert_snippet", { "contents": line + '\n'})
 
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
   def run(self, edit):
