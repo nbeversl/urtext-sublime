@@ -21,12 +21,6 @@ import webbrowser
 from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
 
-# TODOS
-# Have the node tree auto update on save.
-# Fix indexing not working in fuzzy search in panel
-# investigate multiple scopes
-# investigate git and diff support
-
 _UrtextProject = None
 _UrtextProjectList = None
 
@@ -61,17 +55,17 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         _UrtextProject.compile_all()
           
     def on_deleted(self, event):
+
       filename = os.path.basename(event.src_path)
-      _UrtextProject.log.info(filename + ' DELETED')
-      if filename in _UrtextProject.files:
-          _UrtextProject.delete_file(filename)
+      _UrtextProject.log.info('Watchdog saw file deleted: '+filename)
+      _UrtextProject.delete_file(filename)
      
     def on_moved(self, event):
         old_filename = os.path.basename(event.src_path)
         new_filename = os.path.basename(event.dest_path)
         if old_filename in _UrtextProject.files:
-             _UrtextProject.log.info('RENAMED '+ old_filename +' to ' + new_filename)
-             _UrtextProject.handle_renamed(old_filename, new_filename)
+           _UrtextProject.log.info('RENAMED '+ old_filename +' to ' + new_filename)
+           _UrtextProject.handle_renamed(old_filename, new_filename)
 
 def refresh_project(view):
 
@@ -858,7 +852,12 @@ class ReIndexFilesCommand(sublime_plugin.TextCommand):
     if refresh_project(self.view) == None :
       return
     global _UrtextProject
-    _UrtextProject.reindex_files()
+    renamed_files = _UrtextProject.reindex_files()
+    for view in self.view.window().views():
+      if view.file_name() == None:
+        continue
+      if os.path.basename(view.file_name()) in renamed_files:
+        view.retarget(os.path.join(_UrtextProject.path, renamed_files[os.path.basename(view.file_name())]))
 
 class AddNodeIdCommand(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -875,7 +874,6 @@ class DebugCommand(sublime_plugin.TextCommand):
     filename = self.view.file_name()
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    _UrtextProject.nodes[node_id].metadata.log()
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):

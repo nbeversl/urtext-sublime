@@ -28,7 +28,6 @@
     { "caption": "Urtext: Mark as Done from Other Node", "command" :"tag_from_other_node"},
    
     /* Formatting */
-
     { "caption": "Urtext: RightAlignHere", "command" :"right_align_here"},
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
 
