@@ -545,12 +545,13 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     self.view.window().focus_group(active_group)
 
 
-"""class TraverseFileTree(sublime_plugin.EventListener):
+class TraverseFileTree(sublime_plugin.EventListener):
 
   def on_selection_modified(self, view):
 
+    global _UrtextProject
     #
-    # ? TODO:
+    # TODO:
     # Add a failsafe in case the user has closed the next group to the left
     # but traverse is still on. 
     #
@@ -558,14 +559,14 @@ class ToggleTraverse(sublime_plugin.TextCommand):
       return
     self.groups = view.window().num_groups()
     self.active_group = view.window().active_group() # 0-indexed
-    #self.content_sheet = view.window().active_sheet_in_group(self.active_group)
+    self.content_sheet = view.window().active_sheet_in_group(self.active_group)
     contents = get_contents(self.content_sheet.view())
     
     def move_to_location(view, position, tree_view):
         if not view.is_loading():
           view.window().focus_group(self.active_group+1)
-          self.content_view.show_at_center(position)
-          #self.return_to_left(view, tree_view)
+          self.content_sheet.view().show_at_center(position)
+          self.return_to_left(view, tree_view)
         else:
           sublime.set_timeout(lambda: move_to_location(view,position), 10)
 
@@ -575,11 +576,11 @@ class ToggleTraverse(sublime_plugin.TextCommand):
 
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
-      links = re.findall('->\s(?:[^\|]*\s)?('+node_id_regex +')(?:\s[^\|]*)?\|?',full_line) # allows for spaces and symbols in filenames, spaces stripped later
-      
-      if len(links) ==0 : # might be an inline node view        
+      links = re.findall('>'+node_id_regex,full_line) # allows for spaces and symbols in filenames, spaces stripped later
+    
+      if len(links) == 0 : # might be an inline node view        
         link = full_line.strip('└── ').strip('├── ')
-        position = self.content_view.find('{{\s+'+link, 0)
+        position = self.content_sheet.view().find('{{\s+'+link, 0)
         line = self.content_sheet.view().line(position)
         self.content_sheet.view().sel().add(line)
         move_to_location(view,position,tree_view)
@@ -587,7 +588,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
 
       filenames = []
       for link in links:
-        filenames.append(_UrtextProject.get_file_name(link))
+        filenames.append(_UrtextProject.get_file_name(link[1:]))
       if len(filenames) > 0 :
         path = get_path(view)
         window.focus_group(self.active_group + 1)
@@ -599,7 +600,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
         view.window().focus_view(return_view)
         view.window().focus_group(self.active_group)
     else:
-      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)"""
+      sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
 
 class ShowAllNodesCommand(sublime_plugin.TextCommand):
 
