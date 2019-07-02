@@ -32,12 +32,13 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
           return None
         filename = event.src_path
-        if _UrtextProject.parse_file(filename) == None:
-          _UrtextProject.log.info(filename + ' not added.')
+        if self.filter(filename) == None:
           return
-        print(filename + ' MODIFIED')
-        _UrtextProject.log.info(filename + ' modified. Updating the project object')
-        _UrtextProject.build_tag_info()
+        if _UrtextProject.parse_file(filename) == None:
+          _UrtextProject.log_item(filename + ' not added.')
+          return
+        _UrtextProject.log_item(filename + ' modified. Updating the project object')
+        #_UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
           
     def on_modified(self, event):
@@ -45,27 +46,36 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         global _UrtextProject
         if event.is_directory:
           return None
+        if self.filter(event.src_path) == None:
+          return
         filename = os.path.basename(event.src_path)
-        print(filename + ' MODIFIED')
         if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
           return
-        _UrtextProject.log.info('MODIFIED ' + filename +' - Updating the project object')
+        _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
         _UrtextProject.parse_file(filename)
-        _UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
-          
-    def on_deleted(self, event):
 
+    def on_deleted(self, event):
+      if self.filter(event.src_path) == None:
+          return
       filename = os.path.basename(event.src_path)
-      _UrtextProject.log.info('Watchdog saw file deleted: '+filename)
-      _UrtextProject.delete_file(filename)
+      _UrtextProject.log_item('Watchdog saw file deleted: '+filename)
+      _UrtextProject.remove_file(filename)
      
     def on_moved(self, event):
+        if self.filter(event.src_path) == None:
+          return
         old_filename = os.path.basename(event.src_path)
         new_filename = os.path.basename(event.dest_path)
         if old_filename in _UrtextProject.files:
            _UrtextProject.log.info('RENAMED '+ old_filename +' to ' + new_filename)
            _UrtextProject.handle_renamed(old_filename, new_filename)
+
+    def filter(self, filename):
+      for fragment in ['urtext_log', '.git','.icloud']:
+        if fragment in filename:
+          return None
+      return filename
 
 def refresh_project(view):
 
@@ -315,7 +325,6 @@ def target_tree_view(view):
   groups = view.window().num_groups() # copied from traverse. Should refactor
   active_group = view.window().active_group() # 0-indexed
   if active_group == 0 or view.window().get_view_index(tree_view)[0] != active_group -1: 
-    print(groups)
     if groups > 1 and view.window().active_view_in_group(active_group - 1).file_name() == None:
       view.window().set_view_index(tree_view, active_group-1, 0)
     else:
@@ -350,6 +359,9 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     for region in self.view.sel():
       selection = self.view.substr(region)
     node_id = _UrtextProject.add_inline_node(datetime.datetime.now(), filename, selection)
+    if node_id == None:
+        self.view.run_command("insert_snippet", {"contents": "! File is not in project."})
+        return None
     node_wrapper = '{{ '+selection+' /-- ID:'+node_id+' --/ }}'
     self.view.run_command("insert_snippet", {"contents": node_wrapper})  # (whitespace)
     self.view.run_command("save")
@@ -630,7 +642,7 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
           self.view.set_scratch(True)
       self.view.window().run_command('close_file')
       os.remove(os.path.join(_UrtextProject.path, file_name))
-      _UrtextProject.delete_file(file_name) # remove if adding delete back to watchdog
+      _UrtextProject.remove_file(file_name) # remove if adding delete back to watchdog
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
 
