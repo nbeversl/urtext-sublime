@@ -26,17 +26,17 @@
                     Some text here.
                  /-- ID:017; tag: example_node; index:02 --/ }}
                  
-            {{ Example Source Node 3  >01b
+            {{Example Source Node 3 >01b
 -
-Example Source Node 1  >017
+Example Source Node 1 >017
 -
-Example Source Node 4  >01c
+Example Source Node 4 >01c
 -
 /-- ID: 019
 title: Example Dynamic Node Title
 kind: dynamic
 defined in: >01r
- --/ }}
+ --/}}
             
             {{ Example Source Node 3
                  /-- ID: 01b; tag: example_node; index:01 --/ }}

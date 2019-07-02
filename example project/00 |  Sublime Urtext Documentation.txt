@@ -16,15 +16,60 @@ Version: 0.6
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
                                                                                           /--ID:009--/}}
 
-{{
-Sublime Urtext Documentation >01k
+{{Sublime Urtext Documentation >01k
 ├── Using this document >009
-└── Table of Contents >01a
+├── Table of Contents >01a
+├── What Sublime-Urtext Is >013
+│   ├── Urtext is a syntax I invented for writing and organizing in plaintext. >00d
+│   ├── Basic Requirements: >010
+│   ├── Additional Features >006
+│   ├── Characteristics >007
+│   └── Ideas and Requirements Behind Urtext >008
+├── Setup >003
+│   ├── Empty Project >00a
+│   └── Importing existing files >00b
+├── File-Level Nodes >01j
+├── Inline Nodes >004
+│   ├── example inline node text >00e
+│   ├── NOTE: File-level nodes do not use curly-braces. >001
+│   ├── From a selected node >00f
+│   ├── From the root >00g
+│   └── Node Trees >00h
+├── Node Metadata >00x
+│   ├── title (This tag overrides the default title) >00y
+│   ├── index >00z
+│   ├── Reserved words >011
+│   └── Finding nodes by Metadata: >012
+├── Links: >00j
+│   ├── Sublime Text tools to help with linking >00m
+│   ├── Linking to other nodes >0y2
+│   ├── Web >00o
+│   ├── Files >00p
+│   ├── Linking to URLS and to Files Outside the Project: >01f
+│   └── Linking to outside resources >00q
+├── File and Node Organization >00r
+│   ├── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 >00s
+│   ├── Tree-like: Extending node trees beyond the file level >00t
+│   ├── Acyclic or Wiki/Web-like >00v
+│   │   └── Viewing >00u
+│   └── Traverse Mode >00w
+├── Dynamic Nodes >01r
+│   ├── Example Source Node 1 >017
+│   ├── Example Dynamic Node Title >019
+│   ├── Example Source Node 3 >01b
+│   ├── Example Source Node 4 >01c
+│   ├── Example Dynamic Node Title >016
+│   └── Node Definition for the Table of Contents >029
+├── Node IDs >01l
+├── Filenames >01m
+│   └── NEEDS TO BE UPDATED >01n
+├── Architecture : Extension and Customization >01o
+└── Reference: Key Bindings >018
 /-- ID: 01a
 title: Table of Contents
 kind: dynamic
 defined in: >029
- --/ }}
+ --/}}
 
     insert todos >>014
     What Sublime Urtext Is >>013

@@ -30,6 +30,8 @@ What Sublime-Urtext Is
 
             - Content must be at least partially editable and organizable from mobile devices.
 
+            - Mobile use must not depend on live internet or cellular data; the content must wholly reside on, and sync among, every device that uses it.
+
             - Capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to anything.         
 
             - Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical fashion, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
