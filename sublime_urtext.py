@@ -7,6 +7,7 @@ import datetime
 import pprint
 import logging
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 
@@ -38,7 +39,6 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           _UrtextProject.log_item(filename + ' not added.')
           return
         _UrtextProject.log_item(filename + ' modified. Updating the project object')
-        #_UrtextProject.build_tag_info()
         _UrtextProject.compile_all()
           
     def on_modified(self, event):
@@ -122,6 +122,16 @@ def get_path(view): ## makes the path persist as much as possible ##
   if view.window().project_data():
     return view.window().project_data()['folders'][0]['path']
   return None
+
+def size_to_groups(groups, view):
+    panel_size = 1 / groups
+    cols = [0]
+    cells = [[0,0,1,1]]
+    for index in range(1,groups):
+      cols.append(cols[index-1]+panel_size)
+      cells.append([index,0,index+1,1])
+    cols.append(1)
+    view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
 
 
 class FindByMetaCommand(sublime_plugin.TextCommand):
@@ -511,6 +521,11 @@ class ToggleTraverse(sublime_plugin.TextCommand):
       if self.view.settings().get('traverse') == 'true':
         self.view.settings().set('traverse','false')
         self.view.set_status('traverse', 'Traverse: Off')
+        groups = self.view.window().num_groups()
+        groups -= 1
+        if groups == 0:
+          groups = 1
+        size_to_groups(groups, self.view)
         self.view.settings().set("word_wrap", True)
         return
     #
@@ -526,15 +541,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     active_group = self.view.window().active_group() # 0-indexed
     if active_group + 1 == groups:
       groups += 1
-    panel_size = 1 / groups
-    cols = [0]
-    cells = [[0,0,1,1]]
-    for index in range(1,groups):
-      cols.append(cols[index-1]+panel_size)
-      cells.append([index,0,index+1,1])
-    cols.append(1)
-  
-    self.view.window().set_layout({"cols":cols, "rows": [0,1], "cells": cells})
+    size_to_groups(groups, self.view)
     self.view.settings().set("word_wrap", False)
 
     #
@@ -550,9 +557,6 @@ class ToggleTraverse(sublime_plugin.TextCommand):
           index)  
         index += 1
     
-    # This doesn't yet work:
-    #command = TraverseFileTree()
-    #command.on_selection_modified(self.view)
     self.view.window().focus_group(active_group)
 
 
@@ -569,22 +573,22 @@ class TraverseFileTree(sublime_plugin.EventListener):
     if view.window() == None:
       return
     self.groups = view.window().num_groups()
-    self.active_group = view.window().active_group() # 0-indexed
-    self.content_sheet = view.window().active_sheet_in_group(self.active_group)
+    self.tree_group = view.window().active_group() # 0-indexed
+    self.content_group = self.tree_group + 1 # to the right
+    self.content_sheet = view.window().active_sheet_in_group(self.tree_group)
     contents = get_contents(self.content_sheet.view())
     
     def move_to_location(view, position, tree_view):
         if not view.is_loading():
-          view.window().focus_group(self.active_group+1)
+          view.window().focus_group(self.content_group)
           self.content_sheet.view().show_at_center(position)
           self.return_to_left(view, tree_view)
         else:
           sublime.set_timeout(lambda: move_to_location(view,position), 10)
 
-
     if view.settings().get('traverse') == 'true':
       tree_view = view
-
+      this_file = view.file_name()
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
       links = re.findall('>'+node_id_regex,full_line) # allows for spaces and symbols in filenames, spaces stripped later
@@ -601,15 +605,37 @@ class TraverseFileTree(sublime_plugin.EventListener):
       for link in links:
         filenames.append(_UrtextProject.get_file_name(link[1:]))
       if len(filenames) > 0 :
-        path = get_path(view)
-        window.focus_group(self.active_group + 1)
-        file_view = window.open_file(os.path.join(path, filenames[0]), sublime.TRANSIENT)
-        self.return_to_left(file_view, tree_view)
+        filename = filenames[0]
+        position = _UrtextProject.nodes[link[1:]].ranges[0][0]
+        print(filename)
+        print(position)
+        if filename == os.path.basename(this_file):
+          for view in window.views_in_group(self.content_group):
+            if view.file_name() != None and os.path.basename(view.file_name()) == filename:
+              window.focus_view(view)
+              view.show_at_center(position) 
+              #self.return_to_left(view, tree_view)
+              return       
+          window.focus_group(self.tree_group)
+          #window.run_command("clone_file")
+          for view in window.views_in_group(self.tree_group):
+            if view.file_name() != None and os.path.basename(view.file_name()) == filename:
+              window.set_view_index(view, self.content_group,0)
+              view.show_at_center(position) 
+              #self.return_to_left(view.window().active_view_in_group(self.content_group), tree_view)
+              return
+
+        else:
+          path = _UrtextProject.path
+          window.focus_group(self.content_group)
+          file_view = window.open_file(os.path.join(path, filename), sublime.TRANSIENT)
+          file_view.show_at_center(position) 
+          self.return_to_left(file_view, tree_view)
          
   def return_to_left(self, view, return_view):
     if not view.is_loading():
         view.window().focus_view(return_view)
-        view.window().focus_group(self.active_group)
+        view.window().focus_group(self.tree_group)
     else:
       sublime.set_timeout(lambda: self.return_to_left(view,return_view), 10)
 

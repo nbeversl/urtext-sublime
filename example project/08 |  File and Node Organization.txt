@@ -33,14 +33,14 @@ File and Node Organization
                                                                                              /-- ID:00v --/ }}                                          
     {{ Traverse Mode:                                                    /-- ID:00w; title: Traverse Mode --/
 
-        Once you have a node view, you can navigate it like a file tree by turning on Traverse mode (Ctrl-R). Traverse mode will open a second Sublime pane. As you navigate the nodeview in the left pane with the cursor or mouse, the selected node shows on the right pane. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
+        You can navigate a node tree or list of nodes by turning on Traverse mode (Ctrl-R). This will open another pane next to the one you are currently in. As you navigate the nodeview in the left side with the cursor or mouse, the selected node shows on the right. Use Sublime's Focus Group navigation keys, or the mouse, to switch between left and right panes.
         
         The status bar at the bottom of the Sublime window indicates whether Traverse is on or off. Note that if Traverse mode is off, you can also open a link manually (Shift-Ctrl-/) as normal. 
-        
-        TODO fix Traverse Mode
 
+        Note that this feature is not built into Urtext, it is a feature of the Sublime package only.
+        
         }}
-                                                                                                                      }
+                                                                                                                      
 
 
 /-- ID:00r

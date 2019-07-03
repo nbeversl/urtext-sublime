@@ -1,4 +1,4 @@
-Table of Contents
+w
 Sublime-Urtext Documentation
 
 Updated: <Tue., Jun. 04, 2019, 04:55 PM> /-- Timestamp: <Tue., Jun. 04, 2019, 05:32 PM> --/
@@ -11,7 +11,7 @@ Version: 0.6
     To go to a link in the table of contents, press ctrl-shift-/ from any line. (See Links >00j for more information).
     To return to this table of contents, press ctrl-shift-h.
 
-    This file is an Urtext file with several inline nodes. It can be used in Sublime Text to try out the features described.
+    This file is an Urtexwt file with several inline nodes. It can be used in Sublime Text to try out the features described.
 
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
                                                                                           /--ID:009--/}}
