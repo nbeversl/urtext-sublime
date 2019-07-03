@@ -30,7 +30,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         
         global _UrtextProject
         if event.is_directory:
-          return None
+         return None
         filename = event.src_path
         if self.filter(filename) == None:
           return
@@ -93,7 +93,6 @@ def refresh_project(view):
     _UrtextProject = focus_urtext_project(current_path, view)
   
   else:
-    print('No Urtext Project')
     return None
 
   if _UrtextProjectList == None:        
@@ -627,10 +626,21 @@ class NewNodeCommand(sublime_plugin.WindowCommand):
 
   def run(self):
       if refresh_project(self.window.active_view()) == None :
-        return
-      self.path = _UrtextProject.path
-      filename = _UrtextProject.new_file_node()
-      new_view = self.window.open_file(os.path.join(self.path, filename))
+        path = os.getcwd()
+        contents = 'New Urtext project created in '+path + '\n'
+        contents += '(this is the first node; you can erase this text)\n\n\n'
+        contents += '/--\nID:000\n'
+        contents += 'timestamp: <'+datetime.datetime.now().strftime('%a., %b. %d, %Y, %I:%M %p')+'>\n--/'
+        with open(os.path.join(path,'000.txt'),'w',encoding='utf-8') as new_node:
+          new_node.write(contents)
+          new_node.close()
+        new_view = self.window.open_file(os.path.join(path,'000.txt'))
+        refresh_project(new_view)
+
+      else:
+        path = _UrtextProject.path
+        filename = _UrtextProject.new_file_node()
+        new_view = self.window.open_file(os.path.join(path, filename))
 
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 

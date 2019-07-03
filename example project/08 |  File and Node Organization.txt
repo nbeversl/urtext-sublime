@@ -3,6 +3,11 @@ File and Node Organization
     
     Urtext does not depend on organization of files at the filesystem level. Instead, you can link file-level nodes together in several ways:
 
+    - No subfolder organization scheme. All files are kept in a single folder. Organization of files, file groups, and file relationships is entirely done within the system. This makes it easy to sync and use across devices and platforms where file and folder paths may not always resolve uniformly, and it avoids broken file paths from moved/renamed/reorganized files.
+
+    - Filenaming is arbitrary but can be automated. 
+  
+
     {{ Tree-like: Extending node trees beyond the file level
       
        Nested inline nodes have an inherent hierarchy that Urtext can represent as a tree, as described above (>00i). You can extend this tree either higher or lower beyond individual file level, mimicking file-system organization. Add the metadata tag `parent`, following by a target Node ID. This will link the tagged node to the targeted node in a child-parent relationship. (See >00x for more information on metadata.) The resulting tree relationship(s) will be understood and displayed accordingly by Urtext (see 79810822060133). 
@@ -41,4 +46,5 @@ File and Node Organization
 /-- ID:00r
 Timestamp:<Sat., Jun. 08, 2019, 09:01 AM>
 tags: 
+index: 07
  --/

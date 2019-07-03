@@ -1,0 +1,87 @@
+
+About Urtext
+   
+ {{ 
+    Urtext is a syntax and compiler I invented for writing in plaintext. It is for prose writing, research, project organization, notetaking, general information management, and anything else that can be done in text form. /--ID:00d; tag:definition--/}}
+
+    Sublime Text is a modern, programmable text editor. 
+    This package is an implementation of Urtext in Sublime Text 3.
+
+{{  Ideas and Requirements Behind Urtext
+
+    There are many tools available for writing and organizing. None of them was what I wanted, so I wrote this.
+
+    Urtext could be implemented in any text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. This version uses a Python implementation of Urtext, embedded into the Python scripting capability of Sublime Text 3 as a package. 
+
+    {{  Basic Requirements:
+        
+        The original requirements were stringent enough to eliminate every tool already available:
+
+            - All in plain text. No proprietary file formats or information structure.
+
+            - Usable across multiple platforms and devices.
+
+            - Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform, fragmentary writing while permitting gradual aggregation of content with other content. No need to adapt to a preexisting interface or feature set. 
+
+            - Be undistracted by interacting with the file system (dialogues for naming, saving, organizing of files).
+
+            - Customizable and extensible metadata without relying on the file system.
+
+            - Mobile use must not depend on live internet or cellular data; the content must wholly reside on, and sync among, every device that uses it.
+
+            - Capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to anything.         
+
+            - Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical fashion, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
+
+            - Extensible, hackable, customizable. This year's needs might not be next year's. One person's needs might not be another's.
+
+            - Does not require years to master. (Looking at you Org Mode.)
+
+            - Future-proof. No reliance on anything that may not exist in 5 or 100 years. 
+            /--ID:010--/}}
+
+    {{  Additional Features
+
+            In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
+
+            - Basic syntax highlighting to delineate content from structure/syntax.
+
+            - Fuzzy search within files. This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor features or environment.
+
+            - Version control (using Git, for example). This possiblity is implicit in the commitment to plaintext but important enough to mention.
+                                                                                               /--ID:006--/}}
+
+
+
+    {{  Characteristics
+
+        As a result of the above, Urtext came out having the following characteristics:
+       
+            - It is offered as a syntax and a system, not as a particular implementation. 
+
+            - It is open source. See here (>01o) for information on how to modify it for your own purposes.
+
+            - It has two components:
+
+                - Static plaintext files in a loosely specified syntax.
+                
+                - A service that organizes, and compiles the files. This can run either manually or continuously in "watchdog" mode. (The latter was inspired by the ``npm run watch`` tool for React.) In this Sublime package, it runs in watchdog mode.
+
+        This package is an example implementation using Sublime Text. It has two components:
+
+            - An embedded Python module called "Urtext" whose API could be used in any Python environment and has no special relationship to Sublime Text.
+
+            - A Sublime package that uses Sublime Text as a user interface for editing Urtext files. The package includes the Urtext module (above) as well as a syntax definition, two color schemes, commands, and key bindings for Sublime Text.   
+
+        The Python module also has its own Github and can be used independently of the Sublime package. For instance, success has been found running it on iPhone using Pythonista. See 
+
+                                                                                /-- ID:007 --/ }}
+
+                                                                                             /--ID:008--/}} 
+                                                                                                    
+
+/-- ID:013
+index:01
+Timestamp:<Wed., Jun. 05, 2019, 10:01 PM>
+tags: 
+ --/

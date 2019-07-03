@@ -27,7 +27,7 @@ Node Metadata
 
 {{ Reserved words
                                                    
-    There are two reserved metadata names:
+    There are two reserved metadata keys:
 
        {{   title
        
@@ -43,7 +43,9 @@ Node Metadata
                /-- index: 03 --/    
 
             Index tags will sort the files in the node browser (Ctrl-Shift-e). Any indexed nodes will sort before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.   				/-- ID:00z --/ }}
-                            
+          
+    The only additional reserved metadata keys only apply to the project_settings node (>00l).
+                   
                                                                                         /-- ID:011 --/ }}
 
 {{  Finding nodes by Metadata:                                                            /-- ID:012 --/
@@ -54,4 +56,5 @@ Node Metadata
 /-- ID:00x
 Timestamp:<Sat., Jun. 08, 2019, 09:23 AM>
 tags: 
+index: 05
  --/
