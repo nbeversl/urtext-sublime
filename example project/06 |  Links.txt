@@ -26,8 +26,7 @@ Links
     Press Shift-Ctrl-/ on a line containing a link to open the node with the linked ID. If the linked is to an inline node, Sublime will scroll to and center its starting point. 
 
     Note that Urtext reads node regions on every save, so cursor location may be imprecise if the file has been altered since the last save.  
-
-    /-- ID:01w --/ }}
+   /-- ID:01w --/ }}
 
 {{  Viewing Linked Relationships
     

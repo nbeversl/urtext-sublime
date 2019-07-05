@@ -1,0 +1,40 @@
+Metadata Keys
+├── kind
+│   ├── gift_list
+│   │   └── Metadata >00x
+│   └── dynamic
+│       ├── Node Pointers >00r >01f
+│       ├── Table of Contents >01a
+│       └── Example Dynamic Node Title >016
+├── tags
+│   ├── urtext
+│   │   └── Sublime Urtext Documentation >01k
+│   ├── urtext_documentation
+│   │   └── Setup >003
+│   └── coming
+│       └── Files >00p
+├── note
+│   └── example note
+│       └── Metadata >00x
+├── Purpose
+│   └── work-related
+│       └── Metadata >00x
+├── tag
+│   ├── groceries
+│   │   └── Metadata >00x
+│   ├── exclude_this
+│   │   └── Example Source Node 2 >00v
+│   ├── definition
+│   │   └── What Urtext Is >00d
+│   └── example_node
+│       ├── Example Source Node 1 >017
+│       ├── Example Source Node 3 >01b
+│       ├── Example Source Node 2 >00v
+│       └── Example Source Node 4 >01c
+└── home
+    └── 01k
+        └── project_settings >00l
+/--
+ID:zzy
+title: Metadata List
+--/

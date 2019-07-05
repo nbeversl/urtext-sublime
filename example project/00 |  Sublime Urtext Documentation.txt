@@ -6,15 +6,21 @@ Version: 0.6
 
 {{  Using this document
 
-    You can always open this help document from Sublime by choosing "Urtext: Help" from the command pallette.
+    This is a documentation of Urtext in Urtext. It can be used in Sublime Text to try out the features described.
 
-    To go to a link in the table of contents, press ctrl-shift-/ from any line. (See Links >00j for more information).
-    To return to this table of contents, press ctrl-shift-h.
+    - You can always open this help document from Sublime by choosing "Urtext: Help" from the command pallette.
 
-    This file is an Urtext file with several inline nodes. It can be used in Sublime Text to try out the features described.
+    - To go to a link in the table of contents, press ctrl-shift-/ from any line. (See Links >00j for more information).
 
-    To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
-                                                                                          /--ID:009--/}}
+    - To return to this table of contents, press ctrl-shift-H.
+
+    - You can also traverse the table of contents while viewing linked content in another pane using Traverse Mode : Press Ctrl-Shift-R and click or arrow-navigate to any node in the table. See (>00w) for more information on Traverse Mode.
+    
+    - To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
+
+
+
+     /--ID:009--/}}
 
 {{Sublime Urtext Documentation >01k
 ├── Using this document >009
@@ -65,10 +71,11 @@ Version: 0.6
 │   └── Traverse Mode >00w
 ├── Node Pointers >00r
 │   ├── Example Child Node Using a Node Pointer >001
-│   │   └── Another node inside it >00s
-│   └── Duplicate Node Pointers >00t
-│       └── Example Child Node Using a Node Pointer >001
-│           └── Another node inside it >00s
+│   ├── Duplicate Node Pointers >00t
+│   │   └── Example Child Node Using a Node Pointer >001
+│   └── Recursive Node Pointers >00s
+│       ├── ? (Missing Node): >RECURSION >01k
+│       └── Example - Table of Contents From Another Root >01n
 ├── Dynamic Nodes >01r
 │   ├── Example Source Node 1 >017
 │   ├── Example Source Node 3 >01b
