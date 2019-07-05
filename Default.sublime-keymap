@@ -17,5 +17,7 @@
 	{ "keys": ["ctrl+shift+i"], "command": "add_node_id"},
 	{ "keys": ["ctrl+shift+h"], "command": "urtext_home"},
 	{ "keys": ["ctrl+shift+l"], "command": "navigate_last_link"},
+	{ "keys": ["ctrl+shift+j"], "command": "urtext_node_list"},
+	{ "keys": ["ctrl+shift+u"], "command": "urtext_metadata_list"},
 ]
 

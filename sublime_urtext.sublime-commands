@@ -3,9 +3,9 @@
     { "caption": "Urtext: Show Timeline",   "command":  "generate_timeline", },
         
     /* Navigation */
-    { "caption": "Urtext: Node Browser", "command": "node_browser"},
+    { "caption": "Urtext: Node List", "command": "node_browser"},
     { "caption": "Urtext: Show Tags", "command":"show_tags"},
-    { "caption": "Urtext: Find By Meta", "command":"find_by_meta"},
+    { "caption": "Urtext: Metadata List", "command":"find_by_meta"},
     { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
     { "caption": "Urtext: Search", "command" :"urtext_search_project"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},

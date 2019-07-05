@@ -1,0 +1,16 @@
+The Node List
+
+	Every project maintains a list of all its nodes. The Node List is automatically written to a built-in file-level dynamic node. (More information on dynamic nodes in >01r). 
+
+	To see the node list, press Ctrl-Shift-J. Like any node, the Node List can be traversed using Traverse Mode (>00w).
+
+	In Sublime Text there is also the alternative of using the UI dropdown. Press Control-Shift-E or select "Urtext: Node List" from the Sublime command palette (Shift-Super-P). Here you can find a node by typing part of its title.
+
+	In the Node List, nodes are sorted by their time of creation, with most recent first. They can also be sorted by index (see >00z). 
+
+	The Node ID `zzz` is reserved for the Node list. (See >01l for more information on Node IDs)
+
+/-- ID:01i
+Timestamp:<Thu., Jul. 04, 2019, 05:30 AM>
+tags: 
+ --/

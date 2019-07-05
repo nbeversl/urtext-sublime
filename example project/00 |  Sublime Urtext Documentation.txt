@@ -1,4 +1,4 @@
-w
+
 Sublime-Urtext Documentation
 
 Updated: <Tue., Jun. 04, 2019, 04:55 PM> /-- Timestamp: <Tue., Jun. 04, 2019, 05:32 PM> --/
@@ -11,7 +11,7 @@ Version: 0.6
     To go to a link in the table of contents, press ctrl-shift-/ from any line. (See Links >00j for more information).
     To return to this table of contents, press ctrl-shift-h.
 
-    This file is an Urtexwt file with several inline nodes. It can be used in Sublime Text to try out the features described.
+    This file is an Urtext file with several inline nodes. It can be used in Sublime Text to try out the features described.
 
     To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
                                                                                           /--ID:009--/}}
@@ -20,51 +20,63 @@ Version: 0.6
 ├── Using this document >009
 ├── Table of Contents >01a
 ├── About Urtext >013
-│   ├── Urtext is a syntax and compiler I invented for writing in plaintext. It is for prose writing, resear >00d
-│   └── Ideas and Requirements Behind Urtext >008
-│       ├── Basic Requirements: >010
-│       ├── Additional Features >006
-│       └── Characteristics >007
+│   ├── What Urtext Is >00d
+│   ├── Ideas and Requirements Behind Urtext >008
+│   │   ├── Basic Requirements: >010
+│   │   ├── Additional Features >006
+│   │   └── Characteristics >007
+│   └── About This Implementation >01u
 ├── Setup >003
 │   ├── Making an Empty Project >00a
 │   ├── Importing Existing Files >00b
 │   └── Sublime Text Interface Tips >000
-│       ├── Enable Syntax Highlighting >01d
+│       ├── Syntax Highlighting >01d
 │       ├── Hiding Tabs >015
-│       └── Hiding Line Numbers >01e
-├── File-Level Nodes >01j
-├── Inline Nodes >004
-│   ├── example inline node text >00e
-│   ├── NOTE: File-level nodes do not use curly-braces. >001
-│   └── Node Trees >00h
-│       ├── From a selected node >00f
-│       └── From the root >00g
-├── Node Metadata >00x
-│   ├── Reserved words >011
+│       ├── Hiding Line Numbers >01e
+│       └── Full Screen / Distraction Free Mode >002
+├── Nodes >01j
+│   ├── Node Identity (Node IDs) >01h
+│   ├── File Level Nodes >01g
+│   └── Inline Nodes >004
+│       ├── example inline node text >00e
+│       └── Node Trees >00h
+│           ├── From a selected node >00f
+│           └── From the root >00g
+├── Projects, Structure and Compiling >01x
+│   └── project_settings >00l
+│       ├── Home >00c
+│       ├── Filename formats >00i
+│       └── Timestamp Formats >00n
+├── The Node List >01i
+├── Metadata >00x
+│   ├── Reserved Metadata Keys >011
 │   │   ├── title (This tag overrides the default title) >00y
 │   │   └── index >00z
-│   └── Finding nodes by Metadata: >012
-├── Links: >00j
-│   ├── Linking to other nodes >0y2
+│   └── Metadata List >012
+├── Timestamps >01s
+├── Links >00j
+│   ├── Linking to Nodes >0y2
 │   │   └── Sublime Text tools to help with linking >00m
-│   └── Linking to outside resources >00q
-│       ├── Web >00o
-│       ├── Files >00p
-│       └── Linking to URLS and to Files Outside the Project: >01f
-├── File and Node Organization >00r
-│   ├── Tree-like: Extending node trees beyond the file level >00t
-│   │   └── nodes can only have one parent (at a time), although multiple nodes may share the same parent. See 7 >00s
-│   ├── Acyclic or Wiki/Web-like >00v
-│   │   └── Viewing >00u
+│   ├── Opening Links >01w
+│   ├── Viewing Linked Relationships >00u
+│   ├── Linking to outside resources >00q
+│   │   ├── Web >00o
+│   │   └── Files >00p
 │   └── Traverse Mode >00w
+├── Node Pointers >00r
+│   ├── Example Child Node Using a Node Pointer >001
+│   │   └── Another node inside it >00s
+│   └── Duplicate Node Pointers >00t
+│       └── Example Child Node Using a Node Pointer >001
+│           └── Another node inside it >00s
 ├── Dynamic Nodes >01r
 │   ├── Example Source Node 1 >017
-│   ├── Example Dynamic Node Title >019
 │   ├── Example Source Node 3 >01b
+│   ├── Example Source Node 2 >00v
 │   ├── Example Source Node 4 >01c
 │   ├── Example Dynamic Node Title >016
-│   └── Node Definition for the Table of Contents >029
-├── Node IDs >01l
+│   └── Another Example: The Node Definition for the Table of Contents >029
+├── More About Node IDs >01q
 ├── Filenames >01m
 ├── Architecture : Extension and Customization >01o
 ├── Reference: Key Bindings >018
@@ -75,20 +87,22 @@ kind: dynamic
 defined in: >029
  --/}}
 
-    What Sublime Urtext Is >>013
+    About Urtext >>013
     Setup >>003
-    File Level Nodes >>01j
-    Inline Nodes >>004
+    Nodes >>01j
+    Projects >>01x
+    Finding Nodes >>01i    
     Metadata >>00x
+    Timestamps >>01s
     Links >>00j
     File and Node Organization >>00r
-    Dynamic Nodes >>01r
-    Node IDs >>01l
+    Dynamic Nodes >>01r    
+    More about Node IDs >>01q
     Filenames >>01m  
     Extension >>01o
-    Formatting, Conventions, Readbility >>01h
     Reference: Key Bindings >>018
     In Progress >>014
+
 /--
 ID:01k
 tags: urtext

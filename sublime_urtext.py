@@ -39,7 +39,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           _UrtextProject.log_item(filename + ' not added.')
           return
         _UrtextProject.log_item(filename + ' modified. Updating the project object')
-        _UrtextProject.compile_all()
+        _UrtextProject.update()
           
     def on_modified(self, event):
         # this is also called on files being added
@@ -49,11 +49,18 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if self.filter(event.src_path) == None:
           return
         filename = os.path.basename(event.src_path)
-        if filename == _UrtextProject.settings['logfile'] or '.git' in filename:
+        do_not_update = [
+           _UrtextProject.nodes['zzz'].filename,
+           _UrtextProject.nodes['zzy'].filename,
+           _UrtextProject.settings['logfile'],
+           '00000.txt'
+          ]
+
+        if filename in do_not_update or '.git' in filename:
           return
         _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
         _UrtextProject.parse_file(filename)
-        _UrtextProject.compile_all()
+        _UrtextProject.update()
 
     def on_deleted(self, event):
       if self.filter(event.src_path) == None:
@@ -582,6 +589,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
         if not view.is_loading():
           view.window().focus_group(self.content_group)
           self.content_sheet.view().show_at_center(position)
+          view.sel().clear() 
+          view.sel().add(position)
           self.return_to_left(view, tree_view)
         else:
           sublime.set_timeout(lambda: move_to_location(view,position), 10)
@@ -599,6 +608,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
         line = self.content_sheet.view().line(position)
         self.content_sheet.view().sel().add(line)
         move_to_location(view,position,tree_view)
+        self.content_sheet.view().sel().clear() 
+        self.content_sheet.view().sel().add(position)
         return
 
       filenames = []
@@ -607,13 +618,13 @@ class TraverseFileTree(sublime_plugin.EventListener):
       if len(filenames) > 0 :
         filename = filenames[0]
         position = _UrtextProject.nodes[link[1:]].ranges[0][0]
-        print(filename)
-        print(position)
         if filename == os.path.basename(this_file):
           for view in window.views_in_group(self.content_group):
             if view.file_name() != None and os.path.basename(view.file_name()) == filename:
               window.focus_view(view)
               view.show_at_center(position) 
+              view.sel().clear() 
+              view.sel().add(position)
               #self.return_to_left(view, tree_view)
               return       
           window.focus_group(self.tree_group)
@@ -630,6 +641,8 @@ class TraverseFileTree(sublime_plugin.EventListener):
           window.focus_group(self.content_group)
           file_view = window.open_file(os.path.join(path, filename), sublime.TRANSIENT)
           file_view.show_at_center(position) 
+          file_view.sel().clear() 
+          file_view.sel().add(position)
           self.return_to_left(file_view, tree_view)
          
   def return_to_left(self, view, return_view):
@@ -773,7 +786,6 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
       print(_UrtextProject.navigation)
 
       open_urtext_node(self.view, link[1], link[2])
-    
 
 def open_urtext_node(view, node_id, position):
 
@@ -781,7 +793,7 @@ def open_urtext_node(view, node_id, position):
       if not view.is_loading():
         view.sel().clear()
         view.show_at_center(int(position)) 
-        view.sel().add(sublime.Region(int(position)))
+        view.sel().add(int(position))
       else:
         sublime.set_timeout(lambda: center_node(view, position), 10)
   
@@ -970,6 +982,18 @@ class UrtextHomeCommand(sublime_plugin.TextCommand):
       return
     node_id = _UrtextProject.settings['home']
     open_urtext_node(self.view, node_id, 0)
+
+class UrtextNodeListCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    open_urtext_node(self.view, 'zzz', 0)
+
+class UrtextMetadataListCommand(sublime_plugin.TextCommand):
+  def run(self, edit):
+    if refresh_project(self.view) == None :
+      return
+    open_urtext_node(self.view, 'zzy', 0)
 
 class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
   def run(self, edit):

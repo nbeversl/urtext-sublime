@@ -1,40 +1,45 @@
 Inline Nodes                                                                 
 	 
-	 Nodes can be nested arbitrarily deep inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this {{ example inline node text /-- ID:00e --/ }}. To create an empty inline node, press Shift-Ctrl-{ (Shift-Control-left-curly -brace). Inside the double curly braces is a new node with an auto-generated ID. 
+    Nodes can be nested arbitrarily deep inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this {{ example inline node text /-- ID:00e --/ }}. 
 
+    To create an empty inline node in Sublime, press Shift-Ctrl-{  ... (that's Shift-Control-left-curly-brace). Inside the double curly braces is a new node with an auto-generated ID. 
 
-	 To wrap existing content into an inline node, first select the content and use the same keypress.
+    To wrap existing content into an inline node, first select the content and use the same keypress.
 
-	 Using inline nodes requires attention to syntax : every opening doubly squiggly bracket must be closed in the same file and requires an ID metadata tag between the opening an closing brackets and not nested in another node.
+    You can do this manually, if you want, by inserting the curly braces manually and generating a new metadata region with an ID by pressing Control-Shift-I.
 
-     {{  
-     NOTE: File-level nodes do not use curly-braces.  /-- tags:important; ID:001 --/ 
-     }} 
+    Using inline nodes requires attention to syntax : every opening doubly curly bracket must be closed in the same file and requires an ID metadata tag between its opening an closing brackets.
+
+    NOTE that file-level nodes (>01g) do not use curly-braces, as their boundaries are defined by the file itself.
+
+    For all purposes in Urtext, inline nodes' content, metadata, and identity is unique from their containing file and parent nodes.
+
+    When syntax highlighting is used (>01d), inline nodes will have background shading that shows nesting up to five layers deep. More levels can be added, if you need them, by altering the file sublime_urtext.sublime-syntax.
+
+{{ Node Trees
+
+     When nodes are nested, you can view a tree of their hierarchy in two ways:         
+
+     {{ From a selected node
+
+        Position the cursor in the node you want to see as root (outermost) and select "Urtext: Show Tree From Current Node" from the Sublime Command Palette. This will add a new split view to the left side of the current view in Sublime, containing a tree with the selected node as root. 
+
+         /-- ID:00f --/ }}
+
+     {{  From the root
+
+         Position the cursor anywhere in the node/file and select "Urtext: Show Tree From Root". This will do the same as above, but the tree will include everything back to the node's root. If the tree extends upward beyond the current file, that will also be included.
+         /-- ID:00g --/ }}
      
-     Inline nodes have their own identity in both content and metadata for all purposes within Urtext.
+    Note that each branch of the resulting file tree contains Node ID that works like a link. You can navigate the links on the tree using Shift-Control-/ (see >0y2) or using Traverse Mode (>00w).
 
-     When syntax highlighting is used (>01g), inline nodes will have background shading that shows nesting up to five layers deep. More levels can be added, if you need them, by altering the file sublime_urtext.sublime-syntax.
- 
-     {{ Node Trees
- 
-         Once nodes are nested, you can view a tree of their hierarchy in two ways:         
+    File trees are displayed in Sublime's "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use, will not have a filename, and will not update when a node/file changes. To make permanent and dynamically updated trees, see >00t.
 
-         {{ From a selected node
+    You can extend node trees beyond the file level by using Node Pointers (>00r).
 
-            Position the cursor in the node you want to see as root (outermost) and select "Urtext: Show Tree From Current Node" from the Sublime Command Palette. This will add a new split view to the left side of the current view in Sublime, containing a tree with the selected node as root. 
-                                                                                            /-- ID:00f --/ }}
-
-         {{  From the root
-
-             Position the cursor anywhere in the node/file and select "Urtext: Show Tree From Root". This will do the same as above, but the tree will include everything back to the node's root. If the tree extends upward beyond the current file, that will also be included.
-                                                                                            /-- ID:00g --/ }}
-         
-        Note that each branch of the resulting file tree contains Node ID that works like a link. You can navigate the links on the tree as normal using Shift-Control-/ (see >0y2).
-
-        File trees are displayed in Sublime's "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use, will not have a filename, and will not update when a node/file changes. To make permanent and dynamically updated trees, see >00t.
-
-        The tree display utilizes the `anytree` module (https://pypi.org/project/anytree/.)
-                                                                                              /--ID:00h--/ }}
+    The tree display utilizes the `anytree` module (https://pypi.org/project/anytree/.)
+    
+    /--ID:00h--/ }}
 
 /-- ID:004
 Timestamp:<Fri., Jun. 07, 2019, 04:14 PM>

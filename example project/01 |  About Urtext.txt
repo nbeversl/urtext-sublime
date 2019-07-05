@@ -1,8 +1,9 @@
 
 About Urtext
    
- {{ 
-    Urtext is a syntax and compiler I invented for writing in plaintext. It is for prose writing, research, project organization, notetaking, general information management, and anything else that can be done in text form. /--ID:00d; tag:definition--/}}
+ {{ What Urtext Is 
+
+    Urtext is a syntax and system I invented for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form.   /--ID:00d; tag:definition--/}}
 
     Sublime Text is a modern, programmable text editor. 
     This package is an implementation of Urtext in Sublime Text 3.
@@ -17,7 +18,7 @@ About Urtext
         
         The original requirements were stringent enough to eliminate every tool already available:
 
-            - All in plain text. No proprietary file formats or information structure.
+            - All in plain text. No proprietary file formats or information structure. Plaintext is fast, flexible, cross-platform, device-portable, and future-proof.
 
             - Usable across multiple platforms and devices.
 
@@ -44,14 +45,12 @@ About Urtext
 
             In addition to the requirements above, I wanted the following features found in various other text-oriented tools:
 
-            - Basic syntax highlighting to delineate content from structure/syntax.
+            - Syntax highlighting to delineate content from structure/syntax.
 
             - Fuzzy search within files. This is already implemented in most modern desktop editors and some mobile text editors, but I wanted the tool to have its own version of this that didn't rely on the editor features or environment.
 
             - Version control (using Git, for example). This possiblity is implicit in the commitment to plaintext but important enough to mention.
-                                                                                               /--ID:006--/}}
-
-
+            /--ID:006--/}}
 
     {{  Characteristics
 
@@ -65,21 +64,26 @@ About Urtext
 
                 - Static plaintext files in a loosely specified syntax.
                 
-                - A service that organizes, and compiles the files. This can run either manually or continuously in "watchdog" mode. (The latter was inspired by the ``npm run watch`` tool for React.) In this Sublime package, it runs in watchdog mode.
+                - A service that organizes, and compiles the files. This can run either manually or continuously in "watchdog" mode. In this Sublime package, it runs in watchdog mode.
 
-        This package is an example implementation using Sublime Text. It has two components:
+        /-- ID:007 --/ }}
 
-            - An embedded Python module called "Urtext" whose API could be used in any Python environment and has no special relationship to Sublime Text.
 
-            - A Sublime package that uses Sublime Text as a user interface for editing Urtext files. The package includes the Urtext module (above) as well as a syntax definition, two color schemes, commands, and key bindings for Sublime Text.   
+        /--ID:008--/ }} 
 
-        The Python module also has its own Github and can be used independently of the Sublime package. For instance, success has been found running it on iPhone using Pythonista. See 
+{{ About This Implementation
 
-                                                                                /-- ID:007 --/ }}
+    This package is an example implementation of Urtext using Sublime Text. It has two components:
 
-                                                                                             /--ID:008--/}} 
+        - An embedded pure Python module called "Urtext". It could be used in any Python environment and has no special relationship to Sublime Text. The Python module also has its own Github and can be used independently of the Sublime package. For instance, success has been found running it on iPhone using Pythonista. See (>014).
+
+
+        - A Sublime package that uses Sublime Text as a user interface for editing Urtext files. The package includes the Urtext module (above) as well as a syntax definition, two color schemes, commands, and key bindings for Sublime Text.    
+
+    As a result of this combination, some features in this documentation are built into Urtext, while others are part of only the Sublime Text implementation. An effort has been made to indicate which features are which. 
+
+    /-- ID:01u --/ }}
                                                                                                     
-
 /-- ID:013
 index:01
 Timestamp:<Wed., Jun. 05, 2019, 10:01 PM>

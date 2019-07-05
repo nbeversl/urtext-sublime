@@ -1,0 +1,8 @@
+Example Child Node Using a Node Pointer
+
+{{ Another node inside it 
+
+ /-- ID:00s --/ }}
+/-- ID:001
+Timestamp:<Thu., Jul. 04, 2019, 07:35 AM>
+ --/

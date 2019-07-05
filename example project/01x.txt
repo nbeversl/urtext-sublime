@@ -1,0 +1,14 @@
+Projects, Structure and Compiling
+
+	A project is a collection of files containing Urtext nodes. 
+
+	Urtext does not depend on organization of files at the filesystem level and has no subfolder organization scheme. All project files are kept in a single folder. Organization of files, file groups, and file relationships is done entirely within the system. This makes it easy to sync and use across devices and platforms where file and folder paths may not always resolve uniformly, and it avoids broken file paths from moved/renamed/reorganized files.
+
+  Filenaming is arbitrary but can be automated. 
+  
+	>>00l
+	
+/-- ID:01x
+Timestamp:<Thu., Jul. 04, 2019, 07:17 AM>
+tags: 
+ --/

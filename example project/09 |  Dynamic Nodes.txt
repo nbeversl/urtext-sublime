@@ -1,81 +1,74 @@
  Dynamic Nodes
     
-    Dynamic nodes compile and update content from other nodes in real time. Dynamic node definitions are enclosed in double square brackets and can be inserted into any node arbitrarily. Press Ctrl-Shift-] to insert a dynamic node definition.
+    Dynamic nodes compile and update content from other nodes as they change in real time. Dynamic node definitions are enclosed in double square brackets and can be inserted into any node arbitrarily. Press Ctrl-Shift-] to insert a dynamic node definition.
 
     The definition has the following keys:
         
         - ID: (required) : This will be auto-populated by Sublime when using the shortcut above; however you can also replace it with the ID of another node. For example, if you want the contents to replace an existing node, copy and paste that node's ID. If you want it to populate new inline node, create that node and then copy/paste its ID.
 
-        - include:metadata:<tag name>:<tag values> (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
+        - include:metadata:(tag name):(tag values) (optional) : Include nodes with this metadata key and value. Keys and values are chained together and separated by the colon (:) as shown above. To include multiple key/value pairs, write multiple lines.
 
-        - exclude:metadata:<tag name>:<tag values> (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Excluding will always supersede including, no matter the order listed in the definition. 
+        - exclude:metadata:(tag name):(tag values) (optional) : Exclude nodes with this metadata key and value. Keys and values are strung together and separated by the colon (:) as shown above. To exclude multiple key/value pairs, write multiple lines. Excluding will always supersede including, no matter the order listed in the definition. 
 
-        - sort:index:<index> (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. The index is a zero-padded number between 00 and 99 that determines sort order.
+        - sort:index:(numerical index) (optional) : How to sort the nodes in the dynamically populated node. Currently, this can be only be 'index'. The index is a zero-padded number between 00 and 99 that determines sort order.
 
-        - metadata:<tag name>:<value> (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title, index and parent keys.
+        - metadata:(tag name):(value) (optional) : Metadata to add to the dynamically populated node. This can be any metadata, including the reserved title, index and parent keys.
 
-        - tree: <root id> : Populates the node with a tree with the provided node ID as root.
+        - tree: (root id) : Populates the node with a tree with the provided node ID as root.
 
         Dynamic nodes will always automatically include the metadata key 'defined in' which will point to the node containing its definition.
 
-    Example:
+    Here are four inline nodes with example tags and indexes:
 
-        Here are four inline nodes with example tags and indexes.
+{{ Example Source Node 1
+ /-- ID:017; tag: example_node; index:02 --/ }}
+                       
+{{ Example Source Node 3
+   /-- ID: 01b; tag: example_node; index:01 --/ }}
 
-            {{ Example Source Node 1
-                    Some text here.
-                 /-- ID:017; tag: example_node; index:02 --/ }}
-                 
-            {{Example Source Node 3 >01b
+{{ Example Source Node 2
+/-- tag: example_node | exclude_this --/ /-- ID:00v --/ }}
+
+{{ Example Source Node 4
+   /-- ID: 01c; tag: example_node; index:05  --/ }}
+
+
+    Here is an example dynamic node definition targeting node ID >018
+
+        [[ ID:016
+            include:metadata:tag:example_node
+            exclude:metadata:tag:exclude_this
+            sort:index
+            show:title
+            metadata:title:Example Dynamic Node Title
+        ]] >018
+
+    Here is the compiled node defined by the definition above. Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. Saving is necessary to trigger the update.
+
+{{Example Source Node 3 >01b
 -
 Example Source Node 1 >017
 -
 Example Source Node 4 >01c
 -
-/-- ID: 019
+/-- ID: 016
 title: Example Dynamic Node Title
 kind: dynamic
 defined in: >01r
  --/}}
-            
-            {{ Example Source Node 3
-                 /-- ID: 01b; tag: example_node; index:01 --/ }}
-            
-            {{ Example Source Node 4
-                 /-- ID: 01c; tag: example_node; index:05  --/ }}
+        
+{{ Another Example: The Node Definition for the Table of Contents
 
+    Here is the dynamic definition that generates the table of contents for this documentation:
 
-        Here is an example dynamic node definition targeting node ID >018
+        [[ ID:01a
+            tree:01k
+            metadata:title:Table of Contents
+         ]]  
 
-            [[ ID:019
-                include:metadata:tag:example_node
-                exclude:metadata:tag:exclude_this
-                sort:index
-                show:title
-                metadata:title:Example Dynamic Node Title
-            ]] >018
+    Changing the titles or nesting of sections in this document will dynamically update the tree.
 
-        Here is the node defined by the definition above. Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. Saving is necessary to trigger the update.
-
-{{  
-Example Source Node 3  >016
-Example Source Node 4  >017
-Example Source Node 2  >015
-/-- ID: 016
-title: Example Dynamic Node Title
-kind: dynamic
-defined in: >01c
- --/ }}
-        {{ Node Definition for the Table of Contents
-
-            Here is another example dynamic definition, which creates the table of contents for this documentation:
-                [[ ID:01a
-                    tree:01k
-                    metadata:title:Table of Contents
-                 ]]  
-
-            Changing the titles or nesting of sections in this document will dynamically update the tree.
-                                                                                          /-- ID: 029 --/}}
+     /-- ID: 029 --/}}
                                                                                               
 
 /-- ID: 01r

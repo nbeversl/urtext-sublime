@@ -1,10 +1,10 @@
-Node Metadata
+Metadata
 
-    Metadata tags can be placed anywhere inside the double curly braces of a node. Metadata tags open with a forward-slash followed by two dashes and close with two dashes followed by a forward slash. The syntax is:
-        
-        <optional key> : <optional value with optional timestamp> 
+    Metadata is data about data. As described in >01g, every newly-created node contains a metadata region with an ID and timestamp. The metadata region opens with a forward-slash followed by two dashes and closes with two dashes followed by a forward slash.
 
-    Examples:
+    Additional user-defined metadata region can be added into the same region, and additional metadata regions can be inserted arbitrarily anywhere inside a node.
+
+    Each metadata entry is a user-defined key/value pair, separated by a colon, with the value containing an optional timestamp. Examples:
 
         /-- Purpose: work-related <Tue., Mar. 05, 2019, 03:25 PM> --/
         /-- kind: gift_list --/
@@ -13,7 +13,7 @@ Node Metadata
 
         /-- note: example note ; tag: groceries --/
 
-    Other than two reserved words (see below), metadata can be have aribitrary keys and values, with open-ended length. Keys and values of metadata tags are indexed automatically and are searchable within the Urtext project. 
+    Other than two reserved words (see below), metadata may have user-defined aribitrary keys and values. Keys and values of metadata tags are indexed automatically and searchable within the Urtext project (see >012). 
 
     Note that: 
 
@@ -25,7 +25,7 @@ Node Metadata
 
         -   Indexing of metadata keys and values is not case-sensitive.
 
-{{ Reserved words
+{{ Reserved Metadata Keys
                                                    
     There are two reserved metadata keys:
 
@@ -34,7 +34,7 @@ Node Metadata
             If for you want to override the automatic title and assign a title manually, use title tag in the metadata block:
        
                /-- title: title (This tag overrides the default title)  --/
-                                                                                        /-- ID:00y --/ }}
+        /-- ID:00y --/ }}
 
        {{   index
        
@@ -42,15 +42,26 @@ Node Metadata
 
                /-- index: 03 --/    
 
-            Index tags will sort the files in the node browser (Ctrl-Shift-e). Any indexed nodes will sort before (above) the others, with lowest number appearing first. Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.   				/-- ID:00z --/ }}
+            Index tags will sort the files in the Node List (>01i) . Any indexed nodes will sort before (above) the others, with lowest number appearing first. 
+
+            Remember unindexed notes display in order of creation, newest first. You can give the same index number to multiple nodes; in this case they sort with the most recent node first, within each index.
+            /-- ID:00z --/ }}
           
-    The only additional reserved metadata keys only apply to the project_settings node (>00l).
+    The only additional reserved metadata keys apply only to the project_settings node (>00l).
                    
-                                                                                        /-- ID:011 --/ }}
+    /-- ID:011 --/ }}
 
-{{  Finding nodes by Metadata:                                                            /-- ID:012 --/
+{{  Metadata List  /-- ID:012 --/
 
-        To browse nodes using their metadata, use the "Find By Meta" command in Command Palette. Select the tag name and then "<all>" or a tag value. A nodeview matching the selection will be written into a new buffer. }}
+    Like the Node List (>01i), every project maintains a Metadata List, automatically written to a built-in file-level dynamic node. 
+
+    To see the Metadata List, press Ctrl-Shift-U. Like any node, the Metadata List can be traversed using Traverse Mode (>00w). You can also link to it from anywhere by its node ID, like this: >zzy.
+
+    In Sublime Text there is also the alternative of using the "Find By Meta" command in Command Palette. Press Control-Shift-E or select "Urtext: Metadata List" from the Sublime command palette (Shift-Super-P). 
+
+    The Node ID `zzy` is reserved for the Metadata list. (See >01l for more information on Node IDs)
+
+    }}
 
 
 /-- ID:00x

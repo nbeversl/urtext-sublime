@@ -1,0 +1,13 @@
+More About Node IDs
+
+	Control-Shift I
+
+	That Nodes have no special meaning
+
+	that only the first one is read
+
+
+/-- ID:01q
+Timestamp:<Thu., Jul. 04, 2019, 06:46 AM>
+tags: 
+ --/
