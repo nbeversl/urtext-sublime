@@ -34,7 +34,7 @@ Version: 0.6
 │   └── About This Implementation >01u
 ├── Setup >003
 │   ├── Making an Empty Project >00a
-│   ├── Importing Existing Files >00b
+│   ├── Using Existing Files >00b
 │   └── Sublime Text Interface Tips >000
 │       ├── Syntax Highlighting >01d
 │       ├── Hiding Tabs >015

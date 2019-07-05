@@ -1,6 +1,6 @@
 Inline Nodes                                                                 
 	 
-    Nodes can be nested arbitrarily deep inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this {{ example inline node text /-- ID:00e --/ }}. 
+    Nodes can be nested arbitrarily deep inside other nodes, whether the parent node is a file or another inline node. The syntax for inline nodes is to wrap the content in double curly braces, like this {{ Example inline node /-- ID:00e --/ }}. 
 
     To create an empty inline node in Sublime, press Shift-Ctrl-{  ... (that's Shift-Control-left-curly-brace). Inside the double curly braces is a new node with an auto-generated ID. 
 
@@ -8,13 +8,13 @@ Inline Nodes
 
     You can do this manually, if you want, by inserting the curly braces manually and generating a new metadata region with an ID by pressing Control-Shift-I.
 
-    Using inline nodes requires attention to syntax : every opening doubly curly bracket must be closed in the same file and requires an ID metadata tag between its opening an closing brackets.
+    Unline a word processor or text editor, Urtext requires attention to syntax : every opening doubly curly bracket must be closed in the same file and requires an ID metadata tag between its opening an closing brackets.
 
     NOTE that file-level nodes (>01g) do not use curly-braces, as their boundaries are defined by the file itself.
 
     For all purposes in Urtext, inline nodes' content, metadata, and identity is unique from their containing file and parent nodes.
 
-    When syntax highlighting is used (>01d), inline nodes will have background shading that shows nesting up to five layers deep. More levels can be added, if you need them, by altering the file sublime_urtext.sublime-syntax.
+    In Sublime, when syntax highlighting is used (>01d), inline nodes will have background shading showing nesting up to five layers deep. More levels can be added, if you need them, by altering sublime_urtext.sublime-syntax.
 
 {{ Node Trees
 
@@ -33,11 +33,11 @@ Inline Nodes
      
     Note that each branch of the resulting file tree contains Node ID that works like a link. You can navigate the links on the tree using Shift-Control-/ (see >0y2) or using Traverse Mode (>00w).
 
-    File trees are displayed in Sublime's "scratch" views, meaning they will never report as being dirty (unsaved). They are intended for one-time/temporary use, will not have a filename, and will not update when a node/file changes. To make permanent and dynamically updated trees, see >00t.
+    File trees are displayed in Sublime's scratch views, meaning they will never report as being "dirty" (unsaved). They are intended for one-time/temporary use, will not have a filename, and will not update when a node/file changes. To make permanent and dynamically updated trees, see >00t.
 
     You can extend node trees beyond the file level by using Node Pointers (>00r).
 
-    The tree display utilizes the `anytree` module (https://pypi.org/project/anytree/.)
+    Thanks to the `anytree` module (https://pypi.org/project/anytree/) for the plaintext node tree diagrams.
     
     /--ID:00h--/ }}
 
