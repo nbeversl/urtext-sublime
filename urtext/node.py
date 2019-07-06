@@ -93,6 +93,11 @@ class UrtextNode:
   def set_index(self, new_index):
     self.index = new_index
   
+  def get_title(self):
+    if self.title:
+      return self.title
+    return self.set_title()
+
   def set_title(self):
     if len(self.metadata.get_tag('title')) > 0: # title is the first many lines if not set
       self.title = self.metadata.get_tag('title')[0]

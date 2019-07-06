@@ -1,4 +1,21 @@
-# Urtext - Main
+"""
+This file is part of Urtext for Sublime Text.
+
+Urtext is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Urtext is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
+
+"""
+
 import sublime
 import sublime_plugin
 import os
@@ -442,13 +459,13 @@ class NodeBrowserMenu():
 
 class NodeInfo():
     def __init__(self, node_id):
-      self.title = _UrtextProject.nodes[node_id].title
+      self.title = _UrtextProject.nodes[node_id].get_title()
       if self.title.strip() == '':
         self.title = '(no title)' 
       self.date = _UrtextProject.nodes[node_id].date
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
-      self.title = _UrtextProject.nodes[node_id].title
+      self.title = _UrtextProject.nodes[node_id].get_title()
       self.node_id = _UrtextProject.nodes[node_id].id
 
 def make_node_menu(node_ids):
@@ -498,7 +515,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
       if not view.is_loading(): 
         node_id = _UrtextProject.get_node_id_from_position(self.current_file, self.position)
         
-        title = _UrtextProject.nodes[node_id].title
+        title = _UrtextProject.nodes[node_id].get_title()
         link = title + ' >' + node_id
         sublime.set_clipboard(link)
         view.show_popup('Link to ' + link + ' copied to the clipboard')

@@ -1,8 +1,7 @@
-
 Sublime-Urtext Documentation
 
-Updated: <Tue., Jun. 04, 2019, 04:55 PM> /-- Timestamp: <Tue., Jun. 04, 2019, 05:32 PM> --/
-Version: 0.6
+Version: 0.1.0-alpha
+License: GNU General Public License 3.0
 
 {{  Using this document
 
@@ -10,14 +9,14 @@ Version: 0.6
 
     - You can always open this help document from Sublime by choosing "Urtext: Help" from the command pallette.
 
-    - To go to a link in the table of contents, press ctrl-shift-/ from any line. (See Links >00j for more information).
+    - To go to a link in the table of contents, press ctrl-shift-/ from any line. Links are three-character node-IDs preceded by one or two right-angle brackets. (See Links >00j for more information).
 
     - To return to this table of contents, press ctrl-shift-H.
 
     - You can also traverse the table of contents while viewing linked content in another pane using Traverse Mode : Press Ctrl-Shift-R and click or arrow-navigate to any node in the table. See (>00w) for more information on Traverse Mode.
     
-    - To enable syntax and node depth highlighting that makes everything easier, select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ... See >01g for more on syntax highlighting. (Press Shift-Control-/ (Shift-Control-forward-slash) to jump to a link.)
-
+    - Enabling syntax highlighting makes the documentation much easier to read. 
+    Select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ...  Then switch to the Urtext syntax by selecting it in View -> Syntax -> Urtext. To avoid having to do this for every file, select View -> Syntax -> Open All with Current Extension As ... -> Urtext. (You can undo this later by repeating the same but selecting Plain Text.) See >01d for more on syntax highlighting.
 
 
      /--ID:009--/}}
@@ -88,7 +87,8 @@ Version: 0.6
 ├── Filenames >01m
 ├── Architecture : Extension and Customization >01o
 ├── Reference: Key Bindings >018
-└── In-Progress / Experimental / Wish List >014
+├── In-Progress / Experimental / Wish List >014
+└── License >01t
 /-- ID: 01a
 title: Table of Contents
 kind: dynamic
@@ -117,4 +117,21 @@ tags: urtext
 index:00
 title: Sublime Urtext Documentation
 --/
-                                                                                  
+
+{{ License
+     
+ This file is part of Urtext for Sublime.
+ 
+ Urtext is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ Urtext is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
+           /-- ID:01t --/ }}     

@@ -20,13 +20,13 @@ A node can be a file but a file can also contain multiple nodes. In this system,
 
 {{ File Level Nodes
 
-	A file-level node is a node that is identifiable as a single file. It may or may not contain other nodes.
+	A file-level node is the node at the outermost level of a single file. It may or may not contain other nodes.
 
 	To create a new empty file-level node press Control-Shift-; (Control-Shift-semicolon). The file is created, named and saved automatically. It has whitespace on top and a metadata block at the bottom containing a node ID and a timestamp of the creation date and time.
 
 	By default, the first non-whitespace line of any node is the node's title. Write a title and anything else into the node. Save it with Super-S as usual.
 
-		 /-- ID:01g --/ }}
+	/-- ID:01g --/ }}
 
 
 Press Ctrl-Shift-/ on this line to continue on to Inline Nodes >>004

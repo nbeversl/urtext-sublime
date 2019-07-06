@@ -407,7 +407,7 @@ class UrtextProject:
     for pre, _, this_node in RenderTree(start_point):
       if this_node.name in self.nodes:
         tree_render += "%s%s" % (pre,
-            self.nodes[this_node.name].title) + ' >' + this_node.name + '\n'
+            self.nodes[this_node.name].get_title()) + ' >' + this_node.name + '\n'
       else:
         tree_render += "%s%s" % (pre, '? (Missing Node): >'+ this_node.name + '\n')
     return tree_render
@@ -588,7 +588,7 @@ class UrtextProject:
         t = Node(value)
         t.parent = s
         for node_id in self.tagnames[key][value]:
-          n = Node(self.nodes[node_id].title +' >'+node_id)
+          n = Node(self.nodes[node_id].get_title() +' >'+node_id)
           n.parent = t
     
     with open(os.path.join(self.path, 'metadata.txt'), 'w', encoding='utf-8') as theFile:
@@ -877,7 +877,7 @@ class UrtextProject:
       root_node = self.nodes[root_node_id]   
 
       new_filename = ' | '.join(filename_template)
-      new_filename = new_filename.replace('TITLE', root_node.title)
+      new_filename = new_filename.replace('TITLE', root_node.get_title())
       if root_node_id not in indexed_nodes and date_template != None:
         new_filename = new_filename.replace('DATE', datetime.datetime.strftime(root_node.date, date_template))
       else: 
@@ -927,10 +927,10 @@ class UrtextProject:
     """returns a list of all nodes in the project, in plain text"""
     output=''
     for node_id in list(self.indexed_nodes()):
-      title = self.nodes[node_id].title
+      title = self.nodes[node_id].get_title()
       output += title + ' >' + node_id + '\n'
     for node_id in list(self.unindexed_nodes()):
-      title=self.nodes[node_id].title
+      title=self.nodes[node_id].get_title()
       output += title + ' >' + node_id + '\n'
     return output
 
@@ -986,7 +986,7 @@ class UrtextProject:
     writer = self.ix.writer()
     for node_id in self.nodes:
       writer.add_document(
-        title = self.nodes[node_id].title,
+        title = self.nodes[node_id].get_title(),
         content = self.nodes[node_id].contents,
         path = node_id)
     writer.commit()

@@ -57,7 +57,8 @@ Node Pointers
     │   ├── Filenames >01m
     │   ├── Architecture : Extension and Customization >01o
     │   ├── Reference: Key Bindings >018
-    │   └── In-Progress / Experimental / Wish List >014
+    │   ├── In-Progress / Experimental / Wish List >014
+    │   └── License >01t
     └── Example - Table of Contents From Another Root >01n
 /-- ID: 01n
 title: Example - Table of Contents From Another Root

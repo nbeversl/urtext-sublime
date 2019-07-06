@@ -6,7 +6,6 @@
     { "caption": "Urtext: Node List", "command": "node_browser"},
     { "caption": "Urtext: Show Tags", "command":"show_tags"},
     { "caption": "Urtext: Metadata List", "command":"find_by_meta"},
-    { "caption": "Urtext: Show All Nodes in Buffer", "command" :"show_all_nodes"},
     { "caption": "Urtext: Search", "command" :"urtext_search_project"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
@@ -32,7 +31,7 @@
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
 
     /* Help and Log */
-    { "caption": "Urtext: Help", "command" :"show_urtext_help"},
+    { "caption": "Urtext: Documentation", "command" :"show_urtext_help"},
     { "caption": "Urtext: Log", "command" :"open_urtext_log"},
 
     /* Project and File Management */
