@@ -567,18 +567,12 @@ class UrtextProject:
   """
   Refreshers
   """
-
-  
-
-
   def update_node_list(self):
     """ Refreshes the Node List file """
 
     node_list_file = self.settings['node_list']
     with open(os.path.join(self.path, node_list_file), 'w', encoding='utf-8') as theFile:
-      for node_id in self.nodes:
-        title = self.nodes[node_id].title
-        theFile.write(title + ' >' + node_id+ '\n')
+      theFile.write(self.list_nodes())
       metadata = '/--\nID:zzz\ntitle: Node List\n--/'
       theFile.write(metadata)
       theFile.close()
