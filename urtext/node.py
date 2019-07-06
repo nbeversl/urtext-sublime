@@ -96,20 +96,20 @@ class UrtextNode:
   def set_title(self):
     if len(self.metadata.get_tag('title')) > 0: # title is the first many lines if not set
       self.title = self.metadata.get_tag('title')[0]
-      return 
+      return self.title
 
     full_contents = self.content_only().strip().split('\n')    
     index = 0
     while full_contents[index].strip() == '':
       if index == len(full_contents) - 1:
         self.title = '(untitled)'
-        return
+        return self.title
       index += 1
        
     first_line = full_contents[index][:100].replace('{{','').replace('}}','')
     first_line = re.sub('\/-.*(-\/)?','',first_line, re.DOTALL)
     self.title = first_line.strip()
-    return
+    return self.title
  
   def get_ID(self):
     if len(self.metadata.get_tag('ID')) > 0: # title is the first many lines if not set

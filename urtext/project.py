@@ -494,7 +494,7 @@ class UrtextProject:
         else: 
           for targeted_node in included_nodes:
             if show == 'title':
-              show_contents = targeted_node.title
+              show_contents = targeted_node.set_title()
             if show == 'full_contents':
               show_contents = targeted_node.content_only() 
             if targeted_node.id == None:
