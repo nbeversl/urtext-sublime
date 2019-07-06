@@ -24,7 +24,9 @@ After installation in Sublime, it will function as an Urtext project, press ⌘/
 
 Excerpts of the documentation are also included in this README.
 
-## Ideas and Requirements Behind Urtext
+## Project Information
+
+### Ideas and Requirements
 
  There are many tools available for writing and organizing. None of them was what I wanted, so I wrote this.
 
@@ -32,29 +34,29 @@ Excerpts of the documentation are also included in this README.
 
 ### Basic Requirements
 
- The original requirements were stringent enough to eliminate every tool already available:
+The original requirements were stringent enough to eliminate every tool already available:
 
-   	- All in plain text. No proprietary file formats or information structure. Plaintext is fast, flexible, cross-platform, device-portable, and future-proof.
+   - All in plain text. No proprietary file formats or information structure. Plaintext is fast, flexible, cross-platform, device-portable, and future-proof.
 
-   	- Usable across multiple platforms and devices.
+   - Usable across multiple platforms and devices.
 
-   	- Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform, fragmentary writing while permitting gradual aggregation of content with other content. No need to adapt to a preexisting interface or feature set. 
+   - Allow both organized and disorganized use. Structured but flexible, all-purpose syntax that allows freeform, fragmentary writing while permitting gradual aggregation of content with other content. No need to adapt to a preexisting interface or feature set. 
 
-   	- Be undistracted by interacting with the file system (dialogues for naming, saving, organizing of files).
+   - Be undistracted by interacting with the file system (dialogues for naming, saving, organizing of files).
 
-   	- Customizable and extensible metadata without relying on the file system.
+   - Customizable and extensible metadata without relying on the file system.
 
-   	- Mobile use must not depend on live internet or cellular data; the content must wholly reside on, and sync among, every device that uses it.
+   - Mobile use must not depend on live internet or cellular data; the content must wholly reside on, and sync among, every device that uses it.
 
-   	- Capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to anything.         
+   - Capable of hyperlinks, both within/among the files and to outside resources. Function as an all-purpose reference system that can link to anything.         
 
-   	- Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical fashion, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
+   - Pieces of content should be able to connect to one another in a tree-like as well as non-hierarchical fashion, such as wiki or flat database style. Files must be able to able to have multiple, not just single, tree-like or other relationships.
 
-   	- Extensible, hackable, customizable. This year's needs might not be next year's. One person's needs might not be another's.
+   - Extensible, hackable, customizable. This year's needs might not be next year's. One person's needs might not be another's.
 
-   	- Does not require years to master. (Looking at you Org Mode.)
+   - Does not require years to master. (Looking at you Org Mode.)
 
-   	- Future-proof. No reliance on anything that may not exist in 5 or 100 years. 
+   - Future-proof. No reliance on anything that may not exist in 5 or 100 years. 
 
 ### Additional Features
 
@@ -84,7 +86,7 @@ As a result of the above, Urtext came out having the following characteristics:
 
 This package is an example implementation of Urtext using Sublime Text. It has two components:
 
-   - An embedded pure Python module called "Urtext". It could be used in any Python environment and has no special relationship to Sublime Text. The Python module also has its own Github and can be used independently of the Sublime package. For instance, success has been found running it on iPhone using Pythonista. See (>014).
+   - An embedded pure Python module called "Urtext". It could be used in any Python environment and has no special relationship to Sublime Text. The Python module also has its own Github and can be used independently of the Sublime package. For instance, success has been found running it on iPhone using Pythonista.
 
    - A Sublime package that uses Sublime Text as a user interface for editing Urtext files. The package includes the Urtext module (above) as well as a syntax definition, two color schemes, commands, and key bindings for Sublime Text.    
 
@@ -92,7 +94,7 @@ This package is an example implementation of Urtext using Sublime Text. It has t
 
 ## Versioning
 
-[SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+[SemVer](http://semver.org/) for versioning.
 
 ## Author
 
