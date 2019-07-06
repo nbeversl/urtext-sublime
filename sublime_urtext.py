@@ -442,13 +442,13 @@ class NodeBrowserMenu():
 
 class NodeInfo():
     def __init__(self, node_id):
-      self.title = _UrtextProject.nodes[node_id].get_title()
+      self.title = _UrtextProject.nodes[node_id].title
       if self.title.strip() == '':
         self.title = '(no title)' 
       self.date = _UrtextProject.nodes[node_id].date
       self.filename = _UrtextProject.nodes[node_id].filename
       self.position = _UrtextProject.nodes[node_id].ranges[0][0]
-      self.title = _UrtextProject.nodes[node_id].get_title()
+      self.title = _UrtextProject.nodes[node_id].title
       self.node_id = _UrtextProject.nodes[node_id].id
 
 def make_node_menu(node_ids):
@@ -498,7 +498,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
       if not view.is_loading(): 
         node_id = _UrtextProject.get_node_id_from_position(self.current_file, self.position)
         
-        title = _UrtextProject.nodes[node_id].get_title()
+        title = _UrtextProject.nodes[node_id].title
         link = title + ' >' + node_id
         sublime.set_clipboard(link)
         view.show_popup('Link to ' + link + ' copied to the clipboard')

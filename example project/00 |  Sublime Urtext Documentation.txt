@@ -35,6 +35,7 @@ Version: 0.6
 ├── Setup >003
 │   ├── Making an Empty Project >00a
 │   ├── Using Existing Files >00b
+│   ├── Reopening a Project >01p
 │   └── Sublime Text Interface Tips >000
 │       ├── Syntax Highlighting >01d
 │       ├── Hiding Tabs >015
@@ -44,7 +45,7 @@ Version: 0.6
 │   ├── Node Identity (Node IDs) >01h
 │   ├── File Level Nodes >01g
 │   └── Inline Nodes >004
-│       ├── example inline node text >00e
+│       ├── Example inline node >00e
 │       └── Node Trees >00h
 │           ├── From a selected node >00f
 │           └── From the root >00g

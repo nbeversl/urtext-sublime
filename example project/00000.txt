@@ -1,74 +1,75 @@
-Full Screen / Distraction Free Mode >002
-Setup >003
-Sublime Text Interface Tips >000
-Example Child Node Using a Node Pointer >001
-Additional Features >006
-Characteristics >007
-Inline Nodes >004
-Timestamps >005
-About This Implementation >01u
-Ideas and Requirements Behind Urtext >008
-Using this document >009
-More About Node IDs >01q
-Another Example: The Node Definition for the Table of Contents >029
-Timestamps >01s
+Sublime Text tools to help with linking >00m
+project_settings >00l
+Web >00o
+Timestamp Formats >00n
+Filename formats >00i
+Node Trees >00h
+Timeline View: >00k
+Links >00j
+Example inline node >00e
+What Urtext Is >00d
+From the root >00g
+index >00z
+Making an Empty Project >00a
+Home >00c
+Using Existing Files >00b
 Dynamic Nodes >01r
-Filenames >01m
-Node IDs >01l
-Architecture : Extension and Customization >01o
-Example - Table of Contents From Another Root >01n
-The Node List >01i
-Node Identity (Node IDs) >01h
-Sublime Urtext Documentation >01k
-Nodes >01j
-Hiding Line Numbers >01e
-Syntax Highlighting >01d
-File Level Nodes >01g
-Node Pointers >00r >01f
-Table of Contents >01a
-Example Source Node 4 >01c
-Example Source Node 3 >01b
-Example Source Node 2 >00v
-(untitled) >019
-Linking to Nodes >0y2
-Projects, Structure and Compiling >01x
 Reference: Key Bindings >018
-Hiding Tabs >015
-Node List >zzz
-Metadata List >zzy
-Opening Links >01w
-Node Pointers >00r
-Recursive Node Pointers >00s
-Files >00p
-Linking to outside resources >00q
-Example Source Node 1 >017
-Traverse Mode >00w
+(untitled) >019
+title (This tag overrides the default title) >00y
+Metadata >00x
 Duplicate Node Pointers >00t
 Viewing Linked Relationships >00u
-index >00z
-In-Progress / Experimental / Wish List >014
-Metadata >00x
-title (This tag overrides the default title) >00y
-Reserved Metadata Keys >011
-Basic Requirements: >010
 About Urtext >013
-Metadata List >012
-Using Existing Files >00b
-Home >00c
-Making an Empty Project >00a
-From a selected node >00f
-From the root >00g
-What Urtext Is >00d
-example inline node text >00e
-Links >00j
-Timeline View: >00k
-Node Trees >00h
-Filename formats >00i
-Timestamp Formats >00n
-Web >00o
-project_settings >00l
-Sublime Text tools to help with linking >00m
+Traverse Mode >00w
+Example Source Node 2 >00v
 Example Dynamic Node Title >016
+Example Source Node 1 >017
+Recursive Node Pointers >00s
+Node Pointers >00r
+Linking to Nodes >0y2
+Additional Features >006
+Basic Requirements: >010
+Timestamps >01s
+Reopening a Project >01p
+Metadata List >zzy
+Inline Nodes >004
+Files >00p
+In-Progress / Experimental / Wish List >014
+Linking to outside resources >00q
+About This Implementation >01u
+Hiding Tabs >015
+Syntax Highlighting >01d
+Sublime Urtext Documentation >01k
+Node Identity (Node IDs) >01h
+The Node List >01i
+Example - Table of Contents From Another Root >01n
+Architecture : Extension and Customization >01o
+Node IDs >01l
+Filenames >01m
+Example Source Node 3 >01b
+Example Source Node 4 >01c
+Table of Contents >01a
+Node Pointers >00r >01f
+File Level Nodes >01g
+Another Example: The Node Definition for the Table of Contents >029
+Hiding Line Numbers >01e
+From a selected node >00f
+Projects, Structure and Compiling >01x
+Using this document >009
+Ideas and Requirements Behind Urtext >008
+Timestamps >005
+Reserved Metadata Keys >011
+Characteristics >007
+More About Node IDs >01q
+Example Child Node Using a Node Pointer >001
+Opening Links >01w
+Setup >003
+Node List >zzz
+Full Screen / Distraction Free Mode >002
+Sublime Text Interface Tips >000
+Metadata List >012
+Nodes >01j
 /--
 ID:zzz
 title: Node List
