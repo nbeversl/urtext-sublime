@@ -965,7 +965,7 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
     this_file_path = os.path.dirname(__file__)
     open_windows = sublime.windows()
     #for window in open_windows:
-    _UrtextProject = UrtextProject(os.path.join(os.path.dirname(__file__),"example project"))
+    _UrtextProject = UrtextProject(os.path.join(os.path.dirname(__file__),"documentation"))
 
     """if help_view != None:
         window.focus_view(help_view)

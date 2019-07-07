@@ -487,7 +487,7 @@ class UrtextProject:
         else:
           included_nodes = sorted(included_nodes, key=lambda node: node.date)
 
-        #build dynamic node contents
+        # build dynamic node contents
         if show == 'timeline':
            contents += urtext.timeline.timeline(self, included_nodes)
 
@@ -496,7 +496,7 @@ class UrtextProject:
             if show == 'title':
               show_contents = targeted_node.set_title()
             if show == 'full_contents':
-              show_contents = targeted_node.content_only() 
+              show_contents = targeted_node.content_only().strip('\n').strip()
             if targeted_node.id == None:
               self.log_item('Targeted Node has no ID')
               return None
