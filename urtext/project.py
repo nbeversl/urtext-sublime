@@ -32,6 +32,10 @@ node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
 keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
 
+class NoProject(Exception):
+  """ Raised when no Urtext nodes are in the folder """
+  pass
+
 class UrtextProject:
   """ Urtext project object """
 
@@ -39,10 +43,11 @@ class UrtextProject:
         make_new_files=True, 
         rename=False, 
         recursive=False, 
-        import_project=False):
-        
+        import_project=False,
+        init_project=False):
+
     self.path = path
-    self.build_response = ''
+    self.build_response = []
     self.log = setup_logger('urtext_log',os.path.join(self.path,'urtext_log.txt'))
     self.make_new_files = make_new_files
     self.nodes = {}
@@ -56,7 +61,8 @@ class UrtextProject:
       'logfile' : 'urtext_log.txt',
       'timestamp_format' : ['%a., %b. %d, %Y, %I:%M %p', '%B %-d, %Y', '%B %Y', '%m-%d-%Y'],
       'filenames': ['PREFIX', 'DATE %m-%d-%Y', 'TITLE'],
-      'node_list': '00000.txt'
+      'node_list': 'zzz.txt',
+      'metadata_list': 'zzy.txt'
       }
     self.to_import = []
     self.settings_initialized = False
@@ -77,7 +83,13 @@ class UrtextProject:
     
     for file in self.to_import:
       self.import_file(file)
-            
+
+    if self.nodes == {}:
+      if init_project == True:
+        self.log_item('Initalizing a new Urtext project in '+path)
+      else:
+        raise NoProject('No Urtext nodes in this folder.')       
+
     for node_id in list(self.nodes): # needs do be done once manually on project init
       self.parse_meta_dates(node_id) 
 
@@ -86,7 +98,6 @@ class UrtextProject:
     self.compiled = True    
 
     self.update()
-
 
   def update(self):
     """ 
@@ -591,7 +602,7 @@ class UrtextProject:
     if 'zzy' in self.nodes:
       metadata_file = self.nodes['zzy'].filename
     else:
-      metadata_file = self.settings['node_list']    
+      metadata_file = self.settings['metadata_list']    
 
 
     with open(os.path.join(self.path, metadata_file), 'w', encoding='utf-8') as theFile:
@@ -1089,9 +1100,13 @@ class UrtextProject:
     return False
 
   def log_item(self,item): # Urtext logger
-    self.log.info(item)
-    self.build_response += item + '\n'
-  
+    self.build_response.append(item)
+
+
+  def write_log(self):
+    for item in self.build_response:
+      self.log(item + '\n')
+
   def timestamp(self, date):
     """ Given a datetime object, returns a timestamp in the format set in project_settings, or the default """
 

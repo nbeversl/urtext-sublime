@@ -8,18 +8,15 @@ Metadata Keys
 │   └── gift_list
 │       └── Metadata >00x
 ├── tags
-│   ├── urtext_documentation
-│   │   └── Setup >003
+│   ├── coming
+│   │   └── Files >00p
 │   ├── urtext
 │   │   └── Sublime Urtext Documentation >01k
-│   └── coming
-│       └── Files >00p
-├── Purpose
-│   └── work-related
+│   └── urtext_documentation
+│       └── Setup >003
+├── note
+│   └── example note
 │       └── Metadata >00x
-├── home
-│   └── 01k
-│       └── project_settings >00l
 ├── tag
 │   ├── example_node
 │   │   ├── Example Source Node 1 >017
@@ -32,8 +29,11 @@ Metadata Keys
 │   │   └── Example Source Node 2 >00v
 │   └── definition
 │       └── What Urtext Is >00d
-└── note
-    └── example note
+├── home
+│   └── 01k
+│       └── project_settings >00l
+└── Purpose
+    └── work-related
         └── Metadata >00x
 /--
 ID:zzy

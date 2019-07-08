@@ -40,6 +40,7 @@
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
     { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
+    { "caption": "Urtext: Initialize Project", "command":"new_project"},
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},

@@ -2,9 +2,9 @@ Setup
 
 	Urtext projects are defined by their folder; 
 
-{{  Making an Empty Project
+{{  Making a New Project
 
-    To make an empty project, make a new empty folder and open the folder in Sublime. Then press Ctrl-Shift-; to create a new node. 
+    To make an empty project, make a new folder (or open an existing folder, if you want to create a new project there) and open the folder in Sublime. Select Urtext : Initialize Project from the Sublime Command Palette. Then press Ctrl-Shift-; to create a new node. 
 
      /-- ID:00a --/ }}
 
@@ -12,7 +12,7 @@ Setup
 
     To use existing plaintext files, you have to add a Node ID to each file so they can be parsed into a project. 
 
-    Urtext can do this automatically by selecting `Urtext : Import Project` from the Sublime Command palette. This will append an `ID` (>01e) and `Timestamp` (>00j) metadata keys and values to the file, along with the current date and time to show when the file was added to the Urtext Project. See >00x for more information on Metadata.
+    Urtext can do this automatically by selecting `Urtext : Import Project` from the Sublime Command palette. This will append the `ID` (>01e) and `Timestamp` (>00j) metadata keys and values to the file, along with the current date and time to show when the file was added to the Urtext Project. See >00x for more information on Metadata.
 
     Note that the append will occur without a confirmation dialog, so if you are just experimenting with this system, consider making a copy of your file folder so you can revert without having to manually remove the metadata.
 

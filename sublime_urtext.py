@@ -101,7 +101,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
           return None
       return filename
 
-def refresh_project(view):
+def refresh_project(view, init_project=False):
 
   global _UrtextProject
   current_path = get_path(view)
@@ -114,21 +114,25 @@ def refresh_project(view):
 
   # no Urtext project yet defined
   if current_path != None: 
-    _UrtextProject = focus_urtext_project(current_path, view)
+    _UrtextProject = focus_urtext_project(current_path, view, init_project=init_project)
   
   else:
     return None
 
-  if _UrtextProjectList == None:        
-    global _UrtextProjectList
-    _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
+  #if _UrtextProjectList == None:        
+  #  global _UrtextProjectList
+  #  _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
 
   return _UrtextProject
 
 
-def focus_urtext_project(path, view):
+def focus_urtext_project(path, view, init_project=False):
   global _UrtextProject
-  _UrtextProject = UrtextProject(path)
+  try:
+    _UrtextProject = UrtextProject(path, init_project=init_project)
+  except urtext.project.NoProject:
+    print('No Urtext nodes in this folder')
+    return None
   results = _UrtextProject.build_response
   results_view = view.window().new_file()
   results_view.set_scratch(True)
@@ -143,9 +147,19 @@ def get_path(view): ## makes the path persist as much as possible ##
   
   if view.file_name():
     return os.path.dirname(view.file_name())  
+  return get_path_from_window(view.window())
+
+def get_path_from_window(window):
+
+  folders = window.folders()
+  if folders:
+    return folders[0]
+
   if view.window().project_data():
     return view.window().project_data()['folders'][0]['path']
+
   return None
+
 
 def size_to_groups(groups, view):
     panel_size = 1 / groups
@@ -635,24 +649,34 @@ class TraverseFileTree(sublime_plugin.EventListener):
       if len(filenames) > 0 :
         filename = filenames[0]
         position = _UrtextProject.nodes[link[1:]].ranges[0][0]
+        
+        """ If the tree is linking to another part of itself """
         if filename == os.path.basename(this_file):
-          for view in window.views_in_group(self.content_group):
-            if view.file_name() != None and os.path.basename(view.file_name()) == filename:
-              window.focus_view(view)
-              view.show_at_center(position) 
-              view.sel().clear() 
-              view.sel().add(position)
-              #self.return_to_left(view, tree_view)
-              return       
-          window.focus_group(self.tree_group)
-          #window.run_command("clone_file")
-          for view in window.views_in_group(self.tree_group):
-            if view.file_name() != None and os.path.basename(view.file_name()) == filename:
-              window.set_view_index(view, self.content_group,0)
-              view.show_at_center(position) 
-              #self.return_to_left(view.window().active_view_in_group(self.content_group), tree_view)
-              return
+          instances = self.find_filename_in_window(os.path.join(_UrtextProject.path, filename), window)
+          if len(instances) < 2 :
+            window.run_command("clone_file")
+            duplicate_file_view = self.find_filename_in_window(os.path.join(_UrtextProject.path, filename), window)[1]
+          if len(instances) >= 2:
+            duplicate_file_view = instances[1] 
 
+          if duplicate_file_view in window.views_in_group(self.content_group):
+              window.focus_view(duplicate_file_view)
+              duplicate_file_view.show_at_center(position) 
+              duplicate_file_view.sel().clear() 
+              duplicate_file_view.sel().add(position)
+              self.return_to_left(duplicate_file_view, tree_view)
+              return       
+          if duplicate_file_view in window.views_in_group(self.tree_group):
+              window.focus_group(self.tree_group)
+              #tree_view.settings().set('traverse','false')
+              duplicate_file_view.settings().set('traverse','false') # this is for the cloned view     
+              window.set_view_index(duplicate_file_view, self.content_group,0)
+              duplicate_file_view.show_at_center(position) 
+              window.focus_view(tree_view)
+              window.focus_group(self.tree_group)
+              #self.return_to_left(view.window().active_view_in_group(self.content_group), tree_view)
+              self.restore_traverse(view, tree_view)
+              return
         else:
           path = _UrtextProject.path
           window.focus_group(self.content_group)
@@ -662,6 +686,20 @@ class TraverseFileTree(sublime_plugin.EventListener):
           file_view.sel().add(position)
           self.return_to_left(file_view, tree_view)
          
+  def find_filename_in_window(self,filename, window):
+    instances = []
+    for view in window.views():
+      if view.file_name() == filename:
+        instances.append(view)
+    return instances
+
+  def restore_traverse(self, wait_view, traverse_view):
+    if not wait_view.is_loading():
+        traverse_view.settings().set('traverse','true')       
+    else:
+      sublime.set_timeout(lambda: self.return_to_left(wait_view, traverse_view), 10)              
+      return
+
   def return_to_left(self, view, return_view):
     if not view.is_loading():
         view.window().focus_view(return_view)
@@ -681,22 +719,20 @@ class ShowAllNodesCommand(sublime_plugin.TextCommand):
 class NewNodeCommand(sublime_plugin.WindowCommand):
 
   def run(self):
-      if refresh_project(self.window.active_view()) == None :
-        path = os.getcwd()
-        contents = 'New Urtext project created in '+path + '\n'
-        contents += '(this is the first node; you can erase this text)\n\n\n'
-        contents += '/--\nID:000\n'
-        contents += 'timestamp: <'+datetime.datetime.now().strftime('%a., %b. %d, %Y, %I:%M %p')+'>\n--/'
-        with open(os.path.join(path,'000.txt'),'w',encoding='utf-8') as new_node:
-          new_node.write(contents)
-          new_node.close()
-        new_view = self.window.open_file(os.path.join(path,'000.txt'))
-        refresh_project(new_view)
+    path = _UrtextProject.path
+    filename = _UrtextProject.new_file_node()
+    new_view = self.window.open_file(os.path.join(path, filename))
 
-      else:
-        path = _UrtextProject.path
-        filename = _UrtextProject.new_file_node()
-        new_view = self.window.open_file(os.path.join(path, filename))
+class NewProjectCommand(sublime_plugin.WindowCommand):
+
+  def run(self):
+    global _UrtextProject
+    new_view = self.window.new_file()
+    new_view.set_scratch(True)
+    _UrtextProject = refresh_project(new_view, init_project = True)
+
+    new_view = self.window.open_file(os.path.join(_UrtextProject.path,'000.txt'))
+
 
 class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
