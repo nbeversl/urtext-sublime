@@ -1,5 +1,11 @@
 Timestamps                                                                                  
 
+
+   The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. 
+
+
+
+   
     Text between two angled brackets (<  >) is interpreted as a timestamp. Insert a timestamp for the current date and time anywhere by pressing Control-T.
 
     Node timestamps are part of metadata (see Metadata >00x). Urtext also utilizes a "loose" parsing of inline timestamps, meaning they can be placed anywhere and will be recognized and parsed; these are called inline timestamps.
@@ -10,7 +16,7 @@ Timestamps
 
         Urtext will parse node timestamps along with inline timestamps into a project timeline. Press Ctrl-Shift-T or select Urtext: Show Timeline in the Sublime command palette. Each node and inline timestamp is shown in chronological order with nearby text. You can try it with this example project, but note that since many nodes in this document are undated, they have a default date of Thu., Jan. 01, 1970, 12:00AM.
 
-        As everywhere in a project, node IDs shown are links that can be opened using Ctrl-/.   }}  
+        As everywhere in a project, node IDs shown are links that can be opened using Ctrl-Shift-/.   }}  
 
 /-- ID:005
 Timestamp:<Fri., Jun. 07, 2019, 04:30 PM>

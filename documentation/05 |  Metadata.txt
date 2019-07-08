@@ -51,7 +51,7 @@ Metadata
                    
     /-- ID:011 --/ }}
 
-{{  Metadata List  /-- ID:012 --/
+{{  Project Metadata List  /-- ID:012 --/
 
     Like the Node List (>01i), every project maintains a Metadata List, automatically written to a built-in file-level dynamic node. 
 
@@ -59,7 +59,7 @@ Metadata
 
     In Sublime Text there is also the alternative of using the "Find By Meta" command in Command Palette. Press Control-Shift-E or select "Urtext: Metadata List" from the Sublime command palette (Shift-Super-P). 
 
-    The Node ID `zzy` is reserved for the Metadata list. (See >01l for more information on Node IDs)
+    The Node ID `zzy` is reserved for the Metadata list. (See >01l for more information on Node IDs). To see the metadata list for the documentation, for instance, see node >>zzy.
 
     }}
 

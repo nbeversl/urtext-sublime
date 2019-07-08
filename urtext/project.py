@@ -41,10 +41,6 @@ class UrtextProject:
         recursive=False, 
         import_project=False):
         
-    if path == None:
-      print ('No path found. No project opened')
-      return None 
-
     self.path = path
     self.build_response = ''
     self.log = setup_logger('urtext_log',os.path.join(self.path,'urtext_log.txt'))
@@ -569,8 +565,10 @@ class UrtextProject:
   """
   def update_node_list(self):
     """ Refreshes the Node List file """
-
-    node_list_file = self.settings['node_list']
+    if 'zzz' in self.nodes:
+      node_list_file = self.nodes['zzz'].filename
+    else:
+      node_list_file = self.settings['node_list']
     with open(os.path.join(self.path, node_list_file), 'w', encoding='utf-8') as theFile:
       theFile.write(self.list_nodes())
       metadata = '/--\nID:zzz\ntitle: Node List\n--/'
@@ -590,8 +588,13 @@ class UrtextProject:
         for node_id in self.tagnames[key][value]:
           n = Node(self.nodes[node_id].get_title() +' >'+node_id)
           n.parent = t
-    
-    with open(os.path.join(self.path, 'metadata.txt'), 'w', encoding='utf-8') as theFile:
+    if 'zzy' in self.nodes:
+      metadata_file = self.nodes['zzy'].filename
+    else:
+      metadata_file = self.settings['node_list']    
+
+
+    with open(os.path.join(self.path, metadata_file), 'w', encoding='utf-8') as theFile:
       for pre, _, node in RenderTree(root):
         theFile.write("%s%s\n" % (pre, node.name))
       metadata = '/--\nID:zzy\ntitle: Metadata List\n--/'

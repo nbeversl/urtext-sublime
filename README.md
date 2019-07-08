@@ -1,6 +1,6 @@
 # Urtext
 
-Urtext is a syntax and system for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. This packge is an implementation in Python and Sublime Text.
+Urtext is a syntax and system for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. This package is an implementation in Python and Sublime Text.
 
 This is an alpha release.
 
@@ -18,19 +18,19 @@ Type Install Package and press Enter. Then search for Urtext.
 
 ## Documentation
 
-The documentation is included in the package in the form of an example Urtext project. You can browse it in directly on Github in the /documentation folder.
+The documentation is included in the package in the form of an example Urtext project. You can read it in directly on Github in the [/documentation](https://github.com/nbeversl/urtext-sublime/tree/github-master/documentation) folder.
 
 After installation in Sublime, it will function as an Urtext project, press ⌘/Ctrl + ⇧ + P to open the command palette. Type Urtext: Documentation and press Enter.
 
-Excerpts of the documentation are also included in this README.
+Excerpts of the documentation are included in this README.
 
 ## Project Information
 
 ### Ideas and Requirements
 
- There are many tools available for writing and organizing. None of them was what I wanted, so I wrote this.
+There are many tools available for writing and organizing. None of them was what I wanted, so I wrote this.
 
- Urtext could be implemented in any text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. This version uses a Python implementation of Urtext, embedded into the Python scripting capability of Sublime Text 3 as a package. 
+Urtext could be implemented in any text editor with built-in or supplemental scripting/automation, a web application, or pencil and paper along with human sorting and organizing routines. This version uses a Python implementation of Urtext, embedded into the Python scripting capability of Sublime Text 3 as a package. 
 
 ### Basic Requirements
 

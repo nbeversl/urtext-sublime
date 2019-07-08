@@ -41,7 +41,6 @@ Node Pointers
 │   └── Example Child Node Using a Node Pointer >001
 └── Recursive Node Pointers >00s
     ├── Sublime Urtext Documentation >01k
-    │   ├── Using this document >009
     │   ├── Table of Contents >01a
     │   ├── About Urtext >013
     │   ├── Setup >003

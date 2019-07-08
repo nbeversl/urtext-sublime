@@ -32,7 +32,9 @@ class UrtextNode:
 
     self.dynamic_definition = dynamic_definition
     if self.metadata.get_tag('ID') != []:
-        self.id = self.metadata.get_tag('ID')[0]
+      node_id = self.metadata.get_tag('ID')[0].lower().strip()
+      if re.match('^[a-z0-9]{3}$', node_id):
+        self.id = node_id
     if self.metadata.get_tag('title') == ['project_settings']:
         self.project_settings = True
     if dynamic_def.search(contents):
@@ -43,6 +45,7 @@ class UrtextNode:
     self.parent = None
     self.index = self.metadata.get_tag('index')
     self.reset_node()
+    self.title = None
     
   def reset_node(self):
     self.tree_node = Node(self.id)
@@ -94,7 +97,7 @@ class UrtextNode:
     self.index = new_index
   
   def get_title(self):
-    if self.title:
+    if self.title != None:
       return self.title
     return self.set_title()
 

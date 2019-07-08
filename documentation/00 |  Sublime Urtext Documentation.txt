@@ -3,26 +3,7 @@ Sublime-Urtext Documentation
 Version: 0.1.0-alpha
 License: GNU General Public License 3.0
 
-{{  Using this document
-
-    This is a documentation of Urtext in Urtext. It can be used in Sublime Text to try out the features described.
-
-    - You can always open this help document from Sublime by choosing "Urtext: Help" from the command pallette.
-
-    - To go to a link in the table of contents, press ctrl-shift-/ from any line. Links are three-character node-IDs preceded by one or two right-angle brackets. (See Links >00j for more information).
-
-    - To return to this table of contents, press ctrl-shift-H.
-
-    - You can also traverse the table of contents while viewing linked content in another pane using Traverse Mode : Press Ctrl-Shift-R and click or arrow-navigate to any node in the table. See (>00w) for more information on Traverse Mode.
-    
-    - Enabling syntax highlighting makes the documentation much easier to read. 
-    Select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ...  Then switch to the Urtext syntax by selecting it in View -> Syntax -> Urtext. To avoid having to do this for every file, select View -> Syntax -> Open All with Current Extension As ... -> Urtext. (You can undo this later by repeating the same but selecting Plain Text.) See >01d for more on syntax highlighting.
-
-
-     /--ID:009--/}}
-
 {{Sublime Urtext Documentation >01k
-├── Using this document >009
 ├── Table of Contents >01a
 ├── About Urtext >013
 │   ├── What Urtext Is >00d
@@ -58,7 +39,8 @@ License: GNU General Public License 3.0
 │   ├── Reserved Metadata Keys >011
 │   │   ├── title (This tag overrides the default title) >00y
 │   │   └── index >00z
-│   └── Metadata List >012
+│   └── Project Metadata List >012
+│       └── Metadata List >zzy
 ├── Timestamps >01s
 ├── Links >00j
 │   ├── Linking to Nodes >0y2
