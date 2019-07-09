@@ -89,6 +89,8 @@ License: GNU General Public License 3.0
 ├── Architecture : Extension and Customization >01o
 ├── Reference: Key Bindings >018
 ├── In-Progress / Experimental / Wish List >014
+│   └── iPhone/iPad/iOS >01y
+│       └── Synchronator Setup >01z
 ├── Changelog >01v
 │   └── 0.1.11-alpha >01l
 └── License >01t

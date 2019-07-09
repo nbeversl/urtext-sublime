@@ -24,54 +24,56 @@ Timestamps >01s
 More About Node IDs >01q
 The Node List >01i
 In-Progress / Experimental / Wish List >014
+title (This tag overrides the default title) >00y
+Reserved Metadata Keys >011
+Basic Requirements: >010
+Viewing Linked Relationships >00u
+Hiding Tabs >015
 Recursive Node Pointers >00s
-Node List >zzz
-Metadata List >zzy
-Characteristics >007
-Linking to Nodes >0y2
-From the root >00g
-From a selected node >00f
-Example inline node >00e
-What Urtext Is >00d
-Home >00c
-Using Existing Files >00b
-Making a New Project >00a
-About This Implementation >01u
+Files >00p
+Linking to outside resources >00q
+Timestamp Formats >00n
 Web >00o
-Example Source Node 2 >00v
 Sublime Text tools to help with linking >00m
 Timeline View: >00k
-Filename formats >00i
 Node Trees >00h
-Traverse Mode >00w
-Hiding Tabs >015
-Viewing Linked Relationships >00u
-Basic Requirements: >010
-Reserved Metadata Keys >011
-Project Metadata List >012
-Reopening a Project >01p
-title (This tag overrides the default title) >00y
-Linking to outside resources >00q
-Duplicate Node Pointers >00t
-Files >00p
-Timestamp Formats >00n
-Syntax Highlighting >01d
-Hiding Line Numbers >01e
-Node Pointers >00r >01f
-File Level Nodes >01g
-Another Example: The Node Definition for the Table of Contents >029
-Table of Contents >01a
-0.1.11-alpha >01l
-Example - Table of Contents From Another Root >01n
-Node Identity (Node IDs) >01h
-License >01t
-Additional Features >006
-Opening Links >01w
+Filename formats >00i
+From a selected node >00f
+From the root >00g
+What Urtext Is >00d
+Example inline node >00e
 Full Screen / Distraction Free Mode >002
-Sublime Text Interface Tips >000
-Example Dynamic Node Title >016
-Using this document >009
+Home >00c
+Making a New Project >00a
+iPhone/iPad/iOS >01y
+Using Existing Files >00b
+Another Example: The Node Definition for the Table of Contents >029
+Example Source Node 2 >00v
+Linking to Nodes >0y2
+Reopening a Project >01p
+Duplicate Node Pointers >00t
+Traverse Mode >00w
+Project Metadata List >012
+Node List >zzz
 Ideas and Requirements Behind Urtext >008
+Using this document >009
+Additional Features >006
+Characteristics >007
+About This Implementation >01u
+License >01t
+Sublime Text Interface Tips >000
+Node Identity (Node IDs) >01h
+Opening Links >01w
+Example - Table of Contents From Another Root >01n
+Table of Contents >01a
+Hiding Line Numbers >01e
+Syntax Highlighting >01d
+File Level Nodes >01g
+Node Pointers >00r >01f
+Example Dynamic Node Title >016
+Metadata List >zzy
+Synchronator Setup >01z
+0.1.11-alpha >01l
 /--
 ID:zzz
 title: Node List
