@@ -3,6 +3,6 @@
       "*": [
          "pathtools",
          "watchdog",
-      ]
+      ],
    }
 }

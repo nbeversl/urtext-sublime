@@ -324,10 +324,6 @@ class UrtextProject:
     """ 
     Adds copies of trees wherever there are Node Pointers (>>) 
     Must be called only when all nodes are parsed (exist) so it does not miss any
-
-    The problem is Node Pointers pointed to by Node Pointers.
-    It doesn't know that a Node pointer inside a node pointed to by a node pointer might have changed.
-    Basically chaining of node Pointers is not working
     """
     
     # must use EXISTING node so it appears at the right place in the tree.
@@ -568,6 +564,9 @@ class UrtextProject:
         target_nodes.append(compiled_node_id)
 
     for node_id in target_nodes:
+      if node_id not in self.nodes:
+        print(node_id + ' IS SUDDENLY NOT IN THE PROJECT.')
+        print('this is a bug since this is checked at line 522.')
       self.nodes[node_id].dynamic_definition = dynamic_node_def_id
 
 
@@ -749,10 +748,11 @@ class UrtextProject:
         # delete it from the self.tagnames array -- duplicated from delete_file()
         for tagname in list(self.tagnames):
           for value in list(self.tagnames[tagname]):
-            if node_id in self.tagnames[tagname][value]:
-              self.tagnames[tagname][value].remove(node_id)
-            if len(self.tagnames[tagname][value]) == 0:
-              del self.tagnames[tagname][value]
+            if value in self.tagnames[tagname]: # in case it's been removed              
+              if node_id in self.tagnames[tagname][value]:
+                self.tagnames[tagname][value].remove(node_id)
+              if len(self.tagnames[tagname][value]) == 0:
+                del self.tagnames[tagname][value]
         del self.nodes[node_id]
       del self.files[filename]
     return None
