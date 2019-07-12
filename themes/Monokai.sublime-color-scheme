@@ -11,6 +11,7 @@
 		 "inline3" : "hsl(70, 8%, 21%)",
 		 "inline4" : "hsl(70, 8%, 23%)",
 		 "inline5" : "hsl(70, 8%, 25%)",
+		 "black3": "hsl(70, 8%, 15%)",
 	},
 	
 	"rules": [
@@ -77,8 +78,8 @@
 		        "background": "var(inline4)"
 	        },
 	        { 
-		        "scope" : "inline_node_5",
-		        "background": "var(inline5)"
+		        "scope" : "no-highlight",
+		        "background": "var(black3)"
 	        }
 
 

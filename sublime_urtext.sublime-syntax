@@ -39,6 +39,8 @@ contexts:
   inline-node-1: 
     - meta_scope: inline_node_1 
     - include: datestamp
+    - match: '^\s{0,4}'
+      scope: no-highlight
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2

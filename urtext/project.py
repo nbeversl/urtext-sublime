@@ -103,10 +103,7 @@ class UrtextProject:
     """ 
     Main method to keep the project updated. 
     Should be called whenever file or directory content changes
-    """
-    #for filename in self.files:
-    #  self.set_tree_elements(filename)
-      
+    """      
     self.build_alias_trees() # Build copies of trees wherever there are Node Pointers (>>)
     self.rewrite_recursion()
     self.compile_all()
@@ -114,8 +111,6 @@ class UrtextProject:
     # Update lists:
     self.update_node_list()
     self.update_metadata_list()
-
-    
   
   """ 
   Parsing
@@ -423,13 +418,16 @@ class UrtextProject:
         excluded_nodes=[]
         compiled_node_id=None
         sort_tagname=None
-        contents=''
+        contents='\n'
+        spaces = 0
         old_node_contents=''
         updated_contents=''
         metadata='/-- '
         show='full_contents'
         for entry in entries:
           atoms=[atom.strip() for atom in entry.split(':')]
+          if atoms[0].lower() == 'indent' and len(atoms) > 1:
+            spaces = int(atoms[1])          
           if atoms[0].lower() == 'id' and len(atoms) > 1:
             compiled_node_id = re.search(node_id_regex, atoms[1]).group(0)
             metadata += 'ID: ' + compiled_node_id + '\n'
@@ -515,10 +513,12 @@ class UrtextProject:
         if self.dynamic_definition_of(compiled_node_id) not in [ None, dynamic_node_def_id ]:
           self.log_item('Node >' + compiled_node_id + ' has duplicate definition in >' + dynamic_node_def_id+'. Keeping the definition in >'+ self.nodes[compiled_node_id].dynamic_definition+'.')
           return None
-
         filename = self.get_file_name(compiled_node_id)
         updated_contents = contents + metadata
-              
+
+        if spaces:
+          updated_contents = indent(updated_contents, spaces)
+
         def update_file(filename):
           with open(os.path.join(self.path, filename), "w", encoding='utf-8') as theFile:
             theFile.write(updated_contents)
@@ -1144,6 +1144,13 @@ class UrtextProject:
 """ 
 Helpers 
 """
+
+def indent(contents, spaces=4):
+  content_lines = contents.split('\n')
+  for index in range(len(content_lines)):
+      if content_lines[index].strip() != '':
+        content_lines[index] = ' ' * spaces + content_lines[index] 
+  return '\n'.join(content_lines)  
 
 def setup_logger(name, log_file, level=logging.INFO):
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')

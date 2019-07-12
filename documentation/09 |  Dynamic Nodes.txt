@@ -41,21 +41,23 @@
             sort:index
             show:title
             metadata:title:Example Dynamic Node Title
+            indent:4
         ]] >018
 
     Here is the compiled node defined by the definition above. Changing the dynamic definition and/or the contents or metadata of the source nodes will update the dynamic node. Saving is necessary to trigger the update.
 
-{{Example Source Node 3 >01b
--
-Example Source Node 1 >017
--
-Example Source Node 4 >01c
--
-/-- ID: 016
-title: Example Dynamic Node Title
-kind: dynamic
-defined in: >01r
- --/}}
+    {{
+    Example Source Node 3 >01b
+    -
+    Example Source Node 1 >017
+    -
+    Example Source Node 4 >01c
+    -
+    /-- ID: 016
+    title: Example Dynamic Node Title
+    kind: dynamic
+    defined in: >01r
+     --/}}
         
 {{ Another Example: The Node Definition for the Table of Contents
 
