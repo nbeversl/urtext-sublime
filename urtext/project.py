@@ -66,7 +66,7 @@ class UrtextProject:
       }
     self.to_import = []
     self.settings_initialized = False
-    self.dynamic_defs = []
+    self.dynamic_defs = {}
     self.compiled = False
     self.alias_nodes = []
 
@@ -306,7 +306,6 @@ class UrtextProject:
             break
         continue
 
-
       """
       in case this node begins the file and is an an inline node,
       set the inline node's parent as the root node manually.
@@ -355,7 +354,7 @@ class UrtextProject:
       self.files[new_node.filename]['nodes'] = []
 
     if new_node.contains_dynamic_def == True:
-      self.dynamic_defs.append(new_node.id)
+      self.dynamic_defs[new_node.id] = None
 
     ID_tags = new_node.metadata.get_tag('ID')
     if len(ID_tags) > 1 :
@@ -391,10 +390,6 @@ class UrtextProject:
           else:
             self.log_item('Timestamp ' + entry.dtstring + ' not in any specified date format in >' + node_id)
 
-  
-
-
-
   def show_tree_from(self, node_id, from_root_of=False): # these could both be one
 
     if node_id not in self.nodes:
@@ -421,8 +416,6 @@ class UrtextProject:
 
   def compile(self, dynamic_node_def_id):
     """ Main method to compile dynamic nodes definitions """
-
-    target_nodes = []
 
     for match in keys.findall(self.nodes[dynamic_node_def_id].contents()):
         entries=re.split(';|\n', match)
@@ -519,14 +512,13 @@ class UrtextProject:
           self.log_item('Dynamic node definition >' + dynamic_node_def_id + ' points to nonexistent node >' + compiled_node_id)
           return None
           
-        if self.nodes[compiled_node_id].dynamic_definition not in [ None, dynamic_node_def_id ]:
+        if self.dynamic_definition_of(compiled_node_id) not in [ None, dynamic_node_def_id ]:
           self.log_item('Node >' + compiled_node_id + ' has duplicate definition in >' + dynamic_node_def_id+'. Keeping the definition in >'+ self.nodes[compiled_node_id].dynamic_definition+'.')
           return None
 
         filename = self.get_file_name(compiled_node_id)
         updated_contents = contents + metadata
               
-        
         def update_file(filename):
           with open(os.path.join(self.path, filename), "w", encoding='utf-8') as theFile:
             theFile.write(updated_contents)
@@ -534,9 +526,10 @@ class UrtextProject:
 
           compiled_node = UrtextNode(os.path.join(self.path, filename), 
             contents=updated_contents)
-          compiled_node.dynamic_definition = dynamic_node_def_id
+          
           if compiled_node.id != None: # node must already exist
             self.nodes[compiled_node_id] = compiled_node
+            self.dynamic_defs[dynamic_node_def_id] = compiled_node_id            
             if compiled_node.id not in self.files[os.path.basename(filename)]['nodes']:
               self.files[os.path.basename(filename)]['nodes'].append(compiled_node_id)
 
@@ -559,16 +552,12 @@ class UrtextProject:
             update_file(filename)
             
         self.parse_file(filename) 
-        # necessary so that the ranges of subsequent nodes get rewritten with the updates
 
-        target_nodes.append(compiled_node_id)
-
-    for node_id in target_nodes:
-      if node_id not in self.nodes:
-        print(node_id + ' IS SUDDENLY NOT IN THE PROJECT.')
-        print('this is a bug since this is checked at line 522.')
-      self.nodes[node_id].dynamic_definition = dynamic_node_def_id
-
+  def dynamic_definition_of(self, node_id):
+    for definition in self.dynamic_defs:
+      if self.dynamic_defs[definition] == node_id:
+        return definition
+    return None
 
   """
   Refreshers
@@ -742,7 +731,7 @@ class UrtextProject:
     if filename in self.files:
       for node_id in self.files[filename]['nodes']:
         if node_id in self.dynamic_defs:
-          self.dynamic_defs.remove(node_id)
+          del self.dynamic_defs[node_id]
 
         # REFACTOR
         # delete it from the self.tagnames array -- duplicated from delete_file()

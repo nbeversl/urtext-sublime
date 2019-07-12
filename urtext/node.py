@@ -29,8 +29,6 @@ class UrtextNode:
     self.prefix = None
     self.project_settings = False
     self.contains_dynamic_def = False
-
-    self.dynamic_definition = dynamic_definition
     if self.metadata.get_tag('ID') != []:
       node_id = self.metadata.get_tag('ID')[0].lower().strip()
       if re.match('^[a-z0-9]{3}$', node_id):
