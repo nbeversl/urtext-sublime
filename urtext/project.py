@@ -1089,6 +1089,7 @@ class UrtextProject:
     return False
 
   def log_item(self,item): # Urtext logger
+    print(item)
     self.build_response.append(item)
 
 

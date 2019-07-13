@@ -85,6 +85,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       filename = os.path.basename(event.src_path)
       _UrtextProject.log_item('Watchdog saw file deleted: '+filename)
       _UrtextProject.remove_file(filename)
+      _UrtextProject.update()
      
     def on_moved(self, event):
         if self.filter(event.src_path) == None:
