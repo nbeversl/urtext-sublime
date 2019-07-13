@@ -92,8 +92,9 @@ Sublime Urtext Documentation >01k
 ├── In-Progress / Experimental / Wish List >014
 │   └── iPhone/iPad/iOS >01y
 │       └── Synchronator Setup >01z
-├── Changelog >01v
-│   └── 0.1.11-alpha >01l
+├── Fix/Changelog >01v
+│   ├── 0.1.11-alpha >01l
+│   └── 0.1.12-alpha >020
 └── License >01t
 /-- ID: 01a
 title: Table of Contents

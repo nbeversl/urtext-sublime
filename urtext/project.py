@@ -931,10 +931,10 @@ class UrtextProject:
     output=''
     for node_id in list(self.indexed_nodes()):
       title = self.nodes[node_id].get_title()
-      output += title + ' >' + node_id + '\n'
+      output += title + ' >' + node_id + '\n-\n'
     for node_id in list(self.unindexed_nodes()):
       title=self.nodes[node_id].get_title()
-      output += title + ' >' + node_id + '\n'
+      output += title + ' >' + node_id + '\n-\n'
     return output
 
   def unindexed_nodes(self):
@@ -1089,6 +1089,7 @@ class UrtextProject:
     return False
 
   def log_item(self,item): # Urtext logger
+    print(item)
     self.build_response.append(item)
 
 

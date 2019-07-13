@@ -14,7 +14,7 @@ dynamic_def = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
 class UrtextNode:
   """ Urtext Node object"""
 
-  def __init__(self, filename, contents='', root=False, dynamic_definition=None):
+  def __init__(self, filename, contents='', root=False):
     self.filename = os.path.basename(filename) 
     self.project_path = os.path.dirname(filename)
     self.position = 0
