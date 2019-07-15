@@ -3,16 +3,17 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 from metadata import NodeMetadata
+from dynamic import UrtextDynamicDefinition
 import re
 import datetime
 import logging
 from anytree.node import Node
 from anytree import PreOrderIter
 import anytree
-dynamic_def = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
+
 
 class UrtextNode:
-  """ Urtext Node object"""
+  """ Urtext Node object""" 
 
   def __init__(self, filename, contents='', root=False):
     self.filename = os.path.basename(filename) 
@@ -28,15 +29,14 @@ class UrtextNode:
     self.date = datetime.datetime(1970,1,1) # temporary default
     self.prefix = None
     self.project_settings = False
-    self.contains_dynamic_def = False
+    self.dynamic_definitions = {}
+
     if self.metadata.get_tag('ID') != []:
       node_id = self.metadata.get_tag('ID')[0].lower().strip()
       if re.match('^[a-z0-9]{3}$', node_id):
         self.id = node_id
     if self.metadata.get_tag('title') == ['project_settings']:
         self.project_settings = True
-    if dynamic_def.search(contents):
-      self.contains_dynamic_def = True
 
     stripped_contents = self.strip_dynamic_definitions(contents)
     self.metadata = NodeMetadata(stripped_contents)
@@ -44,6 +44,17 @@ class UrtextNode:
     self.index = self.metadata.get_tag('index')
     self.reset_node()
     self.title = None
+    
+    """
+    Dynamic definitions in the form:
+    { target_id : definition, ..., ... }
+    """
+    dynamic_definition_regex = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
+    for match in dynamic_definition_regex.findall(contents):
+      dynamic_definition = UrtextDynamicDefinition(match)
+      dynamic_definition.source_id = self.id
+      if dynamic_definition.target_id != None:
+        self.dynamic_definitions[dynamic_definition.target_id] = dynamic_definition
     
   def reset_node(self):
     self.tree_node = Node(self.id)

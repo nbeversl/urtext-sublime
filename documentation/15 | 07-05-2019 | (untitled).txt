@@ -1,5 +1,4 @@
-{{
-Node Pointers >00r
+{{Node Pointers >00r
 ├── Example Child Node Using a Node Pointer >001
 ├── Duplicate Node Pointers >00t
 │   └── Example Child Node Using a Node Pointer >001

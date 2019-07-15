@@ -35,8 +35,7 @@ Node Pointers
 
     Note, however, that if you view the entire tree with another node as root, one full iteration will still appear, with the point of recursion falling elsewhere in the tree. For instance, below is the table of contents with the node "Node Pointers" (>00r) as root. See Dynamic Nodes (>01r) for more information on how to generate trees like this in dynamic nodes.
 
-{{
-Node Pointers >00r
+{{Node Pointers >00r
 ├── Example Child Node Using a Node Pointer >001
 ├── Duplicate Node Pointers >00t
 │   └── Example Child Node Using a Node Pointer >001

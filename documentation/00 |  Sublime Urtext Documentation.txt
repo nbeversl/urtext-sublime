@@ -21,8 +21,7 @@ License: GNU General Public License 3.0
 
    /--ID:009--/}}
 
-{{
-Sublime Urtext Documentation >01k
+{{Sublime Urtext Documentation >01k
 ├── Using this document >009
 ├── Table of Contents >01a
 ├── About Urtext >013

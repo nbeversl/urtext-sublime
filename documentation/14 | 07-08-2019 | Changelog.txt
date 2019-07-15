@@ -9,6 +9,8 @@ Fix/Changelog
 /-- ID:01l --/ }}
 
 {{  0.1.12-alpha
+	 - All files starting with "." are now omitted from parsing
+	 - Files containing "conflicted copy" (from Dropbox) are omitted from parsing
 
 
 /-- ID:020 --/ }}

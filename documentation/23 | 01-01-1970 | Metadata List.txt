@@ -1,40 +1,40 @@
 Metadata Keys
-├── home
-│   └── 01k
-│       └── project_settings >00l
-├── Purpose
-│   └── work-related
-│       └── Metadata >00x
-├── note
-│   └── example note
-│       └── Metadata >00x
 ├── tag
 │   ├── example_node
 │   │   ├── Example Source Node 1 >017
 │   │   ├── Example Source Node 3 >01b
 │   │   ├── Example Source Node 2 >00v
 │   │   └── Example Source Node 4 >01c
+│   ├── groceries
+│   │   └── Metadata >00x
 │   ├── definition
 │   │   └── What Urtext Is >00d
-│   ├── exclude_this
-│   │   └── Example Source Node 2 >00v
-│   └── groceries
+│   └── exclude_this
+│       └── Example Source Node 2 >00v
+├── Purpose
+│   └── work-related
+│       └── Metadata >00x
+├── tags
+│   ├── urtext
+│   │   └── Sublime Urtext Documentation >01k
+│   ├── urtext_documentation
+│   │   └── Setup >003
+│   └── coming
+│       └── Files >00p
+├── note
+│   └── example note
 │       └── Metadata >00x
 ├── kind
-│   ├── dynamic
-│   │   ├── Table of Contents >01a
-│   │   ├── Example Dynamic Node Title >016
-│   │   ├── Node Pointers >00r >01f
-│   │   └── Example - Table of Contents From Another Root >01n
-│   └── gift_list
-│       └── Metadata >00x
-└── tags
-    ├── coming
-    │   └── Files >00p
-    ├── urtext_documentation
-    │   └── Setup >003
-    └── urtext
-        └── Sublime Urtext Documentation >01k
+│   ├── gift_list
+│   │   └── Metadata >00x
+│   └── dynamic
+│       ├── Example Dynamic Node Title >016
+│       ├── Node Pointers >00r >01f
+│       ├── Table of Contents >01a
+│       └── Example - Table of Contents From Another Root >01n
+└── home
+    └── 01k
+        └── project_settings >00l
 /--
 ID:zzy
 title: Metadata List

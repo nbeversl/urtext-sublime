@@ -8,6 +8,7 @@ import platform
 import logging
 import operator
 import difflib
+import json
 
 parent_dir = os.path.dirname(__file__)
 sys.path.append(os.path.join(parent_dir, 'anytree'))
@@ -30,7 +31,6 @@ from whoosh.highlight import UppercaseFormatter
 
 node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
-keys = re.compile('(?:\[\[)(.*?)(?:\]\])', re.DOTALL)
 
 class NoProject(Exception):
   """ Raised when no Urtext nodes are in the folder """
@@ -48,6 +48,7 @@ class UrtextProject:
 
     self.path = path
     self.build_response = []
+    self.conflicting_files = []
     self.log = setup_logger('urtext_log',os.path.join(self.path,'urtext_log.txt'))
     self.make_new_files = make_new_files
     self.nodes = {}
@@ -66,7 +67,7 @@ class UrtextProject:
       }
     self.to_import = []
     self.settings_initialized = False
-    self.dynamic_defs = {}
+    self.dynamic_nodes = {} # { target : definition, etc.}
     self.compiled = False
     self.alias_nodes = []
 
@@ -93,7 +94,7 @@ class UrtextProject:
     for node_id in list(self.nodes): # needs do be done once manually on project init
       self.parse_meta_dates(node_id) 
 
-    self.compile_all()
+    self.compile()
 
     self.compiled = True    
 
@@ -106,17 +107,18 @@ class UrtextProject:
     """      
     self.build_alias_trees() # Build copies of trees wherever there are Node Pointers (>>)
     self.rewrite_recursion()
-    self.compile_all()
+    self.compile()
       
     # Update lists:
     self.update_node_list()
     self.update_metadata_list()
+    self.write_log()
   
   """ 
   Parsing
   """
 
-  def parse_file(self, filename, import_project=False):
+  def parse_file(self, filename, add=True, import_project=False):
     """ Main method for parsing a single file into nodes """
 
     filename = os.path.basename(filename)
@@ -133,7 +135,6 @@ class UrtextProject:
     # re-add the file to the project
     self.files[filename] = {}
     self.files[filename]['nodes'] = []
-
     """
     Find all node symbols in the file
     """
@@ -142,6 +143,7 @@ class UrtextProject:
       loc = -2
       while loc != -1:       
         loc = full_file_contents.find(symbol, loc+2) 
+        full_file_contents.find(symbol, loc+2) 
         symbols[loc] = symbol
 
     positions = sorted([key for key in symbols.keys() if key != -1])
@@ -348,8 +350,16 @@ class UrtextProject:
     if new_node.filename not in self.files:
       self.files[new_node.filename]['nodes'] = []
 
-    if new_node.contains_dynamic_def == True:
-      self.dynamic_defs[new_node.id] = None
+    """
+    pass the node's dynamic definitions up into the project object
+    self.dynamic_nodes = { target_id : definition }
+
+    """    
+    for target_id in new_node.dynamic_definitions.keys():
+      if target_id in self.dynamic_nodes and self.dynamic_definitions[target].source_id != new_node.id:
+        self.log_item('Node >' + target_id + ' has duplicate definition in >' + new_node.id +'. Keeping the definition in >'+self.dynamic_nodes[target_id].source_id + '.')
+      else:
+        self.dynamic_nodes[target_id] = new_node.dynamic_definitions[target_id]
 
     ID_tags = new_node.metadata.get_tag('ID')
     if len(ID_tags) > 1 :
@@ -407,157 +417,119 @@ class UrtextProject:
 
   """
   Compiling dynamic nodes
-  """
+  """  
 
-  def compile(self, dynamic_node_def_id):
+  def compile(self):
     """ Main method to compile dynamic nodes definitions """
+    
+    files_to_modify = {}
 
-    for match in keys.findall(self.nodes[dynamic_node_def_id].contents()):
-        entries=re.split(';|\n', match)
-        included_nodes=[]
-        excluded_nodes=[]
-        compiled_node_id=None
-        sort_tagname=None
-        contents='\n'
-        spaces = 0
-        old_node_contents=''
-        updated_contents=''
-        metadata='/-- '
-        show='full_contents'
-        for entry in entries:
-          atoms=[atom.strip() for atom in entry.split(':')]
-          if atoms[0].lower() == 'indent' and len(atoms) > 1:
-            spaces = int(atoms[1])          
-          if atoms[0].lower() == 'id' and len(atoms) > 1:
-            compiled_node_id = re.search(node_id_regex, atoms[1]).group(0)
-            metadata += 'ID: ' + compiled_node_id + '\n'
-          if atoms[0].lower() == 'show' and len(atoms) > 1:
-            if atoms[1] == 'title':
-              show='title'
-            if atoms[1] == 'timeline':
-              show='timeline'
-              if compiled_node_id in self.nodes:
-                excluded_nodes.append(self.nodes[compiled_node_id])
+    for target_id in self.dynamic_nodes:
+      """
+      Make sure the target node exists.
+      """
+      source_id = self.dynamic_nodes[target_id].source_id
+      if target_id not in self.nodes:        
+        self.log_item('Dynamic node definition >' + source_id + ' points to nonexistent node >' + target_id)
+        continue      
+      filename = self.nodes[target_id].filename
+      if filename not in files_to_modify:
+        files_to_modify[filename] = []
+      files_to_modify[filename].append(target_id) 
 
-          if atoms[0].lower() in ['exclude', 'include'] and len(atoms) > 1:
-            if atoms[0] == 'include' and atoms[1].lower() == 'all':
-              included_nodes=[]
-              indexed_nodes = list(self.indexed_nodes())
-              for node_id in indexed_nodes:
-                included_nodes.append(self.nodes[node_id])
-              unindexed_nodes = list(self.unindexed_nodes())
-              for node_id in unindexed_nodes:
-                included_nodes.append(self.nodes[node_id])              
+    # rebuid the text for each file all at once
+    for file in files_to_modify:
+      """
+      Get current file contents
+      """
+      with open(os.path.join(self.path, file), "r", encoding='utf-8') as theFile:
+        old_file_contents = theFile.read()
+        theFile.close()
 
-            if atoms[1].lower() == 'metadata' and len(atoms) > 3:
-              key=atoms[2]
-              value=atoms[3]
-              right_value=None
-              for indexed_value in self.tagnames[key]:
-                if indexed_value.lower().strip() == value:
-                  right_value=value
-              if right_value != None:
-                for targeted_node in self.tagnames[key][right_value]:
-                  if atoms[0] == 'exclude':
-                    excluded_nodes.append(self.nodes[targeted_node])
-                  if atoms[0] == 'include':
-                    included_nodes.append(self.nodes[targeted_node])
-          if atoms[0].lower() == 'tree' and len(atoms) > 1 and atoms[1] in self.nodes:
-              contents += self.show_tree_from(atoms[1])
-          if atoms[0] == 'sort' and len(atoms) > 1:
-            sort_tagname = atoms[1]
-          if atoms[0].lower() == 'metadata' and len(atoms) > 2:
-            if atoms[1].lower() == 'timestamp':
-              metadata += atoms[1] + ': ' + ':'.join(atoms[2:]) + '\n' # use the rest of the line
-            else: 
-              metadata += atoms[1] + ': ' + atoms[2] + '\n'
+      updated_file_contents = old_file_contents
 
-        for excluded_node in excluded_nodes:
-          if excluded_node in included_nodes:
-            included_nodes.remove(excluded_node)
+      for target_id in files_to_modify[file]:
+        old_node_contents = self.nodes[target_id].contents()
+        dynamic_definition = self.dynamic_nodes[target_id]
 
-        if sort_tagname != None:
-          included_nodes = sorted(included_nodes, key=lambda node: node.metadata.get_tag(sort_tagname))
+        contents = ''
+        metadata = '/--\n'
+        
+        
+        if dynamic_definition.tree and dynamic_definition.tree in self.nodes:
+          contents += self.show_tree_from(dynamic_definition.tree)
+ 
         else:
-          included_nodes = sorted(included_nodes, key=lambda node: node.date)
-
-        # build dynamic node contents
-        if show == 'timeline':
-           contents += urtext.timeline.timeline(self, included_nodes)
-
-        else: 
-          for targeted_node in included_nodes:
-            if show == 'title':
-              show_contents = targeted_node.set_title()
-            if show == 'full_contents':
-              show_contents = targeted_node.content_only().strip('\n').strip()
-            if targeted_node.id == None:
-              self.log_item('Targeted Node has no ID')
-              return None
-            contents += show_contents + ' >' + targeted_node.id + '\n-\n'
-
-        metadata += 'kind: dynamic\n'
-        metadata += 'defined in: >' + dynamic_node_def_id + '\n'
-        metadata += ' --/'
-
-        if not compiled_node_id:
-          return None
-
-        """
-        check if the target node exists.
-        """
-        if compiled_node_id not in self.nodes:
-          self.log_item('Dynamic node definition >' + dynamic_node_def_id + ' points to nonexistent node >' + compiled_node_id)
-          return None
+          included_nodes = []
+          excluded_nodes = []
           
-        if self.dynamic_definition_of(compiled_node_id) not in [ None, dynamic_node_def_id ]:
-          self.log_item('Node >' + compiled_node_id + ' has duplicate definition in >' + dynamic_node_def_id+'. Keeping the definition in >'+ self.nodes[compiled_node_id].dynamic_definition+'.')
-          return None
-        filename = self.get_file_name(compiled_node_id)
-        updated_contents = contents + metadata
+          for item in dynamic_definition.include:
+            key, value = item[0],item[1]
+            included_nodes.extend(self.tagnames[key][value])
 
-        if spaces:
-          updated_contents = indent(updated_contents, spaces)
+          for item in dynamic_definition.exclude:
+            key, value = item[0],item[1]
+            excluded_nodes.extend(self.tagnames[key][value])
 
-        def update_file(filename):
-          with open(os.path.join(self.path, filename), "w", encoding='utf-8') as theFile:
-            theFile.write(updated_contents)
-            theFile.close()
+          for node in excluded_nodes:
+            if node in included_nodes:
+              included_nodes.remove(node)
 
-          compiled_node = UrtextNode(os.path.join(self.path, filename), 
-            contents=updated_contents)
-          
-          if compiled_node.id != None: # node must already exist
-            self.nodes[compiled_node_id] = compiled_node
-            self.dynamic_defs[dynamic_node_def_id] = compiled_node_id            
-            if compiled_node.id not in self.files[os.path.basename(filename)]['nodes']:
-              self.files[os.path.basename(filename)]['nodes'].append(compiled_node_id)
+          """
+          Assemble the node collection from the list
+          """
+          included_nodes = [self.nodes[node_id] for node_id in included_nodes]
 
-        if len(self.files[os.path.basename(filename)]['nodes']) > 1:
-          old_node_contents = self.nodes[compiled_node_id].contents()
-          with open(os.path.join(self.path, filename), "r", encoding='utf-8') as theFile:
-            full_file_contents=theFile.read()
-            theFile.close()
-          new_file_contents = full_file_contents.replace(old_node_contents, updated_contents)
-          if new_file_contents != full_file_contents:
-            with open(os.path.join(self.path, filename), "w", encoding='utf-8') as theFile:
-              theFile.write(new_file_contents)
-              theFile.close()
+          """
+          build timeline if specified
+          """
+          if dynamic_definition.show == 'timeline':
+            contents += urtext.timeline.timeline(self, included_nodes)
 
-        else: # for single-node files:
-          with open(os.path.join(self.path, filename), "r", encoding='utf-8') as theFile:
-            current_contents = theFile.read()
-            theFile.close()
-          if current_contents != updated_contents:
-            update_file(filename)
+          else:
+            """
+            otherwise this is a list, so sort the nodes
+            """
+            if dynamic_definition.sort_tagname != None:
+              included_nodes = sorted(included_nodes, key=lambda node: node.metadata.get_tag( dynamic_definition.sort_tagname))
+            else:
+              included_nodes = sorted(included_nodes, key=lambda node: node.date)
             
-        self.parse_file(filename) 
+            for targeted_node in included_nodes:
+              if dynamic_definition.show == 'title':
+                show_contents = targeted_node.set_title()
+              if dynamic_definition.show == 'full_contents':
+                show_contents = targeted_node.content_only().strip('\n').strip()
+              contents += show_contents + ' >' + targeted_node.id + '\n-\n'
 
-  def dynamic_definition_of(self, node_id):
-    for definition in self.dynamic_defs:
-      if self.dynamic_defs[definition] == node_id:
-        return definition
-    return None
+        """
+        add metadata to dynamic node
+        """
+        metadata += 'ID:'+target_id+'\n'
+        metadata += 'kind: dynamic\n'
+        metadata += 'defined in: >' + dynamic_definition.source_id + '\n'
+        metadata += '--/'
+    
+        updated_node_contents = contents + metadata
+        
+        """
+        add indentation if specified
+        """
+        
+        if dynamic_definition.spaces:
+          updated_node_contents = indent(updated_contents, spaces)
+        
+        updated_file_contents = updated_file_contents.replace(old_node_contents, updated_node_contents)
+        
+      """
+      Update this file if it has changed
+      """
+      if updated_file_contents != old_file_contents:
+      
+        with open(os.path.join(self.path, file), "w", encoding='utf-8') as theFile:
+          theFile.write(updated_file_contents)
+          theFile.close()   
+        self.parse_file(os.path.join(self.path,file))  
 
   """
   Refreshers
@@ -590,8 +562,7 @@ class UrtextProject:
     if 'zzy' in self.nodes:
       metadata_file = self.nodes['zzy'].filename
     else:
-      metadata_file = self.settings['metadata_list']    
-
+      metadata_file = self.settings['metadata_list']
 
     with open(os.path.join(self.path, metadata_file), 'w', encoding='utf-8') as theFile:
       for pre, _, node in RenderTree(root):
@@ -600,7 +571,6 @@ class UrtextProject:
       theFile.write(metadata)
       theFile.close()
 
-  
   """
   Metadata
   """
@@ -621,7 +591,6 @@ class UrtextProject:
       theFile.close()
     self.parse_file(os.path.join(self.path, self.nodes[node_id].filename))
 
-
   def consolidate_metadata(self, node_id, one_line=False):
 
     def adjust_ranges(filename, position, length):
@@ -635,7 +604,7 @@ class UrtextProject:
     self.log_item (node_id)
     consolidated_metadata = self.nodes[node_id].consolidate_metadata(one_line=one_line)
 
-    filename = self.get_file_name(node_id)
+    filename = self.nodes[node_id].filename
     with open(os.path.join(self.path,filename),'r',encoding='utf-8') as theFile:
       file_contents = theFile.read()
       theFile.close()
@@ -685,10 +654,6 @@ class UrtextProject:
             self.tagnames[entry.tag_name][value]=[]
           self.tagnames[entry.tag_name][value].append(node)  
 
-  
- 
-  
-
   def import_file(self, filename):
      with open(os.path.join(self.path, filename),'r',encoding='utf-8',) as theFile:
           full_file_contents = theFile.read()
@@ -713,11 +678,6 @@ class UrtextProject:
 
   def get_node_relationships(self, node_id):
     return interlinks.Interlinks(self, node_id).render
-
-  def compile_all(self):
-    for node_id in list(self.dynamic_defs):
-      self.compile(node_id)
-
   
   """
   Removing and renaming files
@@ -730,8 +690,9 @@ class UrtextProject:
     filename = os.path.basename(filename)
     if filename in self.files:
       for node_id in self.files[filename]['nodes']:
-        if node_id in self.dynamic_defs:
-          del self.dynamic_defs[node_id]
+        for target_id in list(self.dynamic_nodes):
+          if self.dynamic_nodes[target_id].source_id == node_id:
+            del self.dynamic_nodes[target_id]
 
         # REFACTOR
         # delete it from the self.tagnames array -- duplicated from delete_file()
@@ -757,23 +718,32 @@ class UrtextProject:
       del self.files[old_filename]  
 
   """ 
-  Methods for filtering unwanted files 
+  Methods for filtering files to skip 
   """
 
   def filter_filenames(self, filename):
     """ Filters out files to skip altogether """
+
+    """ Omit system files """
+    if filename[0] == '.':
+      return None
+
+    """ Omit the log file """
     skip_files = [
-        '.gitignore',
-        '.DS_Store', 
-        'urtext_log 2.txt', 
         self.settings['logfile']
         ]
-    skip_filename_fragments = ['.icloud']
     if filename in skip_files:
         return
-    for fragment in skip_filename_fragments:
-        if fragment in filename:
-          return None
+
+    """ Omit files containing these fragments """
+    conflict_filename_fragments = [ 
+      'conflicted copy', # Dropbox 
+     ]
+    for fragment in conflict_filename_fragments:
+      if fragment in filename:
+        self.conflicting_files.append(filename)
+        return None
+    
     return filename
 
   def get_file_contents(self, filename):
@@ -829,9 +799,6 @@ class UrtextProject:
     
     self.files[filename]['nodes'].append(node_id)
     return node_id
-
-
-  
 
   """ 
   Reindexing (renaming) Files 
@@ -1089,13 +1056,12 @@ class UrtextProject:
     return False
 
   def log_item(self,item): # Urtext logger
-    print(item)
     self.build_response.append(item)
-
 
   def write_log(self):
     for item in self.build_response:
-      self.log(item + '\n')
+      self.log.info(item + '\n')
+    self.build_response = []
 
   def timestamp(self, date):
     """ Given a datetime object, returns a timestamp in the format set in project_settings, or the default """
@@ -1107,24 +1073,13 @@ class UrtextProject:
     for entry in node.metadata.entries:
         self.settings[entry.tag_name.lower()] = entry.value
 
+  def get_file_name(self, node_id):
+    return self.nodes[node_id].filename
+    
   def next_index(self):
     for index in self.indexes:
       if ''.join(index) not in self.nodes:
         return ''.join(index)
-
-  def dynamic_nodes(self):
-
-    self.dynamic_nodes={}
-    for node_id in self.nodes:
-      if node[node_id].dynamic == True:
-        self.dynamic_nodes.append(node_id)
-
-  def get_file_name(self, node_id):
-
-    for node in self.nodes:
-      if node == node_id:
-        return self.nodes[node].filename
-    return None # if no node found
 
   def get_root_node_id(self, filename):
     """
