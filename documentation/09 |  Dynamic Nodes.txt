@@ -52,11 +52,11 @@
     -
     Example Source Node 4 >01c
     -
-    /-- ID: 016
-    title: Example Dynamic Node Title
+    /--
+    ID:016
     kind: dynamic
     defined in: >01r
-     --/}}
+    --/}}
         
 {{ Another Example: The Node Definition for the Table of Contents
 

@@ -846,8 +846,8 @@ def open_urtext_node(view, node_id, position):
   def center_node(view, position): # copied from old OpenNode. Refactor
       if not view.is_loading():
         view.sel().clear()
-        view.show_at_center(int(position)) 
         view.sel().add(int(position))
+        view.show_at_center(int(position)) 
       else:
         sublime.set_timeout(lambda: center_node(view, position), 10)
   
@@ -923,44 +923,6 @@ class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
     new_view = window.new_file()
     window.focus_view(new_view)
     draw_tree(new_view, render)    
-
-
-class RightAlignGroupCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    selection = self.view.substr(self.view.sel()[0])
-    line_position = self.view.rowcol(self.view.sel()[0].a)[1]
-    new_line = ' ' * (119 - len(selection) - line_position) 
-    new_line += selection
-    lines = selection.split('\n')
-    new_text = ''
-    for line in lines:
-      new_text += ' ' * (120 - len(line))
-      new_text += line + '\n'
-    self.view.replace(edit,self.view.sel()[0],new_line)
-    
-class RightAlignHereCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    line_region = self.view.line(self.view.sel()[0])
-    cursor_pos = self.view.rowcol(self.view.sel()[0].a)[1]
-    line_contents = self.view.substr(line_region)
-    left = line_contents[:cursor_pos]
-    right = line_contents[cursor_pos:]
-    new_right = ' ' * ((120 - len(right.strip(' '))) - cursor_pos) 
-    new_right += right.strip(' ')
-    self.view.replace(edit, sublime.Region(self.view.sel()[0].a,self.view.sel()[0].a+len(right)),new_right)
-
-class RightAlignSelectionCommand(sublime_plugin.TextCommand):
-  def run(self, edit):
-    selection = self.view.split_by_newlines(self.view.line(self.view.sel()[0]))
-    difference = 0
-    for region in selection:
-      region = sublime.Region(region.a + difference, region.b + difference)
-      original_content = self.view.substr(region)
-      stripped_content = original_content.strip()
-      new_right = ' ' * (120 - len(stripped_content))
-      new_right += stripped_content
-      difference += len(new_right) - len(original_content)
-      self.view.replace(edit, region, new_right)
 
 class ReIndexFilesCommand(sublime_plugin.TextCommand):
   def run(self, edit):

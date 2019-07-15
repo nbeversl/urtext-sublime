@@ -517,7 +517,7 @@ class UrtextProject:
         """
         
         if dynamic_definition.spaces:
-          updated_node_contents = indent(updated_contents, spaces)
+          updated_node_contents = indent(updated_node_contents, dynamic_definition.spaces)
         
         updated_file_contents = updated_file_contents.replace(old_node_contents, updated_node_contents)
         

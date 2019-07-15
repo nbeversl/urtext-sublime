@@ -42,7 +42,7 @@ Node Pointers
 └── Recursive Node Pointers >00s
     ├── Sublime Urtext Documentation >01k
     │   ├── Using this document >009
-    │   ├── Table of Contents >01a
+    │   ├── Sublime Urtext Documentation >01k >01a
     │   ├── About Urtext >013
     │   │   ├── What Urtext Is >00d
     │   │   ├── Ideas and Requirements Behind Urtext >008
@@ -95,7 +95,7 @@ Node Pointers
     │   │   ├── Example Source Node 3 >01b
     │   │   ├── Example Source Node 2 >00v
     │   │   ├── Example Source Node 4 >01c
-    │   │   ├── Example Dynamic Node Title >016
+    │   │   ├── Example Source Node 3 >01b >016
     │   │   └── Another Example: The Node Definition for the Table of Contents >029
     │   ├── More About Node IDs >01q
     │   ├── Filenames >01m
@@ -108,12 +108,12 @@ Node Pointers
     │   │   ├── 0.1.11-alpha >01l
     │   │   └── 0.1.12-alpha >020
     │   └── License >01t
-    └── Example - Table of Contents From Another Root >01n
-/-- ID: 01n
-title: Example - Table of Contents From Another Root
+    └── Node Pointers >00r >01n
+/--
+ID:01n
 kind: dynamic
 defined in: >00s
- --/}}
+--/}}
 
     [[ ID:01n
         tree:00r
