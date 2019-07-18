@@ -1,34 +1,27 @@
 import codecs
 import re
-import os
 import datetime
-import sys
 import itertools
 import platform
 import logging
 import operator
 import difflib
 import json
+import os 
 
-parent_dir = os.path.dirname(__file__)
-sys.path.append(os.path.join(parent_dir, 'anytree'))
-sys.path.append(os.path.join(parent_dir, 'anytree/node'))
-sys.path.append(os.path.join(parent_dir, 'whoosh'))
-sys.path.append(parent_dir)
-
-from anytree.node import Node
-from anytree.render import RenderTree
-from anytree import PreOrderIter
-import urtext.timeline
-from urtext.node import UrtextNode
+from urtext_sublime.anytree import Node
+from urtext_sublime.anytree import RenderTree
+from urtext_sublime.anytree import PreOrderIter
+from urtext_sublime.urtext.timeline import timeline
+from urtext_sublime.urtext.urtext_node import UrtextNode
 import interlinks
 
-from whoosh.fields import Schema, TEXT, ID
-from whoosh.index import create_in, exists_in, open_dir
-from whoosh.query import *
-from whoosh.qparser import QueryParser
-from whoosh.highlight import UppercaseFormatter
-
+#rom urtext_sublime.whoosh.fields import Schema, TEXT, ID
+#from urtext_sublime.whoosh.index import create_in, exists_in, open_dir
+#from urtext_sublime.whoosh.query import *
+#from urtext_sublime.whoosh.qparser import QueryParser
+#from urtext_sublime.whoosh.highlight import UppercaseFormatter
+#from urtext_sublime import whoosh
 node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
 
@@ -1046,7 +1039,7 @@ class UrtextProject:
   def timeline(self, nodes):
     """ Given a list of nodes, returns a timeline """
 
-    return urtext.timeline.timeline(self, nodes)
+    return timeline.timeline(self, nodes)
     
   def is_duplicate_id(self, node_id, filename):
     if node_id in self.nodes:

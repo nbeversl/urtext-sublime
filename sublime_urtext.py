@@ -25,19 +25,18 @@ import pprint
 import logging
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
-sys.path.append(os.path.join(os.path.dirname(__file__)))
+#sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
+#sys.path.append(os.path.join(os.path.dirname(__file__)))
 
-from urtext.node import UrtextNode
-from urtext.project import UrtextProject
-from urtext.metadata import NodeMetadata
-import urtext.metadata
+from .urtext.project import UrtextProject
+from .urtext.metadata import NodeMetadata
+#import urtext.metadata
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
 import webbrowser
-from urtext.project_list import ProjectList
-from urtext.project import node_id_regex
+from .urtext.project_list import ProjectList
+from .urtext.project import node_id_regex
 
 _UrtextProject = None
 _UrtextProjectList = None
@@ -345,7 +344,7 @@ class ShowTreeFromRootCommand(sublime_plugin.TextCommand):
     filename = os.path.basename(self.view.file_name())
     position = self.view.sel()[0].a
     node_id = _UrtextProject.get_node_id_from_position(filename, position)
-    tree_render = _UrtextProject.show_tree_from_root_of(node_id)
+    tree_render = _UrtextProject.show_tree_from(node_id, from_root_of=True)
     tree_view = target_tree_view(self.view)
     tree_view.erase(edit, sublime.Region(0, tree_view.size()))
     render_tree(tree_view, tree_render)

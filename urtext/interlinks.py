@@ -16,19 +16,10 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-import os
-import anytree
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
-sys.path.append(os.path.join(os.path.dirname(__file__)))
-
-import anytree
-from anytree.node import Node
-from anytree.render import RenderTree
-from urtext.node import UrtextNode
-from urtext.metadata import NodeMetadata
-import urtext.project
+#from ..anytree import Node
+#from ..anytree import RenderTree
+from metadata import NodeMetadata
+import project
 import re
 
 class Interlinks():

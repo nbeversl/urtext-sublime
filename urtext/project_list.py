@@ -1,4 +1,4 @@
-from urtext.project import UrtextProject, node_id_regex
+from .project import UrtextProject, node_id_regex
 import re
 import os
 

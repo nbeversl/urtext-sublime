@@ -7,9 +7,8 @@ from dynamic import UrtextDynamicDefinition
 import re
 import datetime
 import logging
-from anytree.node import Node
-from anytree import PreOrderIter
-import anytree
+from ..anytree import Node
+from ..anytree import PreOrderIter
 
 
 class UrtextNode:
