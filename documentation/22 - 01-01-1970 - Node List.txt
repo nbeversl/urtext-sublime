@@ -18,9 +18,9 @@ Example Source Node 4 >01c
 -
 Metadata >00x
 -
-Timestamps >005
--
 Links >00j
+-
+Timestamps >005
 -
 Node Pointers >00r
 -
@@ -33,8 +33,6 @@ Architecture : Extension and Customization >01o
 Reference: Key Bindings >018
 -
 project_settings >00l
--
-Fix/Changelog >01v
 -
 (untitled) >019
 -
@@ -50,25 +48,19 @@ The Node List >01i
 -
 In-Progress / Experimental / Wish List >014
 -
-Node Identity (Node IDs) >01h
+Linking to Nodes >0y2
 -
-Node Pointers >00r >01n
+Files >00p
 -
-0.1.11-alpha >01l
+Another Example: The Node Definition for the Table of Contents >029
 -
-Sublime Urtext Documentation >01k >01a
+License >01t
 -
-Node Pointers >00r >01f
+Additional Features >006
 -
-File Level Nodes >01g
+Example Source Node 3 >01b >016
 -
-Syntax Highlighting >01d
--
-Hiding Line Numbers >01e
--
-Synchronator Setup >01z
--
-Project Metadata List >012
+Recursive Node Pointers >00s
 -
 iPhone/iPad/iOS >01y
 -
@@ -76,65 +68,41 @@ Using this document >009
 -
 Ideas and Requirements Behind Urtext >008
 -
-Duplicate Node Pointers >00t
--
-Reopening a Project >01p
--
-Additional Features >006
--
-Sublime Text Interface Tips >000
--
 Full Screen / Distraction Free Mode >002
 -
-Linking to Nodes >0y2
--
-Node List >zzz
--
-Example Source Node 2 >00v
--
-Example Source Node 3 >01b >016
--
-Opening Links >01w
--
-License >01t
+Sublime Text Interface Tips >000
 -
 Characteristics >007
 -
 About This Implementation >01u
 -
-Traverse Mode >00w
+Opening Links >01w
 -
-Sublime Text tools to help with linking >00m
+Node Identity (Node IDs) >01h
 -
-Web >00o
+Node Pointers >00r >01n
 -
-Timestamp Formats >00n
+Sublime Urtext Documentation >01k >01a
 -
-Filename formats >00i
+Syntax Highlighting >01d
 -
-Node Trees >00h
+Hiding Line Numbers >01e
 -
-Timeline View: >00k
+Node Pointers >00r >01f
 -
-Example inline node >00e
+File Level Nodes >01g
 -
-What Urtext Is >00d
+Synchronator Setup >01z
 -
-From the root >00g
+Example Source Node 2 >00v
 -
-From a selected node >00f
--
-Making a New Project >00a
--
-Home >00c
--
-Using Existing Files >00b
+Duplicate Node Pointers >00t
 -
 title (This tag overrides the default title) >00y
 -
-Another Example: The Node Definition for the Table of Contents >029
+Node List >zzz
 -
-Viewing Linked Relationships >00u
+Metadata List >zzy
 -
 Basic Requirements: >010
 -
@@ -142,15 +110,41 @@ Reserved Metadata Keys >011
 -
 Linking to outside resources >00q
 -
-Files >00p
--
-Recursive Node Pointers >00s
+Traverse Mode >00w
 -
 Hiding Tabs >015
 -
-Metadata List >zzy
+Viewing Linked Relationships >00u
 -
-0.1.12-alpha >020
+From a selected node >00f
+-
+Timeline View: >00k
+-
+Reopening a Project >01p
+-
+Filename formats >00i
+-
+Node Trees >00h
+-
+Web >00o
+-
+Timestamp Formats >00n
+-
+Sublime Text tools to help with linking >00m
+-
+Home >00c
+-
+Using Existing Files >00b
+-
+Making a New Project >00a
+-
+From the root >00g
+-
+Project Metadata List >012
+-
+Example inline node >00e
+-
+What Urtext Is >00d
 -
 /--
 ID:zzz

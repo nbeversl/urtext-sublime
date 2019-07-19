@@ -1,4 +1,14 @@
 Metadata Keys
+├── home
+│   └── 01k
+│       └── project_settings >00l
+├── tags
+│   ├── coming
+│   │   └── Files >00p
+│   ├── urtext
+│   │   └── Sublime Urtext Documentation >01k
+│   └── urtext_documentation
+│       └── Setup >003
 ├── note
 │   └── example note
 │       └── Metadata >00x
@@ -7,31 +17,21 @@ Metadata Keys
 │   │   └── Metadata >00x
 │   └── dynamic
 │       ├── Example Source Node 3 >01b >016
+│       ├── Sublime Urtext Documentation >01k >01a
 │       ├── Node Pointers >00r >01f
-│       ├── Node Pointers >00r >01n
-│       └── Sublime Urtext Documentation >01k >01a
-├── tags
-│   ├── urtext
-│   │   └── Sublime Urtext Documentation >01k
-│   ├── coming
-│   │   └── Files >00p
-│   └── urtext_documentation
-│       └── Setup >003
+│       └── Node Pointers >00r >01n
 ├── tag
 │   ├── definition
 │   │   └── What Urtext Is >00d
+│   ├── groceries
+│   │   └── Metadata >00x
 │   ├── example_node
 │   │   ├── Example Source Node 1 >017
 │   │   ├── Example Source Node 3 >01b
 │   │   ├── Example Source Node 2 >00v
 │   │   └── Example Source Node 4 >01c
-│   ├── groceries
-│   │   └── Metadata >00x
 │   └── exclude_this
 │       └── Example Source Node 2 >00v
-├── home
-│   └── 01k
-│       └── project_settings >00l
 └── Purpose
     └── work-related
         └── Metadata >00x
