@@ -9,11 +9,11 @@ import difflib
 import json
 import os 
 
-from urtext.anytree import Node
-from urtext.anytree import RenderTree
-from urtext.anytree import PreOrderIter
-from urtext.urtext.timeline import timeline
-from urtext.urtext.node import UrtextNode
+from urtext_sublime.anytree import Node
+from urtext_sublime.anytree import RenderTree
+from urtext_sublime.anytree import PreOrderIter
+from urtext_sublime.urtext.timeline import timeline
+from urtext_sublime.urtext.node import UrtextNode
 import interlinks
 
 #rom urtext_sublime.whoosh.fields import Schema, TEXT, ID
