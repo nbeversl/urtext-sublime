@@ -856,6 +856,7 @@ class UrtextProject:
       new_filename = new_filename.replace('/','-')
       new_filename = new_filename.replace('.',' ')
       new_filename = new_filename.replace('’',"'")
+      new_filename = new_filename.replace(':',"-")
       new_filename += '.txt'
       if new_filename not in used_names:
         renamed_files[old_filename] = new_filename 

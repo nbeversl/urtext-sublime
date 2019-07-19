@@ -4,9 +4,9 @@ Example Source Node 3 >01b
 -
 About Urtext >013
 -
-Example Source Node 1 >017
--
 Setup >003
+-
+Example Source Node 1 >017
 -
 Nodes >01j
 -
@@ -50,107 +50,107 @@ The Node List >01i
 -
 In-Progress / Experimental / Wish List >014
 -
-Full Screen / Distraction Free Mode >002
--
-Node List >zzz
--
-Home >00c
--
-Linking to Nodes >0y2
--
 Node Identity (Node IDs) >01h
 -
 Node Pointers >00r >01n
--
-Characteristics >007
 -
 0.1.11-alpha >01l
 -
 Sublime Urtext Documentation >01k >01a
 -
-File Level Nodes >01g
+Node Pointers >00r >01f
 -
-Hiding Line Numbers >01e
+File Level Nodes >01g
 -
 Syntax Highlighting >01d
 -
+Hiding Line Numbers >01e
+-
 Synchronator Setup >01z
--
-0.1.12-alpha >020
--
-Ideas and Requirements Behind Urtext >008
--
-Using this document >009
--
-Additional Features >006
--
-Reopening a Project >01p
--
-Opening Links >01w
--
-About This Implementation >01u
--
-License >01t
--
-iPhone/iPad/iOS >01y
--
-Node Pointers >00r >01f
--
-Duplicate Node Pointers >00t
--
-Sublime Text Interface Tips >000
 -
 Project Metadata List >012
 -
-Metadata List >zzy
+iPhone/iPad/iOS >01y
 -
-Another Example: The Node Definition for the Table of Contents >029
+Using this document >009
+-
+Ideas and Requirements Behind Urtext >008
+-
+Duplicate Node Pointers >00t
+-
+Reopening a Project >01p
+-
+Additional Features >006
+-
+Sublime Text Interface Tips >000
+-
+Full Screen / Distraction Free Mode >002
+-
+Linking to Nodes >0y2
+-
+Node List >zzz
 -
 Example Source Node 2 >00v
 -
-Filename formats >00i
+Example Source Node 3 >01b >016
+-
+Opening Links >01w
+-
+License >01t
+-
+Characteristics >007
+-
+About This Implementation >01u
+-
+Traverse Mode >00w
 -
 Sublime Text tools to help with linking >00m
 -
+Web >00o
+-
 Timestamp Formats >00n
 -
-Web >00o
+Filename formats >00i
 -
 Node Trees >00h
 -
 Timeline View: >00k
 -
-What Urtext Is >00d
--
 Example inline node >00e
 -
-From a selected node >00f
+What Urtext Is >00d
 -
 From the root >00g
 -
+From a selected node >00f
+-
 Making a New Project >00a
+-
+Home >00c
 -
 Using Existing Files >00b
 -
-Example Source Node 3 >01b >016
--
 title (This tag overrides the default title) >00y
 -
-Basic Requirements: >010
+Another Example: The Node Definition for the Table of Contents >029
 -
 Viewing Linked Relationships >00u
 -
+Basic Requirements: >010
+-
 Reserved Metadata Keys >011
--
-Traverse Mode >00w
--
-Files >00p
 -
 Linking to outside resources >00q
 -
-Hiding Tabs >015
+Files >00p
 -
 Recursive Node Pointers >00s
+-
+Hiding Tabs >015
+-
+Metadata List >zzy
+-
+0.1.12-alpha >020
 -
 /--
 ID:zzz

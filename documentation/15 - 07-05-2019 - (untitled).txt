@@ -1,0 +1,21 @@
+{{Node Pointers >00r
+├── Example Child Node Using a Node Pointer >001
+├── Duplicate Node Pointers >00t
+│   └── Example Child Node Using a Node Pointer >001
+└── Recursive Node Pointers >00s
+    ├── Sublime Urtext Documentation >01k
+    └── Node Pointers >00r >01n
+/--
+ID:01f
+kind: dynamic
+defined in: >019
+--/}}
+[[ ID:01f
+	tree:00r
+
+ ]]
+
+
+/-- ID:019
+Timestamp:<Fri., Jul. 05, 2019, 12:40 PM>
+ --/
