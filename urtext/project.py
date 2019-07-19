@@ -9,11 +9,11 @@ import difflib
 import json
 import os 
 
-from urtext_sublime.anytree import Node
-from urtext_sublime.anytree import RenderTree
-from urtext_sublime.anytree import PreOrderIter
-from urtext_sublime.urtext.timeline import timeline
-from urtext_sublime.urtext.urtext_node import UrtextNode
+from urtext.anytree import Node
+from urtext.anytree import RenderTree
+from urtext.anytree import PreOrderIter
+from urtext.urtext.timeline import timeline
+from urtext.urtext.node import UrtextNode
 import interlinks
 
 #rom urtext_sublime.whoosh.fields import Schema, TEXT, ID
@@ -839,19 +839,19 @@ class UrtextProject:
       root_node_id = self.get_root_node_id(old_filename)
       root_node = self.nodes[root_node_id]   
 
-      new_filename = ' | '.join(filename_template)
+      new_filename = ' - '.join(filename_template)
       new_filename = new_filename.replace('TITLE', root_node.get_title())
       if root_node_id not in indexed_nodes and date_template != None:
         new_filename = new_filename.replace('DATE', datetime.datetime.strftime(root_node.date, date_template))
       else: 
-        new_filename = new_filename.replace('DATE |','')
+        new_filename = new_filename.replace('DATE -','')
       if reindex == True:
         padded_prefix = '{number:0{width}d}'.format(
             width=self.prefix_length(), 
             number=int(root_node.prefix))
         new_filename = new_filename.replace('PREFIX', padded_prefix)
       else:
-        old_prefix = old_filename.split('|')[0].strip()
+        old_prefix = old_filename.split('-')[0].strip()
         new_filename = new_filename.replace('PREFIX', old_prefix)      
       new_filename = new_filename.replace('/','-')
       new_filename = new_filename.replace('.',' ')

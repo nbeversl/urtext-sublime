@@ -10,11 +10,13 @@ Pleae post issues at https://github.com/nbeversl/urtext-sublime/issues
 
 ## Installation
 
-You can install this package through Package Control.
+You can install this package through Package Control. (See https://packagecontrol.io/installation for how to install Package Control.)
 
 Press ⌘/Ctrl + ⇧ + P to open the command palette.
 
 Type Install Package and press Enter. Then search for Urtext.
+
+Sublime will install `pathtools` and `watchdog` if they are not already installed. You will then have to close and reopen Sublime. On Windows, it may be necessary to run the `Package Control: Satisfy Dependencies` command via command palette.
 
 ## Documentation
 

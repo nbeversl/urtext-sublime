@@ -11,9 +11,11 @@ Fix/Changelog
 {{  0.1.12-alpha
 	 - All files starting with "." are now omitted from parsing
 	 - Files containing "conflicted copy" (from Dropbox) are omitted from parsing
-
+	 - Removed the pipe character from filename reindexing
+	 - Changed folder structure to utilize relative imports
 
 /-- ID:020 --/ }}
+
 
 
 /-- ID: 01v

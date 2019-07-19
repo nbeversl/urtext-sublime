@@ -29,6 +29,7 @@ import sys
 #sys.path.append(os.path.join(os.path.dirname(__file__)))
 
 from .urtext.project import UrtextProject
+from .urtext.project import NoProject
 from .urtext.metadata import NodeMetadata
 #import urtext.metadata
 from watchdog.events import FileSystemEventHandler
@@ -130,7 +131,7 @@ def focus_urtext_project(path, view, init_project=False):
   global _UrtextProject
   try:
     _UrtextProject = UrtextProject(path, init_project=init_project)
-  except urtext.project.NoProject:
+  except NoProject:
     print('No Urtext nodes in this folder')
     return None
   results = _UrtextProject.build_response
@@ -155,8 +156,8 @@ def get_path_from_window(window):
   if folders:
     return folders[0]
 
-  if view.window().project_data():
-    return view.window().project_data()['folders'][0]['path']
+  if window.project_data():
+    return window.project_data()['folders'][0]['path']
 
   return None
 
