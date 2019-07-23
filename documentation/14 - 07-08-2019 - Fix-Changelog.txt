@@ -20,7 +20,15 @@ Fix/Changelog
 {{  0.1.13-alpha
 	 - Removes colons from filenames when reindexing
 	 
-/-- ID:020 --/ }}
+/-- ID:021 --/ }}
+
+{{ 0.1.14-alpha
+		- bug fixes
+		- documentation updates
+		- opening `Urtext: Log` now scrolls to the end of the log file.
+
+
+ /-- ID:022 --/ }}
 
 
 

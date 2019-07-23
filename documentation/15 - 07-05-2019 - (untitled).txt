@@ -5,71 +5,25 @@
 └── Recursive Node Pointers >00s
     ├── Sublime Urtext Documentation >01k
     │   ├── Using this document >009
-    │   ├── Sublime Urtext Documentation >01k >01a
+    │   ├── Table of Contents >01a
     │   ├── About Urtext >013
-    │   │   ├── What Urtext Is >00d
-    │   │   ├── Ideas and Requirements Behind Urtext >008
-    │   │   │   ├── Basic Requirements: >010
-    │   │   │   ├── Additional Features >006
-    │   │   │   └── Characteristics >007
-    │   │   └── About This Implementation >01u
     │   ├── Setup >003
-    │   │   ├── Making a New Project >00a
-    │   │   ├── Using Existing Files >00b
-    │   │   ├── Reopening a Project >01p
-    │   │   └── Sublime Text Interface Tips >000
-    │   │       ├── Syntax Highlighting >01d
-    │   │       ├── Hiding Tabs >015
-    │   │       ├── Hiding Line Numbers >01e
-    │   │       └── Full Screen / Distraction Free Mode >002
     │   ├── Nodes >01j
-    │   │   ├── Node Identity (Node IDs) >01h
-    │   │   ├── File Level Nodes >01g
-    │   │   └── Inline Nodes >004
-    │   │       ├── Example inline node >00e
-    │   │       └── Node Trees >00h
-    │   │           ├── From a selected node >00f
-    │   │           └── From the root >00g
     │   ├── Projects, Structure and Compiling >01x
-    │   │   └── project_settings >00l
-    │   │       ├── Home >00c
-    │   │       ├── Filename formats >00i
-    │   │       └── Timestamp Formats >00n
     │   ├── The Node List >01i
     │   ├── Metadata >00x
-    │   │   ├── Reserved Metadata Keys >011
-    │   │   │   ├── title (This tag overrides the default title) >00y
-    │   │   │   └── index >00z
-    │   │   └── Project Metadata List >012
-    │   │       └── Metadata List >zzy
     │   ├── Timestamps >01s
     │   ├── Links >00j
-    │   │   ├── Linking to Nodes >0y2
-    │   │   │   └── Sublime Text tools to help with linking >00m
-    │   │   ├── Opening Links >01w
-    │   │   ├── Viewing Linked Relationships >00u
-    │   │   ├── Linking to outside resources >00q
-    │   │   │   ├── Web >00o
-    │   │   │   └── Files >00p
-    │   │   └── Traverse Mode >00w
     │   ├── ? (Missing Node): >RECURSION >00r
     │   ├── Dynamic Nodes >01r
-    │   │   ├── Example Source Node 1 >017
-    │   │   ├── Example Source Node 3 >01b
-    │   │   ├── Example Source Node 2 >00v
-    │   │   ├── Example Source Node 4 >01c
-    │   │   ├── Example Source Node 3 >01b >016
-    │   │   └── Another Example: The Node Definition for the Table of Contents >029
     │   ├── More About Node IDs >01q
     │   ├── Filenames >01m
     │   ├── Architecture : Extension and Customization >01o
     │   ├── Reference: Key Bindings >018
     │   ├── In-Progress / Experimental / Wish List >014
-    │   │   └── iPhone/iPad/iOS >01y
-    │   │       └── Synchronator Setup >01z
-    │   ├── ? (Missing Node): >01v
+    │   ├── Fix/Changelog >01v
     │   └── License >01t
-    └── Node Pointers >00r >01n
+    └── Example - Table of Contents From Another Root >01n
 /--
 ID:01f
 kind: dynamic

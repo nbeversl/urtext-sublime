@@ -16,12 +16,6 @@ from urtext_sublime.urtext.timeline import timeline
 from urtext_sublime.urtext.node import UrtextNode
 import interlinks
 
-#rom urtext_sublime.whoosh.fields import Schema, TEXT, ID
-#from urtext_sublime.whoosh.index import create_in, exists_in, open_dir
-#from urtext_sublime.whoosh.query import *
-#from urtext_sublime.whoosh.qparser import QueryParser
-#from urtext_sublime.whoosh.highlight import UppercaseFormatter
-#from urtext_sublime import whoosh
 node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
 
@@ -458,11 +452,13 @@ class UrtextProject:
           
           for item in dynamic_definition.include:
             key, value = item[0],item[1]
-            included_nodes.extend(self.tagnames[key][value])
+            if value in self.tagnames[key]:
+              included_nodes.extend(self.tagnames[key][value])
 
           for item in dynamic_definition.exclude:
             key, value = item[0],item[1]
-            excluded_nodes.extend(self.tagnames[key][value])
+            if value in self.tagnames[key]:
+              excluded_nodes.extend(self.tagnames[key][value])
 
           for node in excluded_nodes:
             if node in included_nodes:
@@ -501,6 +497,10 @@ class UrtextProject:
         metadata += 'ID:'+target_id+'\n'
         metadata += 'kind: dynamic\n'
         metadata += 'defined in: >' + dynamic_definition.source_id + '\n'
+
+        for value in dynamic_definition.metadata:
+          metadata += value + ':' + dynamic_definition.metadata[value] +'\n'
+
         metadata += '--/'
     
         updated_node_contents = contents + metadata
@@ -549,9 +549,10 @@ class UrtextProject:
       for value in self.tagnames[key]:
         t = Node(value)
         t.parent = s
-        for node_id in self.tagnames[key][value]:
-          n = Node(self.nodes[node_id].get_title() +' >'+node_id)
-          n.parent = t
+        if value in self.tagnames[key]:
+          for node_id in self.tagnames[key][value]:
+            n = Node(self.nodes[node_id].get_title() +' >'+node_id)
+            n.parent = t
     if 'zzy' in self.nodes:
       metadata_file = self.nodes['zzy'].filename
     else:
@@ -934,8 +935,6 @@ class UrtextProject:
     return root_nodes
 
 
-  
-
   """ 
   Full Text search implementation using Whoosh (unfinished) 
   These methods are currently unused
@@ -997,7 +996,6 @@ class UrtextProject:
           return node_id
     return None
 
-
   def get_link(self, string, position=None):
     """ Given a line of text passed from an editorm, returns finds a node or web link """
 
@@ -1029,8 +1027,8 @@ class UrtextProject:
       
     node_id = link.split(':')[0].strip('>')
     if node_id.strip() in self.nodes:
-      position = self.nodes[node_id].ranges[0][0]
-      return ['NODE', node_id, position]
+      file_position = self.nodes[node_id].ranges[0][0]
+      return ['NODE', node_id, file_position]
     else:
       self.log_item('Node ' + node_id + ' is not in the project')
       return None

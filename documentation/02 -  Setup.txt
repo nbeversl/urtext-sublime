@@ -59,6 +59,16 @@ Setup
 
 		/-- ID:002 --/ }}
 
+		{{ Disable Prompts for File Reload
+
+			 Urtext does a lot of writing to files on the fly, often when they are already open. To avoid seeing a dialog every time, add add the following to your Sublime project settings or User Preferences file:
+
+				"always_prompt_for_file_reload": false,
+		
+		 /-- ID:023 --/ }}
+
+
+
  /-- ID:000 --/ }}
 
 

@@ -21,7 +21,7 @@ class UrtextDynamicDefinition:
     entries = re.split(';|\n', contents)
 
     for entry in entries:
-      atoms=[atom.lower().strip() for atom in entry.split(':') if atom.strip() != '']
+      atoms = [atom.strip() for atom in entry.split(':') if atom.strip() != '']
 
       """
       skip entries without values
@@ -29,6 +29,18 @@ class UrtextDynamicDefinition:
       if len(atoms) < 2:
         continue
       
+      """
+      add metadata to target node
+      """
+      if atoms[0] == 'metadata' and len(atoms) > 2:
+        self.metadata[atoms[1]] = ':'.join(atoms[2:]) + '\n' # use the rest of the 
+        continue
+
+      """
+      use case-insensitive values for the rest
+      """
+      atoms = [atom.lower() for atom in atoms]
+
       """
       indentation
       """
@@ -78,14 +90,6 @@ class UrtextDynamicDefinition:
           self.exclude.append((atoms[2],atoms[3]))
           continue
       
-      """
-      add metadata to target node
-      """
-      if atoms[0] == 'metadata' and len(atoms) > 2:
-        if atoms[1] == 'timestamp':
-          self.metadata[atoms[1]] = ':'.join(atoms[2:]) + '\n' # use the rest of the line
-        else: 
-          self.metadata[atoms[1]] = ': ' + atoms[2] + '\n'
-        continue
+      
     
 

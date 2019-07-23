@@ -23,7 +23,7 @@ License: GNU General Public License 3.0
 
 {{Sublime Urtext Documentation >01k
 ├── Using this document >009
-├── Sublime Urtext Documentation >01k >01a
+├── Table of Contents >01a
 ├── About Urtext >013
 │   ├── What Urtext Is >00d
 │   ├── Ideas and Requirements Behind Urtext >008
@@ -39,7 +39,8 @@ License: GNU General Public License 3.0
 │       ├── Syntax Highlighting >01d
 │       ├── Hiding Tabs >015
 │       ├── Hiding Line Numbers >01e
-│       └── Full Screen / Distraction Free Mode >002
+│       ├── Full Screen / Distraction Free Mode >002
+│       └── Disable Prompts for File Reload >023
 ├── Nodes >01j
 │   ├── Node Identity (Node IDs) >01h
 │   ├── File Level Nodes >01g
@@ -76,13 +77,13 @@ License: GNU General Public License 3.0
 │   │   └── Example Child Node Using a Node Pointer >001
 │   └── Recursive Node Pointers >00s
 │       ├── ? (Missing Node): >RECURSION >01k
-│       └── Node Pointers >00r >01n
+│       └── Example - Table of Contents From Another Root >01n
 ├── Dynamic Nodes >01r
 │   ├── Example Source Node 1 >017
 │   ├── Example Source Node 3 >01b
 │   ├── Example Source Node 2 >00v
 │   ├── Example Source Node 4 >01c
-│   ├── Example Source Node 3 >01b >016
+│   ├── Example Dynamic Node Title >016
 │   └── Another Example: The Node Definition for the Table of Contents >029
 ├── More About Node IDs >01q
 ├── Filenames >01m
@@ -91,12 +92,18 @@ License: GNU General Public License 3.0
 ├── In-Progress / Experimental / Wish List >014
 │   └── iPhone/iPad/iOS >01y
 │       └── Synchronator Setup >01z
-├── ? (Missing Node): >01v
+├── Fix/Changelog >01v
+│   ├── 0.1.11-alpha >01l
+│   ├── 0.1.12-alpha >020
+│   ├── 0.1.13-alpha >021
+│   └── 0.1.14-alpha >022
 └── License >01t
 /--
 ID:01a
 kind: dynamic
 defined in: >029
+title:Table of Contents
+
 --/}}
 
     About Urtext >>013

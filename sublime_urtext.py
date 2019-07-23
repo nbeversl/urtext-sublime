@@ -308,7 +308,7 @@ class TagNodeCommand(sublime_plugin.TextCommand): #under construction
     # find a place where the tag is
 
     if selected_tag not in metadata.get_tag(self.selected_tag):
-      print('ADD IT')
+      print('ADD IT') # DEBUGGING
 
 class ShowTreeFromNode(sublime_plugin.TextCommand):
   def run(self, edit):
@@ -452,7 +452,7 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
       if not view.is_loading(): 
         view.sel().clear()
         view.show_at_center(int(position)) 
-        view.sel().add(sublime.Region(int(position)))
+        view.sel().add(sublime.Region(position))
       else:
         sublime.set_timeout(lambda: self.locate_node(int(position), view, title), 10)
 
@@ -598,7 +598,6 @@ class ToggleTraverse(sublime_plugin.TextCommand):
     
     self.view.window().focus_group(active_group)
 
-
 class TraverseFileTree(sublime_plugin.EventListener):
 
   def on_selection_modified(self, view):
@@ -623,6 +622,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
           self.content_sheet.view().show_at_center(position)
           view.sel().clear() 
           view.sel().add(position)
+          view.settings().set("word_wrap", "auto")  
           self.return_to_left(view, tree_view)
         else:
           sublime.set_timeout(lambda: move_to_location(view,position), 10)
@@ -632,7 +632,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
       this_file = view.file_name()
       window = view.window()
       full_line = view.substr(view.line(view.sel()[0]))
-      links = re.findall('>'+node_id_regex,full_line) # allows for spaces and symbols in filenames, spaces stripped later
+      links = re.findall('>'+node_id_regex,full_line)
     
       if len(links) == 0 : # might be an inline node view        
         link = full_line.strip('└── ').strip('├── ')
@@ -656,10 +656,13 @@ class TraverseFileTree(sublime_plugin.EventListener):
           instances = self.find_filename_in_window(os.path.join(_UrtextProject.path, filename), window)
           if len(instances) < 2 :
             window.run_command("clone_file")
-            duplicate_file_view = self.find_filename_in_window(os.path.join(_UrtextProject.path, filename), window)[1]
+            duplicate_file_view = self.find_filename_in_window(os.path.join(_UrtextProject.path, filename), window)[1]            
           if len(instances) >= 2:
             duplicate_file_view = instances[1] 
-
+          # this does not have any effect:
+          # duplicate_file_view.settings().set("word_wrap", "auto")
+          # see http://steinwaywu.com/articles/2014-08/quick-tips-sublimetext.html
+          # and 
           if duplicate_file_view in window.views_in_group(self.content_group):
               window.focus_view(duplicate_file_view)
               duplicate_file_view.show_at_center(position) 
@@ -669,13 +672,11 @@ class TraverseFileTree(sublime_plugin.EventListener):
               return       
           if duplicate_file_view in window.views_in_group(self.tree_group):
               window.focus_group(self.tree_group)
-              #tree_view.settings().set('traverse','false')
               duplicate_file_view.settings().set('traverse','false') # this is for the cloned view     
               window.set_view_index(duplicate_file_view, self.content_group,0)
               duplicate_file_view.show_at_center(position) 
               window.focus_view(tree_view)
               window.focus_group(self.tree_group)
-              #self.return_to_left(view.window().active_view_in_group(self.content_group), tree_view)
               self.restore_traverse(view, tree_view)
               return
         else:
@@ -837,26 +838,26 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
       # increment the index to match
       _UrtextProject.nav_index += 1
 
-      print(_UrtextProject.navigation)
-
       open_urtext_node(self.view, link[1], link[2])
 
 def open_urtext_node(view, node_id, position):
 
-  def center_node(view, position): # copied from old OpenNode. Refactor
-      if not view.is_loading():
-        view.sel().clear()
-        view.sel().add(int(position))
-        view.show_at_center(int(position)) 
+  def center_node(new_view, position): # copied from old OpenNode. Refactor
+      if not new_view.is_loading():
+        new_view.sel().clear()
+        # this has to be called both before and after:
+        new_view.show_at_center(position) 
+        new_view.sel().add(sublime.Region(position))
+        # this has to be called both before and after:
+        new_view.show_at_center(position) 
       else:
-        sublime.set_timeout(lambda: center_node(view, position), 10)
+        sublime.set_timeout(lambda: center_node(new_view, position), 10)
   
-  filename = _UrtextProject.get_file_name(node_id)
+  filename = _UrtextProject.get_file_name(node_id) 
   if filename == None:
     return
   file_view = view.window().open_file(os.path.join(_UrtextProject.path, filename))
-  position = int(position)
-
+ 
   center_node(file_view, position)
 
 class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
@@ -875,8 +876,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     # TODO move this into urtext, not Sublime
     tag = '/-- tags: done '+timestamp+' --/'
     _UrtextProject.tag_node(node_id, tag)
-    _UrtextProject.build_tag_info()
-    _UrtextProject.compile_all()
+    _UrtextProject.update()
  
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     def run(self,edit):
@@ -984,10 +984,11 @@ class OpenUrtextLogCommand(sublime_plugin.TextCommand):
     
     def go_to_end(view):
       if not view.is_loading(): 
+          view.show_at_center(sublime.Region(view.size()))
           view.sel().add(sublime.Region(view.size()))
           view.show_at_center(sublime.Region(view.size()))
       else:
-        sublime.set_timeout(lambda: self.go_to_end(view), 10)    
+        sublime.set_timeout(lambda: go_to_end(view), 10)    
 
     go_to_end(file_view)
 

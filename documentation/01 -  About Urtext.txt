@@ -3,10 +3,15 @@ About Urtext
    
  {{ What Urtext Is 
 
-    Urtext is a syntax and system I invented for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form.   /--ID:00d; tag:definition--/}}
+    ur-text /ˈo͝orˌtekst/ : "an original or the earliest version of a text, to which later versions can be compared"
+
+    Urtext is a syntax and system I invented for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form.   
+
+    /--ID:00d; tag:definition--/}}
 
     Sublime Text is a modern, programmable text editor. 
     This package is an implementation of Urtext in Sublime Text 3.
+
 
 {{  Ideas and Requirements Behind Urtext
 
