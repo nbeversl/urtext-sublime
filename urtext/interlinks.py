@@ -22,91 +22,93 @@ from metadata import NodeMetadata
 import project
 import re
 
+
 class Interlinks():
-  
-  def __init__(self, project, root_node_id):
-    self.visited_nodes = []
-    self.backward_visited_nodes = []
-    self.project = project
+    def __init__(self, project, root_node_id):
+        self.visited_nodes = []
+        self.backward_visited_nodes = []
+        self.project = project
 
-    root_node = project.nodes[root_node_id]
-    root_meta = project.nodes[root_node_id].metadata
+        root_node = project.nodes[root_node_id]
+        root_meta = project.nodes[root_node_id].metadata
 
-    self.build_node_tree(root_node.id)
-    self.build_backward_node_tree(root_node.id)
-    self.render = self.render_tree()
+        self.build_node_tree(root_node.id)
+        self.build_backward_node_tree(root_node.id)
+        self.render = self.render_tree()
 
-  def build_node_tree(self, oldest_node, parent=None):
-      self.tree = Node(oldest_node)
-      self.add_children(self.tree)
+    def build_node_tree(self, oldest_node, parent=None):
+        self.tree = Node(oldest_node)
+        self.add_children(self.tree)
 
-  def get_links_in_node(self, node_id):
-      contents = self.project.nodes[node_id].strip_metadata()
-      nodes = re.findall('>'+urtext.project.node_id_regex, contents) # link RegEx
-      links = []
-      for node in nodes:
-        links.append(node[1:])
-      return links
- 
-  def add_children(self, parent):
-    """ recursively add children """
-    links = self.get_links_in_node(parent.name)
-    for link in links:
-      if link == None:
-        child_nodename = Node('(Broken Link)',parent=parent)
-        continue
-      if link not in self.project.nodes:
-        print('link not found '+link)
-        continue
-      child_metadata = self.project.nodes[link].metadata
-      if link in self.visited_nodes:        
-        child_nodename = Node(link, parent=parent)
-        continue
-      else:
-        child_nodename = Node(link, parent=parent)
-        self.visited_nodes.append(link)
-      self.add_children(child_nodename) # bug fix here
+    def get_links_in_node(self, node_id):
+        contents = self.project.nodes[node_id].strip_metadata()
+        nodes = re.findall('>' + urtext.project.node_id_regex,
+                           contents)  # link RegEx
+        links = []
+        for node in nodes:
+            links.append(node[1:])
+        return links
 
-  def build_backward_node_tree(self, oldest_node, parent=None):
-      self.backward_tree = Node(oldest_node)
-      self.add_backward_children(self.backward_tree)
+    def add_children(self, parent):
+        """ recursively add children """
+        links = self.get_links_in_node(parent.name)
+        for link in links:
+            if link == None:
+                child_nodename = Node('(Broken Link)', parent=parent)
+                continue
+            if link not in self.project.nodes:
+                print('link not found ' + link)
+                continue
+            child_metadata = self.project.nodes[link].metadata
+            if link in self.visited_nodes:
+                child_nodename = Node(link, parent=parent)
+                continue
+            else:
+                child_nodename = Node(link, parent=parent)
+                self.visited_nodes.append(link)
+            self.add_children(child_nodename)  # bug fix here
 
-  def get_links_to_node(self, node_id):
-      links_to_node = []
-      for node in self.project.nodes:
-        contents = self.project.nodes[node].strip_metadata()
-        links = re.findall('>'+node_id, contents) # link RegEx
-        if len(links) > 0:
-          links_to_node.append(node)
-      return links_to_node
+    def build_backward_node_tree(self, oldest_node, parent=None):
+        self.backward_tree = Node(oldest_node)
+        self.add_backward_children(self.backward_tree)
 
-  def add_backward_children(self, parent):
-    links = self.get_links_to_node(parent.name)
-    for link in links:
-      contents = self.project.nodes[link].strip_metadata()
-      if link in self.backward_visited_nodes:
-        child_metadata = NodeMetadata(contents)
-        child_nodename = Node(link, parent=parent)
-      else:
-        self.backward_visited_nodes.append(link)  
-        child_nodename = Node(link, parent=parent)
-        self.add_backward_children(child_nodename)
+    def get_links_to_node(self, node_id):
+        links_to_node = []
+        for node in self.project.nodes:
+            contents = self.project.nodes[node].strip_metadata()
+            links = re.findall('>' + node_id, contents)  # link RegEx
+            if len(links) > 0:
+                links_to_node.append(node)
+        return links_to_node
 
-  def render_tree(self):
-    render = ''
-    for pre, fill, node in RenderTree(self.backward_tree):
-      render += ("%s%s" % (pre, self.project.nodes[node.name].title + ' >'+node.name)) + '\n'
-    render = render.replace('└','┌')    
-    render = render.split('\n')
-    render = render[1:] # avoids duplicating the root node
-    render_upside_down = ''
-    for index in range(len(render)):
-      render_upside_down += render[len(render)-1 - index] + '\n'
+    def add_backward_children(self, parent):
+        links = self.get_links_to_node(parent.name)
+        for link in links:
+            contents = self.project.nodes[link].strip_metadata()
+            if link in self.backward_visited_nodes:
+                child_metadata = NodeMetadata(contents)
+                child_nodename = Node(link, parent=parent)
+            else:
+                self.backward_visited_nodes.append(link)
+                child_nodename = Node(link, parent=parent)
+                self.add_backward_children(child_nodename)
 
-    render = ''
-    for pre, fill, node in RenderTree(self.tree):
-      render += ("%s%s" % (pre, self.project.nodes[node.name].title + ' >'+node.name)) + '\n'
-    render = render_upside_down + render    
-    render = render.split('\n')
-    return '\n'.join(render)
-    
+    def render_tree(self):
+        render = ''
+        for pre, fill, node in RenderTree(self.backward_tree):
+            render += ("%s%s" % (pre, self.project.nodes[node.name].title +
+                                 ' >' + node.name)) + '\n'
+        render = render.replace('└', '┌')
+        render = render.split('\n')
+        render = render[1:]  # avoids duplicating the root node
+        render_upside_down = ''
+        for index in range(len(render)):
+            render_upside_down += render[len(render) - 1 - index] + '\n'
+
+        render = ''
+        for pre, fill, node in RenderTree(self.tree):
+            render += ("%s%s" % (pre, self.project.nodes[node.name].title +
+                                 ' >' + node.name)) + '\n'
+        render = render_upside_down + render
+        render = render.split('\n')
+        return '\n'.join(render)
