@@ -32,6 +32,7 @@ from .urtext.project import UrtextProject
 from .urtext.project import NoProject
 from .urtext.metadata import NodeMetadata
 #import urtext.metadata
+from sublime_plugin import EventListener
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
@@ -52,35 +53,22 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         filename = event.src_path
         if self.filter(filename) == None:
           return
+        if filename in _UrtextProject.files:
+          # This is not really a new file.
+          return None
         if _UrtextProject.parse_file(filename) == None:
           _UrtextProject.log_item(filename + ' not added.')
           return
         _UrtextProject.log_item(filename + ' modified. Updating the project object')
         _UrtextProject.update()
           
+    """
     def on_modified(self, event):
-        # this is also called on files being added
-        global _UrtextProject
-        if event.is_directory:
-          return None
-        if self.filter(event.src_path) == None:
-          return
-        filename = os.path.basename(event.src_path)
-        do_not_update = [
-           _UrtextProject.nodes['zzz'].filename,
-           _UrtextProject.nodes['zzy'].filename,
-           _UrtextProject.settings['logfile'],
-           '00000.txt'
-          ]
-
-        if filename in do_not_update or '.git' in filename:
-          return
-        _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
-        _UrtextProject.parse_file(filename)
-        _UrtextProject.update()
-
+      # this was moved to a sublime_plugin.EventListener
+       
+    """
     def on_deleted(self, event):
-      if self.filter(event.src_path) == None:
+      if filter(event.src_path) == None:
           return
       filename = os.path.basename(event.src_path)
       _UrtextProject.log_item('Watchdog saw file deleted: '+filename)
@@ -88,7 +76,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       _UrtextProject.update()
      
     def on_moved(self, event):
-        if self.filter(event.src_path) == None:
+        if filter(event.src_path) == None:
           return
         old_filename = os.path.basename(event.src_path)
         new_filename = os.path.basename(event.dest_path)
@@ -96,11 +84,35 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
            _UrtextProject.log.info('RENAMED '+ old_filename +' to ' + new_filename)
            _UrtextProject.handle_renamed(old_filename, new_filename)
 
-    def filter(self, filename):
-      for fragment in ['urtext_log', '.git','.icloud']:
-        if fragment in filename:
-          return None
-      return filename
+def filter(filename):
+  for fragment in ['urtext_log', '.git','.icloud']:
+    if fragment in filename:
+      return None
+  return filename
+
+class UrtextSaveListener(EventListener):
+
+  def on_post_save(self,view):
+      if _UrtextProject == None:
+        return
+      global _UrtextProject
+      filename = os.path.basename(view.file_name())
+      if filter(filename) == None:
+        return
+      do_not_update = [
+         _UrtextProject.nodes['zzz'].filename,
+         _UrtextProject.nodes['zzy'].filename,
+         _UrtextProject.settings['logfile'],
+         '00000.txt'
+        ]
+      if filename in do_not_update or '.git' in filename:
+        return
+      _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
+      _UrtextProject.parse_file(filename)
+      _UrtextProject.update()
+
+
+
 
 def refresh_project(view, init_project=False):
 

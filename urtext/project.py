@@ -551,8 +551,9 @@ class UrtextProject:
         t.parent = s
         if value in self.tagnames[key]:
           for node_id in self.tagnames[key][value]:
-            n = Node(self.nodes[node_id].get_title() +' >'+node_id)
-            n.parent = t
+            if node_id in self.nodes:
+              n = Node(self.nodes[node_id].get_title() +' >'+node_id)
+              n.parent = t
     if 'zzy' in self.nodes:
       metadata_file = self.nodes['zzy'].filename
     else:
@@ -768,7 +769,7 @@ class UrtextProject:
     contents = "\n\n\n"
     contents += "/-- ID:" + node_id + '\n'
     contents += 'Timestamp:'+self.timestamp(date) + '\n'
-    contents += " --/"
+    contents += "tags:\n--/"
 
     filename = node_id + '.txt'
 
