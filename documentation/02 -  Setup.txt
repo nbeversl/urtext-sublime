@@ -46,8 +46,9 @@ Setup
 	{{  Hiding Line Numbers
 
 			For an extra-clean look, hide line numbers by adding:
-
-				 "line_numbers": false,
+				"settings" : {
+					 "line_numbers": false,
+				},
 
 			... to your Sublime project settings file.
 			
@@ -62,8 +63,9 @@ Setup
 		{{ Disable Prompts for File Reload
 
 			 Urtext does a lot of writing to files on the fly, often when they are already open. To avoid seeing a dialog every time, add add the following to your Sublime project settings or User Preferences file:
-
-				"always_prompt_for_file_reload": false,
+				 "settings" : {
+					"always_prompt_for_file_reload": false,
+				},
 		
 		 /-- ID:023 --/ }}
 

@@ -4,13 +4,13 @@ Example Source Node 3 >01b
 -
 About Urtext >013
 -
-Setup >003
--
 Example Source Node 1 >017
 -
-Nodes >01j
+Setup >003
 -
 index >00z
+-
+Nodes >01j
 -
 Inline Nodes >004
 -
@@ -50,13 +50,31 @@ The Node List >01i
 -
 In-Progress / Experimental / Wish List >014
 -
-Node Identity (Node IDs) >01h
+Example Source Node 2 >00v
 -
-0.1.11-alpha >01l
+Synchronator Setup >01z
 -
-Example - Table of Contents From Another Root >01n
+Example Dynamic Node Title >016
 -
-Table of Contents >01a
+Project Metadata List >012
+-
+Node List >zzz
+-
+Characteristics >007
+-
+About This Implementation >01u
+-
+Reopening a Project >01p
+-
+Full Screen / Distraction Free Mode >002
+-
+Sublime Text Interface Tips >000
+-
+iPhone/iPad/iOS >01y
+-
+Using this document >009
+-
+Ideas and Requirements Behind Urtext >008
 -
 Syntax Highlighting >01d
 -
@@ -66,71 +84,35 @@ Node Pointers >00r >01f
 -
 File Level Nodes >01g
 -
-0.1.13-alpha >021
+Table of Contents >01a
 -
-Using this document >009
+0.1.11-alpha >01l
 -
-Ideas and Requirements Behind Urtext >008
+Example - Table of Contents From Another Root >01n
 -
-Reopening a Project >01p
--
-Full Screen / Distraction Free Mode >002
--
-Sublime Text Interface Tips >000
--
-License >01t
--
-Linking to outside resources >00q
--
-iPhone/iPad/iOS >01y
--
-Characteristics >007
--
-Additional Features >006
+Node Identity (Node IDs) >01h
 -
 Linking to Nodes >0y2
 -
-Example Dynamic Node Title >016
+License >01t
 -
-Opening Links >01w
+0.1.14-alpha >022
 -
-About This Implementation >01u
--
-Timeline View: >00k
--
-Filename formats >00i
--
-Node Trees >00h
--
-Web >00o
--
-Timestamp Formats >00n
--
-Sublime Text tools to help with linking >00m
--
-Home >00c
+Additional Features >006
 -
 Using Existing Files >00b
 -
-Making a New Project >00a
+Recursive Node Pointers >00s
 -
-From the root >00g
+Opening Links >01w
 -
-From a selected node >00f
+Another Example: The Node Definition for the Table of Contents >029
 -
-Example inline node >00e
+0.1.13-alpha >021
 -
-What Urtext Is >00d
+0.1.12-alpha >020
 -
-title (This tag overrides the default title) >00y
--
-Basic Requirements: >010
--
-Reserved Metadata Keys >011
--
-Project Metadata List >012
--
-Files >00p
+Disable Prompts for File Reload >023
 -
 Traverse Mode >00w
 -
@@ -140,23 +122,41 @@ Viewing Linked Relationships >00u
 -
 Duplicate Node Pointers >00t
 -
-Another Example: The Node Definition for the Table of Contents >029
+Basic Requirements: >010
 -
-Recursive Node Pointers >00s
+Reserved Metadata Keys >011
 -
-Disable Prompts for File Reload >023
+Linking to outside resources >00q
 -
-Synchronator Setup >01z
+Files >00p
 -
-0.1.14-alpha >022
+title (This tag overrides the default title) >00y
 -
-0.1.12-alpha >020
+From the root >00g
+-
+From a selected node >00f
+-
+Example inline node >00e
+-
+What Urtext Is >00d
+-
+Home >00c
+-
+Making a New Project >00a
 -
 Metadata List >zzy
 -
-Node List >zzz
+Web >00o
 -
-Example Source Node 2 >00v
+Timestamp Formats >00n
+-
+Sublime Text tools to help with linking >00m
+-
+Timeline View: >00k
+-
+Filename formats >00i
+-
+Node Trees >00h
 -
 /--
 ID:zzz
