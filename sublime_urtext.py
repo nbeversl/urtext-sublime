@@ -51,7 +51,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if event.is_directory:
             return None
         filename = event.src_path
-        if self.filter(filename) == None:
+        if filter(filename) == None:
           return
         if filename in _UrtextProject.files:
           # This is not really a new file.
@@ -867,6 +867,7 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        print('hidsfg')
         if refresh_project(self.view) == None:
             return
 

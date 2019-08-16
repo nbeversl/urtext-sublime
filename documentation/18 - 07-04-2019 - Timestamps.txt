@@ -1,7 +1,11 @@
 
 Timestamps
 
-		The operating system's file-created or file-modified date is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. 
+		The operating system's file-created or file-modified date is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. All newly created nodes include a metadata timestamp by default.
+
+		Timestamps can also be inserted using Ctrl-Shift-O.
+
+		[ TO BE COMPLETED ]
 
 
 /-- ID:01s
