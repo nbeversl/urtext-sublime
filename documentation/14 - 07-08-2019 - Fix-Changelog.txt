@@ -30,6 +30,13 @@ Fix/Changelog
 
  /-- ID:022 --/ }}
 
+ {{  0.1.15-alpha
+ 		- documentation updates
+ 		- restricted default key bindings to Mac OS only, Windows and Linux to be added
+ 		
+ /-- ID:024 --/ }}
+
+
 
 
 /-- ID: 01v
