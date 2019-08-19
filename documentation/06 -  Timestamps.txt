@@ -1,12 +1,8 @@
 Timestamps                                                                                  
 
-
    The operating system's file-created or file-modified metadata is avoided because it can be too easily and involuntarily overwritten under ordinary file system operations such as copying and moving files or folders. 
-
-
-
    
-    Text between two angled brackets (<  >) is interpreted as a timestamp. Insert a timestamp for the current date and time anywhere by pressing Control-T.
+    Text between two angled brackets (<  >) is interpreted as a timestamp. Insert a timestamp for the current date and time anywhere by pressing Control-Shift-O. 
 
     Node timestamps are part of metadata (see Metadata >00x). Urtext also utilizes a "loose" parsing of inline timestamps, meaning they can be placed anywhere and will be recognized and parsed; these are called inline timestamps.
 

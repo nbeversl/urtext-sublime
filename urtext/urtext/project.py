@@ -9,12 +9,12 @@ import difflib
 import json
 import os
 
-from urtext_sublime.anytree import Node
-from urtext_sublime.anytree import RenderTree
-from urtext_sublime.anytree import PreOrderIter
-from urtext_sublime.urtext.timeline import timeline
-from urtext_sublime.urtext.node import UrtextNode
-import interlinks
+from ..anytree import Node
+from ..anytree import RenderTree
+from ..anytree import PreOrderIter
+from .timeline import timeline
+from .node import UrtextNode
+from .interlinks import Interlinks
 
 node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
@@ -36,7 +36,6 @@ class UrtextProject:
                  init_project=False):
 
         self.path = path
-        self.build_response = []
         self.conflicting_files = []
         self.log = setup_logger('urtext_log',
                                 os.path.join(self.path, 'urtext_log.txt'))
@@ -49,15 +48,13 @@ class UrtextProject:
         self.navigation = []  # Stores, in order, the path of navigation
         self.nav_index = -1  # pointer to the CURRENT position in the navigation list
         self.settings = {  # defaults
-            'logfile':
-            'urtext_log.txt',
+            'logfile':'urtext_log.txt',
             'timestamp_format':
-            ['%a., %b. %d, %Y, %I:%M %p', '%B %-d, %Y', '%B %Y', '%m-%d-%Y'],
+                ['%a., %b. %d, %Y, %I:%M %p', '%B %-d, %Y', '%B %Y', '%m-%d-%Y'],
             'filenames': ['PREFIX', 'DATE %m-%d-%Y', 'TITLE'],
-            'node_list':
-            'zzz.txt',
-            'metadata_list':
-            'zzy.txt'
+            'node_list': 'zzz.txt',
+            'metadata_list': 'zzy.txt',
+            'console_log':'false',
         }
         self.to_import = []
         self.settings_initialized = False
@@ -110,13 +107,12 @@ class UrtextProject:
         # Update lists:
         self.update_node_list()
         self.update_metadata_list()
-        self.write_log()
 
     """ 
     Parsing
     """
     def parse_file(self, filename, add=True, import_project=False):
-        """ Main method for parsing a single file into nodes """
+        """ Main method for parsing a single file into nodes in a project """
 
         filename = os.path.basename(filename)
         if self.filter_filenames(filename) == None:
@@ -145,6 +141,7 @@ class UrtextProject:
 
         positions = sorted([key for key in symbols.keys() if key != -1])
         length = len(full_file_contents)
+        
         """
         Counters and trackers
         """
@@ -414,8 +411,9 @@ class UrtextProject:
                                   ' not in any specified date format in >' +
                                   node_id)
 
-    def show_tree_from(self, node_id,
-                       from_root_of=False):  # these could both be one
+    def show_tree_from(self, 
+                       node_id,
+                       from_root_of=False):
 
         if node_id not in self.nodes:
             self.log_item(root_node_id + ' is not in the project')
@@ -554,6 +552,12 @@ class UrtextProject:
 
                 updated_file_contents = updated_file_contents.replace(
                     old_node_contents, updated_node_contents)
+            
+                # DEBUGGING
+                
+                self.log_item('######## Replacing:\n' + old_node_contents)
+                self.log_item('######## WITH:\n' + updated_node_contents)
+
             """
             Update this file if it has changed
             """
@@ -569,6 +573,7 @@ class UrtextProject:
     Refreshers
     """
     def update_node_list(self):
+
         """ Refreshes the Node List file """
         if 'zzz' in self.nodes:
             node_list_file = self.nodes['zzz'].filename
@@ -735,7 +740,7 @@ class UrtextProject:
         return self.parse_file(filename)
 
     def get_node_relationships(self, node_id):
-        return interlinks.Interlinks(self, node_id).render
+        return Interlinks(self, node_id).render
 
     """
     Removing and renaming files
@@ -820,7 +825,7 @@ class UrtextProject:
 
         return full_file_contents
 
-    def new_file_node(self, date=None):
+    def new_file_node(self, date=None, metadata = {}):
         """ add a new FILE-level node programatically """
 
         if date == None:
@@ -829,7 +834,9 @@ class UrtextProject:
         contents = "\n\n\n"
         contents += "/-- ID:" + node_id + '\n'
         contents += 'Timestamp:' + self.timestamp(date) + '\n'
-        contents += " --/"
+        for key in metadata:
+            contents += key + ": " + metadata[key] + '\n'
+        contents += "--/"
 
         filename = node_id + '.txt'
 
@@ -1135,13 +1142,10 @@ class UrtextProject:
             return True
         return False
 
-    def log_item(self, item):  # Urtext logger
-        self.build_response.append(item)
-
-    def write_log(self):
-        for item in self.build_response:
-            self.log.info(item + '\n')
-        self.build_response = []
+    def log_item(self, item):
+        self.log.info(item + '\n')
+        if self.settings['console_log'].lower() == 'true':            
+                print(item)
 
     def timestamp(self, date):
         """ Given a datetime object, returns a timestamp in the format set in project_settings, or the default """
@@ -1196,9 +1200,10 @@ def setup_logger(name, log_file, level=logging.INFO):
     if not os.path.exists(log_file):
         with open(log_file, 'w', encoding='utf-8') as theFile:
             theFile.close()
+    logger = logging.getLogger(name)
     handler = logging.FileHandler(log_file, mode='a')
     handler.setFormatter(formatter)
-    logger = logging.getLogger(name)
+    logger.setLevel(level)
     logger.addHandler(handler)
     return logger
 

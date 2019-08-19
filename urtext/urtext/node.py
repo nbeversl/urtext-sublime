@@ -1,15 +1,12 @@
 import os
-import sys
-sys.path.append(os.path.dirname(__file__))
 
-from metadata import NodeMetadata
-from dynamic import UrtextDynamicDefinition
+from .metadata import NodeMetadata
+from .dynamic import UrtextDynamicDefinition
 import re
 import datetime
 import logging
 from ..anytree import Node
 from ..anytree import PreOrderIter
-
 
 class UrtextNode:
     """ Urtext Node object"""

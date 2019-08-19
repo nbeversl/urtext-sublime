@@ -16,10 +16,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-#from ..anytree import Node
-#from ..anytree import RenderTree
-from metadata import NodeMetadata
-import project
+from .metadata import NodeMetadata
 import re
 
 

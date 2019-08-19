@@ -25,24 +25,19 @@ import pprint
 import logging
 import sys
 
-#sys.path.append(os.path.join(os.path.dirname(__file__),"urtext/dependencies"))
-#sys.path.append(os.path.join(os.path.dirname(__file__)))
-
-from .urtext.project import UrtextProject
-from .urtext.project import NoProject
-from .urtext.metadata import NodeMetadata
-#import urtext.metadata
+from .urtext.urtext.project import UrtextProject
+from .urtext.urtext.project import NoProject
+from .urtext.urtext.metadata import NodeMetadata
 from sublime_plugin import EventListener
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
 import webbrowser
-from .urtext.project_list import ProjectList
-from .urtext.project import node_id_regex
+from .urtext.urtext.project_list import ProjectList
+from .urtext.urtext.project import node_id_regex
 
 _UrtextProject = None
 _UrtextProjectList = None
-
 
 class SublimeUrtextWatcher(FileSystemEventHandler):
     def on_created(self, event):
@@ -157,10 +152,6 @@ def focus_urtext_project(path, view, init_project=False):
     except NoProject:
         print('No Urtext nodes in this folder')
         return None
-    results = _UrtextProject.build_response
-    results_view = view.window().new_file()
-    results_view.set_scratch(True)
-    results_view.run_command("insert_snippet", {"contents": results})
     event_handler = SublimeUrtextWatcher()
     observer = Observer()
     observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)

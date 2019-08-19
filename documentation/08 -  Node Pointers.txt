@@ -80,7 +80,8 @@ Node Pointers
     │   │   │   └── index >00z
     │   │   └── Project Metadata List >012
     │   │       └── Metadata List >zzy
-    │   ├── Timestamps >01s
+    │   ├── Timestamps >005
+    │   │   └── Timeline View: >00k
     │   ├── Links >00j
     │   │   ├── Linking to Nodes >0y2
     │   │   │   └── Sublime Text tools to help with linking >00m
@@ -105,7 +106,13 @@ Node Pointers
     │   ├── In-Progress / Experimental / Wish List >014
     │   │   └── iPhone/iPad/iOS >01y
     │   │       └── Synchronator Setup >01z
-    │   ├── ? (Missing Node): >01v
+    │   ├── Fix/Changelog >01v
+    │   │   ├── 0.1.11-alpha >01l
+    │   │   ├── 0.1.12-alpha >020
+    │   │   ├── 0.1.13-alpha >021
+    │   │   ├── 0.1.14-alpha >022
+    │   │   ├── 0.1.15-alpha >024
+    │   │   └── 0.1.16-alpha >03l
     │   └── License >01t
     └── Example - Table of Contents From Another Root >01n
 /--
