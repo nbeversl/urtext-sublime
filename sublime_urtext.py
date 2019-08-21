@@ -427,8 +427,9 @@ def target_tree_view(view):
         tree_view.set_name(filename + 'TREE')
         tree_view.set_scratch(True)
 
-    groups = view.window().num_groups(
-    )  # copied from traverse. Should refactor
+    # copied from traverse. Should refactor
+    groups = view.window().num_groups()  
+    
     active_group = view.window().active_group()  # 0-indexed
     if active_group == 0 or view.window().get_view_index(
             tree_view)[0] != active_group - 1:
@@ -719,6 +720,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
                 view.sel().clear()
                 view.sel().add(position)
                 view.settings().set("word_wrap", "auto")
+                print('POS 3')
                 self.return_to_left(view, tree_view)
             else:
                 sublime.set_timeout(lambda: move_to_location(view, position),
@@ -761,7 +763,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
                     # this does not have any effect:
                     # duplicate_file_view.settings().set("word_wrap", "auto")
                     # see http://steinwaywu.com/articles/2014-08/quick-tips-sublimetext.html
-                    # and
+
                     if duplicate_file_view in window.views_in_group(
                             self.content_group):
                         window.focus_view(duplicate_file_view)
@@ -790,6 +792,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
                     file_view.show_at_center(position)
                     file_view.sel().clear()
                     file_view.sel().add(position)
+                    window.focus_group(self.tree_group)
                     self.return_to_left(file_view, tree_view)
 
     def find_filename_in_window(self, filename, window):
@@ -807,12 +810,12 @@ class TraverseFileTree(sublime_plugin.EventListener):
                 lambda: self.return_to_left(wait_view, traverse_view), 10)
             return
 
-    def return_to_left(self, view, return_view):
-        if not view.is_loading():
-            view.window().focus_view(return_view)
-            view.window().focus_group(self.tree_group)
+    def return_to_left(self, wait_view, return_view):
+        if not wait_view.is_loading():
+            wait_view.window().focus_view(return_view)
+            wait_view.window().focus_group(self.tree_group)
         else:
-            sublime.set_timeout(lambda: self.return_to_left(view, return_view),
+            sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view),
                                 10)
 
 
@@ -858,7 +861,6 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        print('hidsfg')
         if refresh_project(self.view) == None:
             return
 
@@ -1218,6 +1220,17 @@ class NavigateForwardCommand(sublime_plugin.TextCommand):
         last_node = _UrtextProject.navigation[_UrtextProject.nav_index]
         position = _UrtextProject.nodes[last_node].ranges[0][0]
         open_urtext_node(self.view, last_node, position)
+
+class ExportAsMarkdown(sublime_plugin.TextCommand):
+    def run(self, edit):        
+        
+        filename = self.view.file_name()
+        markdown_filename = filename.replace('.txt','.md') 
+        position = self.view.sel()[0].a
+        node_id = _UrtextProject.get_node_id_from_position(filename, position)
+        _UrtextProject.export_markdown(node_id, markdown_filename)
+        markdown_view = self.view.window().open_file(os.path.join(_UrtextProject.path, markdown_filename))
+
 
 
 class NavigateLastLinkCommand(sublime_plugin.TextCommand):

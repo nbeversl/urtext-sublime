@@ -18,6 +18,7 @@ from .interlinks import Interlinks
 
 node_id_regex = r'\b[0-9,a-z]{3}\b'
 node_link_regex = r'>[0-9,a-z]{3}\b'
+node_pointer_regex = r'>>[0-9,a-z]{3}\b'
 
 
 class NoProject(Exception):
@@ -99,8 +100,10 @@ class UrtextProject:
         Main method to keep the project updated. 
         Should be called whenever file or directory content changes
         """
-        self.build_alias_trees(
-        )  # Build copies of trees wherever there are Node Pointers (>>)
+
+        # Build copies of trees wherever there are Node Pointers (>>)
+        self.build_alias_trees()  
+
         self.rewrite_recursion()
         self.compile()
 
@@ -132,6 +135,7 @@ class UrtextProject:
         Find all node symbols in the file
         """
         symbols = {}
+
         for symbol in ['{{', '}}', '>>']:
             loc = -2
             while loc != -1:
@@ -165,8 +169,9 @@ class UrtextProject:
 
             # If this points to an outside node, find which node
             if symbols[position] == '>>':
-                parsed_items[position] = full_file_contents[position:position +
-                                                            5]
+                node_pointer = full_file_contents[position:position + 5]
+                if re.match(node_pointer_regex, node_pointer):
+                    parsed_items[position] = node_pointer
                 continue
 
             # If this closes a node:
@@ -1059,6 +1064,57 @@ class UrtextProject:
     """ 
     Other Features, Utilities
     """
+
+    def export_markdown(self, root_node_id, to_filename):
+        
+        def s(root_node_id, nested, visited_nodes):
+            if root_node_id in visited_nodes:
+                return '\n' + '#' * nested + ' RECURSION : '+ root_node_id                
+            else:
+                visited_nodes.append(root_node_id)
+            exported_contents = ''
+            ranges =  self.nodes[root_node_id].ranges
+            filename = self.nodes[root_node_id].filename
+            with open(os.path.join(self.path, filename),'r',encoding="utf-8") as f:
+                file_contents = f.read()
+                f.close()
+            title = self.nodes[root_node_id].get_title()
+            exported_contents += '\n'+ '#' * nested + ' '+ title +'\n'
+            title_removed = True
+            if len(self.nodes[root_node_id].metadata.get_tag('title')) == 0: 
+                title_removed = False
+            for single_range in ranges:
+                added_contents = file_contents[single_range[0]:single_range[1]]
+                
+                if not title_removed and title in added_contents:
+                    added_contents = added_contents.replace(title,'',1)
+                    title_removed = True
+                
+                while re.findall(node_pointer_regex, added_contents):
+                    for match in re.findall(node_pointer_regex, added_contents):                       
+                        inserted_contents = s(match[2:5], nested + 1,visited_nodes)
+                        if inserted_contents == None:
+                            inserted_contents = ''
+                        added_contents = added_contents.replace(match, inserted_contents)
+                
+                exported_contents += added_contents
+                if single_range != ranges[-1]:
+                    next_node = self.get_node_id_from_position(filename, single_range[1]+1)
+                    exported_contents += s(next_node, nested + 1 ,visited_nodes)
+            return exported_contents 
+
+        visited_nodes = []
+        final_exported_contents = s(root_node_id, 1, visited_nodes)
+        
+        # strip metadata
+        final_exported_contents = re.sub(r'(\/--(?:(?!\/--).)*?--\/)',
+                                   '',
+                                   final_exported_contents,
+                                   flags=re.DOTALL)
+        
+        with open(os.path.join(self.path, to_filename), 'w', encoding='utf-8') as f:
+            f.write(final_exported_contents)
+    
     def get_parent(self, child_node_id):
         """ Given a node ID, returns its parent, if any """
         filename = self.nodes[child_node_id].filename
@@ -1180,6 +1236,7 @@ class UrtextProject:
         for node in self.nodes:
             all_files.append(self.nodes[node].filename)
         return all_files
+
 
 
 """ 

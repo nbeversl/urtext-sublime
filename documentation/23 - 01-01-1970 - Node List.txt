@@ -46,119 +46,119 @@ The Node List >01i
 -
 In-Progress / Experimental / Wish List >014
 -
-Viewing Linked Relationships >00u
--
-Duplicate Node Pointers >00t
--
 Traverse Mode >00w
 -
 Hiding Tabs >015
 -
-Linking to outside resources >00q
+Viewing Linked Relationships >00u
+-
+Duplicate Node Pointers >00t
 -
 Basic Requirements: >010
 -
-Opening Links >01w
+Reserved Metadata Keys >011
 -
-Example Dynamic Node Title >016
+Project Metadata List >012
+-
+Node List >zzz
 -
 title (This tag overrides the default title) >00y
--
-Characteristics >007
--
-Example inline node >00e
--
-What Urtext Is >00d
 -
 From the root >00g
 -
 From a selected node >00f
 -
-Making a New Project >00a
+Example inline node >00e
+-
+What Urtext Is >00d
 -
 Home >00c
 -
 Using Existing Files >00b
 -
-Sublime Text tools to help with linking >00m
--
-Project Metadata List >012
--
-Web >00o
--
-Recursive Node Pointers >00s
--
-Filename formats >00i
--
-Node Trees >00h
--
-Timeline View: >00k
--
-Files >00p
+Making a New Project >00a
 -
 Timestamp Formats >00n
 -
-Reserved Metadata Keys >011
+Web >00o
 -
-Linking to Nodes >0y2
+Sublime Text tools to help with linking >00m
 -
-(untitled) >019
+Timeline View: >00k
 -
-iPhone/iPad/iOS >01y
+Opening Links >01w
+-
+Node Trees >00h
+-
+0.1.16-alpha >03l
+-
+Linking to outside resources >00q
 -
 Metadata List >zzy
+-
+Files >00p
+-
+Filename formats >00i
+-
+Another Example: The Node Definition for the Table of Contents >029
+-
+0.1.14-alpha >022
 -
 License >01t
 -
 Additional Features >006
 -
-Sublime Text Interface Tips >000
--
 Reopening a Project >01p
 -
 Full Screen / Distraction Free Mode >002
 -
-Disable Prompts for File Reload >023
+Sublime Text Interface Tips >000
 -
-0.1.14-alpha >022
+(untitled) >019
 -
 0.1.15-alpha >024
 -
-Using this document >009
--
-Ideas and Requirements Behind Urtext >008
+iPhone/iPad/iOS >01y
 -
 0.1.13-alpha >021
 -
-Node Pointers >00r >01f
+0.1.12-alpha >020
 -
-File Level Nodes >01g
+Disable Prompts for File Reload >023
+-
+Ideas and Requirements Behind Urtext >008
 -
 Syntax Highlighting >01d
 -
 Hiding Line Numbers >01e
 -
-Table of Contents >01a
+Node Pointers >00r >01f
+-
+File Level Nodes >01g
+-
+Using this document >009
+-
+Characteristics >007
 -
 Example - Table of Contents From Another Root >01n
--
-0.1.11-alpha >01l
 -
 Node Identity (Node IDs) >01h
 -
 About This Implementation >01u
 -
-0.1.12-alpha >020
--
 Synchronator Setup >01z
 -
-Node List >zzz
+0.1.11-alpha >01l
 -
 Example Source Node 2 >00v
 -
-0.1.16-alpha >03l
+Example Dynamic Node Title >016
 -
-Another Example: The Node Definition for the Table of Contents >029
+Recursive Node Pointers >00s
+-
+Linking to Nodes >0y2
+-
+Table of Contents >01a
 -
 /--
 ID:zzz

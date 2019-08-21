@@ -115,11 +115,16 @@ class UrtextNode:
         return self.set_title()
 
     def set_title(self):
+        #
+        # check for title metadata
+        #
         if len(self.metadata.get_tag(
-                'title')) > 0:  # title is the first many lines if not set
+                'title')) > 0: 
             self.title = self.metadata.get_tag('title')[0]
             return self.title
-
+        #
+        # otherwise, title is the first non white-space line
+        #
         full_contents = self.content_only().strip().split('\n')
         index = 0
         while full_contents[index].strip() == '':
@@ -128,10 +133,10 @@ class UrtextNode:
                 return self.title
             index += 1
 
-        first_line = full_contents[index][:100].replace('{{',
-                                                        '').replace('}}', '')
+        first_line = full_contents[index][:100].replace('{{','').replace('}}', '')
         first_line = re.sub('\/-.*(-\/)?', '', first_line, re.DOTALL)
         self.title = first_line.strip()
+
         return self.title
 
     def get_ID(self):
