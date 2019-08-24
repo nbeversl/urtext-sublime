@@ -8,6 +8,7 @@ import operator
 import difflib
 import json
 import os
+import random 
 
 from ..anytree import Node
 from ..anytree import RenderTree
@@ -63,13 +64,7 @@ class UrtextProject:
         self.compiled = False
         self.alias_nodes = []
 
-        chars = [
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
-            'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-        ]
-
-        self.indexes = itertools.product(chars, repeat=3)
+        
 
         filelist = os.listdir(self.path)
 
@@ -94,6 +89,14 @@ class UrtextProject:
         self.compiled = True
 
         self.update()
+
+    def node_id_generator(self):
+        chars = [
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
+            'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+        ]
+        return itertools.product(chars, repeat=3)
 
     def update(self):
         """ 
@@ -339,7 +342,7 @@ class UrtextProject:
             node_id = node.name[-3:]
             if node_id in self.nodes:
                 duplicate_node = self.nodes[node_id].duplicate_tree()
-                node.children = [s for s in duplicate_node.children]
+                node.children = [s for s in duplicate_node.children]      
             else:
                 new_node = Node('MISSING NODE ' + node_id)
 
@@ -368,8 +371,7 @@ class UrtextProject:
 
         """
         for target_id in new_node.dynamic_definitions.keys():
-            if target_id in self.dynamic_nodes and self.dynamic_definitions[
-                    target].source_id != new_node.id:
+            if target_id in self.dynamic_nodes:
                 self.log_item('Node >' + target_id +
                               ' has duplicate definition in >' + new_node.id +
                               '. Keeping the definition in >' +
@@ -416,6 +418,27 @@ class UrtextProject:
                                   ' not in any specified date format in >' +
                                   node_id)
 
+    def detach_excluded_tree_nodes(self, root_id, flag='tree'):
+        
+        for descendant in self.nodes[root_id.name].tree_node.descendants:
+
+            flag = flag.lower()
+
+            # allow for tree nodes with names that are not node IDs, 
+            # such as RECURION >, etc. 
+            if descendant.name not in self.nodes:
+                continue 
+
+            # Otherwise, remove it from the tree if it is flagged
+            if flag == 'tree' and 'exclude_from_tree' in self.nodes[descendant.name].metadata.get_tag('flags'):
+                descendant.parent = None
+                continue
+
+            # Otherwise, remove it from export if it is flagged
+            if flag == 'export' and 'exclude_from_export' in self.nodes[descendant.name].metadata.get_tag('flags'):
+                descendant.parent = None
+
+
     def show_tree_from(self, 
                        node_id,
                        from_root_of=False):
@@ -427,8 +450,11 @@ class UrtextProject:
         tree_render = ''
 
         start_point = self.nodes[node_id].tree_node
+
         if from_root_of == True:
             start_point = self.nodes[node_id].tree_node.root
+
+        self.detach_excluded_tree_nodes(start_point)
 
         for pre, _, this_node in RenderTree(start_point):
             if this_node.name in self.nodes:
@@ -438,6 +464,49 @@ class UrtextProject:
                 tree_render += "%s%s" % (pre, '? (Missing Node): >' +
                                          this_node.name + '\n')
         return tree_render
+
+    def render_tree_as_html(self, 
+                            node_id,
+                            links_on_same_page=False,
+                            from_root_of=False ):
+
+        if node_id not in self.nodes:
+            self.log_item(root_node_id + ' is not in the project')
+            return None
+
+        start_point = self.nodes[node_id].tree_node
+        
+        if from_root_of == True:
+            start_point = self.nodes[node_id].tree_node.root
+
+        self.detach_excluded_tree_nodes(start_point, flag='export') 
+
+        tree_filename = node_id +'.html'
+
+        def render_list(node, nested, visited_nodes):
+            html = ''
+            if node in visited_nodes:
+                return html
+            children = node.children
+            if children:
+                html += '<ul>\n'
+                for child in node.children:
+                    visited_nodes.append(child)
+                    link = ''
+                    if not links_on_same_page:
+                        this_node_id = child.name
+                        base_filename = self.nodes[this_node_id].filename
+                        if base_filename != tree_filename:
+                            this_root_node = self.get_root_node_id(base_filename)
+                            link += this_root_node+'.html'
+                    link += '#'+child.name
+                    html += '<li><a href="' + link + '">' + self.nodes[child.name].get_title() + '</a></li>\n'
+                    html += render_list(self.nodes[child.name].tree_node, nested, visited_nodes)
+                html += '</ul>\n'
+            return html
+
+        return render_list(start_point, 1, [])
+
 
     """
     Compiling dynamic nodes
@@ -461,8 +530,24 @@ class UrtextProject:
                 files_to_modify[filename] = []
             files_to_modify[filename].append(target_id)
 
-        # rebuid the text for each file all at once
+        # 
+        # perform a "soft update", to sync node ranges, 
+        # in case a file has been modified by another 
+        # Urtext instance
+        #
         for file in files_to_modify:
+            self.parse_file(os.path.join(self.path, file))
+
+        self.build_alias_trees()  
+        self.rewrite_recursion()
+
+        # Update lists:
+        self.update_node_list()
+        self.update_metadata_list()
+
+        # rebuild the text for each file all at once
+        for file in files_to_modify:
+
             """
             Get current file contents
             """
@@ -1064,53 +1149,199 @@ class UrtextProject:
     """ 
     Other Features, Utilities
     """
+    def export_project( self , jekyll=False, style_titles=True ):
+        for filename in list(self.files):
+            export_filename = self.get_root_node_id(filename)+'.html'
+            self.export(filename, 
+                export_filename, 
+                kind='HTML',
+                as_single_file=False,
+                style_titles=style_titles,
+                strip_urtext_syntax=False,
+                jekyll=jekyll)
 
-    def export_markdown(self, root_node_id, to_filename):
+    def export( self, 
+                filename, 
+                to_filename, 
+                kind='HTML',
+                as_single_file=False,
+                style_titles=True,
+                strip_urtext_syntax=True,
+                jekyll=False,
+                jekyll_post=False):
         
-        def s(root_node_id, nested, visited_nodes):
+
+        def opening_wrapper(kind, nested):
+            wrappers = { 
+                'HTML':     '<div class="urtext_nested_'+str(nested)+'">',
+                'Markdown': ''
+                }
+            return wrappers[kind]
+
+        def closing_wrapper(kind):
+            wrappers = { 
+                'HTML': '</div>',
+                'Markdown': ''
+                }
+            return wrappers[kind]
+
+        def wrap_title(kind, node_id, nested):
+            title = self.nodes[node_id].get_title()
+            if kind == 'Markdown':
+                return '\n' + '#' * nested + ' ' + title + '\n'
+            if kind == 'HTML':
+                return '<h'+str(nested)+'>' + title + '</h'+str(nested)+'>\n'
+            
+        root_node_id = self.get_root_node_id(filename)
+        
+        def s(  root_node_id, 
+                nested, 
+                visited_nodes, 
+                strip_urtext_syntax=strip_urtext_syntax, 
+                style_titles=style_titles):
+
             if root_node_id in visited_nodes:
                 return '\n' + '#' * nested + ' RECURSION : '+ root_node_id                
             else:
                 visited_nodes.append(root_node_id)
+
             exported_contents = ''
+
             ranges =  self.nodes[root_node_id].ranges
             filename = self.nodes[root_node_id].filename
+            
             with open(os.path.join(self.path, filename),'r',encoding="utf-8") as f:
                 file_contents = f.read()
                 f.close()
+            
             title = self.nodes[root_node_id].get_title()
-            exported_contents += '\n'+ '#' * nested + ' '+ title +'\n'
+            if style_titles:                 
+                exported_contents += wrap_title(kind, root_node_id, nested)
+
             title_removed = True
             if len(self.nodes[root_node_id].metadata.get_tag('title')) == 0: 
                 title_removed = False
+            
+            exported_contents += opening_wrapper(kind, nested)        
+            exported_contents += '<a name="'+ root_node_id + '"></a>'
+
+            
             for single_range in ranges:
-                added_contents = file_contents[single_range[0]:single_range[1]]
+
+                added_contents = '' 
                 
-                if not title_removed and title in added_contents:
+                if kind == 'HTML':
+                    
+                    if single_range == ranges[0] and not strip_urtext_syntax:
+                        added_contents += '<span class="urtext-open-brackets">&#123;&#123;</span>'
+
+                    added_contents += file_contents[single_range[0]:single_range[1]]
+
+                    lines = [line.strip() for line in added_contents.split('\n') if line.strip() != '']
+                    added_contents = ''
+
+                    index = 0
+                    while index < len(lines):
+                        line = lines[index]
+                        if line[0] == '-':
+                            added_contents += '<ul class="urtext-list">'
+                            while index < len(lines) - 1:
+                                added_contents += '<li>'+line[1:]+'</li>'
+                                index += 1
+                                line = lines[index]
+                                if line[0] != '-':
+                                    break
+                            added_contents += '</ul>'
+
+                        added_contents += '<div class="urtext_line">' + line.strip()
+                        if single_range == ranges[-1] and line == lines[-1] and not strip_urtext_syntax:
+                            added_contents += '<span class="urtext-close-brackets">&#125;&#125;</span>'                
+                        added_contents += '</div>\n'     
+                        index += 1
+
+                
+                if style_titles and not title_removed and title in added_contents:
                     added_contents = added_contents.replace(title,'',1)
                     title_removed = True
-                
-                while re.findall(node_pointer_regex, added_contents):
-                    for match in re.findall(node_pointer_regex, added_contents):                       
-                        inserted_contents = s(match[2:5], nested + 1,visited_nodes)
-                        if inserted_contents == None:
-                            inserted_contents = ''
-                        added_contents = added_contents.replace(match, inserted_contents)
-                
+
+                elif kind == 'HTML':
+                    heading_tag = 'h'+str(nested)
+                    added_contents = added_contents.replace(  title,
+                                                              '<'+heading_tag+'>'+title+'</'+heading_tag+'>',
+                                                              1)
+
+                    for match in re.findall(node_link_regex, exported_contents):
+                        node_id = match[1:]
+                        if node_id not in self.nodes:
+                            # probably another use of >, technically a syntax error
+                            # TODO write better error catching here
+                            continue
+                        filename = self.nodes[root_node_id].filename
+                        if node_id in self.files[filename]:
+                            link = '#'+node_id
+                        else: 
+                            base_filename = self.nodes[node_id].filename
+                            this_root_node = self.get_root_node_id(base_filename)
+                            link = this_root_node+'.html#'+ node_id
+                        exported_contents = exported_contents.replace(match, 
+                                        '<a href="'+link+'">'+match+'</a>')
+                    
+                if as_single_file:
+                    while re.findall(node_pointer_regex, added_contents):
+                        for match in re.findall(node_pointer_regex, added_contents):
+                            inserted_contents = s(match[2:5], nested + 1, visited_nodes)
+                            if inserted_contents == None:
+                                inserted_contents = ''
+                            added_contents = added_contents.replace(match, inserted_contents)
+
                 exported_contents += added_contents
                 if single_range != ranges[-1]:
                     next_node = self.get_node_id_from_position(filename, single_range[1]+1)
-                    exported_contents += s(next_node, nested + 1 ,visited_nodes)
+                    if next_node in self.dynamic_nodes and self.dynamic_nodes[next_node].tree:
+                        exported_contents += self.render_tree_as_html(self.dynamic_nodes[next_node].tree)
+                    else:
+                        exported_contents += s(next_node, nested + 1 ,visited_nodes)
+                
+            exported_contents += closing_wrapper(kind)
+
             return exported_contents 
+
+         
 
         visited_nodes = []
         final_exported_contents = s(root_node_id, 1, visited_nodes)
         
-        # strip metadata
-        final_exported_contents = re.sub(r'(\/--(?:(?!\/--).)*?--\/)',
-                                   '',
-                                   final_exported_contents,
-                                   flags=re.DOTALL)
+        
+
+        if strip_urtext_syntax:
+            # strip metadata
+            final_exported_contents = re.sub(r'(\/--(?:(?!\/--).)*?--\/)',
+                                       '',
+                                       final_exported_contents,
+                                       flags=re.DOTALL)
+        if kind == 'HTML': 
+            final_exported_contents = final_exported_contents.replace('/--','<span class="urtext-metadata">/--')
+            final_exported_contents = final_exported_contents.replace('--/','--/</span>')
+
+        
+        if jekyll:
+
+                post_or_page = 'page'
+                if jekyll_post:
+                    post_or_page = 'post'
+
+                header = '\n'.join([
+                '---',
+                'layout: '+ post_or_page,
+                'title:  "'+ self.nodes[root_node_id].get_title() +'"',
+                'date:   2019-08-21 10:44:41 -0500',
+                'categories: '+ ' '.join(self.nodes[root_node_id].metadata.get_tag('categories')),
+                '---'
+                ]) + '\n'
+
+                final_exported_contents = header + final_exported_contents
+
+
         
         with open(os.path.join(self.path, to_filename), 'w', encoding='utf-8') as f:
             f.write(final_exported_contents)
@@ -1217,14 +1448,15 @@ class UrtextProject:
         return self.nodes[node_id].filename
 
     def next_index(self):
-        for index in self.indexes:
-            if ''.join(index) not in self.nodes:
-                return ''.join(index)
+        index = random.choice(list(self.node_id_generator()))
+        while ''.join(index) in self.nodes:
+            index = random.choice(list(self.node_id_generator()))
+        return ''.join(index)
 
     def get_root_node_id(self, filename):
         """
-    Given a filename, returns the root Node's ID
-    """
+        Given a filename, returns the root Node's ID
+        """
         for node_id in self.files[filename]['nodes']:
             if self.nodes[node_id].root_node == True:
                 return node_id
@@ -1236,7 +1468,6 @@ class UrtextProject:
         for node in self.nodes:
             all_files.append(self.nodes[node].filename)
         return all_files
-
 
 
 """ 

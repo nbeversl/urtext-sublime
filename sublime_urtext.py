@@ -1221,17 +1221,30 @@ class NavigateForwardCommand(sublime_plugin.TextCommand):
         position = _UrtextProject.nodes[last_node].ranges[0][0]
         open_urtext_node(self.view, last_node, position)
 
-class ExportAsMarkdown(sublime_plugin.TextCommand):
+class ExportAsMarkdownCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
         
         filename = self.view.file_name()
         markdown_filename = filename.replace('.txt','.md') 
-        position = self.view.sel()[0].a
-        node_id = _UrtextProject.get_node_id_from_position(filename, position)
-        _UrtextProject.export_markdown(node_id, markdown_filename)
+        _UrtextProject.export(filename, markdown_filename, kind = 'Markdown')
         markdown_view = self.view.window().open_file(os.path.join(_UrtextProject.path, markdown_filename))
 
+class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
+    def run(self, edit):        
+        
+        filename = self.view.file_name()
+        _UrtextProject.export(  filename, 
+                                html_filename, 
+                                kind='HTML',
+                                single_file=True,
+                                strip_urtext_syntax=False, 
+                                style_titles=False)
+        html_view = self.view.window().open_file(os.path.join(_UrtextProject.path, html_filename))
 
+class ExportProjectAsHtmlCommand(sublime_plugin.TextCommand):
+    def run(self, edit):        
+        
+        _UrtextProject.export_project(jekyll=True, style_titles=False)
 
 class NavigateLastLinkCommand(sublime_plugin.TextCommand):
     def run(self, edit):

@@ -1,7 +1,5 @@
 Setup
 
-	Urtext projects are defined by their folder; 
-
 {{  Making a New Project
 
     To make an empty project, make a new folder (or open an existing folder, if you want to create a new project there) and open the folder in Sublime. Select Urtext : Initialize Project from the Sublime Command Palette. Then press Ctrl-Shift-; to create a new node. 

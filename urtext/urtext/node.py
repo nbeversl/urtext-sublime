@@ -208,5 +208,5 @@ def duplicate_tree(original_node):
         if node.parent == original_node:
             new_node = duplicate_tree(node)
             new_node.parent = new_root
-
+    
     return new_root
