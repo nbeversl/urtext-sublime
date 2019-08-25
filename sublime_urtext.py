@@ -828,11 +828,14 @@ class ShowAllNodesCommand(sublime_plugin.TextCommand):
         new_view.run_command("insert", {"characters": output})
 
 
-class NewNodeCommand(sublime_plugin.WindowCommand):
-    def run(self):
+class NewNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        global _UrtextProject
+        if refresh_project(self.view) == None:
+            return
         path = _UrtextProject.path
         filename = _UrtextProject.new_file_node()
-        new_view = self.window.open_file(os.path.join(path, filename))
+        new_view = self.view.window().open_file(os.path.join(path, filename))
 
 
 class NewProjectCommand(sublime_plugin.WindowCommand):
@@ -1003,7 +1006,7 @@ class GenerateTimelineCommand(sublime_plugin.TextCommand):
         nodes = [
             _UrtextProject.nodes[node_id] for node_id in _UrtextProject.nodes
         ]
-        timeline = _UrtextProject.timeline(nodes)
+        timeline = _UrtextProject.build_timeline(nodes)
         self.show_stuff(new_view, timeline)
         new_view.set_scratch(True)
 

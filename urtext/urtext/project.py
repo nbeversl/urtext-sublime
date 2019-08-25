@@ -627,7 +627,7 @@ class UrtextProject:
 
                 for value in dynamic_definition.metadata:
                     metadata += value + ':' + dynamic_definition.metadata[
-                        value] + '\n'
+                        value].strip('\n') + '\n'
 
                 metadata += '--/'
 
@@ -1415,10 +1415,10 @@ class UrtextProject:
         self.log_item('No node ID found on this line.')
         return None
 
-    def timeline(self, nodes):
+    def build_timeline(self, nodes):
         """ Given a list of nodes, returns a timeline """
 
-        return timeline.timeline(self, nodes)
+        return timeline(self, nodes)
 
     def is_duplicate_id(self, node_id, filename):
         if node_id in self.nodes:

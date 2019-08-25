@@ -15,10 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-
-from .metadata import NodeMetadata
 import re
+from ..anytree import Node, RenderTree
+from .metadata import NodeMetadata
 
+node_id_regex = r'\b[0-9,a-z]{3}\b'
 
 class Interlinks():
     def __init__(self, project, root_node_id):
@@ -39,7 +40,7 @@ class Interlinks():
 
     def get_links_in_node(self, node_id):
         contents = self.project.nodes[node_id].strip_metadata()
-        nodes = re.findall('>' + urtext.project.node_id_regex,
+        nodes = re.findall('>' + node_id_regex,
                            contents)  # link RegEx
         links = []
         for node in nodes:

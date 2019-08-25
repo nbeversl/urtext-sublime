@@ -19,7 +19,6 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import re
 import datetime
 
-
 class MetadataEntry:  # container for a single metadata entry
     def __init__(self, tag, value, dtstring):
         self.tag_name = tag.strip()
@@ -57,9 +56,11 @@ class NodeMetadata:
                 continue
 
             value = ''
+            
             """
-      For lines containing a datestamp
-      """
+            For lines containing a datestamp
+            """
+            
             date_match = re.search('(?:<)(.*?)(?:>)', line)
             if date_match:
                 dt_string = date_match.group(0)
@@ -71,13 +72,13 @@ class NodeMetadata:
             line_without_datestamp = line.replace('<' + dt_string + '>', '')
 
             if ':' in line_without_datestamp:
-                key = line_without_datestamp.split(":", 1)[0].strip()
+                key = line_without_datestamp.split(":", 1)[0].strip().lower()
 
-                if key.lower() == "timestamp":
+                if key == "timestamp":
                     value = dt_string
 
                 else:
-                    value = ''.join(line.split(":", 1)[1:]).strip()
+                    value = ''.join(line.split(":", 1)[1:]).strip().lower()
                     if '|' in value:
                         items = value.split('|')
                         value = []
@@ -93,17 +94,19 @@ class NodeMetadata:
 
     def get_tag(self, tagname):
         """ returns an array of values for the given tagname """
+        tagname = tagname.lower()
         values = []
         for entry in self.entries:
-            if entry.tag_name.lower() == tagname.lower():
+            if entry.tag_name.lower() == tagname:
                 values.append(
-                    entry.value)  # allows for multiple tags of the same name
+                    entry.value.lower())  # allows for multiple tags of the same name
         return values
 
     def get_date(self, tagname):
         """only works after the project has set the dt_stamp from dt_string"""
+        tagname = tagname.lower()
         for entry in self.entries:
-            if entry.tag_name.lower() == tagname.lower():
+            if entry.tag_name.lower() == tagname:
                 return entry.dtstamp
 
     def log(self):
