@@ -25,21 +25,24 @@ import pprint
 import logging
 import sys
 
-from .urtext.urtext.project import UrtextProject
-from .urtext.urtext.project import NoProject
-from .urtext.urtext.metadata import NodeMetadata
+from urtext.project import UrtextProject
+from urtext.project import NoProject
+from urtext.metadata import NodeMetadata
+from urtext.project_list import ProjectList
+from urtext.project import node_id_regex
+
 from sublime_plugin import EventListener
 from watchdog.events import FileSystemEventHandler
 import watchdog
 from watchdog.observers import Observer
 import webbrowser
-from .urtext.urtext.project_list import ProjectList
-from .urtext.urtext.project import node_id_regex
 
 _UrtextProject = None
 _UrtextProjectList = None
 
+
 class SublimeUrtextWatcher(FileSystemEventHandler):
+    
     def on_created(self, event):
 
         global _UrtextProject
@@ -57,12 +60,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         _UrtextProject.log_item(filename +
                                 ' modified. Updating the project object')
         _UrtextProject.update()
-          
-    """
-    def on_modified(self, event):
-      # this was moved to a sublime_plugin.EventListener
        
-    """
     def on_deleted(self, event):
       if filter(event.src_path) == None:
           return
@@ -89,10 +87,11 @@ def filter(filename):
 
 class UrtextSaveListener(EventListener):
 
-  def on_post_save(self,view):
+    def on_post_save(self, view):
+     
+      global _UrtextProject
       if _UrtextProject == None:
         return
-      global _UrtextProject
       filename = os.path.basename(view.file_name())
       if filter(filename) == None:
         return
@@ -108,8 +107,16 @@ class UrtextSaveListener(EventListener):
       _UrtextProject.parse_file(filename)
       _UrtextProject.update()
 
+    def on_query_completions(self, view, prefix, locations):
 
+        if _UrtextProject == None:
+            return
 
+        completions = []
+        for tag in _UrtextProject.tagnames['tags']:
+            completions.append([tag, '/-- tags:'+tag+' --/'])
+
+        return completions
 
 def refresh_project(view, init_project=False):
 
@@ -468,21 +475,26 @@ def target_tree_view(view):
 class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     def run(self, edit):
-        if refresh_project(self.view) == None:
-            return
-        filename = self.view.file_name()
-        for region in self.view.sel():
-            selection = self.view.substr(region)
-        node_id = _UrtextProject.add_inline_node(datetime.datetime.now(),
-                                                 filename, selection)
-        if node_id == None:
-            self.view.run_command("insert_snippet",
-                                  {"contents": "! File is not in project."})
-            return None
-        node_wrapper = '{{ ' + selection + ' /-- ID:' + node_id + ' --/ }}'
-        self.view.run_command("insert_snippet",
-                              {"contents": node_wrapper})  # (whitespace)
-        self.view.run_command("save")
+        add_inline_node(self.view, one_line=False)
+
+class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
+    """ inline only, does not make a new file """
+    def run(self, edit):
+        add_inline_node(self.view, one_line=True)
+
+def add_inline_node(view, one_line=False):
+    if refresh_project(view) == None:
+        return
+    region = view.sel()[0]
+    selection = view.substr(region)
+    new_node_contents = _UrtextProject.add_inline_node(
+        contents=selection,
+        one_line=one_line)
+    view.run_command("insert_snippet",
+                          {"contents": new_node_contents})  # (whitespace)
+    view.sel().clear()
+    new_cursor_position = sublime.Region(region.a + 3, region.a + 3 ) 
+    view.sel().add(new_cursor_position) 
 
 
 class RenameFileCommand(sublime_plugin.TextCommand):
@@ -493,7 +505,6 @@ class RenameFileCommand(sublime_plugin.TextCommand):
         self.view.retarget(
             os.path.join(_UrtextProject.path,
                          new_filenames[os.path.basename(old_filename)]))
-
 
 class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -507,22 +518,14 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
     def open_the_file(self, selected_option):
         path = get_path(self.window.active_view())
         title = self.menu.get_values_from_index(selected_option).title
+        
         new_view = self.window.open_file(
             os.path.join(
                 path,
                 self.menu.get_values_from_index(selected_option).filename))
 
-        # delete any nodes in front of this one (making a new navigation branch)
-        del _UrtextProject.navigation[_UrtextProject.nav_index + 1:]
-
-        # add the newly opened file as the new "HEAD"
-        _UrtextProject.navigation.append(
+        _UrtextProject.nav_new(
             self.menu.get_values_from_index(selected_option).node_id)
-
-        # increment the index to match
-        _UrtextProject.nav_index += 1
-
-        print(_UrtextProject.navigation)
 
         self.locate_node(
             self.menu.get_values_from_index(selected_option).position,
@@ -696,7 +699,11 @@ class ToggleTraverse(sublime_plugin.TextCommand):
 
 
 class TraverseFileTree(sublime_plugin.EventListener):
+    
     def on_selection_modified(self, view):
+
+        # give this view a name since we have so many to keep track of
+        called_from_view = view 
 
         global _UrtextProject
         #
@@ -704,65 +711,122 @@ class TraverseFileTree(sublime_plugin.EventListener):
         # Add a failsafe in case the user has closed the next group to the left
         # but traverse is still on.
         #
-        if view.window() == None:
+        if called_from_view.window() == None:
             return
-        self.groups = view.window().num_groups()
-        self.tree_group = view.window().active_group()  # 0-indexed
-        self.content_group = self.tree_group + 1  # to the right
-        self.content_sheet = view.window().active_sheet_in_group(
-            self.tree_group)
-        contents = get_contents(self.content_sheet.view())
 
-        def move_to_location(view, position, tree_view):
-            if not view.is_loading():
-                view.window().focus_group(self.content_group)
-                self.content_sheet.view().show_at_center(position)
-                view.sel().clear()
-                view.sel().add(position)
-                view.settings().set("word_wrap", "auto")
-                print('POS 3')
-                self.return_to_left(view, tree_view)
+        # how many current groups ("group" = window division)
+        self.groups = called_from_view.window().num_groups()        
+
+         # 0-indexed number of the group with the tree view
+        self.tree_group = called_from_view.window().active_group() 
+
+        # 0-indexed number of the group with the content 
+        # (may not yet exist)
+        self.content_group = self.tree_group + 1        
+        
+        # TAB of the content (right) view. ("sheet" = tab)        
+        self.content_tab = called_from_view.window().active_sheet_in_group(
+            self.tree_group)
+        
+        # the contents of the content tab. 
+        contents = get_contents(self.content_tab.view())
+
+        """ 
+        Scroll to a given position of the content 
+        and then return focus to the tree view.
+        """
+        def move_to_location(moved_view, 
+            position, 
+            tree_view):
+            
+            if not moved_view.is_loading():
+
+                # focus on the window division with the content
+                moved_view.window().focus_group(self.content_group)
+
+                # show the content tab with the given position as center
+                self.content_tab.view().show_at_center(position)
+
+                # Make this the selected spot and set word wrap
+                moved_view.sel().clear()
+                moved_view.sel().add(position)
+                moved_view.settings().set("word_wrap", "auto")
+
+                # refocus the tree (left) view
+                self.return_to_left(moved_view, tree_view)
+
             else:
-                sublime.set_timeout(lambda: move_to_location(view, position),
+                sublime.set_timeout(lambda: move_to_location(moved_view, position),
                                     10)
 
-        if view.settings().get('traverse') == 'true':
-            tree_view = view
-            this_file = view.file_name()
-            window = view.window()
+        """ Only if Traverse is on for this group (window division) """
+        if called_from_view.settings().get('traverse') == 'true':
+
+            # the tree view is always the view that was modified.
+            # assign it a name, get its filename and window
+
+            tree_view = called_from_view
+            this_file = called_from_view.file_name()
+            window = called_from_view.window()
+
+            # Get the current line and find links
             full_line = view.substr(view.line(view.sel()[0]))
             links = re.findall('>' + node_id_regex, full_line)
 
-            if len(links) == 0:  # might be an inline node view
+            # if there are no links on this line:
+            if len(links) == 0:  
+
+                # it might be an inline node view ??
+
+                # get rid of the tree characters
+                # (this would have to be made more general for all tree styles)
+                """
+                this might all be unnecessary??
+
                 link = full_line.strip('└── ').strip('├── ')
-                position = self.content_sheet.view().find('{{\s+' + link, 0)
-                line = self.content_sheet.view().line(position)
-                self.content_sheet.view().sel().add(line)
-                move_to_location(view, position, tree_view)
-                self.content_sheet.view().sel().clear()
-                self.content_sheet.view().sel().add(position)
+
+                # find the region matching this
+                position = self.content_tab.view().find('{{\s+' + link, 0)
+                
+                # get the region of the full line containing this match
+                line = self.content_tab.view().line(position)
+                
+                # add this to the content tab selection
+                self.content_tab.view().sel().add(line)
+
+                # move to that position in the  
+                move_to_location(called_from_view, position, tree_view)
+                self.content_tab.view().sel().clear()
+                self.content_tab.view().sel().add(position)
+                """
                 return
 
+
+            # get all the filenames corresponding to the links
             filenames = []
             for link in links:
-                filenames.append(_UrtextProject.get_file_name(link[1:]))
+                filename = _UrtextProject.get_file_name(link[1:])
+                if filename:
+                    filenames.append(filename)
+            
+
             if len(filenames) > 0:
                 filename = filenames[0]
                 position = _UrtextProject.nodes[link[1:]].ranges[0][0]
-                """ If the tree is linking to another part of itself """
+                
+                """ If the tree is linking to another part of its own file """
                 if filename == os.path.basename(this_file):
                     instances = self.find_filename_in_window(
                         os.path.join(_UrtextProject.path, filename), window)
+
                     if len(instances) < 2:
                         window.run_command("clone_file")
                         duplicate_file_view = self.find_filename_in_window(
                             os.path.join(_UrtextProject.path, filename),
                             window)[1]
+
                     if len(instances) >= 2:
                         duplicate_file_view = instances[1]
-                    # this does not have any effect:
-                    # duplicate_file_view.settings().set("word_wrap", "auto")
-                    # see http://steinwaywu.com/articles/2014-08/quick-tips-sublimetext.html
 
                     if duplicate_file_view in window.views_in_group(
                             self.content_group):
@@ -772,6 +836,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
                         duplicate_file_view.sel().add(position)
                         self.return_to_left(duplicate_file_view, tree_view)
                         return
+
                     if duplicate_file_view in window.views_in_group(
                             self.tree_group):
                         window.focus_group(self.tree_group)
@@ -784,7 +849,9 @@ class TraverseFileTree(sublime_plugin.EventListener):
                         window.focus_group(self.tree_group)
                         self.restore_traverse(view, tree_view)
                         return
+
                 else:
+                    """ The tree is linking to another file """
                     path = _UrtextProject.path
                     window.focus_group(self.content_group)
                     file_view = window.open_file(os.path.join(path, filename),
@@ -810,10 +877,19 @@ class TraverseFileTree(sublime_plugin.EventListener):
                 lambda: self.return_to_left(wait_view, traverse_view), 10)
             return
 
-    def return_to_left(self, wait_view, return_view):
+    """ 
+    Return to the left (tree) view,
+    after waiting for another view to finish loading.
+    """
+
+    def return_to_left(self, 
+        wait_view, 
+        return_view):
+        
         if not wait_view.is_loading():
             wait_view.window().focus_view(return_view)
             wait_view.window().focus_group(self.tree_group)
+        
         else:
             sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view),
                                 10)
@@ -834,8 +910,9 @@ class NewNodeCommand(sublime_plugin.TextCommand):
         if refresh_project(self.view) == None:
             return
         path = _UrtextProject.path
-        filename = _UrtextProject.new_file_node()
-        new_view = self.view.window().open_file(os.path.join(path, filename))
+        new_node = _UrtextProject.new_file_node()
+        _UrtextProject.nav_new(new_node['id'])        
+        new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
 
 class NewProjectCommand(sublime_plugin.WindowCommand):
@@ -932,12 +1009,11 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
             # check to see if it's in another known project
             #other_project_node = _UrtextProjectList.get_node_link(full_line)
             """_UrtextProject.navigation.append(other_project_node)
-      filename = other_project_node['filename']
-      path = other_project_node['project_path']
-      sublime.run_command("new_window")
-      sublime.active_window().open_file(filename)"""
+            filename = other_project_node['filename']
+            path = other_project_node['project_path']
+            sublime.run_command("new_window")
+            sublime.active_window().open_file(filename)"""
             return
-
         if link[0] == 'HTTP':
             if not webbrowser.get().open(link[1]):
                 sublime.error_message(
@@ -945,18 +1021,8 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
                     .format(browser_path))
             return
         if link[0] == 'NODE':
-
-            # delete any nodes in front of this one (making a new navigation branch)
-            del _UrtextProject.navigation[_UrtextProject.nav_index + 1:]
-
-            # add the newly opened file as the new "HEAD"
-            _UrtextProject.navigation.append(link[1])
-
-            # increment the index to match
-            _UrtextProject.nav_index += 1
-
+            _UrtextProject.nav_new(link[1])
             open_urtext_node(self.view, link[1], link[2])
-
 
 def open_urtext_node(view, node_id, position):
     def center_node(new_view, position):  # copied from old OpenNode. Refactor
@@ -994,7 +1060,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
 
         # TODO move this into urtext, not Sublime
         tag = '/-- tags: done ' + timestamp + ' --/'
-        _UrtextProject.tag_node(node_id, tag)
+        _UrtextProject.tag_other_node(node_id, tag)
         _UrtextProject.update()
 
 
@@ -1135,6 +1201,7 @@ class UrtextHomeCommand(sublime_plugin.TextCommand):
         if refresh_project(self.view) == None:
             return
         node_id = _UrtextProject.settings['home']
+        _UrtextProject.nav_new(node_id)
         open_urtext_node(self.view, node_id, 0)
 
 
@@ -1142,6 +1209,7 @@ class UrtextNodeListCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
             return
+        _UrtextProject.nav_new('zzz')
         open_urtext_node(self.view, 'zzz', 0)
 
 
@@ -1149,6 +1217,7 @@ class UrtextMetadataListCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
             return
+        _UrtextProject.nav_new('zzy')
         open_urtext_node(self.view, 'zzy', 0)
 
 
@@ -1174,55 +1243,20 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
 
 class NavigateBackwardCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        if refresh_project(self.view) == None:
-            return
 
-        # return if there are no saved locations
-        if len(_UrtextProject.navigation) == 0:
-            print('There is no nav history')
-            return
-
-        print(_UrtextProject.nav_index)
-
-        # return if the index is already at the beginning
-        if _UrtextProject.nav_index == 0:
-            print('index is already at the beginning.')
-            return
-
-        # otherwise, move backwards one
-        _UrtextProject.nav_index -= 1
-
-        # and open this node
-        last_node = _UrtextProject.navigation[_UrtextProject.nav_index]
-        position = _UrtextProject.nodes[last_node].ranges[0][0]
-        open_urtext_node(self.view, last_node, position)
-
+        last_node = _UrtextProject.nav_reverse()
+        if last_node:
+            position = _UrtextProject.nodes[last_node].ranges[0][0]
+            open_urtext_node(self.view, last_node, position)
 
 class NavigateForwardCommand(sublime_plugin.TextCommand):
     def run(self, edit):
 
-        if refresh_project(self.view) == None:
-            return
-
-        # return if there are no saved locations
-        if len(_UrtextProject.navigation) == 0:
-            print('There is no more nav history')
-            return
-
-        print(_UrtextProject.nav_index)
-
-        # return if the index is already at the end
-        if _UrtextProject.nav_index == len(_UrtextProject.navigation) - 1:
-            print('index is already at the end.')
-            return
-
-        # otherwise move it forward by one
-        _UrtextProject.nav_index += 1
-
         # and open this node
-        last_node = _UrtextProject.navigation[_UrtextProject.nav_index]
-        position = _UrtextProject.nodes[last_node].ranges[0][0]
-        open_urtext_node(self.view, last_node, position)
+        next_node = _UrtextProject.nav_advance()
+        if next_node:
+            position = _UrtextProject.nodes[next_node].ranges[0][0]
+            open_urtext_node(self.view, next_node, position)
 
 class ExportAsMarkdownCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
@@ -1246,20 +1280,15 @@ class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
 
 class ExportProjectAsHtmlCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
-        
-        _UrtextProject.export_project(jekyll=True, style_titles=False)
-
-class NavigateLastLinkCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
         if refresh_project(self.view) == None:
             return
 
-        # return only if there are no saved locations
-        if len(_UrtextProject.navigation) == 0:
-            print('There is no more nav history')
+        _UrtextProject.export_project(jekyll=True, style_titles=False)
+
+
+class SyncGoogleCalendarCommand(sublime_plugin.TextCommand):
+    def run(self, edit):        
+        if refresh_project(self.view) == None:
             return
 
-        # and open this node
-        last_node = _UrtextProject.navigation[_UrtextProject.nav_index]
-        position = _UrtextProject.nodes[last_node].ranges[0][0]
-        open_urtext_node(self.view, last_node, position)
+        _UrtextProject.sync_to_google_calendar()

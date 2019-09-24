@@ -1,5 +1,0 @@
-Example Child Node Using a Node Pointer
-
-/-- ID:001
-Timestamp:<Thu., Jul. 04, 2019, 07:35 AM>
---/
