@@ -775,32 +775,7 @@ class TraverseFileTree(sublime_plugin.EventListener):
 
             # if there are no links on this line:
             if len(links) == 0:  
-
-                # it might be an inline node view ??
-
-                # get rid of the tree characters
-                # (this would have to be made more general for all tree styles)
-                """
-                this might all be unnecessary??
-
-                link = full_line.strip('└── ').strip('├── ')
-
-                # find the region matching this
-                position = self.content_tab.view().find('{{\s+' + link, 0)
-                
-                # get the region of the full line containing this match
-                line = self.content_tab.view().line(position)
-                
-                # add this to the content tab selection
-                self.content_tab.view().sel().add(line)
-
-                # move to that position in the  
-                move_to_location(called_from_view, position, tree_view)
-                self.content_tab.view().sel().clear()
-                self.content_tab.view().sel().add(position)
-                """
                 return
-
 
             # get all the filenames corresponding to the links
             filenames = []
