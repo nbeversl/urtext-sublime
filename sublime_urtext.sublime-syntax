@@ -12,8 +12,11 @@ contexts:
     - include: link
     - include: link_prefix
     - include: task-status
+    - match: \[\[
+      scope: punctuation.section.braces.begin.dynamic_definition.urtext
+      push: dynamic-definition
     - match: '/--'
-      scope: punctuation.section.generic.begin.urtext
+      scope: punctuation.section.generic.end.urtext
       push: meta-block
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
@@ -35,6 +38,13 @@ contexts:
       embed_scope: urtext.markdown
       escape: 'END-MARKDOWN'
       escape-captures: 0
+  
+  dynamic-definition:
+    - include: tag
+    - meta_scope: dynamic_definition 
+    - match: \]\]
+      scope: punctuation.section.braces.end.dynamic_definition.urtext
+      pop: true
 
   inline-node-1: 
     - meta_scope: inline_node_1 

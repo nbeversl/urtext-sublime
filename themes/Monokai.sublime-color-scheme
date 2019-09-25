@@ -6,19 +6,35 @@
 		 "blue-bright" : "hsl(225, 80%, 40%",
 		 "blue-brighter" : "hsl(225, 80%, 60%",
 		 "green":"hsl(117, 57%, 63%",
+		 "yellow":"hsl(54, 95%, 67%)",
+		 "bright-yellow" : "hsl(60, 100%, 75%)",
 		 "inline1" : "hsl(70, 8%, 17%)",
 		 "inline2" : "hsl(70, 8%, 19%)",
 		 "inline3" : "hsl(70, 8%, 21%)",
 		 "inline4" : "hsl(70, 8%, 23%)",
 		 "inline5" : "hsl(70, 8%, 25%)",
 		 "black3": "hsl(70, 8%, 15%)",
+
 	},
 	
 	"rules": [
 			{
-				"scope": "punctuation.section.generic.begin.urtext",
-	  			"foreground": "var(unobtrusive)",
+				"scope": "punctuation.section.braces.begin.dynamic_definition.urtext",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold italic"
 	  		},
+	  		{
+				"scope": "punctuation.section.braces.end.dynamic_definition.urtext",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold italic"
+	  		},
+
+			{
+				"scope": "dynamic_definition",
+	  			"foreground": "var(yellow)",
+	  			"font_style":"italic"
+	  		},
+
 			{
 				"scope": "punctuation.section.generic.end.urtext",
 	  			"foreground": "var(unobtrusive)",

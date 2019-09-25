@@ -60,7 +60,27 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         _UrtextProject.log_item(filename +
                                 ' modified. Updating the project object')
         _UrtextProject.update()
-       
+    
+    def on_modified(self, event):
+     
+      global _UrtextProject
+      if _UrtextProject == None:
+        return
+      filename = os.path.basename(event.src_path)
+      if filter(filename) == None:
+        return
+      do_not_update = [
+         _UrtextProject.nodes['zzz'].filename,
+         _UrtextProject.nodes['zzy'].filename,
+         _UrtextProject.settings['logfile'],
+         '00000.txt'
+        ]
+      if filename in do_not_update or '.git' in filename:
+        return
+      _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
+      _UrtextProject.parse_file(filename)
+      _UrtextProject.update()
+
     def on_deleted(self, event):
       if filter(event.src_path) == None:
           return
@@ -86,26 +106,6 @@ def filter(filename):
   return filename
 
 class UrtextSaveListener(EventListener):
-
-    def on_post_save(self, view):
-     
-      global _UrtextProject
-      if _UrtextProject == None:
-        return
-      filename = os.path.basename(view.file_name())
-      if filter(filename) == None:
-        return
-      do_not_update = [
-         _UrtextProject.nodes['zzz'].filename,
-         _UrtextProject.nodes['zzy'].filename,
-         _UrtextProject.settings['logfile'],
-         '00000.txt'
-        ]
-      if filename in do_not_update or '.git' in filename:
-        return
-      _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
-      _UrtextProject.parse_file(filename)
-      _UrtextProject.update()
 
     def on_query_completions(self, view, prefix, locations):
 
@@ -532,13 +532,14 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
             new_view, title)
 
     def locate_node(self, position, view, title):
+        position = int(position)
         if not view.is_loading():
             view.sel().clear()
-            view.show_at_center(int(position))
+            view.show_at_center(position)
             view.sel().add(sublime.Region(position))
         else:
             sublime.set_timeout(
-                lambda: self.locate_node(int(position), view, title), 10)
+                lambda: self.locate_node(position, view, title), 10)
 
 
 class NodeBrowserMenu():
@@ -861,6 +862,9 @@ class TraverseFileTree(sublime_plugin.EventListener):
         wait_view, 
         return_view):
         
+        if not wait_view.window():
+            return
+
         if not wait_view.is_loading():
             wait_view.window().focus_view(return_view)
             wait_view.window().focus_group(self.tree_group)
