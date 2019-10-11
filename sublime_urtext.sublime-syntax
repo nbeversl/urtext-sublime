@@ -26,17 +26,25 @@ contexts:
     - match: 'SCOPE-HTML'
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
-      escape: 'END-HTML'
+      escape: '%%-END'
       escape-captures: 0
-    - match: 'SCOPE-JSON'
+    - match: '%%-JSON'
       embed: Packages/JavaScript/JSON.sublime-syntax
       embed_scope: urtext.json
-      escape: 'END-JSON'
+      escape: '%%-END'
       escape-captures: 0
-    - match: 'SCOPE-MARKDOWN'
+
+    - match: '%%-PYTHON'
+      embed: Packages/Python/Python.sublime-syntax
+      embed_scope: urtext.json
+      escape: '%%-END'
+      escape-captures: 0
+
+
+    - match: '%%-MARKDOWN'
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: urtext.markdown
-      escape: 'END-MARKDOWN'
+      escape: '%%-END'
       escape-captures: 0
   
   dynamic-definition:

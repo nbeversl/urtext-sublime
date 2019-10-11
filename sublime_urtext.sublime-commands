@@ -16,6 +16,7 @@
     
     /* Generating Nodes */    
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
+    { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
     
     /* Trees */
     { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},
@@ -41,6 +42,8 @@
     { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: Initialize Project", "command":"new_project"},
+    { "caption": "Urtext: Take Over", "command" :"take_over"},
+    { "caption": "Urtext: Pop Node", "command" :"pop_node"},
 
     /* Sync & Export */
     { "caption": "Urtext: Export Markdown", "command" :"export_as_markdown"},

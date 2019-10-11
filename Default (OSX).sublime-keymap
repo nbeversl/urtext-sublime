@@ -19,5 +19,6 @@
 	{ "keys": ["ctrl+shift+j"], "command": "urtext_node_list"},
 	{ "keys": ["ctrl+shift+u"], "command": "urtext_metadata_list"},
 	{ "keys": ["ctrl+shift+p"], "command": "insert_node_single_line"},
+	{ "keys": ["ctrl+shift+6"], "command": "compact_node"},
 ]
 

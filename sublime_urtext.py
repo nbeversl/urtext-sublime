@@ -40,11 +40,14 @@ import webbrowser
 _UrtextProject = None
 _UrtextProjectList = None
 
+machine_name = 'Work iMac'
 
 class SublimeUrtextWatcher(FileSystemEventHandler):
     
     def on_created(self, event):
 
+        if not _UrtextProject.check_lock(machine_name):
+          return
         global _UrtextProject
         if event.is_directory:
             return None
@@ -54,7 +57,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
         if filename in _UrtextProject.files:
           # This is not really a new file.
           return None
-        if _UrtextProject.parse_file(filename) == None:
+        if _UrtextProject.parse_file(filename, re_index=True) == None:
             _UrtextProject.log_item(filename + ' not added.')
             return
         _UrtextProject.log_item(filename +
@@ -63,6 +66,8 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
     
     def on_modified(self, event):
      
+      if not _UrtextProject.check_lock(machine_name): 
+          return
       global _UrtextProject
       if _UrtextProject == None:
         return
@@ -70,7 +75,10 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       if filter(filename) == None:
         return
       do_not_update = [
-         _UrtextProject.nodes['zzz'].filename,
+        'index', 
+        os.path.basename(_UrtextProject.path),
+         'zzz.txt',
+         'zzy.txt',
          _UrtextProject.nodes['zzy'].filename,
          _UrtextProject.settings['logfile'],
          '00000.txt'
@@ -78,10 +86,12 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       if filename in do_not_update or '.git' in filename:
         return
       _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
-      _UrtextProject.parse_file(filename)
+      _UrtextProject.parse_file(filename, re_index=True)
       _UrtextProject.update()
 
     def on_deleted(self, event):
+      if not _UrtextProject.check_lock(machine_name): 
+          return
       if filter(event.src_path) == None:
           return
       filename = os.path.basename(event.src_path)
@@ -155,7 +165,9 @@ def refresh_project(view, init_project=False):
 def focus_urtext_project(path, view, init_project=False):
     global _UrtextProject
     try:
-        _UrtextProject = UrtextProject(path, init_project=init_project)
+        _UrtextProject = UrtextProject(path, 
+            init_project=init_project,
+            machine_lock=machine_name)
     except NoProject:
         print('No Urtext nodes in this folder')
         return None
@@ -562,13 +574,13 @@ class NodeBrowserMenu():
 
 class NodeInfo():
     def __init__(self, node_id):
-        self.title = _UrtextProject.nodes[node_id].get_title()
+        self.title = _UrtextProject.nodes[node_id].title
         if self.title.strip() == '':
             self.title = '(no title)'
         self.date = _UrtextProject.nodes[node_id].date
         self.filename = _UrtextProject.nodes[node_id].filename
         self.position = _UrtextProject.nodes[node_id].ranges[0][0]
-        self.title = _UrtextProject.nodes[node_id].get_title()
+        self.title = _UrtextProject.nodes[node_id].title
         self.node_id = _UrtextProject.nodes[node_id].id
 
 
@@ -627,7 +639,7 @@ class LinkNodeFromCommand(sublime_plugin.WindowCommand):
             node_id = _UrtextProject.get_node_id_from_position(
                 self.current_file, self.position)
 
-            title = _UrtextProject.nodes[node_id].get_title()
+            title = _UrtextProject.nodes[node_id].title
             link = title + ' >' + node_id
             sublime.set_clipboard(link)
             view.show_popup('Link to ' + link + ' copied to the clipboard')
@@ -923,8 +935,7 @@ class InsertTimestampCommand(sublime_plugin.TextCommand):
         if refresh_project(self.view) == None:
             return
 
-        now = datetime.datetime.now()
-        datestamp = _UrtextProject.timestamp(now)
+        datestamp = _UrtextProject.timestamp(datetime.datetime.now())
         for s in self.view.sel():
             if s.empty():
                 self.view.insert(edit, s.a, datestamp)
@@ -940,11 +951,7 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
         filename = os.path.basename(self.view.file_name())
         position = self.view.sel()[0].a
         node_id = _UrtextProject.get_node_id_from_position(filename, position)
-        consolidated_contents = _UrtextProject.consolidate_metadata(
-            node_id, one_line=True)
-
-        print(consolidated_contents)
-        # just need to write this to the view.
+        _UrtextProject.consolidate_metadata(node_id, one_line=True)
 
 
 class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
@@ -1271,3 +1278,44 @@ class SyncGoogleCalendarCommand(sublime_plugin.TextCommand):
             return
 
         _UrtextProject.sync_to_google_calendar()
+
+class TakeOverCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        lock = _UrtextProject.get_current_lock()
+
+        take_over = sublime.yes_no_cancel_dialog(
+            'Urtext Watch is locked by '+ lock+'.',
+            'Take Over', 'Use without watch')
+
+        if take_over:
+            _UrtextProject.lock(machine_name)
+
+class CompactNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        add_compact_node(self.view)
+
+class PopNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        filename = self.view.file_name()
+        position = self.view.sel()[0].a
+        new_position = _UrtextProject.pop_node(filename=filename, position=position)
+        self.view.sel().clear()
+        new_cursor_position = sublime.Region(new_position, new_position) 
+        self.view.sel().add(new_cursor_position) 
+
+def add_compact_node(view):
+    if refresh_project(view) == None:
+        return
+    region = view.sel()[0]
+    
+    selection = view.substr(region)
+    new_node_contents = _UrtextProject.add_compact_node(contents=selection)
+    view.run_command("insert_snippet",
+                          {"contents": new_node_contents})
+    view.sel().clear()
+    new_cursor_position = sublime.Region(region.a + 2, region.a + 2) 
+    view.sel().add(new_cursor_position) 
