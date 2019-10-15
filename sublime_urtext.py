@@ -68,6 +68,7 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
      
       if not _UrtextProject.check_lock(machine_name): 
           return
+
       global _UrtextProject
       if _UrtextProject == None:
         return
@@ -77,12 +78,13 @@ class SublimeUrtextWatcher(FileSystemEventHandler):
       do_not_update = [
         'index', 
         os.path.basename(_UrtextProject.path),
-         'zzz.txt',
-         'zzy.txt',
-         _UrtextProject.nodes['zzy'].filename,
-         _UrtextProject.settings['logfile'],
-         '00000.txt'
+        _UrtextProject.settings['logfile'],
         ]
+
+      for node_id in ['zzz','zzy']:
+            if node_id in _UrtextProject.nodes:
+               do_not_update.append(_UrtextProject.nodes[node_id].filename)
+
       if filename in do_not_update or '.git' in filename:
         return
       _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
@@ -1306,6 +1308,22 @@ class PopNodeCommand(sublime_plugin.TextCommand):
         self.view.sel().clear()
         new_cursor_position = sublime.Region(new_position, new_position) 
         self.view.sel().add(new_cursor_position) 
+
+
+class DebugCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        filename = self.view.file_name()
+        position = self.view.sel()[0].a
+        node_id = _UrtextProject.get_node_id_from_position(filename, position)
+        _UrtextProject.nodes[node_id].metadata.log()
+
+class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        _UrtextProject.rebuild_search_index()
 
 def add_compact_node(view):
     if refresh_project(view) == None:

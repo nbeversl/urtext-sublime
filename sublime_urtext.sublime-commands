@@ -44,6 +44,8 @@
     { "caption": "Urtext: Initialize Project", "command":"new_project"},
     { "caption": "Urtext: Take Over", "command" :"take_over"},
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
+    { "caption": "Urtext: Rebuild Search Index", "command" :"rebuild_search_index"},
+
 
     /* Sync & Export */
     { "caption": "Urtext: Export Markdown", "command" :"export_as_markdown"},
