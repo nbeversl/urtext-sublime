@@ -10,6 +10,7 @@
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
 
+
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
     { "caption": "Urtext: Link from ...", "command":"link_node_from"},

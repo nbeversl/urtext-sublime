@@ -243,7 +243,7 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
             os.path.join(
                 path,
                 self.menu.get_values_from_index(selected_option).filename))
-        if selected_option[3] and selected_option[3] != None:
+        if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 
     def list_files(self, index):

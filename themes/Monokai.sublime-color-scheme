@@ -18,6 +18,13 @@
 	},
 	
 	"rules": [
+			{ "scope": "punctuation.separator.node_separator.urtext",
+				"foreground": "var(bright-yellow)",
+				"font_style":"bold",
+				"background": "var(black3)"
+			},
+
+
 			{
 				"scope": "punctuation.section.braces.begin.dynamic_definition.urtext",
 	  			"foreground": "var(bright-yellow)",
@@ -55,7 +62,7 @@
 	  			"scope":"entity.name.struct.node_id.urtext",
 	  			"foreground": "var(unobtrusive)",
 	  		},
-	  		{"scope":"link.urtext",
+	  			{"scope":"link.urtext",
 	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{"scope":"link_prefix.urtext",

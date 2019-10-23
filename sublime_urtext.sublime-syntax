@@ -57,6 +57,7 @@ contexts:
   inline-node-1: 
     - meta_scope: inline_node_1 
     - include: datestamp
+    - include: node-separator
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
@@ -68,6 +69,7 @@ contexts:
   inline-node-2: 
     - meta_scope: inline_node_2 
     - include: datestamp
+    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -79,6 +81,7 @@ contexts:
   inline-node-3: 
     - meta_scope: inline_node_3
     - include: datestamp
+    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -90,6 +93,7 @@ contexts:
   inline-node-4: 
     - meta_scope: inline_node_4
     - include: datestamp
+    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -101,6 +105,7 @@ contexts:
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: datestamp
+    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -137,6 +142,10 @@ contexts:
   meta-key-terminator:
     - match: ';'
       scope: punctuation.terminator.urtext
+
+  node-separator:
+    - match: '^\%(?!%)'
+      scope: punctuation.separator.node_separator.urtext
 
   datestamp:
     - match: <.*?>
