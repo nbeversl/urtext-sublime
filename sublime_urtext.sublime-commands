@@ -19,6 +19,7 @@
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
     
+    
     /* Trees */
     { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},
     { "caption": "Urtext: Show Tree From Root", "command" :"show_tree_from_root"},

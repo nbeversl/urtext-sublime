@@ -40,76 +40,54 @@ import webbrowser
 _UrtextProject = None
 _UrtextProjectList = None
 
-machine_name = 'Work iMac'
-
 class SublimeUrtextWatcher(FileSystemEventHandler):
-    
+
+    def __init__(self):
+        super().__init__()
+        self.paused = False
+
     def on_created(self, event):
+        if self.paused:
+            return 
+        successful, lock_name = _UrtextProject.on_created(event.src_path)
+        if not successful:
+            self.show_lock(lock_name)
 
-        if not _UrtextProject.check_lock(machine_name):
-          return
-        global _UrtextProject
-        if event.is_directory:
-            return None
-        filename = event.src_path
-        if filter(filename) == None:
-          return
-        if filename in _UrtextProject.files:
-          # This is not really a new file.
-          return None
-        if _UrtextProject.parse_file(filename, re_index=True) == None:
-            _UrtextProject.log_item(filename + ' not added.')
-            return
-        _UrtextProject.log_item(filename +
-                                ' modified. Updating the project object')
-        _UrtextProject.update()
-    
     def on_modified(self, event):
-     
-      if not _UrtextProject.check_lock(machine_name): 
-          return
+        if self.paused:
+            return 
+        successful, lock_name = _UrtextProject.on_modified(event.src_path)    
+        if not successful:
+            self.show_lock(lock_name)
 
-      global _UrtextProject
-      if _UrtextProject == None:
-        return
-      filename = os.path.basename(event.src_path)
-      if filter(filename) == None:
-        return
-      do_not_update = [
-        'index', 
-        os.path.basename(_UrtextProject.path),
-        _UrtextProject.settings['logfile'],
-        ]
-
-      for node_id in ['zzz','zzy']:
-            if node_id in _UrtextProject.nodes:
-               do_not_update.append(_UrtextProject.nodes[node_id].filename)
-
-      if filename in do_not_update or '.git' in filename:
-        return
-      _UrtextProject.log_item('MODIFIED ' + filename +' - Updating the project object')
-      _UrtextProject.parse_file(filename, re_index=True)
-      _UrtextProject.update()
-
-    def on_deleted(self, event):
-      if not _UrtextProject.check_lock(machine_name): 
-          return
-      if filter(event.src_path) == None:
-          return
-      filename = os.path.basename(event.src_path)
-      _UrtextProject.log_item('Watchdog saw file deleted: '+filename)
-      _UrtextProject.remove_file(filename)
-      _UrtextProject.update()
-     
     def on_moved(self, event):
-        if filter(event.src_path) == None:
-          return
-        old_filename = os.path.basename(event.src_path)
-        new_filename = os.path.basename(event.dest_path)
-        if old_filename in _UrtextProject.files:
-            _UrtextProject.log.info('RENAMED ' + old_filename + ' to ' +
-                                    new_filename)
-            _UrtextProject.handle_renamed(old_filename, new_filename)
+        if self.paused:
+            return 
+        successful, lock_name = _UrtextProject.on_moved(event.src_path)   
+        if not successful:
+            self.show_lock(lock_name)
+
+    def show_lock(self, lock_name):
+        self.paused = True
+        take_over = sublime.yes_no_cancel_dialog(
+            'Urtext Watch is locked by '+ _UrtextProject.current_lock +'.',
+            'Take Over', 'Use without watch')
+        print(take_over)
+        if take_over == sublime.DIALOG_YES:
+            print('TOOK OVER')
+
+            global _UrtextProject
+            try:
+                _UrtextProject = UrtextProject(path, 
+                    init_project=init_project)
+            except NoProject:
+                print('No Urtext nodes in this folder')
+                self.paused=False
+                return None
+            self.paused=False
+            return True
+        else:
+            return False
 
 def filter(filename):
   for fragment in ['urtext_log', '.git','.icloud']:
@@ -133,9 +111,14 @@ class UrtextSaveListener(EventListener):
 def refresh_project(view, init_project=False):
 
     global _UrtextProject
+    
     current_path = get_path(view)
 
     if _UrtextProject != None:
+        if not _UrtextProject.check_lock():
+            print('PROJECT LOCKED')
+            return None
+
         if current_path == _UrtextProject.path:
             return _UrtextProject
         else:
@@ -168,8 +151,7 @@ def focus_urtext_project(path, view, init_project=False):
     global _UrtextProject
     try:
         _UrtextProject = UrtextProject(path, 
-            init_project=init_project,
-            machine_lock=machine_name)
+            init_project=init_project)
     except NoProject:
         print('No Urtext nodes in this folder')
         return None
@@ -212,7 +194,8 @@ def size_to_groups(groups, view):
 
 class FindByMetaCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        refresh_project(self.view)
+        if refresh_project(self.view) == None:
+            return
         self.tagnames = [value for value in _UrtextProject.tagnames]
         self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
@@ -278,7 +261,8 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
 
 class ShowTagsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        refresh_project(self.view)
+        if refresh_project(self.view) == None:
+            return
         self.tag_values = [value for value in _UrtextProject.tagnames['tags']]
         self.tag_values.insert(0, '< all >')
         self.view.window().show_quick_panel(self.tag_values,
@@ -338,7 +322,8 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
 
 class TagNodeCommand(sublime_plugin.TextCommand):  #under construction
     def run(self, edit):
-        refresh_project(self.view)
+        if refresh_project(self.view) == None:
+            return
         self.tagnames = [value for value in _UrtextProject.tagnames]
         self.view.window().show_quick_panel(self.tagnames, self.list_values)
 
@@ -494,16 +479,17 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     def run(self, edit):
-        add_inline_node(self.view, one_line=True)
+        add_inline_node(self.view, one_line=True, timestamp=False)    
 
-def add_inline_node(view, one_line=False):
+def add_inline_node(view, one_line=False, timestamp=True):
     if refresh_project(view) == None:
         return
     region = view.sel()[0]
     selection = view.substr(region)
     new_node_contents = _UrtextProject.add_inline_node(
         contents=selection,
-        one_line=one_line)
+        one_line=one_line,
+        timestamp=timestamp)
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
     view.sel().clear()
@@ -958,6 +944,8 @@ class ConsolidateMetadataCommand(sublime_plugin.TextCommand):
 
 class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
         now = datetime.datetime.now()
         node_id = _UrtextProject.next_index()
         content = '[[ ID:' + node_id + '\n\n ]]'
@@ -984,7 +972,6 @@ class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
         for line in results:
             new_view.run_command("insert_snippet", {"contents": line + '\n'})
 
-
 class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
@@ -993,14 +980,7 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
         column = self.view.rowcol(position)[1]
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
         link = _UrtextProject.get_link(full_line, position=column)
-        if link == None:
-            # check to see if it's in another known project
-            #other_project_node = _UrtextProjectList.get_node_link(full_line)
-            """_UrtextProject.navigation.append(other_project_node)
-            filename = other_project_node['filename']
-            path = other_project_node['project_path']
-            sublime.run_command("new_window")
-            sublime.active_window().open_file(filename)"""
+        if link == None:    
             return
         if link[0] == 'HTTP':
             if not webbrowser.get().open(link[1]):
@@ -1231,7 +1211,8 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
 
 class NavigateBackwardCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-
+        if refresh_project(self.view) == None:
+            return
         last_node = _UrtextProject.nav_reverse()
         if last_node:
             position = _UrtextProject.nodes[last_node].ranges[0][0]
@@ -1239,7 +1220,8 @@ class NavigateBackwardCommand(sublime_plugin.TextCommand):
 
 class NavigateForwardCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-
+        if refresh_project(self.view) == None:
+            return
         # and open this node
         next_node = _UrtextProject.nav_advance()
         if next_node:
@@ -1248,7 +1230,8 @@ class NavigateForwardCommand(sublime_plugin.TextCommand):
 
 class ExportAsMarkdownCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
-        
+        if refresh_project(self.view) == None:
+            return
         filename = self.view.file_name()
         markdown_filename = filename.replace('.txt','.md') 
         _UrtextProject.export(filename, markdown_filename, kind = 'Markdown')
@@ -1256,7 +1239,8 @@ class ExportAsMarkdownCommand(sublime_plugin.TextCommand):
 
 class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
-        
+        if refresh_project(self.view) == None:
+            return
         filename = self.view.file_name()
         _UrtextProject.export(  filename, 
                                 html_filename, 
@@ -1283,19 +1267,24 @@ class SyncGoogleCalendarCommand(sublime_plugin.TextCommand):
 
 class TakeOverCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        if refresh_project(self.view) == None:
-            return
+    
         lock = _UrtextProject.get_current_lock()
 
         take_over = sublime.yes_no_cancel_dialog(
             'Urtext Watch is locked by '+ lock+'.',
             'Take Over', 'Use without watch')
 
-        if take_over:
-            _UrtextProject.lock(machine_name)
+        if take_over == sublime.DIALOG_YES:
+            global _UrtextProject
+            current_path = get_path(self.view)
+            if current_path != None:
+                _UrtextProject = focus_urtext_project(current_path, self.view)
+            _UrtextProject.lock()
 
 class CompactNodeCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
         add_compact_node(self.view)
 
 class PopNodeCommand(sublime_plugin.TextCommand):
@@ -1324,6 +1313,18 @@ class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
         if refresh_project(self.view) == None:
             return
         _UrtextProject.rebuild_search_index()
+
+
+class SplitNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        node_id = _UrtextProject.next_index()
+        self.view.run_command("insert_snippet",
+                          {"contents": '/-- id:'+node_id+' --/\n% '})
+
+
+
 
 def add_compact_node(view):
     if refresh_project(view) == None:

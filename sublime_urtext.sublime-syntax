@@ -12,6 +12,7 @@ contexts:
     - include: link
     - include: link_prefix
     - include: task-status
+    - include: node-separator
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -33,7 +34,6 @@ contexts:
       embed_scope: urtext.json
       escape: '%%-END'
       escape-captures: 0
-
     - match: '%%-PYTHON'
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: urtext.json
