@@ -40,54 +40,53 @@ import webbrowser
 _UrtextProject = None
 _UrtextProjectList = None
 
-class SublimeUrtextWatcher(FileSystemEventHandler):
+# class SublimeUrtextWatcher(FileSystemEventHandler):
 
-    def __init__(self):
-        super().__init__()
-        self.paused = False
+#     def __init__(self):
+#         super().__init__()
+#         self.paused = False
 
-    def on_created(self, event):
-        if self.paused:
-            return 
-        successful, lock_name = _UrtextProject.on_created(event.src_path)
-        if not successful:
-            self.show_lock(lock_name)
+#     def on_created(self, event):
+#         if self.paused:
+#             return 
+#         successful, lock_name = _UrtextProject.on_created(event.src_path)
+#         if not successful:
+#             self.show_lock(lock_name)
 
-    def on_modified(self, event):
-        if self.paused:
-            return 
-        successful, lock_name = _UrtextProject.on_modified(event.src_path)    
-        if not successful:
-            self.show_lock(lock_name)
+#     def on_modified(self, event):
+#         if self.paused:
+#             return 
+#         successful, lock_name = _UrtextProject.on_modified(event.src_path)    
+#         if not successful:
+#             self.show_lock(lock_name)
 
-    def on_moved(self, event):
-        if self.paused:
-            return 
-        successful, lock_name = _UrtextProject.on_moved(event.src_path)   
-        if not successful:
-            self.show_lock(lock_name)
+#     def on_moved(self, event):
+#         if self.paused:
+#             return 
+#         successful, lock_name = _UrtextProject.on_moved(event.src_path)   
+#         if not successful:
+#             self.show_lock(lock_name)
 
-    def show_lock(self, lock_name):
-        self.paused = True
-        take_over = sublime.yes_no_cancel_dialog(
-            'Urtext Watch is locked by '+ _UrtextProject.current_lock +'.',
-            'Take Over', 'Use without watch')
-        print(take_over)
-        if take_over == sublime.DIALOG_YES:
-            print('TOOK OVER')
+#     def show_lock(self, lock_name):
+#         self.paused = True
+#         take_over = sublime.yes_no_cancel_dialog(
+#             'Urtext Watch is locked by '+ _UrtextProject.current_lock +'.',
+#             'Take Over', 'Use without watch')
+#         if take_over == sublime.DIALOG_YES:
+#             print('TOOK OVER')
 
-            global _UrtextProject
-            try:
-                _UrtextProject = UrtextProject(path, 
-                    init_project=init_project)
-            except NoProject:
-                print('No Urtext nodes in this folder')
-                self.paused=False
-                return None
-            self.paused=False
-            return True
-        else:
-            return False
+#             global _UrtextProject
+#             try:
+#                 _UrtextProject = UrtextProject(path, 
+#                     init_project=init_project)
+#             except NoProject:
+#                 print('No Urtext nodes in this folder')
+#                 self.paused=False
+#                 return None
+#             self.paused=False
+#             return True
+#         else:
+#             return False
 
 def filter(filename):
   for fragment in ['urtext_log', '.git','.icloud']:
@@ -107,6 +106,9 @@ class UrtextSaveListener(EventListener):
             completions.append([tag, '/-- tags:'+tag+' --/'])
 
         return completions
+
+    def on_post_save_async(self, view):
+        _UrtextProject.on_modified(view.file_name())   
 
 def refresh_project(view, init_project=False):
 
@@ -155,10 +157,10 @@ def focus_urtext_project(path, view, init_project=False):
     except NoProject:
         print('No Urtext nodes in this folder')
         return None
-    event_handler = SublimeUrtextWatcher()
-    observer = Observer()
-    observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-    observer.start()
+    #event_handler = SublimeUrtextWatcher()
+    #observer = Observer()
+    #observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
+    #observer.start()
     return _UrtextProject
 
 
@@ -479,17 +481,18 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     def run(self, edit):
-        add_inline_node(self.view, one_line=True, timestamp=False)    
+        add_inline_node(self.view, one_line=True, include_timestamp=False)    
 
-def add_inline_node(view, one_line=False, timestamp=True):
+def add_inline_node(view, one_line=False, include_timestamp=True):
     if refresh_project(view) == None:
         return
     region = view.sel()[0]
     selection = view.substr(region)
     new_node_contents = _UrtextProject.add_inline_node(
+        metadata={},
         contents=selection,
         one_line=one_line,
-        timestamp=timestamp)
+        include_timestamp=include_timestamp)
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
     view.sel().clear()
