@@ -40,53 +40,6 @@ import webbrowser
 _UrtextProject = None
 _UrtextProjectList = None
 
-# class SublimeUrtextWatcher(FileSystemEventHandler):
-
-#     def __init__(self):
-#         super().__init__()
-#         self.paused = False
-
-#     def on_created(self, event):
-#         if self.paused:
-#             return 
-#         successful, lock_name = _UrtextProject.on_created(event.src_path)
-#         if not successful:
-#             self.show_lock(lock_name)
-
-#     def on_modified(self, event):
-#         if self.paused:
-#             return 
-#         successful, lock_name = _UrtextProject.on_modified(event.src_path)    
-#         if not successful:
-#             self.show_lock(lock_name)
-
-#     def on_moved(self, event):
-#         if self.paused:
-#             return 
-#         successful, lock_name = _UrtextProject.on_moved(event.src_path)   
-#         if not successful:
-#             self.show_lock(lock_name)
-
-#     def show_lock(self, lock_name):
-#         self.paused = True
-#         take_over = sublime.yes_no_cancel_dialog(
-#             'Urtext Watch is locked by '+ _UrtextProject.current_lock +'.',
-#             'Take Over', 'Use without watch')
-#         if take_over == sublime.DIALOG_YES:
-#             print('TOOK OVER')
-
-#             global _UrtextProject
-#             try:
-#                 _UrtextProject = UrtextProject(path, 
-#                     init_project=init_project)
-#             except NoProject:
-#                 print('No Urtext nodes in this folder')
-#                 self.paused=False
-#                 return None
-#             self.paused=False
-#             return True
-#         else:
-#             return False
 
 def filter(filename):
   for fragment in ['urtext_log', '.git','.icloud']:
@@ -117,9 +70,6 @@ def refresh_project(view, init_project=False):
     current_path = get_path(view)
 
     if _UrtextProject != None:
-        if not _UrtextProject.check_lock():
-            print('PROJECT LOCKED')
-            return None
 
         if current_path == _UrtextProject.path:
             return _UrtextProject
@@ -917,9 +867,7 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
             self.view.set_scratch(True)
         self.view.window().run_command('close_file')
         os.remove(os.path.join(_UrtextProject.path, file_name))
-        _UrtextProject.remove_file(
-            file_name)  # remove if adding delete back to watchdog
-
+        _UrtextProject.remove_file(file_name) 
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -1268,22 +1216,6 @@ class SyncGoogleCalendarCommand(sublime_plugin.TextCommand):
 
         _UrtextProject.sync_to_google_calendar()
 
-class TakeOverCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-    
-        lock = _UrtextProject.get_current_lock()
-
-        take_over = sublime.yes_no_cancel_dialog(
-            'Urtext Watch is locked by '+ lock+'.',
-            'Take Over', 'Use without watch')
-
-        if take_over == sublime.DIALOG_YES:
-            global _UrtextProject
-            current_path = get_path(self.view)
-            if current_path != None:
-                _UrtextProject = focus_urtext_project(current_path, self.view)
-            _UrtextProject.lock()
-
 class CompactNodeCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
@@ -1310,7 +1242,7 @@ class DebugCommand(sublime_plugin.TextCommand):
         position = self.view.sel()[0].a
         node_id = _UrtextProject.get_node_id_from_position(filename, position)
         _UrtextProject.nodes[node_id].metadata.log()
-
+        print(_UrtextProject.nodes[node_id].ranges)
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
