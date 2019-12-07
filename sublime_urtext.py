@@ -32,9 +32,6 @@ from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
 
 from sublime_plugin import EventListener
-from watchdog.events import FileSystemEventHandler
-import watchdog
-from watchdog.observers import Observer
 import webbrowser
 
 _UrtextProject = None
@@ -60,8 +57,29 @@ class UrtextSaveListener(EventListener):
 
         return completions
 
-    def on_post_save_async(self, view):
-        _UrtextProject.on_modified(view.file_name())   
+    def on_post_save(self, view):
+        if  _UrtextProject and os.path.dirname(view.file_name()) == _UrtextProject.path:
+            _UrtextProject.on_modified(view.file_name())   
+
+class KeepPosition(EventListener):
+
+    def on_modified(self, view):
+        position = view.sel()
+
+        def restore_position(view, position):
+            if not view.is_loading():
+                view.show(position)
+            else:
+                sublime.set_timeout(lambda: restore_position(view, position), 10)
+
+        restore_position(view, position)
+
+
+def wait_until_loaded(project):
+    if project.loaded:
+        return project
+    else:
+        sublime.set_timeout(lambda: return_the_project(project), 10)
 
 def refresh_project(view, init_project=False):
 
@@ -72,7 +90,7 @@ def refresh_project(view, init_project=False):
     if _UrtextProject != None:
 
         if current_path == _UrtextProject.path:
-            return _UrtextProject
+            return wait_until_loaded(_UrtextProject)
         else:
             return focus_urtext_project(current_path, view)
 
@@ -107,12 +125,7 @@ def focus_urtext_project(path, view, init_project=False):
     except NoProject:
         print('No Urtext nodes in this folder')
         return None
-    #event_handler = SublimeUrtextWatcher()
-    #observer = Observer()
-    #observer.schedule(event_handler, path=_UrtextProject.path, recursive=False)
-    #observer.start()
-    return _UrtextProject
-
+    return wait_until_loaded(_UrtextProject)
 
 def get_path(view):  ## makes the path persist as much as possible ##
 
@@ -968,6 +981,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
             return
+        # save the current file first
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
         links = re.findall(
             '(?:[^\|]*\s)?>(' + node_id_regex + ')(?:\s[^\|]*)?\|?', full_line)
@@ -981,7 +995,7 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
         tag = '/-- tags: done ' + timestamp + ' --/'
         _UrtextProject.tag_other_node(node_id, tag)
         _UrtextProject.update()
-
+     
 
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -1082,6 +1096,7 @@ class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
         active_window = sublime.active_window()
         this_file_path = os.path.dirname(__file__)
         open_windows = sublime.windows()
+        
         #for window in open_windows:
         _UrtextProject = UrtextProject(
             os.path.join(os.path.dirname(__file__), "documentation"))
@@ -1153,7 +1168,6 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
             return None
 
         if _UrtextProjectList == None:
-            global _UrtextProjectList
             _UrtextProjectList = ProjectList(_UrtextProject.path,
                                              _UrtextProject.other_projects)
 
@@ -1229,9 +1243,10 @@ class PopNodeCommand(sublime_plugin.TextCommand):
         filename = self.view.file_name()
         position = self.view.sel()[0].a
         new_position = _UrtextProject.pop_node(filename=filename, position=position)
-        self.view.sel().clear()
-        new_cursor_position = sublime.Region(new_position, new_position) 
-        self.view.sel().add(new_cursor_position) 
+        if new_position:
+            self.view.sel().clear()
+            new_cursor_position = sublime.Region(new_position, new_position) 
+            self.view.sel().add(new_cursor_position) 
 
 
 class DebugCommand(sublime_plugin.TextCommand):
@@ -1243,6 +1258,11 @@ class DebugCommand(sublime_plugin.TextCommand):
         node_id = _UrtextProject.get_node_id_from_position(filename, position)
         _UrtextProject.nodes[node_id].metadata.log()
         print(_UrtextProject.nodes[node_id].ranges)
+        print(_UrtextProject.nodes[node_id].root_node)
+        print(_UrtextProject.nodes[node_id].split)
+        print(_UrtextProject.nodes[node_id].compact)
+
+
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
