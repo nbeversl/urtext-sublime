@@ -21,4 +21,5 @@
 	{ "keys": ["ctrl+shift+m"], "command": "urtext_metadata_list"},
 	{ "keys": ["alt+shift+p"], "command": "insert_node_single_line"},
 	{ "keys": ["ctrl+shift+6"], "command": "compact_node"},
+	
 ]

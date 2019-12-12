@@ -18,7 +18,7 @@
     /* Generating Nodes */    
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
-    
+    { "caption": "Urtext: Insert Interlinks", "command" :"insert_interlinks"},
     
     /* Trees */
     { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},

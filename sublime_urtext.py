@@ -435,6 +435,16 @@ def target_tree_view(view):
             view.window().focus_group(active_group)
     return tree_view
 
+class InsertInterlinksCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        position = self.view.sel()[0].a
+        filename = self.view.file_name()
+        node_id = _UrtextProject.get_node_id_from_position(filename, position)
+        insertion =  _UrtextProject.insert_interlinks(node_id)
+        self.view.run_command("insert_snippet",
+                          {"contents": insertion}) 
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
@@ -446,6 +456,7 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         add_inline_node(self.view, one_line=True, include_timestamp=False)    
 
+
 def add_inline_node(view, one_line=False, include_timestamp=True):
     if refresh_project(view) == None:
         return
@@ -455,7 +466,7 @@ def add_inline_node(view, one_line=False, include_timestamp=True):
         metadata={},
         contents=selection,
         one_line=one_line,
-        include_timestamp=include_timestamp)
+        include_timestamp=include_timestamp)[0]
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
     view.sel().clear()
@@ -859,6 +870,19 @@ class NewNodeCommand(sublime_plugin.TextCommand):
         _UrtextProject.nav_new(new_node['id'])        
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
+class NewNodeWithLinkCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        global _UrtextProject
+        if refresh_project(self.view) == None:
+            return
+        path = _UrtextProject.path
+        new_node = _UrtextProject.new_file_node()
+        new_node_id = new_node['id']
+        self.view.run_command("insert", {"characters":' >' + new_node_id})
+        self.view.run_command("save")
+        _UrtextProject.nav_new(new_node_id)
+        new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
+
 
 class NewProjectCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -879,8 +903,7 @@ class DeleteThisNodeCommand(sublime_plugin.TextCommand):
         if self.view.is_dirty():
             self.view.set_scratch(True)
         self.view.window().run_command('close_file')
-        os.remove(os.path.join(_UrtextProject.path, file_name))
-        _UrtextProject.remove_file(file_name) 
+        _UrtextProject.delete_file(file_name) 
 
 class InsertTimestampCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -956,6 +979,7 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
             _UrtextProject.nav_new(link[1])
             open_urtext_node(self.view, link[1], link[2])
 
+
 def open_urtext_node(view, node_id, position):
     def center_node(new_view, position):  # copied from old OpenNode. Refactor
         if not new_view.is_loading():
@@ -994,8 +1018,6 @@ class TagFromOtherNodeCommand(sublime_plugin.TextCommand):
         # TODO move this into urtext, not Sublime
         tag = '/-- tags: done ' + timestamp + ' --/'
         _UrtextProject.tag_other_node(node_id, tag)
-        _UrtextProject.update()
-     
 
 class GenerateTimelineCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -1278,8 +1300,12 @@ class SplitNodeCommand(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet",
                           {"contents": '/-- id:'+node_id+' --/\n% '})
 
-
-
+class RandomNodeCommand(sublime_plugin.TextCommand):
+     def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        node_id = _UrtextProject.random_node()
+        open_urtext_node(self.view, node_id, _UrtextProject.nodes[node_id].ranges[0][0])
 
 def add_compact_node(view):
     if refresh_project(view) == None:
