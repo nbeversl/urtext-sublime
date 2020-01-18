@@ -13,6 +13,8 @@ contexts:
     - include: link_prefix
     - include: task-status
     - include: node-separator
+    - include: link_title
+    - include: other-project-link
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -48,7 +50,6 @@ contexts:
       escape-captures: 0
   
   dynamic-definition:
-    - include: tag
     - meta_scope: dynamic_definition 
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
@@ -119,6 +120,10 @@ contexts:
     - match: '(?<=>)[0-9,a-z]{3}'
       scope: link.urtext
 
+  link_title:
+    - match: '\|.*?(?=>[0-9,a-z]{3}\b)'
+      scope: link_title.urtext
+
   url: # not yet styled
     - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
       scope: url_link.urtext
@@ -172,4 +177,8 @@ contexts:
   node_id:
     - match: '\b[0-9,a-z]{3}\b'
       scope: entity.name.struct.node_id.urtext
+
+  other-project-link:
+    - match: /{\"(.*?)\"}>([0-9,a-z]{3})\b/
+      scope: link.urtext.other-project
 

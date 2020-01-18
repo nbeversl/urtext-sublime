@@ -50,12 +50,11 @@
 
 
     /* Sync & Export */
-    { "caption": "Urtext: Export Markdown", "command" :"export_as_markdown"},
-    { "caption": "Urtext: Export File as HTML", "command" :"export_file_as_html"},
-    { "caption": "Urtext: Export Project as HTML", "command" :"export_project_as_html"},
-    { "caption": "Urtext: Export/Sync to Google Calendar", "command" :"sync_google_calendar"},
+    { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
+
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
+    { "caption": "Urtext: Debug2", "command" :"debug2"},
         
 ] 

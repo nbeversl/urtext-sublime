@@ -58,8 +58,7 @@ class UrtextSaveListener(EventListener):
         return completions
 
     def on_post_save(self, view):
-        if  _UrtextProject and os.path.dirname(view.file_name()) == _UrtextProject.path:
-            _UrtextProject.on_modified(view.file_name())   
+        _UrtextProjectList.on_modified(view.file_name())   
 
 class KeepPosition(EventListener):
 
@@ -79,59 +78,58 @@ def wait_until_loaded(project):
     if project.loaded:
         return project
     else:
-        sublime.set_timeout(lambda: return_the_project(project), 10)
+        sublime.set_timeout(lambda: wait_until_loaded(project), 10)
 
 def refresh_project(view, init_project=False):
 
+    global _UrtextProjectList
     global _UrtextProject
-    
-    current_path = get_path(view)
+    current_path = view.window().extract_variables()['folder']
 
-    if _UrtextProject != None:
+    # if _UrtextProject != None:
 
-        if current_path == _UrtextProject.path:
-            return wait_until_loaded(_UrtextProject)
-        else:
-            return focus_urtext_project(current_path, view)
+    #     if current_path == _UrtextProject.path:
+    #         return wait_until_loaded(_UrtextProject)
+    #     else:
+    #         return focus_urtext_project(current_path, view)
 
-    # no Urtext project yet defined
-    if current_path != None:
-        _UrtextProject = focus_urtext_project(current_path,
-                                              view,
-                                              init_project=init_project)
+    # # no Urtext project yet defined
+    # if current_path != None:
+    #     _UrtextProject = focus_urtext_project(current_path,
+    #                                           view,
+    #                                           init_project=init_project)
 
-    else:
-      return focus_urtext_project(current_path, view)
+    # else:
+    #   print(current_path)
+    #   return focus_urtext_project(current_path, view)
 
-    # no Urtext project yet defined
-    if current_path != None: 
-        _UrtextProject = focus_urtext_project(current_path, view, init_project=init_project)
+    # # no Urtext project yet defined
+    # if current_path != None: 
+    #     _UrtextProject = focus_urtext_project(current_path, view, init_project=init_project)
   
-    else:
-        return None
+    # else:
+    #     return None
+    
 
-    #if _UrtextProjectList == None:        
-    #  global _UrtextProjectList
-    #  _UrtextProjectList = ProjectList(_UrtextProject.path, _UrtextProject.other_projects)
+    if _UrtextProjectList == None:                
+        _UrtextProjectList = ProjectList(current_path)
 
-    return _UrtextProject
+    _UrtextProject = _UrtextProjectList.current_project
+
+    return _UrtextProjectList.current_project
 
 
 def focus_urtext_project(path, view, init_project=False):
-    global _UrtextProject
-    try:
-        _UrtextProject = UrtextProject(path, 
-            init_project=init_project)
-    except NoProject:
-        print('No Urtext nodes in this folder')
-        return None
+    _UrtextProject = _UrtextProjectList.current_project
     return wait_until_loaded(_UrtextProject)
 
 def get_path(view):  ## makes the path persist as much as possible ##
 
     if view.file_name():
         return os.path.dirname(view.file_name())
-    return get_path_from_window(view.window())
+    if view.window():
+        return get_path_from_window(view.window())
+    return None
 
 
 def get_path_from_window(window):
@@ -679,7 +677,7 @@ class ToggleTraverse(sublime_plugin.TextCommand):
 class TraverseFileTree(sublime_plugin.EventListener):
     
     def on_selection_modified(self, view):
-
+            
         # give this view a name since we have so many to keep track of
         called_from_view = view 
 
@@ -739,6 +737,9 @@ class TraverseFileTree(sublime_plugin.EventListener):
 
         """ Only if Traverse is on for this group (window division) """
         if called_from_view.settings().get('traverse') == 'true':
+
+            if refresh_project(called_from_view) == None:
+                return
 
             # the tree view is always the view that was modified.
             # assign it a name, get its filename and window
@@ -966,7 +967,8 @@ class OpenUrtextLinkCommand(sublime_plugin.TextCommand):
         position = self.view.sel()[0].a
         column = self.view.rowcol(position)[1]
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-        link = _UrtextProject.get_link(full_line, position=column)
+        link = _UrtextProjectList.get_link(full_line, position=column)
+
         if link == None:    
             return
         if link[0] == 'HTTP':
@@ -1165,8 +1167,11 @@ class UrtextNodeListCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
             return
-        _UrtextProject.nav_new('zzz')
-        open_urtext_node(self.view, 'zzz', 0)
+        if 'zzz' in _UrtextProject.nodes:
+            _UrtextProject.nav_new('zzz')
+            open_urtext_node(self.view, 'zzz', 0)
+        else:
+            print('No zzz node')
 
 
 class UrtextMetadataListCommand(sublime_plugin.TextCommand):
@@ -1215,14 +1220,19 @@ class NavigateForwardCommand(sublime_plugin.TextCommand):
             position = _UrtextProject.nodes[next_node].ranges[0][0]
             open_urtext_node(self.view, next_node, position)
 
-class ExportAsMarkdownCommand(sublime_plugin.TextCommand):
+class ExportFromIdCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
         if refresh_project(self.view) == None:
             return
         filename = self.view.file_name()
-        markdown_filename = filename.replace('.txt','.md') 
-        _UrtextProject.export(filename, markdown_filename, kind = 'Markdown')
-        markdown_view = self.view.window().open_file(os.path.join(_UrtextProject.path, markdown_filename))
+        position = self.view.sel()[0].a
+        node_id = _UrtextProject.get_node_id_from_position(filename, position)
+        exported = _UrtextProject.export_from_root_node(node_id)
+        new_view = self.view.window().new_file()
+        new_view.run_command("insert_snippet", {
+                "contents":
+               exported
+            })
 
 class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
     def run(self, edit):        
@@ -1283,7 +1293,6 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(_UrtextProject.nodes[node_id].root_node)
         print(_UrtextProject.nodes[node_id].split)
         print(_UrtextProject.nodes[node_id].compact)
-
 
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
     def run(self, edit):
