@@ -9,7 +9,7 @@
     { "caption": "Urtext: Search", "command" :"urtext_search_project"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
-
+    { "caption": "Urtext: Select Project", "command" :"list_projects"},
 
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
