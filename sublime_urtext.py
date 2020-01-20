@@ -70,14 +70,20 @@ def wait_until_loaded(project):
         sublime.set_timeout(lambda: wait_until_loaded(project), 10)
 
 def refresh_project(view, init_project=False):
-
+    """ 
+    Determine which project we are in,
+    first using view path, then using window folder, then using currentproject
+    """
     global _UrtextProjectList
+    current_path = None
     if view.file_name():
         current_path = os.path.dirname(view.file_name())
-    else:
-        current_path =  view.window().extract_variables()['folder']
     if not current_path:
-        return None
+        window_variables = view.window().extract_variables()
+        if 'folder' in window_variables:
+            current_path = view.window().extract_variables()['folder']
+    if not current_path:
+       return _UrtextProjectList.current_project
     if _UrtextProjectList == None:          
         project_path = view.window().extract_variables()['folder']
         _UrtextProjectList = ProjectList(project_path)
@@ -433,12 +439,11 @@ class NodeBrowserCommand(sublime_plugin.WindowCommand):
         show_panel(self.window, self.menu.display_menu, self.open_the_file)
 
     def open_the_file(self, selected_option):
-        path = get_path(self.window.active_view())
         title = self.menu.get_values_from_index(selected_option).title
         
         new_view = self.window.open_file(
             os.path.join(
-                path,
+                _UrtextProjectList.current_project.path,
                 self.menu.get_values_from_index(selected_option).filename))
 
         _UrtextProjectList.current_project.nav_new(
