@@ -33,6 +33,7 @@ from sublime_plugin import EventListener
 import webbrowser
 
 _UrtextProjectList = None
+_SublimeUrtextWindows = {}
 
 class UrtextSaveListener(EventListener):
 
@@ -71,24 +72,37 @@ def wait_until_loaded(project):
 
 def refresh_project(view, init_project=False):
     """ 
-    Determine which project we are in,
-    first using view path, then using window folder, then using currentproject
+    Determine which project we are in based on the Sublime window.
     """
     global _UrtextProjectList
-    current_path = None
-    if view.file_name():
-        current_path = os.path.dirname(view.file_name())
-    if not current_path:
+    global _SublimeWindows
+    
+    if initialize_project_list(view) == None:
+        return
+
+    window_id = view.window().id()
+    if window_id in _SublimeUrtextWindows:
+        current_path = _SublimeUrtextWindows[window_id]
+        _UrtextProjectList.set_current_project_from_path(current_path)
+        return True
+    if _UrtextProjectList.current_project:
+        _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+        return True
+    return False
+
+def initialize_project_list(view):
+    global _UrtextProjectList
+    if _UrtextProjectList == None:
         window_variables = view.window().extract_variables()
         if 'folder' in window_variables:
             current_path = view.window().extract_variables()['folder']
-    if not current_path:
-       return _UrtextProjectList.current_project
-    if _UrtextProjectList == None:          
-        project_path = view.window().extract_variables()['folder']
-        _UrtextProjectList = ProjectList(project_path)
-    _UrtextProjectList.set_current_project_from_path(current_path)
-    return _UrtextProjectList.current_project
+        if current_path == None:
+            if view.file_name():
+                current_path = os.path.dirname(view.file_name())
+        if not current_path:
+           return None
+        _UrtextProjectList = ProjectList(current_path)
+    return _UrtextProjectList
 
 def focus_urtext_project(path, view, init_project=False):
     _UrtextProjectList = ProjectList(current_path)
@@ -129,7 +143,7 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
 
-    def open_the_file(self, selected_option):  
+    def open_the_file(self, selected_option): 
         # TODO refactor from below
         if selected_option == -1:
             return
@@ -665,9 +679,16 @@ class InsertDynamicNodeDefinitionCommand(sublime_plugin.TextCommand):
 
 class ListProjectsCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        self.menu = _UrtextProjectList.project_titles()
-        show_panel(self.view.window(), self.menu, _UrtextProjectList.set_current_project_by_title)
+        if refresh_project(self.view) == None:
+            return
+        show_panel(
+            self.view.window(), 
+            _UrtextProjectList.project_titles(), 
+            self.set_window_project)
 
+    def set_window_project(self, title):
+        _UrtextProjectList.set_current_project_by_title(title)
+        _SublimeUrtextWindows[self.view.window().id()] = _UrtextProjectList.current_project.path
 
 class UrtextSearchProjectCommand(sublime_plugin.TextCommand):
     def run(self, edit):
@@ -1060,10 +1081,9 @@ class DebugCommand(sublime_plugin.TextCommand):
 
 class ImportProjectCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        refresh_project(self.view)
         global _UrtextProjectList
-        _UrtextProjectList.current_project = UrtextProject(get_path(self.view),
-                                       import_project=True)
-
+        _UrtextProjectList.import_project(get_path(self.view))
 
 class ShowUrtextHelpCommand(sublime_plugin.WindowCommand):
     def run(self):
