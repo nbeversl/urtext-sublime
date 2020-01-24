@@ -1138,7 +1138,7 @@ class UrtextHomeCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         if refresh_project(self.view) == None:
             return
-        node_id = _UrtextProjectList.current_project.settings['home']
+        node_id = _UrtextProjectList.current_project.get_home()
         _UrtextProjectList.current_project.nav_new(node_id)
         open_urtext_node(self.view, node_id, 0)
 
