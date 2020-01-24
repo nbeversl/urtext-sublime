@@ -24,7 +24,7 @@ import datetime
 import pprint
 import logging
 import sys
-
+import concurrent.futures
 from urtext.metadata import NodeMetadata
 from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
@@ -36,6 +36,8 @@ _UrtextProjectList = None
 _SublimeUrtextWindows = {}
 
 class UrtextSaveListener(EventListener):
+    def __init__(self):
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     def on_query_completions(self, view, prefix, locations):
 
@@ -49,7 +51,14 @@ class UrtextSaveListener(EventListener):
         return completions
 
     def on_post_save(self, view):
-        _UrtextProjectList.current_project.on_modified(view.file_name())   
+        future = _UrtextProjectList.current_project.on_modified(view.file_name())
+        self.executor.submit(refresh_open_file, future, view)
+
+def refresh_open_file(future, view):
+    filename = view.file_name()
+    changed_files = future.result()
+    if os.path.basename(filename) in changed_files:
+        view.run_command('revert') # undocumented
 
 class KeepPosition(EventListener):
 
