@@ -15,6 +15,7 @@ contexts:
     - include: node-separator
     - include: link_title
     - include: other-project-link
+    - include: separator
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -54,6 +55,11 @@ contexts:
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
+  
+  separator:
+    - match: ' - - - - - - - - - - - - - - - -'
+      scope: punctuation.section.marker.urtext
+
 
   inline-node-1: 
     - meta_scope: inline_node_1 
@@ -161,10 +167,8 @@ contexts:
       scope: entity.name.tagname.urtext
 
   tag-values:
-    - match: (?<=\w:\s)((?!--\/)[^;|])*
+    - match: (?<=\w:)((?!--\/)[^;|])*
       scope: entity.name.value.urtext
-    - match: (?<=|\s)((?!--\/)[^;|])*
-      scope: entity.name.tagvalue.urtext
 
   tagname-separator:
     - match: ';'
