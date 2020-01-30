@@ -54,6 +54,16 @@ class UrtextSaveListener(EventListener):
         future = _UrtextProjectList.current_project.on_modified(view.file_name())
         self.executor.submit(refresh_open_file, future, view)
 
+class UrtextDynamicNodeEditListener(EventListener):
+
+    def on_selection_modified(self, view):
+        filename = view.file_name()
+        position = view.sel()[0].a
+        source_id, position = _UrtextProjectList.current_project.get_source_node(filename, position)
+        if not source_id:
+            return        
+        open_urtext_node(view, source_id, position)
+
 def refresh_open_file(future, view):
     filename = view.file_name()
     changed_files = future.result()
@@ -1269,10 +1279,27 @@ class DebugCommand(sublime_plugin.TextCommand):
         position = self.view.sel()[0].a
         node_id = _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
         _UrtextProjectList.current_project.nodes[node_id].metadata.log()
-        print(_UrtextProjectList.current_project.nodes[node_id].ranges)
-        print(_UrtextProjectList.current_project.nodes[node_id].root_node)
-        print(_UrtextProjectList.current_project.nodes[node_id].split)
-        print(_UrtextProjectList.current_project.nodes[node_id].compact)
+        # print(_UrtextProjectList.current_project.nodes[node_id].ranges)
+        # print(_UrtextProjectList.current_project.nodes[node_id].root_node)
+        # print(_UrtextProjectList.current_project.nodes[node_id].split)
+        # print(_UrtextProjectList.current_project.nodes[node_id].compact)
+        print(_UrtextProjectList.current_project.nodes[node_id].points)
+        position = self.view.sel()[0].a
+        spots = sorted(_UrtextProjectList.current_project.nodes[node_id].points.keys())
+        for index in range(len(spots)):
+            if position > spots[index] and position < spots[index+1]:
+                print(_UrtextProjectList.current_project.nodes[node_id].points[spots[index]])
+                break
+
+class ToSourceNodeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        if refresh_project(self.view) == None:
+            return
+        filename = self.view.file_name()
+        position = self.view.sel()[0].a
+        node_id = _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+        source_id, position = _UrtextProjectList.current_project.get_source_node(filename, position)
+        open_urtext_node(self.view, source_id, position)
 
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
     def run(self, edit):
