@@ -14,6 +14,7 @@
 		 "inline4" : "hsl(70, 8%, 23%)",
 		 "inline5" : "hsl(70, 8%, 25%)",
 		 "black3": "hsl(70, 8%, 15%)",
+		 "red": "hsl(0, 100%, 50%)",
 	},
 	"rules": [
 			{ "scope": "punctuation.separator.node_separator.urtext",
@@ -106,6 +107,17 @@
 	  		{   "scope": "punctuation.section.marker.urtext",
 	  			"foreground": "var(bright-yellow)",
 
-	  		}
+	  		},
+	  		{   "scope": "urtext.compact_node_marker",
+	  			"foreground": "var(red)",
+	  			"font_style":"bold",
+
+	  		},
+	  		{   "scope": "urtext.compact_node",
+	  			 "background": "var(inline2)",
+	  			
+	  		},
+
+
 	],
 }

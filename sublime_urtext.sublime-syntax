@@ -16,6 +16,7 @@ contexts:
     - include: link_title
     - include: other-project-link
     - include: separator
+    - include: compact-node-opener
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -155,7 +156,7 @@ contexts:
       scope: punctuation.terminator.urtext
 
   node-separator:
-    - match: '^\%(?!%)'
+    - match: r'^\%(?!%)'
       scope: punctuation.separator.node_separator.urtext
 
   datestamp:
@@ -167,7 +168,7 @@ contexts:
       scope: entity.name.tagname.urtext
 
   tag-values:
-    - match: (?<=\w:)((?!--\/)[^;|])*
+    - match: ((?!--\/)[^;|])*
       scope: entity.name.value.urtext
 
   tagname-separator:
@@ -186,3 +187,20 @@ contexts:
     - match: /{\"(.*?)\"}>([0-9,a-z]{3})\b/
       scope: link.urtext.other-project
 
+  compact-node-opener:
+    - match: ^[^\S\n]*\^
+      push: compact-node
+      scope: urtext.compact_node_marker
+   
+
+  compact-node: 
+    - include: datestamp
+    - include: node-separator
+    - include: main
+    - include: inline-node-1
+    - match: .*?
+    - meta_scope: urtext.compact_node 
+    - match: \n
+      pop: true
+  
+    
