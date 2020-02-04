@@ -135,11 +135,13 @@ def refresh_project_event_listener(function):
         
         if initialize_project_list(view) == None:
             return None
+
         window = sublime.active_window()
         if not window:
             print('NO WINDOW')
             print(function)
             return
+
         window_id = window.id()
         if window_id in _SublimeUrtextWindows:
             current_path = _SublimeUrtextWindows[window_id]
@@ -175,7 +177,11 @@ class UrtextSaveListener(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
+        print('seen')
+        print(view.file_name())
+
         future = self._UrtextProjectList.current_project.on_modified(view.file_name())
+        print(future.result())
         self.executor.submit(refresh_open_file, future, view)
 
 class UrtextDynamicNodeEditListener(EventListener):
