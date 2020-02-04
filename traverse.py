@@ -2,8 +2,8 @@ import sublime
 import sublime_plugin
 import re
 import os
-
-from .sublime_urtext import get_contents, refresh_project_text_command, refresh_project_event_listener, size_to_groups, node_id_regex, UrtextTextCommand, UrtextEventListener
+from sublime_plugin import EventListener
+from .sublime_urtext import get_contents, refresh_project_text_command, refresh_project_event_listener, size_to_groups, node_id_regex, UrtextTextCommand
 
 class ToggleTraverse(UrtextTextCommand):
 
@@ -54,7 +54,7 @@ class ToggleTraverse(UrtextTextCommand):
         self.view.window().focus_group(active_group)
 
 
-class TraverseFileTree(UrtextEventListener):
+class TraverseFileTree(EventListener):
     
     @refresh_project_event_listener
     def on_selection_modified(self, view):

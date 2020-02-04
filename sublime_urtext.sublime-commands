@@ -49,7 +49,6 @@
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
     { "caption": "Urtext: Rebuild Search Index", "command" :"rebuild_search_index"},
 
-
     /* Sync & Export */
     { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
 

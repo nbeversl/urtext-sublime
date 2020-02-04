@@ -34,61 +34,28 @@ import webbrowser
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
 
-def initialize_project_list(view, reload_projects=False):
-
-    global _UrtextProjectList
-
-    if reload_projects:
-        _UrtextProjectList = None        
-    if _UrtextProjectList == None:
-        window = view.window()
-        if not window:
-            print('NO WINDOW')
-            print('initialize_project_list')
-            return            
-        window_variables = view.window().extract_variables()
-        if 'folder' in window_variables:
-            current_path = view.window().extract_variables()['folder']
-        if current_path == None:
-            if view.file_name():
-                current_path = os.path.dirname(view.file_name())
-        if not current_path:
-           return None
-        _UrtextProjectList = ProjectList(current_path)
-
-    if not _UrtextProjectList.current_project:
-        return None
-        
-    return _UrtextProjectList
-
 class UrtextTextCommand(sublime_plugin.TextCommand):
 
     def __init__(self, view):
         self.view = view
         self.window = view.window()
 
-class UrtextEventListener(sublime_plugin.EventListener):
-
-    def __init__(self):
-        pass
-
 def refresh_project_text_command(function, init_project=False):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
     """
-    def wrapper(*args):
-
+    def wrapper(*args, **kwargs):
         view = args[0].view
         edit = args[1]
 
-        if initialize_project_list(view) == None:
+        _UrtextProjectList = initialize_project_list(view)
+        if not _UrtextProjectList:
             return None
-            
-        window = view.window()
+
+        window = sublime.active_window()
         if not window:
             print('NO WINDOW')
-            print('refresh_project_text_command')
             print(function)
             return
         
@@ -105,11 +72,49 @@ def refresh_project_text_command(function, init_project=False):
             args[0].edit = edit
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(args[0])
+
+        if init_project:
+            
+            return _UrtextProjectList
         
         return None
 
     return wrapper
 
+def initialize_project_list(view, init_project=False, reload_projects=False):
+
+    global _UrtextProjectList
+
+    if reload_projects:
+        _UrtextProjectList = None        
+
+    if _UrtextProjectList == None:
+        current_path = get_path(view)
+        _UrtextProjectList = ProjectList(current_path)
+
+    if not _UrtextProjectList.current_project and not init_project:
+        return None
+        
+    return _UrtextProjectList
+
+def get_path(view):
+    """ 
+    given a view or None, establishes the current active path,
+    either from the view or from the current active window.
+    """
+
+    current_path = None
+    if view and view.file_name():
+        return os.path.dirname(view.file_name())
+    window = sublime.active_window()
+    if not window:
+        print('No active window')
+        return None
+    window_variables = window.extract_variables()
+    if 'folder' in window_variables:
+        return window.extract_variables()['folder']
+    return None
+      
 class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command
@@ -130,8 +135,7 @@ def refresh_project_event_listener(function):
         
         if initialize_project_list(view) == None:
             return None
-        print(view)
-        window = view.window()
+        window = sublime.active_window()
         if not window:
             print('NO WINDOW')
             print(function)
@@ -185,7 +189,7 @@ class UrtextDynamicNodeEditListener(EventListener):
             return        
         open_urtext_node(view, source_id, position)
 
-class KeepPosition(UrtextEventListener):
+class KeepPosition(EventListener):
 
     @refresh_project_event_listener
     def on_modified(self, view):
@@ -577,15 +581,13 @@ class NewNodeWithLinkCommand(UrtextTextCommand):
 
 class NewProjectCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
-    def run(self):
+    def run(self, edit):
+        global _UrtextProjectList        
+        current_path = get_path(self.view)
         new_view = self.window.new_file()
         new_view.set_scratch(True)
-        self._UrtextProjectList.current_project = refresh_project(new_view, init_project=True)
-
-        new_view = self.window.open_file(
-            os.path.join(self._UrtextProjectList.current_project.path, '000.txt'))
-
+        _UrtextProjectList.init_new_project(current_path)
+        
 class DeleteThisNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
