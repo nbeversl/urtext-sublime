@@ -23,5 +23,7 @@
 	{ "keys": ["ctrl+shift+5"], "command": "split_node"},
 	{ "keys": ["ctrl+shift+f"], "command": "random_node"},
 	{ "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
+	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
+
 ]
 

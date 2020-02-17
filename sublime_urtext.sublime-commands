@@ -48,6 +48,7 @@
     { "caption": "Urtext: Take Over", "command" :"take_over"},
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
     { "caption": "Urtext: Rebuild Search Index", "command" :"rebuild_search_index"},
+    { "caption": "Urtext: Move File to Another Project", "command" :"move_file_to_another_project"},
 
     /* Sync & Export */
     { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},

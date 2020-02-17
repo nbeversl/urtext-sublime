@@ -2,7 +2,7 @@ import sublime
 import sublime_plugin
 import os
 
-from .sublime_urtext import show_panel,UrtextTextCommand,refresh_project_text_command ,node_id_regex, NodeBrowserMenu
+from .sublime_urtext import show_panel,UrtextTextCommand,refresh_project_text_command ,node_id_regex, NodeBrowserMenu, open_urtext_node
 
 
 class FindByMetaCommand(UrtextTextCommand):

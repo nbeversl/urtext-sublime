@@ -127,7 +127,36 @@ class ListProjectsCommand(UrtextTextCommand):
     def set_window_project(self, title):
         self._UrtextProjectList.set_current_project_by_title(title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
-        
+        node_id = self._UrtextProjectList.nav_current()
+        open_urtext_node(self.view, node_id, 0)
+
+
+class MoveFileToAnotherProjectCommand(UrtextTextCommand):
+    
+    @refresh_project_text_command
+    def run(self):
+        show_panel(
+            self.window,
+            self._UrtextProjectList.project_titles(), 
+            self.move_file)
+
+    # This should be eventually moved to Urtext module
+    def move_file(self, title):
+        filename = os.path.basename(self.view.file_name())
+        nodes = []
+        for node_id in self._UrtextProjectList.current_project.files[filename].nodes:
+            nodes.append(node_id)
+        self._UrtextProjectList.move_file(filename, title)
+        self.view.window().run_command('close_file')
+        replace_links = sublime.yes_no_cancel_dialog('Rewrite links to this node?')
+        if replace_links == sublime.DIALOG_YES:
+            for node_id in nodes:
+                self._UrtextProjectList.replace_links(
+                    self._UrtextProjectList.current_project.title,
+                    title,                   
+                    node_id)
+
+
 def refresh_project_event_listener(function):
 
     def wrapper(*args):
@@ -177,12 +206,10 @@ class UrtextSaveListener(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
-        print('seen')
-        print(view.file_name())
-
-        future = self._UrtextProjectList.current_project.on_modified(view.file_name())
-        print(future.result())
-        self.executor.submit(refresh_open_file, future, view)
+        future = self._UrtextProjectList.on_modified(view.file_name())
+        if future: 
+            print(future.result())
+            self.executor.submit(refresh_open_file, future, view)
 
 class UrtextDynamicNodeEditListener(EventListener):
 

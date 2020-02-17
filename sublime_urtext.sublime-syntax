@@ -128,7 +128,7 @@ contexts:
       scope: link.urtext
 
   link_title:
-    - match: '\|.*?(?=>[0-9,a-z]{3}\b)'
+    - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'
       scope: link_title.urtext
 
   url: # not yet styled
@@ -200,7 +200,7 @@ contexts:
     - include: inline-node-1
     - match: .*?
     - meta_scope: urtext.compact_node 
-    - match: \n
+    - match: $
       pop: true
   
     
