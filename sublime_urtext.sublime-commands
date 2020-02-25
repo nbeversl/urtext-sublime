@@ -6,7 +6,7 @@
     { "caption": "Urtext: Node List", "command": "node_browser"},
     { "caption": "Urtext: Show Tags", "command":"show_tags"},
     { "caption": "Urtext: Metadata List", "command":"find_by_meta"},
-    { "caption": "Urtext: Search", "command" :"urtext_search_project"},
+    { "caption": "Urtext: Search", "command" :"full_text_search"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
     { "caption": "Urtext: Select Project", "command" :"list_projects"},

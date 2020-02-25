@@ -1,11 +1,10 @@
 [
 	{ "keys": ["ctrl+shift+;"], "command": "new_node" },
-	{ "keys": ["ctrl+shift+t"], "command": "generate_timeline" },
 	{ "keys": ["ctrl+shift+e"], "command": "node_browser"},
 	{ "keys": ["ctrl+shift+r"], "command": "toggle_traverse"},
 	{ "keys": ["ctrl+shift+s"], "command": "rename_file"},
 	{ "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
-	{ "keys": ["ctrl+shift+o"], "command": "insert_timestamp"},
+	{ "keys": ["ctrl+shift+t"], "command": "insert_timestamp"},
 	{ "keys": ["ctrl+shift+["], "command": "insert_node"},
 	{ "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},
 	{ "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
@@ -24,6 +23,6 @@
 	{ "keys": ["ctrl+shift+f"], "command": "random_node"},
 	{ "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
 	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
-
+	{ "keys": ["ctrl+shift+n"], "command": "full_text_search"},
 ]
 

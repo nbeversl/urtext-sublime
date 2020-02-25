@@ -34,6 +34,11 @@ import webbrowser
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
 
+quick_panel_waiting = False
+quick_panel_active  = False
+quick_panel_id = 0
+
+
 class UrtextTextCommand(sublime_plugin.TextCommand):
 
     def __init__(self, view):
@@ -268,6 +273,30 @@ class NodeBrowserCommand(UrtextTextCommand):
         else:
             sublime.set_timeout(
                 lambda: self.locate_node(position, view, title), 10)
+
+class FullTextSearchCommand(UrtextTextCommand):
+    
+    @refresh_project_text_command
+    def run(self):
+
+        results = self.window.new_file()
+        results.set_scratch(True)
+        results.set_syntax_file('sublime_urtext.sublime-syntax')
+
+        def show_results(string):
+            search_results = _UrtextProjectList.current_project.search_term(string).split('\n')
+            results.run_command("select_all")
+            results.run_command("right_delete")
+            for line in search_results:
+                results.run_command("insert", {"characters": line.strip('\t')+'\n'})
+
+        self.view.window().show_input_panel(
+            'search terms',
+            '',
+            show_results,
+            show_results,
+            None
+            )
 
 def size_to_groups(groups, view):
     panel_size = 1 / groups
@@ -878,7 +907,7 @@ class ToSourceNodeCommand(sublime_plugin.TextCommand):
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
 
     @refresh_project_text_command
-    def run(self, edit):
+    def run(self):
         self._UrtextProjectList.current_project.rebuild_search_index()
 
 
