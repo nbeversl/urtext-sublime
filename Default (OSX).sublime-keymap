@@ -24,5 +24,6 @@
 	{ "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
 	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
 	{ "keys": ["ctrl+shift+n"], "command": "full_text_search"},
+	{ "keys": ["ctrl+shift+8"], "command": "all_projects_node_browser"},
 ]
 

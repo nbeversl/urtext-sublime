@@ -56,7 +56,7 @@ class ToggleTraverse(UrtextTextCommand):
 
 class TraverseFileTree(EventListener):
     
-    @refresh_project_event_listener
+    #@refresh_project_event_listener
     def on_selection_modified(self, view):
             
         # give this view a name since we have so many to keep track of
@@ -68,6 +68,9 @@ class TraverseFileTree(EventListener):
         # but traverse is still on.
         #
         if called_from_view.window() == None:
+            return
+
+        if called_from_view.settings().get('traverse') == 'false':
             return
 
         # how many current groups ("group" = window division)

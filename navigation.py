@@ -9,14 +9,14 @@ class UrtextHomeCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         node_id = self._UrtextProjectList.current_project.get_home()
-        self._UrtextProjectList.current_project.nav_new(node_id)
+        self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id, 0)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
-        last_node = self._UrtextProjectList.current_project.nav_reverse()
+        last_node = self._UrtextProjectList.nav_reverse()
         if last_node:
             position = self._UrtextProjectList.current_project.nodes[last_node].ranges[0][0]
             open_urtext_node(self.view, last_node, position)
@@ -25,7 +25,7 @@ class NavigateForwardCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
-        next_node = self._UrtextProjectList.current_project.nav_advance()
+        next_node = self._UrtextProjectList.nav_advance()
         if next_node:
             position = self._UrtextProjectList.current_project.nodes[next_node].ranges[0][0]
             open_urtext_node(self.view, next_node, position)
@@ -48,5 +48,5 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
                     .format(browser_path))
             return
         if link[0] == 'NODE':
-            self._UrtextProjectList.current_project.nav_new(link[1])
+            self._UrtextProjectList.nav_new(link[1])
             open_urtext_node(self.view, link[1], link[2])

@@ -51,6 +51,7 @@ def refresh_project_text_command(function, init_project=False):
     Used as a decorator in every command class.
     """
     def wrapper(*args, **kwargs):
+        
         view = args[0].view
         edit = args[1]
 
@@ -58,16 +59,25 @@ def refresh_project_text_command(function, init_project=False):
         if not _UrtextProjectList:
             return None
 
+
         window = sublime.active_window()
         if not window:
             print('NO WINDOW')
             print(function)
             return
-        
+
+        view = window.active_view()
+        if view.file_name():
+            current_path = os.path.dirname(view.file_name())
+            _UrtextProjectList.set_current_project(current_path)
+            args[0]._UrtextProjectList = _UrtextProjectList
+            args[0].edit = edit
+            return function(args[0])
+
         window_id = window.id()
         if window_id in _SublimeUrtextWindows:
             current_path = _SublimeUrtextWindows[window_id]
-            _UrtextProjectList.set_current_project_from_path(current_path)
+            _UrtextProjectList.set_current_project(current_path)
             args[0]._UrtextProjectList = _UrtextProjectList
             args[0].edit = edit
             return function(args[0])
@@ -130,7 +140,7 @@ class ListProjectsCommand(UrtextTextCommand):
             self.set_window_project)
 
     def set_window_project(self, title):
-        self._UrtextProjectList.set_current_project_by_title(title)
+        self._UrtextProjectList.set_current_project(title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
         open_urtext_node(self.view, node_id, 0)
@@ -161,7 +171,6 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
                     title,                   
                     node_id)
 
-
 def refresh_project_event_listener(function):
 
     def wrapper(*args):
@@ -179,7 +188,7 @@ def refresh_project_event_listener(function):
         window_id = window.id()
         if window_id in _SublimeUrtextWindows:
             current_path = _SublimeUrtextWindows[window_id]
-            _UrtextProjectList.set_current_project_from_path(current_path)
+            _UrtextProjectList.set_current_project(current_path)
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(args[0], view)
 
@@ -212,59 +221,66 @@ class UrtextSaveListener(EventListener):
     @refresh_project_event_listener
     def on_post_save(self, view):
         future = self._UrtextProjectList.on_modified(view.file_name())
+        print(future)
         if future: 
-            print(future.result())
             self.executor.submit(refresh_open_file, future, view)
 
-class UrtextDynamicNodeEditListener(EventListener):
+# class UrtextDynamicNodeEditListener(EventListener):
 
-    @refresh_project_event_listener
-    def on_modified(self, view):
-        filename = view.file_name()
-        position = view.sel()[0].a
-        source_id, position = self._UrtextProjectList.current_project.get_source_node(filename, position)
-        if not source_id:
-            return        
-        open_urtext_node(view, source_id, position)
+#     @refresh_project_event_listener
+#     def on_modified(self, view):
+#         filename = view.file_name()
+#         position = view.sel()[0].a
+#         source_id, position = self._UrtextProjectList.current_project.get_source_node(filename, position)
+#         if not source_id:
+#             return        
+#         open_urtext_node(view, source_id, position)
 
-class KeepPosition(EventListener):
+# class KeepPosition(EventListener):
 
-    @refresh_project_event_listener
-    def on_modified(self, view):
-        position = view.sel()
+#     @refresh_project_event_listener
+#     def on_modified(self, view):
+#         position = view.sel()
 
-        def restore_position(view, position):
-            if not view.is_loading():
-                view.show(position)
-            else:
-                sublime.set_timeout(lambda: restore_position(view, position), 10)
+#         def restore_position(view, position):
+#             if not view.is_loading():
+#                 view.show(position)
+#             else:
+#                 sublime.set_timeout(lambda: restore_position(view, position), 10)
 
-        restore_position(view, position)
+#         restore_position(view, position)
 
 class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        self.menu = NodeBrowserMenu(self._UrtextProjectList.current_project.indexed_nodes(), self._UrtextProjectList)
-        self.menu.add(self._UrtextProjectList.current_project.unindexed_nodes())
-        show_panel(self.window, self.menu.display_menu, self.open_the_file)
+        self.menu = NodeBrowserMenu(
+            self._UrtextProjectList, 
+            project=self._UrtextProjectList.current_project
+            )
+        show_panel(
+            self.window, 
+            self.menu.display_menu, 
+            self.open_the_file)
 
     def open_the_file(self, selected_option):
-        title = self.menu.get_values_from_index(selected_option).title
-        
+
+        selected_item = self.menu.get_selection_from_index(selected_option)
+        _UrtextProjectList.set_current_project(selected_item.project_title)
+
         new_view = self.window.open_file(
             os.path.join(
                 _UrtextProjectList.current_project.path,
-                self.menu.get_values_from_index(selected_option).filename))
+                selected_item.filename)
+            )
 
-        _UrtextProjectList.current_project.nav_new(
-            self.menu.get_values_from_index(selected_option).node_id)
+        _UrtextProjectList.current_project.nav_new(selected_item.node_id)
 
-        self.locate_node(
-            self.menu.get_values_from_index(selected_option).position,
-            new_view, title)
+        self.locate_node( 
+            selected_item.position,
+            new_view)
 
-    def locate_node(self, position, view, title):
+    def locate_node(self, position, view):
         position = int(position)
         if not view.is_loading():
             view.sel().clear()
@@ -272,7 +288,22 @@ class NodeBrowserCommand(UrtextTextCommand):
             view.sel().add(sublime.Region(position))
         else:
             sublime.set_timeout(
-                lambda: self.locate_node(position, view, title), 10)
+                lambda: self.locate_node(position, view), 10)
+
+class AllProjectsNodeBrowser(NodeBrowserCommand):
+    
+    @refresh_project_text_command
+    def run(self):
+        self.menu = NodeBrowserMenu(
+            self._UrtextProjectList, 
+            project=None
+            )
+        show_panel(
+            self.window, 
+            self.menu.display_menu, 
+            self.open_the_file)
+
+
 
 class FullTextSearchCommand(UrtextTextCommand):
     
@@ -478,19 +509,22 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
         add_inline_node(self.view, one_line=True, include_timestamp=False)    
 
 
-def add_inline_node(view, one_line=False, include_timestamp=True):
+def add_inline_node(view, one_line=False, include_timestamp=True, locate_inside=True):
     region = view.sel()[0]
     selection = view.substr(region)
-    new_node_contents = _UrtextProjectList.current_project.add_inline_node(
+    new_node = _UrtextProjectList.current_project.add_inline_node(
         metadata={},
         contents=selection,
         one_line=one_line,
-        include_timestamp=include_timestamp)[0]
+        include_timestamp=include_timestamp)
+    new_node_contents = new_node[0]
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
-    view.sel().clear()
-    new_cursor_position = sublime.Region(region.a + 3, region.a + 3 ) 
-    view.sel().add(new_cursor_position) 
+    if locate_inside:
+        view.sel().clear()
+        new_cursor_position = sublime.Region(region.a + 3, region.a + 3 ) 
+        view.sel().add(new_cursor_position) 
+    return new_node[1] # id
 
 
 class RenameFileCommand(UrtextTextCommand):
@@ -507,39 +541,52 @@ class RenameFileCommand(UrtextTextCommand):
 class NodeBrowserMenu():
     """ custom class to store more information on menu items than is displayed """
 
-    def __init__(self, node_ids, _UrtextProjectList):
-        self.full_menu = make_node_menu(node_ids, _UrtextProjectList)
+    def __init__(self, project_list, project=None):
+        self.full_menu = make_node_menu(
+            project_list.projects, 
+            project=project
+            )
         self.display_menu = sort_menu(self.full_menu)
-        self._UrtextProjectList = _UrtextProjectList
 
-    def get_values_from_index(self, selected_option):
+    def get_selection_from_index(self, selected_option):
         index = self.display_menu.index(selected_option)
         return self.full_menu[index]
 
-    def add(self, node_ids):
-        self.full_menu.extend(
-            make_node_menu(self._UrtextProjectList.current_project.unindexed_nodes(), _UrtextProjectList))
-        self.display_menu = sort_menu(self.full_menu)
-
 class NodeInfo():
-    def __init__(self, node_id, _UrtextProjectList):
-        self.title = _UrtextProjectList.current_project.nodes[node_id].title
+
+    def __init__(self, node_id, project_list, project=None):    
+        if not project:
+            project = project_list.current_project
+        self.title =project.nodes[node_id].title
         if self.title.strip() == '':
             self.title = '(no title)'
-        self.date = _UrtextProjectList.current_project.nodes[node_id].date
-        self.filename = _UrtextProjectList.current_project.nodes[node_id].filename
-        self.position = _UrtextProjectList.current_project.nodes[node_id].ranges[0][0]
-        self.title = _UrtextProjectList.current_project.nodes[node_id].title
-        self.node_id = _UrtextProjectList.current_project.nodes[node_id].id
+        self.date =project.nodes[node_id].date
+        self.filename = project.nodes[node_id].filename
+        self.position = project.nodes[node_id].ranges[0][0]
+        self.title = project.nodes[node_id].title
+        self.node_id = project.nodes[node_id].id
+        self.project_title = project.title
 
-
-def make_node_menu(node_ids, _UrtextProjectList):
+def make_node_menu(project_list, project=None):
     menu = []
-    for node_id in node_ids:
-        item = NodeInfo(node_id, _UrtextProjectList)
-        menu.append(item)
+    projects = project_list
+    if project:
+        projects = [project]
+    for single_project in projects:
+        for node_id in single_project.indexed_nodes():
+            menu.append(
+                NodeInfo(
+                    node_id, 
+                    project_list, 
+                    project=single_project))
+    for single_project in projects:
+        for node_id in single_project.unindexed_nodes():
+            menu.append(
+                NodeInfo(
+                    node_id, 
+                    project_list, 
+                    project=single_project))
     return menu
-
 
 def sort_menu(menu):
     display_menu = []
@@ -552,18 +599,27 @@ def sort_menu(menu):
         display_menu.append(new_item)
     return display_menu
 
+def show_panel(window, menu, main_callback):
+    """ shows a quick panel with an option to cancel if -1 """
+    def private_callback(index):
+        if index == -1:
+            return
+        # otherwise return the main callback with the index of the selected item
+        main_callback(menu[index])
+    window.show_quick_panel(menu, private_callback)
+
 
 class LinkToNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
-        self.menu = NodeBrowserMenu(self._UrtextProjectList.current_project.nodes, self._UrtextProjectList)
+        self.menu = NodeBrowserMenu(self._UrtextProjectList, self._UrtextProjectList.current_project)
         show_panel(self.window, self.menu.display_menu, self.link_to_the_file)
 
     def link_to_the_file(self, selected_option):
         view = self.window.active_view()
-        node_id = self.menu.get_values_from_index(selected_option).node_id
-        title = self.menu.get_values_from_index(selected_option).title
+        node_id = self.menu.get_selection_from_index(selected_option).node_id
+        title = self.menu.get_selection_from_index(selected_option).title
         view.run_command("insert", {"characters": '| '+title + ' >' + node_id})
 
 
@@ -574,13 +630,15 @@ class LinkNodeFromCommand(UrtextTextCommand):
         self.current_file = os.path.basename(
             self.window.active_view().file_name())
         self.position = self.window.active_view().sel()[0].a
-        self.menu = NodeBrowserMenu(self._UrtextProjectList.current_project.nodes, self._UrtextProjectList)
-        show_panel(self.window, self.menu.display_menu,
-                   self.link_from_the_file)
+        self.menu = NodeBrowserMenu(self._UrtextProjectList, self._UrtextProjectList.current_project)
+        show_panel(
+            self.window, 
+            self.menu.display_menu,
+            self.link_from_the_file)
 
     def link_from_the_file(self, selected_option):
         new_view = self.window.open_file(
-            self.menu.get_values_from_index(selected_option).filename)
+            self.menu.get_selection_from_index(selected_option).filename)
         self.show_tip(new_view)
 
     def show_tip(self, view):
@@ -594,15 +652,6 @@ class LinkNodeFromCommand(UrtextTextCommand):
             view.show_popup('Link to ' + link + ' copied to the clipboard')
         else:
             sublime.set_timeout(lambda: self.show_tip(view), 10)
-
-
-def show_panel(window, menu, main_callback):
-    def private_callback(index):
-        if index == -1:
-            return
-        main_callback(menu[index])
-
-    window.show_quick_panel(menu, private_callback)
 
 
 def get_contents(view):
@@ -687,13 +736,25 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         now = datetime.datetime.now()
-        node_id = self._UrtextProjectList.current_project.next_index()
-        content = '[[ ID:' + node_id + '\n\n ]]'
+        node_id = add_inline_node(
+            self.view, 
+            one_line=True, 
+            include_timestamp=False,
+            locate_inside=False)
+
+        position = self.view.sel()[0].a
+        content = '\n\n[[ ID:' + node_id + '\n\n ]]'
+        
         for s in self.view.sel():
             if s.empty():
                 self.view.insert(self.edit, s.a, content)
             else:
                 view.replace(self.edit, s, content)
+
+        self.view.sel().clear()
+        new_cursor_position = sublime.Region(position + 12, position + 12) 
+        self.view.sel().add(new_cursor_position) 
+        
 
 class UrtextSearchProjectCommand(UrtextTextCommand):
 
@@ -936,11 +997,11 @@ def open_urtext_node(view, node_id, position):
             new_view.sel().clear()
             # this has to be called both before and after:
             new_view.show_at_center(position)
-            new_view.sel().add(sublime.Region(position))
+            new_view.sel().add(sublime.Region(position, position))
             # this has to be called both before and after:
             new_view.show_at_center(position)
         else:
-            sublime.set_timeout(lambda: center_node(new_view, position), 20)
+            sublime.set_timeout(lambda: center_node(new_view, position), 10)
 
     filename = _UrtextProjectList.current_project.get_file_name(node_id)
     if filename == None:
