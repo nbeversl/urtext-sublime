@@ -23,6 +23,7 @@ import datetime
 import pprint
 import logging
 import sys
+import time
 import concurrent.futures
 from urtext.metadata import NodeMetadata
 from urtext.project_list import ProjectList
@@ -38,6 +39,7 @@ quick_panel_waiting = False
 quick_panel_active  = False
 quick_panel_id = 0
 
+browsing_history = False
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
 
@@ -221,9 +223,13 @@ class UrtextSaveListener(EventListener):
     @refresh_project_event_listener
     def on_post_save(self, view):
         future = self._UrtextProjectList.on_modified(view.file_name())
-        print(future)
+
+        #always take a snapshot manually on save
+        take_snapshot(view, self._UrtextProjectList.current_project)
+
         if future: 
             self.executor.submit(refresh_open_file, future, view)
+
 
 # class UrtextDynamicNodeEditListener(EventListener):
 
@@ -250,6 +256,59 @@ class UrtextSaveListener(EventListener):
 
 #         restore_position(view, position)
 
+
+class TakeSnapshot(EventListener):
+
+    def __init__(self):
+        self.last_time = time.time()
+
+    @refresh_project_event_listener
+    def on_modified(self, view):
+        if browsing_history:
+            return
+        now = time.time()
+        if now - self.last_time < 10:
+            return None
+        self.last_time = now 
+        take_snapshot(view, self._UrtextProjectList.current_project)
+
+def take_snapshot(view, project):
+    contents = get_contents(view)
+    filename = os.path.basename(view.file_name())
+    project.snapshot_diff(filename, contents)
+
+class BackHistory(UrtextTextCommand):
+
+    @refresh_project_text_command
+    def run(self):
+        browsing_history = True
+        filename = self.view.file_name()
+
+        # take a snapshot now so we don't mess up what's there, in case it isn't saved:
+        take_snapshot(self.view, self._UrtextProjectList.current_project)
+
+        history = self._UrtextProjectList.current_project.get_history(filename)
+        timestamps = sorted([str(i) for i in history.keys()], reverse=True)
+        
+        ts_format = self._UrtextProjectList.current_project.settings['timestamp_format'][0]
+        string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(ts_format) for i in sorted(history.keys(),reverse=True)]
+
+        def show_state(index):
+            state = self._UrtextProjectList.current_project.apply_patches(history, distance_back=index)
+            self.view.run_command("select_all")
+            self.view.run_command("right_delete")
+            self.view.run_command("insert_snippet", {"contents": state})
+
+        def done(i):
+            browsing_history = False
+
+        self.window.show_quick_panel(
+            string_timestamps, 
+            done,
+            sublime.KEEP_OPEN_ON_FOCUS_LOST,
+            1,
+            show_state)
+
 class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command
@@ -258,6 +317,7 @@ class NodeBrowserCommand(UrtextTextCommand):
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project
             )
+
         show_panel(
             self.window, 
             self.menu.display_menu, 
@@ -541,11 +601,16 @@ class RenameFileCommand(UrtextTextCommand):
 class NodeBrowserMenu():
     """ custom class to store more information on menu items than is displayed """
 
-    def __init__(self, project_list, project=None):
+    def __init__(self, 
+        project_list, 
+        project=None, 
+        nodes=[]):
+
         self.full_menu = make_node_menu(
-            project_list.projects, 
-            project=project
-            )
+            project_list,
+            project=project,
+            nodes=nodes)
+
         self.display_menu = sort_menu(self.full_menu)
 
     def get_selection_from_index(self, selected_option):
@@ -567,13 +632,29 @@ class NodeInfo():
         self.node_id = project.nodes[node_id].id
         self.project_title = project.title
 
-def make_node_menu(project_list, project=None):
+def make_node_menu(
+    project_list, 
+    project=None, 
+    nodes=[]):
+
     menu = []
-    projects = project_list
+
+    projects = project_list.projects
+
     if project:
         projects = [project]
+
+    if nodes:
+        for node_id in nodes:
+            menu.append(
+                  NodeInfo(
+                    node_id, 
+                    project_list))
+        return menu
+    
     for single_project in projects:
         for node_id in single_project.indexed_nodes():
+
             menu.append(
                 NodeInfo(
                     node_id, 

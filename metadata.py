@@ -26,7 +26,9 @@ class FindByMetaCommand(UrtextTextCommand):
         if self.selected_value == '< all >':
             pass  # fix this
         self.menu = NodeBrowserMenu(
-            self._UrtextProjectList.current_project.tagnames[self.selected_tag][self.selected_value], self._UrtextProjectList)
+            self._UrtextProjectList,
+            nodes=self._UrtextProjectList.current_project.tagnames[self.selected_tag][self.selected_value]
+            )
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
 
@@ -85,7 +87,9 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
         if self.selected_value == '< all >':
             pass  # fix this
         self.menu = NodeBrowserMenu(
-           self. _UrtextProjectList.current_project.tagnames['tags'][self.selected_value], self._UrtextProjectList)
+           self._UrtextProjectList.current_project, 
+           project=self._UrtextProjectList,
+           nodes=self._UrtextProjectList.current_project.tagnames['tags'][self.selected_value])
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
 
