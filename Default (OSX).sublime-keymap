@@ -25,5 +25,6 @@
 	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
 	{ "keys": ["ctrl+shift+n"], "command": "full_text_search"},
 	{ "keys": ["ctrl+shift+8"], "command": "all_projects_node_browser"},
+	{ "keys": ["ctrl+shift+g"], "command": "toggle_history_traverse"},
 ]
 
