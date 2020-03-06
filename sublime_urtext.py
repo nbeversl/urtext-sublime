@@ -339,6 +339,7 @@ class BackHistory(UrtextTextCommand):
         string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(ts_format) for i in sorted(history.keys(),reverse=True)]
 
         def show_state(index):
+
             state = self._UrtextProjectList.current_project.apply_patches(history, distance_back=index)
             self.view.run_command("select_all")
             self.view.run_command("right_delete")
@@ -355,7 +356,6 @@ class BackHistory(UrtextTextCommand):
             show_state)
 
 class ToggleHistoryTraverse(UrtextTextCommand):
-
 
     @refresh_project_text_command
     def run(self):
@@ -422,6 +422,7 @@ class TraverseHistoryView(EventListener):
         self.history = _UrtextProjectList.current_project.get_history(self.current_file)
         self.timestamps = sorted([str(i) for i in self.history.keys()], reverse=True)
         self.ts_format = _UrtextProjectList.current_project.settings['timestamp_format'][0]
+        self.ts_format = '%a., %b. %d, %Y, %I:%M:%S %p'
         string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(self.ts_format) for i in sorted(self.history.keys(),reverse=True)]
 
         if string_timestamps != self.string_timestamps:
@@ -435,7 +436,7 @@ class TraverseHistoryView(EventListener):
             return
 
         line = view.substr(self.history_view.line(self.history_view.sel()[0]))
-        if line in self.string_timestamps: 
+        if line in self.string_timestamps:             
             index = self.string_timestamps.index(line)
             self.show_state(index)
 

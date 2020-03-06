@@ -120,6 +120,11 @@
 	  			 "background": "var(inline2)",
 	  			
 	  		},
+	  		{   "scope": "link.urtext.other-project",
+	  			"font_style":"bold",
+	  			"foreground": "var(yellow)",
+	  		},
+	  		
 
 
 	],

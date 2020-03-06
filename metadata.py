@@ -87,8 +87,8 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
         if self.selected_value == '< all >':
             pass  # fix this
         self.menu = NodeBrowserMenu(
-           self._UrtextProjectList.current_project, 
-           project=self._UrtextProjectList,
+           self._UrtextProjectList, 
+           project=self._UrtextProjectList.current_project,
            nodes=self._UrtextProjectList.current_project.tagnames['tags'][self.selected_value])
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
