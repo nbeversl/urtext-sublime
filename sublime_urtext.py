@@ -1260,9 +1260,11 @@ class ToggleTraverse(UrtextTextCommand):
 
 class TraverseFileTree(EventListener):
 
-    #@refresh_project_event_listener
     def on_selection_modified(self, view):
         
+        if not _UrtextProjectList.current_project:
+            return
+
         # give this view a name since we have so many to keep track of
         called_from_view = view 
         if called_from_view.name() == 'urtext_history':
