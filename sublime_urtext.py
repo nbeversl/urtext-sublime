@@ -39,7 +39,7 @@ quick_panel_waiting = False
 quick_panel_active  = False
 quick_panel_id = 0
 
-browsing_history = False
+is_browsing_history = False
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
 
@@ -106,6 +106,8 @@ def initialize_project_list(view, init_project=False, reload_projects=False):
 
     if _UrtextProjectList == None:
         current_path = get_path(view)
+        if not current_path:
+            return None
         _UrtextProjectList = ProjectList(current_path)
 
     if not _UrtextProjectList.current_project and not init_project:
@@ -136,7 +138,7 @@ class ListProjectsCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         show_panel(
-            self.window, 
+            self.view.window(), 
             self._UrtextProjectList.project_titles(), 
             self.set_window_project)
 
@@ -287,8 +289,8 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         column = self.view.rowcol(position)[1]
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
         link = _UrtextProjectList.get_link_and_set_project(full_line, position=column)
-
-        if link == None:    
+        if link == None:   
+            print('NO LINK') 
             return
         if link[0] == 'HTTP':
             if not webbrowser.get().open(link[1]):
@@ -307,8 +309,8 @@ class TakeSnapshot(EventListener):
 
     @refresh_project_event_listener
     def on_modified(self, view):
-        global browsing_history
-        if browsing_history:
+        global is_browsing_history
+        if is_browsing_history:
             return
         now = time.time()
         if now - self.last_time < 10:
@@ -322,64 +324,35 @@ def take_snapshot(view, project):
         filename = os.path.basename(view.file_name())
         project.snapshot_diff(filename, contents)
 
-class BackHistory(UrtextTextCommand):
-
-    @refresh_project_text_command
-    def run(self):
-        browsing_history = True
-        filename = self.view.file_name()
-
-        # take a snapshot now so we don't mess up what's there, in case it isn't saved:
-        take_snapshot(self.view, self._UrtextProjectList.current_project)
-
-        history = self._UrtextProjectList.current_project.get_history(filename)
-        timestamps = sorted([str(i) for i in history.keys()], reverse=True)
-        
-        ts_format = self._UrtextProjectList.current_project.settings['timestamp_format'][0]
-        string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(ts_format) for i in sorted(history.keys(),reverse=True)]
-
-        def show_state(index):
-
-            state = self._UrtextProjectList.current_project.apply_patches(history, distance_back=index)
-            self.view.run_command("select_all")
-            self.view.run_command("right_delete")
-            self.view.run_command("insert_snippet", {"contents": state})
-
-        def done(i):
-            browsing_history = False
-
-        self.window.show_quick_panel(
-            string_timestamps, 
-            done,
-            sublime.KEEP_OPEN_ON_FOCUS_LOST,
-            1,
-            show_state)
-
 class ToggleHistoryTraverse(UrtextTextCommand):
+    """ Toggles history traversing on/off """
 
     @refresh_project_text_command
     def run(self):
-        global browsing_history
-
+        global is_browsing_history
         window = self.view.window()
-        history_was_open = False
+        history_view = None
         for view in window.views():
-            if view.settings().has('urtext_history'):
-                if view.settings().get('urtext_history') == 'true':
-                    view.settings().set('urtext_history', 'false')
-                    history_was_open = True
-                    groups = window.num_groups()                
-                    groups -= 1
-                    if groups == 0:
-                        groups = 1
-                    window.focus_group(groups-1) 
-                    size_to_groups(groups, self.view)
-                    browsing_history = False
-                    view.close()
-            if history_was_open:
-                return
-        
-        browsing_history = True
+            if view.name() == 'urtext_history': 
+                history_view = view
+
+        if history_view:
+            history_group = window.get_view_index(history_view)[0]
+            history_view.close()
+            file_view = window.active_view_in_group(history_group-1)
+            window.focus_group(history_group-1)
+            window.focus_view(file_view)
+            groups = window.num_groups()                
+            groups -= 1
+            if groups == 0:
+                groups = 1
+            window.focus_group(groups-1) 
+            if file_view:
+                size_to_groups(groups, file_view)
+            is_browsing_history = False  
+            return
+    
+        is_browsing_history = True
 
         # take a snapshot now so we don't mess up what's there, in case it isn't saved:
         take_snapshot(self.view, self._UrtextProjectList.current_project)
@@ -390,11 +363,11 @@ class ToggleHistoryTraverse(UrtextTextCommand):
         window = self.view.window()
         history_group = window.active_group() + 1
         window.focus_group(history_group)
-        self.history_view = window.new_file()
-        self.history_view.set_scratch(True)
-        self.history_view.settings().set('urtext_history', 'true')
-        self.history_view.set_status('urtext_history', 'History: On')
-        self.history_view.run_command("insert_snippet", {"contents": ' '})
+        history_view = window.new_file()
+        history_view.set_scratch(True)
+        history_view.set_name('urtext_history')
+        history_view.set_status('urtext_history', 'History: On')
+        history_view.run_command("insert_snippet", {"contents": ''}) # this just triggers on_modified()
 
 class TraverseHistoryView(EventListener):
 
@@ -402,42 +375,67 @@ class TraverseHistoryView(EventListener):
         self.current_file = None
         self.history = None
         self.string_timestamps = None
+        self.rewriting = False
     
-    #@refresh_project_event_listener
     def on_selection_modified(self, view):
-        
-        self.history_view = view 
-        if not self.history_view.window():
+
+        if view.name() != 'urtext_history':
+            return None
+        if self.rewriting:
             return
-        if self.history_view.settings().get('urtext_history') != 'true':
-            return
-        window = self.history_view.window()
-        file_group_num = window.active_group() - 1              
-        self.file_view = window.active_view_in_group(file_group_num)
+
+        history_view = view
+
+        # 1-indexed number of current groups ("group" = window division)
+        self.groups = history_view.window().num_groups()        
+
+        # 0-indexed number of the group with the history view
+        # history group is always made to be the view this was called from.
+        self.history_group = history_view.window().active_group() 
+
+        # 0-indexed number of the group with the content 
+        # (may not yet exist)
+        self.content_group = self.history_group -1
+
+        # TAB of the content (left) view. ("sheet" = tab)        
+        self.content_tab = history_view.window().active_sheet_in_group(self.content_group)
+
+        # View of the file in the content tab 
+        self.file_view = self.content_tab.view()
 
         filename = self.file_view.file_name()
+
         if self.current_file != filename:
             self.current_file = filename
 
-        self.history = _UrtextProjectList.current_project.get_history(self.current_file)
-        self.timestamps = sorted([str(i) for i in self.history.keys()], reverse=True)
-        self.ts_format = _UrtextProjectList.current_project.settings['timestamp_format'][0]
-        self.ts_format = '%a., %b. %d, %Y, %I:%M:%S %p'
-        string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(self.ts_format) for i in sorted(self.history.keys(),reverse=True)]
+        new_history = _UrtextProjectList.current_project.get_history(self.current_file)
 
-        if string_timestamps != self.string_timestamps:
-            self.history_view.set_read_only(False)
+        if not new_history:
+            return None
+
+        ts_format = '%a., %b. %d, %Y, %I:%M:%S %p'
+        string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(ts_format) for i in sorted(new_history.keys(),reverse=True)]
+
+        if string_timestamps != self.string_timestamps or not get_contents(history_view).strip():
             self.string_timestamps = string_timestamps
-            self.history_view.run_command("select_all")
-            self.history_view.run_command("right_delete")
-            for line in string_timestamps:
-                self.history_view.run_command("insert_snippet", {"contents": line+'\n'})
-            self.history_view.set_read_only(True)
+            self.history = new_history
+            self.rewriting = True
+            history_view.set_read_only(False)
+            history_view.run_command("select_all")
+            history_view.run_command("right_delete")
+            history_view.run_command("insert_snippet", {"contents": 'HISTORY for '+ os.path.basename(filename)+'\n'})
+            for line in self.string_timestamps:
+                history_view.run_command("insert_snippet", {"contents": line+'\n'})
+            self.rewriting = False
+            history_view.set_read_only(True)
+            history_view.sel().clear()
+            history_view.sel().add(sublime.Region(0,0))
+            history_view.set_viewport_position((0,0))
             return
 
-        line = view.substr(self.history_view.line(self.history_view.sel()[0]))
+        line = view.substr(history_view.line(history_view.sel()[0]))
         if line in self.string_timestamps:             
-            index = self.string_timestamps.index(line)
+            index = self.string_timestamps.index(line) 
             self.show_state(index)
 
     def show_state(self, index):
@@ -457,7 +455,7 @@ class NodeBrowserCommand(UrtextTextCommand):
             )
 
         show_panel(
-            self.window, 
+            self.view.window(), 
             self.menu.display_menu, 
             self.open_the_file)
 
@@ -497,7 +495,7 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
             project=None
             )
         show_panel(
-            self.window, 
+            self.view.window(), 
             self.menu.display_menu, 
             self.open_the_file)
 
@@ -791,20 +789,13 @@ def make_node_menu(
         return menu
     
     for single_project in projects:
-        for node_id in single_project.indexed_nodes():
-
+        for node_id in single_project.all_nodes():
             menu.append(
                 NodeInfo(
                     node_id, 
                     project_list, 
                     project=single_project))
-    for single_project in projects:
-        for node_id in single_project.unindexed_nodes():
-            menu.append(
-                NodeInfo(
-                    node_id, 
-                    project_list, 
-                    project=single_project))
+ 
     return menu
 
 def sort_menu(menu):
@@ -908,7 +899,6 @@ class NewNodeWithLinkCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(new_node_id)
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
-
 class NewProjectCommand(UrtextTextCommand):
 
     def run(self, edit):
@@ -947,7 +937,10 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
         filename = os.path.basename(self.view.file_name())
         position = self.view.sel()[0].a
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
+        if node_id:
+            self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
+        else:
+            print('No Urtext node found here.')
 
 
 class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
@@ -1116,8 +1109,9 @@ class UrtextNodeListCommand(sublime_plugin.TextCommand):
 
 class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
 
+    @refresh_project_text_command
     def run(self):
-        if initialize_project_list(view, reload_projects=True) == None:
+        if initialize_project_list(self.view, reload_projects=True) == None:
             print('No Urtext Project')
             return None
 
@@ -1268,10 +1262,11 @@ class TraverseFileTree(EventListener):
 
     #@refresh_project_event_listener
     def on_selection_modified(self, view):
-            
+        
         # give this view a name since we have so many to keep track of
         called_from_view = view 
-
+        if called_from_view.name() == 'urtext_history':
+            return
         #
         # TODO:
         # Add a failsafe in case the user has closed the next group to the left
@@ -1298,8 +1293,7 @@ class TraverseFileTree(EventListener):
         self.content_group = self.tree_group + 1        
         
         # TAB of the content (right) view. ("sheet" = tab)        
-        self.content_tab = called_from_view.window().active_sheet_in_group(
-            self.tree_group)
+        self.content_tab = called_from_view.window().active_sheet_in_group(self.tree_group)
 
         
         # the contents of the content tab. 
@@ -1465,11 +1459,13 @@ def open_urtext_node(view, node_id, position):
         else:
             sublime.set_timeout(lambda: center_node(new_view, position), 10)
 
-    filename = _UrtextProjectList.current_project.get_file_name(node_id)
+    filename = _UrtextProjectList.current_project.get_file_name(node_id, absolute=True)
     if filename == None:
         return
-    file_view = view.window().open_file(
-        os.path.join(_UrtextProjectList.current_project.path, filename))
+    file_view = view.window().find_open_file(filename)
+    if not file_view:
+        file_view = view.window().open_file(filename)
+    view.window().focus_view(file_view)
     center_node(file_view, position)
     """
     Note we do not involve this function with navigation, since it is

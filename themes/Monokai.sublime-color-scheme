@@ -124,6 +124,11 @@
 	  			"font_style":"bold",
 	  			"foreground": "var(yellow)",
 	  		},
+
+	  		{   "scope": "punctuation.separator.node_separator.urtext",
+	  			"font_style":"bold",
+	  			"foreground": "var(yellow)",
+	  		},
 	  		
 
 

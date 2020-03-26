@@ -39,7 +39,7 @@ class FindByMetaCommand(UrtextTextCommand):
         new_view = self.view.window().open_file(
             os.path.join(
                 self._UrtextProjectList.current_project.path,
-                self.menu.get_values_from_index(selected_option).filename))
+                self.menu.get_selection_from_index(selected_option).filename))
         if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 
@@ -101,7 +101,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
         new_view = self.view.window().open_file(
             os.path.join(
                 path,
-                self.menu.get_values_from_index(selected_option).filename))
+                self.menu.get_selection_from_index(selected_option).filename))
         #if selected_option[3] and selected_option[3] != None:
         #self.locate_node(selected_option[3], new_view)
 
@@ -134,11 +134,3 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
                 new_view.run_command("insert_snippet",
                                      {"contents": " -> " + node + "\n"})
 
-
-class UrtextMetadataListCommand(sublime_plugin.TextCommand):
-
-    @refresh_project_text_command
-    def run(self):
-        self._UrtextProjectList.current_project.nav_new('zzy')
-        open_urtext_node(self.view, 'zzy', 0)
-        

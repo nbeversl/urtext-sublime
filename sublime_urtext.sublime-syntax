@@ -156,7 +156,7 @@ contexts:
       scope: punctuation.terminator.urtext
 
   node-separator:
-    - match: r'^\%(?!%)'
+    - match: ^\%(?!%)
       scope: punctuation.separator.node_separator.urtext
 
   datestamp:
