@@ -703,7 +703,7 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
         add_inline_node(self.view, include_timestamp=False)    
 
 
-def add_inline_node(view, include_timestamp=True, locate_inside=True):
+def add_inline_node(view, one_line=False, include_timestamp=True, locate_inside=True):
     region = view.sel()[0]
     selection = view.substr(region)
     new_node = _UrtextProjectList.current_project.add_inline_node(
@@ -948,7 +948,7 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
         now = datetime.datetime.now()
         node_id = add_inline_node(
             self.view, 
-            one_line=True, 
+            #one_line=True,
             include_timestamp=False,
             locate_inside=False)
 
