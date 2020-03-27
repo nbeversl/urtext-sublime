@@ -159,21 +159,18 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
             self._UrtextProjectList.project_titles(), 
             self.move_file)
 
-    # This should be eventually moved to Urtext module
-    def move_file(self, title):
-        filename = os.path.basename(self.view.file_name())
-        nodes = []
-        for node_id in self._UrtextProjectList.current_project.files[filename].nodes:
-            nodes.append(node_id)
-        self._UrtextProjectList.move_file(filename, title)
+    def move_file(self, new_project_title):
+                
+        replace_links = sublime.yes_no_cancel_dialog(
+            'Do you want to also rewrite links to nodes in this file as links to the new project?')
+        replace_links = True if replace_links == sublime.DIALOG_YES else False
+
+        self._UrtextProjectList.move_file(
+            filename, 
+            new_project_title,
+            replace_links=replace_links)
+
         self.view.window().run_command('close_file')
-        replace_links = sublime.yes_no_cancel_dialog('Rewrite links to this node?')
-        if replace_links == sublime.DIALOG_YES:
-            for node_id in nodes:
-                self._UrtextProjectList.replace_links(
-                    self._UrtextProjectList.current_project.title,
-                    title,                   
-                    node_id)
 
 def refresh_project_event_listener(function):
 
@@ -217,7 +214,8 @@ class UrtextSaveListener(EventListener):
             return
 
         completions = []
-        for tag in _UrtextProjectList.current_project.tagnames['tags']:
+        
+        for tag in list(_UrtextProjectList.get_all_tagnames()):
             completions.append([tag, '/-- tags:'+tag+' --/'])
 
         return completions
@@ -697,15 +695,15 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     @refresh_project_text_command
     def run(self):
-        add_inline_node(self.view, one_line=False)
+        add_inline_node(self.view)
 
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     def run(self, edit):
-        add_inline_node(self.view, one_line=True, include_timestamp=False)    
+        add_inline_node(self.view, include_timestamp=False)    
 
 
-def add_inline_node(view, one_line=False, include_timestamp=True, locate_inside=True):
+def add_inline_node(view, include_timestamp=True, locate_inside=True):
     region = view.sel()[0]
     selection = view.substr(region)
     new_node = _UrtextProjectList.current_project.add_inline_node(
@@ -1262,7 +1260,7 @@ class TraverseFileTree(EventListener):
 
     def on_selection_modified(self, view):
         
-        if not _UrtextProjectList.current_project:
+        if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
 
         # give this view a name since we have so many to keep track of
