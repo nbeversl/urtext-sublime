@@ -68,29 +68,26 @@ def refresh_project_text_command(function, init_project=False):
             return
 
         view = window.active_view()
+        window_id = window.id()
+
         if view.file_name():
             current_path = os.path.dirname(view.file_name())
             _UrtextProjectList.set_current_project(current_path)
-            args[0]._UrtextProjectList = _UrtextProjectList
-            args[0].edit = edit
-            return function(args[0])
-
-        window_id = window.id()
-        if window_id in _SublimeUrtextWindows:
+        
+        elif window_id in _SublimeUrtextWindows:
             current_path = _SublimeUrtextWindows[window_id]
             _UrtextProjectList.set_current_project(current_path)
-            args[0]._UrtextProjectList = _UrtextProjectList
-            args[0].edit = edit
-            return function(args[0])
 
-        if _UrtextProjectList.current_project:
+        elif _UrtextProjectList.current_project:
             _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+            
+        if _UrtextProjectList.current_project:
             args[0].edit = edit
             args[0]._UrtextProjectList = _UrtextProjectList
+            view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
             return function(args[0])
 
         if init_project:
-            
             return _UrtextProjectList
         
         return None
@@ -144,6 +141,7 @@ class ListProjectsCommand(UrtextTextCommand):
 
     def set_window_project(self, title):
         self._UrtextProjectList.set_current_project(title)
+        self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
@@ -164,6 +162,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         replace_links = sublime.yes_no_cancel_dialog(
             'Do you want to also rewrite links to nodes in this file as links to the new project?')
         replace_links = True if replace_links == sublime.DIALOG_YES else False
+        filename = self.view.file_name()
 
         self._UrtextProjectList.move_file(
             filename, 
@@ -215,7 +214,7 @@ class UrtextSaveListener(EventListener):
 
         completions = []
         
-        for tag in list(_UrtextProjectList.get_all_tagnames()):
+        for tag in list(_UrtextProjectList.get_all_keynames()):
             completions.append([tag, '/-- tags:'+tag+' --/'])
 
         return completions
@@ -537,15 +536,15 @@ class TagNodeCommand(UrtextTextCommand):  #under construction
     
     @refresh_project_text_command
     def run(self):
-        self.tagnames = [value for value in self._UrtextProjectList.current_project.tagnames]
-        self.view.window().show_quick_panel(self.tagnames, self.list_values)
+        self.keynames = [value for value in self._UrtextProjectList.current_project.keynames]
+        self.view.window().show_quick_panel(self.keynames, self.list_values)
 
     def list_values(self, index):
         if index == -1:
             return
-        self.selected_tag = self.tagnames[index]
+        self.selected_tag = self.keynames[index]
         self.values = [
-            value for value in self._UrtextProjectList.current_project.tagnames[self.selected_tag]
+            value for value in self._UrtextProjectList.current_project.keynames[self.selected_tag]
         ]
         self.view.window().show_quick_panel(self.values, self.insert_tag)
 
@@ -581,7 +580,7 @@ class TagNodeCommand(UrtextTextCommand):  #under construction
         # get the metadata string out, probably using regex
         # find a place where the tag is
 
-        if selected_tag not in metadata.get_tag(self.selected_tag):
+        if selected_tag not in metadata.get_meta_value(self.selected_tag):
             print('ADD IT')  # DEBUGGING
 
 
