@@ -30,7 +30,7 @@ from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
 
 from sublime_plugin import EventListener
-import webbrowser
+
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
@@ -288,12 +288,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         link = _UrtextProjectList.get_link_and_set_project(full_line, position=column)
         if link == None:   
             print('NO LINK') 
-            return
-        if link[0] == 'HTTP':
-            if not webbrowser.get().open(link[1]):
-                sublime.error_message(
-                    'Could not open tab using your "web_browser_path" setting: {}'
-                    .format(browser_path))
             return
         if link[0] == 'NODE':
             _UrtextProjectList.nav_new(link[1])
