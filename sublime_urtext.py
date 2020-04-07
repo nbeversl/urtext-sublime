@@ -273,7 +273,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if link == None:   
             print('NO LINK') 
             return
-        print(link)
+
         kind = link[0]
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
@@ -304,14 +304,14 @@ class TakeSnapshot(EventListener):
 
 class JumpToSource(EventListener):
 
-    @refresh_project_event_listener
+    #@refresh_project_event_listener
     def on_modified(self, view):
         position = view.sel()[0].a
         filename = view.file_name()
         
         if filename:
             destination_node = _UrtextProjectList.is_in_export(filename, position)
-            print(destination_node)
+
             if destination_node:
                 view.window().run_command('undo') # undo the manual change made to the view
                 open_urtext_node(view, destination_node)
