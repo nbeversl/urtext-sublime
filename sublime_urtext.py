@@ -20,17 +20,16 @@ import sublime_plugin
 import os
 import re
 import datetime
-import pprint
 import logging
-import sys
 import time
 import concurrent.futures
 from urtext.metadata import NodeMetadata
 from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
-
 from sublime_plugin import EventListener
 
+import subprocess
+import webbrowser
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
@@ -289,10 +288,18 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if link == None:   
             print('NO LINK') 
             return
-        if link[0] == 'NODE':
+        print(link)
+        kind = link[0]
+        if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
             open_urtext_node(self.view, link[1], link[2])
-            
+        if kind == 'HTTP':
+            success = webbrowser.get().open(link[1])
+            if not success:
+                self.log('Could not open tab using your "web_browser_path" setting')       
+        if kind == 'FILE':
+            open_external_file(link[1])
+
 class TakeSnapshot(EventListener):
 
     def __init__(self):
@@ -1500,3 +1507,13 @@ def refresh_open_file(future, view):
     changed_files = future.result()
     if os.path.basename(filename) in changed_files:
         view.run_command('revert') # undocumented
+
+def open_external_file(filepath):
+    if sublime.platform() == "osx":
+        subprocess.Popen(('open', filepath))
+    elif sublime.platform() == "windows":
+        os.startfile(filepath)
+    elif sublime.platform() == "linux":
+        subprocess.Popen(('xdg-open', filepath))
+
+
