@@ -9,13 +9,13 @@ class FindByMetaCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        self.tagnames = [value for value in self._UrtextProjectList.current_project.tagnames]
-        self.view.window().show_quick_panel(self.tagnames, self.list_values)
+        self.keynames = [value for value in self._UrtextProjectList.current_project.keynames]
+        self.view.window().show_quick_panel(self.keynames, self.list_values)
 
     def list_values(self, index):
-        self.selected_tag = self.tagnames[index]
+        self.selected_tag = self.keynames[index]
         self.values = [
-            value for value in self._UrtextProjectList.current_project.tagnames[self.selected_tag]
+            value for value in self._UrtextProjectList.current_project.keynames[self.selected_tag]
         ]
         self.values.insert(0, '< all >')
         self.view.window().show_quick_panel(self.values, self.display_files)
@@ -27,7 +27,7 @@ class FindByMetaCommand(UrtextTextCommand):
             pass  # fix this
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList,
-            nodes=self._UrtextProjectList.current_project.tagnames[self.selected_tag][self.selected_value]
+            nodes=self._UrtextProjectList.current_project.keynames[self.selected_tag][self.selected_value]
             )
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
@@ -52,10 +52,10 @@ class FindByMetaCommand(UrtextTextCommand):
                 "contents":
                 '\nFiles found for tag: %s\n\n' % self.selected_value
             })
-            for value in self._UrtextProjectList.current_project.tagnames[self.selected_tag]:
+            for value in self._UrtextProjectList.current_project.keynames[self.selected_tag]:
                 new_view.run_command("insert_snippet",
                                      {"contents": value + "\n"})
-                for node in self._UrtextProjectList.current_project.tagnames[self.selected_tag][value]:
+                for node in self._UrtextProjectList.current_project.keynames[self.selected_tag][value]:
                     new_view.run_command("insert_snippet",
                                          {"contents": " -> " + node + "\n"})
                 new_view.run_command("insert_snippet", {"contents": "\n"})
@@ -67,7 +67,7 @@ class FindByMetaCommand(UrtextTextCommand):
                     '\nFiles found for tag: %s with value %s\n\n' %
                     (self.selected_tag, self.selected_value)
                 })
-            for node in self._UrtextProjectList.current_project.tagnames[self.selected_tag][
+            for node in self._UrtextProjectList.current_project.keynames[self.selected_tag][
                     self.selected_value]:
                 new_view.run_command("insert_snippet",
                                      {"contents": " -> " + node + "\n"})
@@ -76,7 +76,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
     
     @refresh_project_text_command
     def run(self):
-        self.tag_values = [value for value in self._UrtextProjectList.current_project.tagnames['tags']]
+        self.tag_values = [value for value in self._UrtextProjectList.current_project.keynames['tags']]
         self.tag_values.insert(0, '< all >')
         self.view.window().show_quick_panel(self.tag_values,
                                             self.display_files)
@@ -89,7 +89,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
         self.menu = NodeBrowserMenu(
            self._UrtextProjectList, 
            project=self._UrtextProjectList.current_project,
-           nodes=self._UrtextProjectList.current_project.tagnames['tags'][self.selected_value])
+           nodes=self._UrtextProjectList.current_project.keynames['tags'][self.selected_value])
         show_panel(self.view.window(), self.menu.display_menu,
                    self.open_the_file)
 
@@ -114,10 +114,10 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
                 "contents":
                 '\nFiles found for tag: %s\n\n' % self.selected_value
             })
-            for value in self._UrtextProjectList.current_project.tagnames[self.selected_tag]:
+            for value in self._UrtextProjectList.current_project.keynames[self.selected_tag]:
                 new_view.run_command("insert_snippet",
                                      {"contents": value + "\n"})
-                for node in _UrtextProjectList.current_project.tagnames[self.selected_tag][value]:
+                for node in _UrtextProjectList.current_project.keynames[self.selected_tag][value]:
                     new_view.run_command("insert_snippet",
                                          {"contents": " -> " + node + "\n"})
                 new_view.run_command("insert_snippet", {"contents": "\n"})
@@ -129,7 +129,7 @@ class ShowTagsCommand(sublime_plugin.TextCommand):
                     '\nFiles found for tag: %s with value %s\n\n' %
                     (self.selected_tag, self.selected_value)
                 })
-            for node in self._UrtextProjectList.current_project.tagnames[self.selected_tag][
+            for node in self._UrtextProjectList.current_project.keynames[self.selected_tag][
                     self.selected_value]:
                 new_view.run_command("insert_snippet",
                                      {"contents": " -> " + node + "\n"})

@@ -23,13 +23,12 @@ import datetime
 import logging
 import time
 import concurrent.futures
+import subprocess
+import webbrowser
 from urtext.metadata import NodeMetadata
 from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
 from sublime_plugin import EventListener
-
-import subprocess
-import webbrowser
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
@@ -144,7 +143,7 @@ class ListProjectsCommand(UrtextTextCommand):
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id, 0)
+        open_urtext_node(self.view, node_id)
 
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
@@ -228,18 +227,6 @@ class UrtextSaveListener(EventListener):
         if future: 
             self.executor.submit(refresh_open_file, future, view)
 
-
-# class UrtextDynamicNodeEditListener(EventListener):
-
-#     @refresh_project_event_listener
-#     def on_modified(self, view):
-#         filename = view.file_name()
-#         position = view.sel()[0].a
-#         source_id, position = self._UrtextProjectList.current_project.get_source_node(filename, position)
-#         if not source_id:
-#             return        
-#         open_urtext_node(view, source_id, position)
-
 # class KeepPosition(EventListener):
 
 #     @refresh_project_event_listener
@@ -260,23 +247,21 @@ class UrtextHomeCommand(UrtextTextCommand):
     def run(self, edit):
         node_id = _UrtextProjectList.current_project.get_home()
         _UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id, 0)
+        open_urtext_node(self.view, node_id)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
     def run(self, edit):
         last_node = _UrtextProjectList.nav_reverse()
         if last_node:
-            position = _UrtextProjectList.current_project.nodes[last_node].ranges[0][0]
-            open_urtext_node(self.view, last_node, position)
+            open_urtext_node(self.view, last_node)
 
 class NavigateForwardCommand(UrtextTextCommand):
 
     def run(self, edit):
         next_node = _UrtextProjectList.nav_advance()
         if next_node:
-            position = _UrtextProjectList.current_project.nodes[next_node].ranges[0][0]
-            open_urtext_node(self.view, next_node, position)
+            open_urtext_node(self.view, next_node)
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
@@ -292,7 +277,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         kind = link[0]
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
-            open_urtext_node(self.view, link[1], link[2])
+            open_urtext_node(self.view, link[1])
         if kind == 'HTTP':
             success = webbrowser.get().open(link[1])
             if not success:
@@ -315,6 +300,21 @@ class TakeSnapshot(EventListener):
             return None
         self.last_time = now 
         take_snapshot(view, self._UrtextProjectList.current_project)
+
+
+class JumpToSource(EventListener):
+
+    @refresh_project_event_listener
+    def on_modified(self, view):
+        position = view.sel()[0].a
+        filename = view.file_name()
+        
+        if filename:
+            destination_node = _UrtextProjectList.is_in_export(filename, position)
+            print(destination_node)
+            if destination_node:
+                view.window().run_command('undo') # undo the manual change made to the view
+                open_urtext_node(view, destination_node)
 
 def take_snapshot(view, project):
     contents = get_contents(view)
@@ -1101,7 +1101,7 @@ class UrtextNodeListCommand(sublime_plugin.TextCommand):
     def run(self):
         if 'zzz' in self._UrtextProjectList.current_project.nodes:
             self._UrtextProjectList.nav_new('zzz')
-            open_urtext_node(self.view, 'zzz', 0)
+            open_urtext_node(self.view, 'zzz')
         else:
             print('No zzz node')
 
@@ -1164,16 +1164,7 @@ class PopNodeCommand(sublime_plugin.TextCommand):
             new_cursor_position = sublime.Region(new_position, new_position) 
             self.view.sel().add(new_cursor_position) 
 
-class ToSourceNodeCommand(sublime_plugin.TextCommand):
 
-    @refresh_project_text_command
-    def run(self):
-        filename = self.view.file_name()
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        source_id, position = self._UrtextProjectList.current_project.get_source_node(filename, position)
-        self._UrtextProjectList.nav_new(source_id)
-        open_urtext_node(self.view, source_id, position)
 
 class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
 
@@ -1196,14 +1187,8 @@ class RandomNodeCommand(sublime_plugin.TextCommand):
     def run(self):
         node_id = self._UrtextProjectList.current_project.random_node()
         self._UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id, self._UrtextProjectList.current_project.nodes[node_id].ranges[0][0])
+        open_urtext_node(self.view, node_id)
 
-import sublime
-import sublime_plugin
-import re
-import os
-from sublime_plugin import EventListener
-from .sublime_urtext import get_contents, refresh_project_text_command, refresh_project_event_listener, size_to_groups, node_id_regex, UrtextTextCommand
 
 class ToggleTraverse(UrtextTextCommand):
 
@@ -1255,6 +1240,10 @@ class ToggleTraverse(UrtextTextCommand):
 
         self.view.window().focus_group(active_group)
 
+class ShowAccessHistory(sublime_plugin.TextCommand):
+    @refresh_project_text_command
+    def run(self):
+        self._UrtextProjectList.current_project._show_access_history()
 
 class TraverseFileTree(EventListener):
 
@@ -1446,7 +1435,7 @@ class TraverseFileTree(EventListener):
 """
 Utility functions
 """
-def open_urtext_node(view, node_id, position):
+def open_urtext_node(view, node_id, position=0):
     
     def center_node(new_view, position):  # copied from old OpenNode. Refactor
         if not new_view.is_loading():
@@ -1459,7 +1448,7 @@ def open_urtext_node(view, node_id, position):
         else:
             sublime.set_timeout(lambda: center_node(new_view, position), 10)
 
-    filename = _UrtextProjectList.current_project.get_file_name(node_id, absolute=True)
+    filename, position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename == None:
         return
     file_view = view.window().find_open_file(filename)
@@ -1469,7 +1458,7 @@ def open_urtext_node(view, node_id, position):
     center_node(file_view, position)
     """
     Note we do not involve this function with navigation, since it is
-    use for purposes included forward/backward navigation and shouldn't
+    use for purposes including forward/backward navigation and shouldn't
     duplicate/override any of the operations of the methods that call it.
     """
 

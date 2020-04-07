@@ -58,5 +58,5 @@
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
     { "caption": "Urtext: Debug2", "command" :"debug2"},
-        
+    { "caption": "Urtext: Show Access History", "command" :"show_access_history"},
 ] 
