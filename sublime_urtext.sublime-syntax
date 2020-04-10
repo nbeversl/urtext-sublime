@@ -15,7 +15,6 @@ contexts:
     - include: node-separator
     - include: link_title
     - include: other-project-link
-    - include: separator
     - include: compact-node-opener
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
@@ -44,23 +43,68 @@ contexts:
       escape: '%%-END'
       escape-captures: 0
 
-
     - match: '%%-MARKDOWN'
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: urtext.markdown
       escape: '%%-END'
       escape-captures: 0
-  
+
   dynamic-definition:
-    - meta_scope: dynamic_definition 
+    - meta_scope: dynamic_definition  
+    - include: dynamic-definition-function-declaration 
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
-  
-  separator:
-    - match: ' - - - - - - - - - - - - - - - -'
-      scope: punctuation.section.marker.urtext
+    
+  dynamic-definition-function-declaration:
+    - meta_scope: dynamic-definition-function
+    - include: dynamic-definition-function
+    - match: (INCLUDE|METADATA|ID|TREE|SHOW|TIMELINE|EXCLUDE|FORMAT|SEARCH|LIMIT|SORT|EXPORT|FILE|TAG_ALL)(\(.*?\))
+      scope: function-name.urtext
 
+  dynamic-definition-function:
+    - include: function-name-with-key-values
+    - include: dynamic-definition-parens
+    
+  function-name-with-key-values:
+    - match: (INCLUDE|METADATA|SHOW|TIMELINE|EXCLUDE|FORMAT|SEARCH|SORT|EXPORT|TAG_ALL)
+      scope: function-name-with-key-values.urtext
+
+  function-name-with-keywords-only:
+    - match: ID|TREE|LIMIT|FILE
+      scope: function-name-with-keywords-only.urtext
+
+  dynamic-definition-parens:
+     - match: \(
+       push: dynamic-definition-params
+
+  dynamic-definition-params:
+    - include: key-value
+    - include: dynamic-keyword
+    - include: key-value-string
+    - include: inside-parens-reg-text
+    - match: \)
+      pop: true
+  
+  inside-parens-reg-text:
+    - match: '[^\:\(\)]+?'
+      scope: inside-parens-reg-text.urtext
+
+  key-value:
+    - match: '([\w]+)\:([\w]+)'
+      captures:
+        1: dynamic-key.urtext
+        2: dynamic-value.urtext
+
+  key-value-string:
+    - match: '([\w]+)\:("[\w\s]+")'
+      captures: 
+        1: dynamic-key.urtext
+        2: dynamic-value-string.urtext
+
+  dynamic-keyword:
+    - match: \b(reverse|preformat|all|meta|inline|indexed|and|or|multiline_meta|indent|timestamp|markdown|html|plaintext|source|recursive)\b
+      scope: dynamic-keyword.urtext
 
   inline-node-1: 
     - meta_scope: inline_node_1 

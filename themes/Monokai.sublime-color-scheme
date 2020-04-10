@@ -14,7 +14,10 @@
 		 "inline5" : "hsl(70, 8%, 25%)",
 		 "black3": "hsl(70, 8%, 15%)",
 		 "red": "hsl(0, 100%, 50%)",
+		 "white-ish": "hsla(0, 0%, 67%, 1)",
 	},
+
+
 	"rules": [
 			{ "scope": "punctuation.separator.node_separator.urtext",
 				"foreground": "var(bright-yellow)",
@@ -120,15 +123,31 @@
 	  			 "background": "var(inline2)",
 	  			
 	  		},
+	  		{ "scope": "inside-parens-reg-text.urtext",
+	  			"foreground": "var(white-ish)"
+	  		},
 	  		{   "scope": "link.urtext.other-project",
 	  			"font_style":"bold",
 	  			"foreground": "var(yellow)",
 	  		},
+	  		{   "scope": "function-name-with-key-values.urtext",
+	  			"foreground": "var(green)",
+	  		},
+	  		{   "scope": "dynamic-key.urtext",
+	  			"foreground": "var(blue)",
+	  		},
 
-	  		{   "scope": "punctuation.separator.node_separator.urtext",
-	  			"font_style":"bold",
+	  		{   "scope": "dynamic-value.urtext",
 	  			"foreground": "var(yellow)",
 	  		},
+
+	  		{   "scope": "key-value-pair-string.urtext",
+	  			"foreground": "var(green)",
+	  		},
+	  		{   "scope": "dynamic-keyword.urtext",
+	  			"foreground": "var(red)",
+	  		},
+	  		
 	  		
 
 
