@@ -457,32 +457,10 @@ class NodeBrowserCommand(UrtextTextCommand):
             self.menu.display_menu, 
             self.open_the_file)
 
-    def open_the_file(self, selected_option):
-
+    def open_the_file(self, selected_option):        
         selected_item = self.menu.get_selection_from_index(selected_option)
-        _UrtextProjectList.set_current_project(selected_item.project_title)
-
-        new_view = self.window.open_file(
-            os.path.join(
-                _UrtextProjectList.current_project.path,
-                selected_item.filename)
-            )
-
-        _UrtextProjectList.nav_new(selected_item.node_id)
-
-        self.locate_node( 
-            selected_item.position,
-            new_view)
-
-    def locate_node(self, position, view):
-        position = int(position)
-        if not view.is_loading():
-            view.sel().clear()
-            view.show_at_center(position)
-            view.sel().add(sublime.Region(position))
-        else:
-            sublime.set_timeout(
-                lambda: self.locate_node(position, view), 10)
+        self._UrtextProjectList.nav_new(selected_item.node_id)   
+        open_urtext_node(self.view, selected_item.node_id)
 
 class AllProjectsNodeBrowser(NodeBrowserCommand):
     
@@ -1244,6 +1222,13 @@ class ShowAccessHistory(sublime_plugin.TextCommand):
     @refresh_project_text_command
     def run(self):
         self._UrtextProjectList.current_project._show_access_history()
+
+
+class ExportToIcs(sublime_plugin.TextCommand):
+    @refresh_project_text_command
+    def run(self):
+        self._UrtextProjectList.current_project.export_to_ics()
+
 
 class TraverseFileTree(EventListener):
 

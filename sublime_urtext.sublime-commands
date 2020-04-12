@@ -53,7 +53,7 @@
 
     /* Sync & Export */
     { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
-
+    { "caption": "Urtext: Export to ICS", "command" :"export_to_ics"},
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
