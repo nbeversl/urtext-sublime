@@ -448,7 +448,6 @@ class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        print('RUNNING NODE BROWSER COMMAND EVEN THOUGH WE SHOULD NOT BE')
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project
@@ -468,7 +467,6 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
     
     @refresh_project_text_command
     def run(self):
-        print('SEARCHING ALL PROJECTS NODES')
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=None
@@ -582,13 +580,13 @@ class ShowTreeFromNode(UrtextTextCommand):
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
         tree_render = self._UrtextProjectList.current_project.show_tree_from(node_id)
         tree_view = target_tree_view(self.view)
-        tree_view.erase(edit, sublime.Region(0, tree_view.size()))
+        tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
         render_tree(tree_view, tree_render)
 
 class ShowTreeFromRootCommand(UrtextTextCommand):
     
     @refresh_project_text_command
-    def run(self, _UrtextProjectList):
+    def run(self):
 
         def render_tree(view, tree_render):
             if not view.is_loading():
@@ -601,7 +599,7 @@ class ShowTreeFromRootCommand(UrtextTextCommand):
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
         tree_render = self._UrtextProjectList.current_project.show_tree_from(node_id, from_root_of=True)
         tree_view = target_tree_view(self.view)
-        tree_view.erase(edit, sublime.Region(0, tree_view.size()))
+        tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
         render_tree(tree_view, tree_render)
 
 def target_tree_view(view):
