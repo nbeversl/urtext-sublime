@@ -448,6 +448,7 @@ class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
+        print('RUNNING NODE BROWSER COMMAND EVEN THOUGH WE SHOULD NOT BE')
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project
@@ -467,6 +468,7 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
     
     @refresh_project_text_command
     def run(self):
+        print('SEARCHING ALL PROJECTS NODES')
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=None
@@ -682,13 +684,12 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
         add_inline_node(self.view, include_timestamp=False)    
 
 
-def add_inline_node(view, one_line=False, include_timestamp=True, locate_inside=True):
+def add_inline_node(view, include_timestamp=True, locate_inside=True):
     region = view.sel()[0]
     selection = view.substr(region)
     new_node = _UrtextProjectList.current_project.add_inline_node(
         metadata={},
         contents=selection,
-        one_line=one_line,
         include_timestamp=include_timestamp)
     new_node_contents = new_node[0]
     view.run_command("insert_snippet",
@@ -927,7 +928,6 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
         now = datetime.datetime.now()
         node_id = add_inline_node(
             self.view, 
-            #one_line=True,
             include_timestamp=False,
             locate_inside=False)
 
