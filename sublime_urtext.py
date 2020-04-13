@@ -304,17 +304,18 @@ class TakeSnapshot(EventListener):
 
 class JumpToSource(EventListener):
 
-    #@refresh_project_event_listener
+    @refresh_project_event_listener
     def on_modified(self, view):
         position = view.sel()[0].a
         filename = view.file_name()
         
         if filename:
             destination_node = _UrtextProjectList.is_in_export(filename, position)
-
             if destination_node:
+                print(destination_node)
                 view.window().run_command('undo') # undo the manual change made to the view
-                open_urtext_node(view, destination_node)
+                open_urtext_node(view, destination_node[0])
+                center_node(view, destination_node[1])
 
 def take_snapshot(view, project):
     contents = get_contents(view)
@@ -985,9 +986,7 @@ class GenerateTimelineCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         new_view = self.view.window().new_file()
-        nodes = [
-            self._UrtextProjectList.current_project.nodes[node_id] for node_id in self._UrtextProjectList.current_project.nodes
-        ]
+        nodes = [self._UrtextProjectList.current_project.nodes[node_id] for node_id in self._UrtextProjectList.current_project.nodes]
         timeline = self._UrtextProjectList.current_project.build_timeline(nodes)
         self.show_stuff(new_view, timeline)
         new_view.set_scratch(True)
@@ -1422,17 +1421,6 @@ Utility functions
 """
 def open_urtext_node(view, node_id, position=0):
     
-    def center_node(new_view, position):  # copied from old OpenNode. Refactor
-        if not new_view.is_loading():
-            new_view.sel().clear()
-            # this has to be called both before and after:
-            new_view.show_at_center(position)
-            new_view.sel().add(sublime.Region(position, position))
-            # this has to be called both before and after:
-            new_view.show_at_center(position)
-        else:
-            sublime.set_timeout(lambda: center_node(new_view, position), 10)
-
     filename, position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename == None:
         return
@@ -1446,6 +1434,17 @@ def open_urtext_node(view, node_id, position=0):
     use for purposes including forward/backward navigation and shouldn't
     duplicate/override any of the operations of the methods that call it.
     """
+
+def center_node(new_view, position): 
+        if not new_view.is_loading():
+            new_view.sel().clear()
+            # this has to be called both before and after:
+            new_view.show_at_center(position)
+            new_view.sel().add(sublime.Region(position, position))
+            # this has to be called both before and after:
+            new_view.show_at_center(position)
+        else:
+            sublime.set_timeout(lambda: center_node(new_view, position), 10)
 
 def add_compact_node(view):
     
