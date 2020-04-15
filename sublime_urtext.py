@@ -422,7 +422,7 @@ class TraverseHistoryView(EventListener):
             history_view.set_read_only(False)
             history_view.run_command("select_all")
             history_view.run_command("right_delete")
-            history_view.run_command("insert_snippet", {"contents": 'HISTORY for '+ os.path.basename(filename)+'\n'})
+            history_view.run_command("insert_snippet", {"contents": 'HISTORY for '+ os.path.basename(filename)+'\n'})        
             for line in self.string_timestamps:
                 history_view.run_command("insert_snippet", {"contents": line+'\n'})
             self.rewriting = False
@@ -441,7 +441,8 @@ class TraverseHistoryView(EventListener):
         state = _UrtextProjectList.current_project.apply_patches(self.history, distance_back=index)
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
-        self.file_view.run_command("insert_snippet", {"contents": state})
+        for line in state.split('\n'):
+            self.file_view.run_command("insert_snippet", {"contents": line + '\n'})
 
 
 class NodeBrowserCommand(UrtextTextCommand):
