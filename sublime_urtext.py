@@ -227,45 +227,49 @@ class UrtextSaveListener(EventListener):
         if future: 
             self.executor.submit(refresh_open_file, future, view)
 
-# class KeepPosition(EventListener):
+class KeepPosition(EventListener):
 
-#     @refresh_project_event_listener
-#     def on_modified(self, view):
-#         position = view.sel()
+    @refresh_project_event_listener
+    def on_modified(self, view):
+        position = view.sel()
 
-#         def restore_position(view, position):
-#             if not view.is_loading():
-#                 view.show(position)
-#             else:
-#                 sublime.set_timeout(lambda: restore_position(view, position), 10)
+        def restore_position(view, position):
+            if not view.is_loading():
+                view.show(position)
+            else:
+                sublime.set_timeout(lambda: restore_position(view, position), 10)
 
-#         restore_position(view, position)
+        restore_position(view, position)
 
 
 class UrtextHomeCommand(UrtextTextCommand):
     
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         node_id = _UrtextProjectList.current_project.get_home()
         _UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         last_node = _UrtextProjectList.nav_reverse()
         if last_node:
             open_urtext_node(self.view, last_node)
 
 class NavigateForwardCommand(UrtextTextCommand):
 
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         next_node = _UrtextProjectList.nav_advance()
         if next_node:
             open_urtext_node(self.view, next_node)
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         position = self.view.sel()[0].a
         column = self.view.rowcol(position)[1]
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
@@ -493,7 +497,8 @@ class FullTextSearchCommand(UrtextTextCommand):
             results.run_command("select_all")
             results.run_command("right_delete")
             for line in search_results:
-                results.run_command("insert", {"characters": line.strip('\t')+'\n'})
+                print(line)
+                results.run_command("insert", {"characters": line+'\n'})
 
         self.view.window().show_input_panel(
             'search terms',
@@ -678,7 +683,8 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
 
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         add_inline_node(self.view, include_timestamp=False)    
 
 
@@ -702,7 +708,7 @@ def add_inline_node(view, include_timestamp=True, locate_inside=True):
 class RenameFileCommand(UrtextTextCommand):
 
     @refresh_project_text_command
-    def run(self, edit):
+    def run(self):
         old_filename = self.view.file_name()
         new_filenames = self._UrtextProjectList.current_project.rename_file_nodes(old_filename)
         self.view.retarget(
@@ -877,7 +883,8 @@ class NewNodeWithLinkCommand(UrtextTextCommand):
 
 class NewProjectCommand(UrtextTextCommand):
 
-    def run(self, edit):
+    @refresh_project_text_command
+    def run(self):
         global _UrtextProjectList        
         current_path = get_path(self.view)
         new_view = self.window.new_file()
@@ -942,23 +949,6 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
         new_cursor_position = sublime.Region(position + 12, position + 12) 
         self.view.sel().add(new_cursor_position) 
         
-
-class UrtextSearchProjectCommand(UrtextTextCommand):
-
-    @refresh_project_text_command
-    def run(self):
-        caption = 'Search String: '
-        self.view.window().show_input_panel(caption, '', self.search_project,
-                                            None, None)
-
-    def search_project(self, string):
-        results = self._UrtextProjectList.current_project.search(string).split('\n')
-
-        new_view = self.view.window().new_file()
-        new_view.set_scratch(True)
-        for line in results:
-            new_view.run_command("insert_snippet", {"contents": line + '\n'})
-
 
 
 class TagFromOtherNodeCommand(UrtextTextCommand):
@@ -1025,7 +1015,7 @@ class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
         window.focus_view(new_view)
         draw_tree(new_view, render)
 
-class ReIndexFilesCommand(sublime_plugin.TextCommand):
+class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
@@ -1039,7 +1029,7 @@ class ReIndexFilesCommand(sublime_plugin.TextCommand):
                         self._UrtextProjectList.current_project.path,
                         renamed_files[os.path.basename(view.file_name())]))
 
-class AddNodeIdCommand(sublime_plugin.TextCommand):
+class AddNodeIdCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1047,12 +1037,15 @@ class AddNodeIdCommand(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet",
                               {"contents": "/-- ID: " + new_id + " --/"})
 
-class ImportProjectCommand(sublime_plugin.TextCommand):
+class ImportProjectCommand(UrtextTextCommand):
 
+    @refresh_project_text_command
     def run(self):
         self._UrtextProjectList.import_project(get_path(self.view))
 
-class OpenUrtextLogCommand(sublime_plugin.TextCommand):
+class OpenUrtextLogCommand(UrtextTextCommand):
+    
+    @refresh_project_text_command
     def run(self):
         if refresh_project(self.view) == None:
             return
@@ -1070,7 +1063,7 @@ class OpenUrtextLogCommand(sublime_plugin.TextCommand):
 
         go_to_end(file_view)
 
-class UrtextNodeListCommand(sublime_plugin.TextCommand):
+class UrtextNodeListCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1080,7 +1073,7 @@ class UrtextNodeListCommand(sublime_plugin.TextCommand):
         else:
             print('No zzz node')
 
-class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
+class UrtextReloadProjectCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1088,7 +1081,7 @@ class UrtextReloadProjectCommand(sublime_plugin.TextCommand):
             print('No Urtext Project')
             return None
 
-class ExportFromIdCommand(sublime_plugin.TextCommand):
+class ExportFromIdCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):        
@@ -1102,7 +1095,7 @@ class ExportFromIdCommand(sublime_plugin.TextCommand):
                exported
             })
 
-class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
+class ExportFileAsHtmlCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):        
@@ -1115,19 +1108,19 @@ class ExportFileAsHtmlCommand(sublime_plugin.TextCommand):
                                 style_titles=False)
         html_view = self.view.window().open_file(os.path.join(self._UrtextProjectList.current_project.path, html_filename))
 
-class ExportProjectAsHtmlCommand(sublime_plugin.TextCommand):
+class ExportProjectAsHtmlCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):        
         self._UrtextProjectList.current_project.export_project(jekyll=True, style_titles=False)
 
-class CompactNodeCommand(sublime_plugin.TextCommand):
+class CompactNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
         add_compact_node(self.view)
 
-class PopNodeCommand(sublime_plugin.TextCommand):
+class PopNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1141,14 +1134,14 @@ class PopNodeCommand(sublime_plugin.TextCommand):
 
 
 
-class RebuildSearchIndexCommand(sublime_plugin.TextCommand):
+class RebuildSearchIndexCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
         self._UrtextProjectList.current_project.rebuild_search_index()
 
 
-class SplitNodeCommand(sublime_plugin.TextCommand):
+class SplitNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1156,7 +1149,7 @@ class SplitNodeCommand(sublime_plugin.TextCommand):
         self.view.run_command("insert_snippet",
                           {"contents": '/-- id:'+node_id+' --/\n% '})
 
-class RandomNodeCommand(sublime_plugin.TextCommand):
+class RandomNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
@@ -1215,13 +1208,13 @@ class ToggleTraverse(UrtextTextCommand):
 
         self.view.window().focus_group(active_group)
 
-class ShowAccessHistory(sublime_plugin.TextCommand):
+class ShowAccessHistory(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         self._UrtextProjectList.current_project._show_access_history()
 
 
-class ExportToIcs(sublime_plugin.TextCommand):
+class ExportToIcs(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         self._UrtextProjectList.current_project.export_to_ics()
