@@ -446,6 +446,9 @@ class TraverseHistoryView(EventListener):
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
         for line in state.split('\n'):
+            # fixes evidently a Sublime bug
+            if line[0:2] == '  ':
+                line = line[2:]
             self.file_view.run_command("insert_snippet", {"contents": line + '\n'})
 
 
