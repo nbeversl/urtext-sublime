@@ -446,11 +446,7 @@ class TraverseHistoryView(EventListener):
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
         for line in state.split('\n'):
-            # fixes evidently a Sublime bug
-            if line[0:2] == '  ':
-                line = line[2:]
-            self.file_view.run_command("insert_characters", {"contents": line + '\n'})
-
+            self.file_view.run_command("append", {"characters": line+ "\n" })
 
 class NodeBrowserCommand(UrtextTextCommand):
     
@@ -1481,15 +1477,11 @@ def open_external_file(filepath):
     elif sublime.platform() == "windows":
         os.startfile(filepath)
     elif sublime.platform() == "linux":
-        subprocess.Popen(('xdg-open', filepath))
+        subprocess.open(('xdg-open', filepath))
 
-def insert_text_next_line(self, view, region, txt):
-        r = view.line(sublime.Region(r))
-        view.sel().clear()
-        view.sel().add(r.b)
-        # Workaround weird auto-indentation behavior of insert_snippet
-        view.run_command('insert_snippet', {'contents': '\n'})
-        view.run_command('insert_snippet', {'contents': '$x', 'x':txt[:-1]})
-        return r 
+def insert_text_next_line(view, region, txt)
+    view.run_command('insert_snippet', {'contents': '\n'})
+    view.run_command('insert_snippet', {'contents': '$x', 'x':txt[:-1]})
+    return r 
 
 
