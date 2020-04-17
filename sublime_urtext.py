@@ -212,8 +212,8 @@ class UrtextSaveListener(EventListener):
 
         completions = []
         
-        for tag in list(_UrtextProjectList.get_all_keynames()):
-            completions.append([tag, '/-- tags:'+tag+' --/'])
+        for pair in list(_UrtextProjectList.get_all_meta_pairs()):
+            completions.append([pair, '/-- '+pair+' --/'])
 
         return completions
 
