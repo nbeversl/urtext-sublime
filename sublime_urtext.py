@@ -1479,9 +1479,4 @@ def open_external_file(filepath):
     elif sublime.platform() == "linux":
         subprocess.open(('xdg-open', filepath))
 
-def insert_text_next_line(view, region, txt)
-    view.run_command('insert_snippet', {'contents': '\n'})
-    view.run_command('insert_snippet', {'contents': '$x', 'x':txt[:-1]})
-    return r 
-
 
