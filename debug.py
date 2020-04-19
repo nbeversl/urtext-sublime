@@ -15,3 +15,4 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].split)
         print(self._UrtextProjectList.current_project.nodes[node_id].compact)
         print(self._UrtextProjectList.current_project.nodes[node_id].points)
+        self._UrtextProjectList.current_project.nodes[node_id].metadata.log()

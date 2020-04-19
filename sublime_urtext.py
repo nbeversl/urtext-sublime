@@ -162,12 +162,24 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         replace_links = True if replace_links == sublime.DIALOG_YES else False
         filename = self.view.file_name()
 
-        self._UrtextProjectList.move_file(
+        success = self._UrtextProjectList.move_file(
             filename, 
             new_project_title,
             replace_links=replace_links)
 
         self.view.window().run_command('close_file')
+
+        last_node = _UrtextProjectList.nav_reverse()
+        if last_node:
+            open_urtext_node(self.view, last_node)
+
+        # temporary.
+        if not success:
+            sublime.message_dialog('File was moved but error occured. Check the console.')
+        else:
+            sublime.message_dialog('File was moved')
+
+
 
 def refresh_project_event_listener(function):
 
@@ -310,10 +322,21 @@ class JumpToSource(EventListener):
 
     @refresh_project_event_listener
     def on_modified(self, view):
+        """
+        problematic -- this doesn't work if the view is dirty.
+
+        TODO: revise.
+        For now, making available only if few is not dirty. However this should
+        still be usable in many cases.
+        """
+        if view.is_dirty():
+            return
+
         position = view.sel()[0].a
         filename = view.file_name()
-        
+
         if filename:
+
             destination_node = _UrtextProjectList.is_in_export(filename, position)
             if destination_node:
                 print(destination_node)
@@ -1468,6 +1491,8 @@ def get_path_from_window(window):
 def refresh_open_file(future, view):
     filename = view.file_name()
     changed_files = future.result()
+    print('DEBUGGING: modified files:')
+    print(changed_files)
     if os.path.basename(filename) in changed_files:
         view.run_command('revert') # undocumented
 
