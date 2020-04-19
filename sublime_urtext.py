@@ -1320,8 +1320,12 @@ class TraverseFileTree(EventListener):
             # the tree view is always the view that was modified.
             # assign it a name, get its filename and window
 
-            tree_view = called_from_view
             this_file = called_from_view.file_name()
+            
+            if not this_file:
+                return
+
+            tree_view = called_from_view
             window = called_from_view.window()
 
             # Get the current line and find links
@@ -1338,7 +1342,6 @@ class TraverseFileTree(EventListener):
                 filename = _UrtextProjectList.current_project.get_file_name(link[1:])
                 if filename:
                     filenames.append(filename)
-            
 
             if len(filenames) > 0:
                 filename = filenames[0]
