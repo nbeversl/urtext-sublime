@@ -735,7 +735,7 @@ class RenameFileCommand(UrtextTextCommand):
         new_filenames = self._UrtextProjectList.current_project.rename_file_nodes(old_filename)
         self.view.retarget(
             os.path.join(self._UrtextProjectList.current_project.path,
-                         new_filenames[os.path.basename(old_filename)]))
+                         new_filenames[old_filename]))
 
 
 class NodeBrowserMenu():
