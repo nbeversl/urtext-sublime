@@ -179,8 +179,13 @@
 	  			"foreground": "var(white)",
 	  			"font_style":"bold",
 	  		},
+	  		{   "scope": "dynamic-def-format-var.urtext",
+	  			"foreground": "var(bright-green)",
+	  			"font_style":"bold",
+	  		},
 
 
+	  		
 
 	],
 }
