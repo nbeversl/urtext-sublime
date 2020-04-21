@@ -4,7 +4,7 @@
 		 "unobtrusive": "hsl(0, 0%, 30%)",
 		 "blue-bright" : "hsl(225, 80%, 40%)",
 		 "blue-brighter" : "hsl(225, 80%, 60%)",
-		 "green":"hsl(117, 57%, 63%)",
+		 
 		 "yellow":"hsl(54, 95%, 67%)",
 		 "bright-yellow" : "hsl(60, 100%, 75%)",
 		 "inline1" : "hsl(70, 8%, 17%)",
@@ -15,6 +15,30 @@
 		 "black3": "hsl(70, 8%, 15%)",
 		 "red": "hsl(0, 100%, 50%)",
 		 "white-ish": "hsla(0, 0%, 67%, 1)",
+
+		// Solarized (future?)
+		// "base03":    "#002b36",
+		// "base02":    "#073642",
+		// "base01":    "#586e75",
+		// "base01":   	"#657b83",
+		// "base0":     "#839496",
+		// "base1":     "#93a1a1",
+		// "base2":     "#eee8d5",
+		// "base3":     "#fdf6e3",
+		// "yellow":    "#b58900",
+		// "orange":    "#cb4b16",
+		// "red":       "#dc322f",
+		// "magenta":   "#d33682",
+		// "violet":    "#6c71c4",
+		// "blue":      "#268bd2",
+		// "cyan":      "#2aa198",
+		// "green":     "#859900",
+
+		"medium-green":"hsl(117, 57%, 63%)",
+		"bright-green":"hsl(113, 77%, 50%)",
+		"pastel-green":"hsl(141, 77%, 50%)",
+		"aqua-green":"hsl(161, 57%, 77%)",
+		"reg-text-white" : "hsl(300, 4%, 85%)"
 	},
 
 
@@ -34,11 +58,7 @@
 	  			"foreground": "var(bright-yellow)",
 	  			"font_style":"bold italic"
 	  		},
-			{
-				"scope": "dynamic_definition",
-	  			"foreground": "var(yellow)",
-	  			"font_style":"italic"
-	  		},
+		
 			{
 				"scope": "punctuation.section.generic.end.urtext",
 	  			"foreground": "var(unobtrusive)",
@@ -123,32 +143,43 @@
 	  			 "background": "var(inline2)",
 	  			
 	  		},
-	  		{ "scope": "inside-parens-reg-text.urtext",
-	  			"foreground": "var(white-ish)"
-	  		},
 	  		{   "scope": "link.urtext.other-project",
 	  			"font_style":"bold",
 	  			"foreground": "var(yellow)",
 	  		},
-	  		{   "scope": "function-name-with-key-values.urtext",
-	  			"foreground": "var(green)",
+	  		
+	  		{   "scope": "function-name.urtext",
+	  			"foreground": "var(medium-green)",
+	  			"font_style":"bold",
 	  		},
+
 	  		{   "scope": "dynamic-key.urtext",
-	  			"foreground": "var(blue)",
+	  			"foreground": "var(bright-green)",
 	  		},
 
 	  		{   "scope": "dynamic-value.urtext",
-	  			"foreground": "var(yellow)",
+	  			"foreground": "var(aqua-green)",
 	  		},
 
 	  		{   "scope": "key-value-pair-string.urtext",
-	  			"foreground": "var(green)",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{   "scope": "dynamic-keyword.urtext",
-	  			"foreground": "var(red)",
+	  			"foreground": "var(pastel-green)",
+	  			"font_style":"italic",
 	  		},
-	  		
-	  		
+	  		{   "scope": "format-string.urtext",
+	  			"foreground": "var(bright-green)",
+	  		},
+	  		{   "scope": "dynamic-def-node_id.urtext",
+	  			"foreground": "var(bright-green)",
+	  			"font_style":"bold",
+	  		},
+	  		{   "scope": "dynamic-definition-parens",
+	  			"foreground": "var(white)",
+	  			"font_style":"bold",
+	  		},
+
 
 
 	],
