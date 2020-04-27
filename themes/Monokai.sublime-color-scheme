@@ -1,7 +1,7 @@
 {
 	"name": "Urtext Monokai",
     "variables": {
-		 "unobtrusive": "hsl(0, 0%, 30%)",
+		 "unobtrusive": "hsl(0, 0%, 20%)",
 		 "blue-bright" : "hsl(225, 80%, 40%)",
 		 "blue-brighter" : "hsl(225, 80%, 60%)",
 		 
@@ -12,27 +12,18 @@
 		 "inline3" : "hsl(70, 8%, 21%)",
 		 "inline4" : "hsl(70, 8%, 23%)",
 		 "inline5" : "hsl(70, 8%, 25%)",
+		 
+		 "inline1_fore" : "hsl(335, 100%, 90%)",
+		 "inline2_fore" : "hsl(182, 100%, 90%)",
+		 "inline3_fore" : "hsl(335, 100%, 90%)",
+		 "inline4_fore" : "hsl(335, 100%, 90%)",
+		 "inline5_fore" : "hsl(335, 100%, 90%)",
+
+
 		 "black3": "hsl(70, 8%, 15%)",
 		 "red": "hsl(0, 100%, 50%)",
 		 "white-ish": "hsla(0, 0%, 67%, 1)",
 
-		// Solarized (future?)
-		// "base03":    "#002b36",
-		// "base02":    "#073642",
-		// "base01":    "#586e75",
-		// "base01":   	"#657b83",
-		// "base0":     "#839496",
-		// "base1":     "#93a1a1",
-		// "base2":     "#eee8d5",
-		// "base3":     "#fdf6e3",
-		// "yellow":    "#b58900",
-		// "orange":    "#cb4b16",
-		// "red":       "#dc322f",
-		// "magenta":   "#d33682",
-		// "violet":    "#6c71c4",
-		// "blue":      "#268bd2",
-		// "cyan":      "#2aa198",
-		// "green":     "#859900",
 
 		"medium-green":"hsl(117, 57%, 63%)",
 		"bright-green":"hsl(113, 77%, 50%)",
@@ -103,23 +94,28 @@
 	        },
 	        { 
 		        "scope" : "inline_node_1",
-		        "background": "var(inline1)"
+		        "foreground" : "var(inline1_fore)",
+		        //"background": "var(inline1)"
 	        },
 	        { 
 		        "scope" : "inline_node_2",
-		        "background": "var(inline2)"
+		         "foreground" : "var(inline2_fore)",
+		        //"background": "var(inline2)"
 	        },
 	        { 
 		        "scope" : "inline_node_3",
-		        "background": "var(inline3)"
+		         "foreground" : "var(inline3_fore)",
+		        //"background": "var(inline3)"
 	        },
 	        { 
 		        "scope" : "inline_node_4",
-		        "background": "var(inline4)"
+		         "foreground" : "var(inline4_fore)",
+		        //"background": "var(inline4)"
 	        },
 	         { 
 		        "scope" : "inline_node_5",
-		        "background": "var(inline5)"
+		         "foreground" : "var(inline5_fore)",
+		        //"background": "var(inline5)"
 	        },
 	        { 
 		        "scope" : "no-highlight",
