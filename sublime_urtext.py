@@ -506,29 +506,45 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
 
 
 class FullTextSearchCommand(UrtextTextCommand):
-    
+
     @refresh_project_text_command
     def run(self):
-
-        results = self.window.new_file()
-        results.set_scratch(True)
-        results.set_syntax_file('sublime_urtext.sublime-syntax')
-
-        def show_results(string):
-            search_results = _UrtextProjectList.current_project.search_term(string).split('\n')
-            results.run_command("select_all")
-            results.run_command("right_delete")
-            for line in search_results:
-                print(line)
-                results.run_command("insert", {"characters": line+'\n'})
-
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
         self.view.window().show_input_panel(
             'search terms',
             '',
-            show_results,
-            show_results,
+            self.show_results,
+            None,
             None
             )
+    
+    def show_results(self, string):
+        search_results = self._UrtextProjectList.current_project.search_term(string)
+        search_results.initiate_search()
+        self.results_view = self.window.new_file()
+        self.results_view.set_scratch(True)
+        self.results_view.set_syntax_file('sublime_urtext.sublime-syntax')
+
+        while self.results_view.is_loading():
+            time.sleep(0.1)
+
+        self.executor.submit(self.do_search, search_results)
+
+    def do_search(self, search_results):
+
+        t = []
+        while not search_results.complete:
+            r = len(t)
+            t = search_results.result            
+            if len(t) > r:
+                for item in t[r:]:
+                    self.results_view.run_command("append", {"characters": item+'\n'})
+
+        final_results = search_results.result            
+        if t != final_results:
+            final_results = final_results[len(t):]
+            for item in final_results:
+                self.results_view.run_command("append", {"characters": item +'\n'})
 
 def size_to_groups(groups, view):
     panel_size = 1 / groups
@@ -1069,8 +1085,6 @@ class OpenUrtextLogCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        if refresh_project(self.view) == None:
-            return
         file_view = self.view.window().open_file(
             os.path.join(_UrtextProjectList.current_project.path,
                          _UrtextProjectList.current_project.settings['logfile']))
@@ -1153,14 +1167,6 @@ class PopNodeCommand(UrtextTextCommand):
             self.view.sel().clear()
             new_cursor_position = sublime.Region(new_position, new_position) 
             self.view.sel().add(new_cursor_position) 
-
-
-
-class RebuildSearchIndexCommand(UrtextTextCommand):
-
-    @refresh_project_text_command
-    def run(self):
-        self._UrtextProjectList.current_project.rebuild_search_index()
 
 
 class SplitNodeCommand(UrtextTextCommand):
