@@ -952,7 +952,7 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
     def run(self):
         self.view.run_command('save')  # TODO insert notification
         current_file = self.view.file_name()
-        if current file:
+        if current_file:
             filename = os.path.basename(current_file)
             position = self.view.sel()[0].a
             node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
