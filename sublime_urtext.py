@@ -951,14 +951,16 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         self.view.run_command('save')  # TODO insert notification
-        filename = os.path.basename(self.view.file_name())
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        if node_id:
-            self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
-        else:
-            print('No Urtext node found here.')
-
+        current_file = self.view.file_name()
+        if current file:
+            filename = os.path.basename(current_file)
+            position = self.view.sel()[0].a
+            node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+            if node_id:
+                self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
+                return True    
+        print('No Urtext node or no Urtext node with ID found here.')
+        return False
 
 class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
 
