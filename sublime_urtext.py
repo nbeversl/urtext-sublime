@@ -325,21 +325,16 @@ class JumpToSource(EventListener):
         """
         problematic -- this doesn't work if the view is dirty.
 
-        TODO: revise.
+        TODO: revise
         For now, making available only if few is not dirty. However this should
         still be usable in many cases.
         """
-        if view.is_dirty():
-            return
 
         position = view.sel()[0].a
         filename = view.file_name()
-
         if filename:
-
             destination_node = _UrtextProjectList.is_in_export(filename, position)
             if destination_node:
-                print(destination_node)
                 view.window().run_command('undo') # undo the manual change made to the view
                 open_urtext_node(view, destination_node[0])
                 center_node(view, destination_node[1])
@@ -529,6 +524,7 @@ class FullTextSearchCommand(UrtextTextCommand):
             time.sleep(0.1)
 
         self.executor.submit(self.do_search, search_results)
+        #self.do_search(search_results)
 
     def do_search(self, search_results):
 

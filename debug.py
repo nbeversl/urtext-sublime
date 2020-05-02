@@ -12,7 +12,6 @@ class DebugCommand(sublime_plugin.TextCommand):
         self._UrtextProjectList.current_project.nodes[node_id].metadata.log()
         print(self._UrtextProjectList.current_project.nodes[node_id].ranges)
         print(self._UrtextProjectList.current_project.nodes[node_id].root_node)
-        print(self._UrtextProjectList.current_project.nodes[node_id].split)
         print(self._UrtextProjectList.current_project.nodes[node_id].compact)
-        print(self._UrtextProjectList.current_project.nodes[node_id].points)
+        print(self._UrtextProjectList.current_project.nodes[node_id].export_points)
         self._UrtextProjectList.current_project.nodes[node_id].metadata.log()

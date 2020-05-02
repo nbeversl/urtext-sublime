@@ -11,7 +11,6 @@ contexts:
     - include: datestamp
     - include: link
     - include: link_prefix
-    - include: node-separator
     - include: link_title
     - include: other-project-link
     - include: compact-node-opener
@@ -59,7 +58,7 @@ contexts:
       scope: function-name.urtext
       push: function-with-key-values
     
-    - match: (SHOW)
+    - match: (SHOW|SEARCH)
       scope: function-name.urtext
       push: function-with-format-string
     
@@ -70,6 +69,10 @@ contexts:
     - match: (ID|TREE)
       scope: function-name.urtext
       push: function-with-node-id
+
+    - match: (FILE)
+      scope: function-name.urtext
+      push: function-with-filename
     
     - match: (ACCESS_HISTORY)
       scope: function-name.urtext
@@ -106,7 +109,7 @@ contexts:
 
 
   dynamic-keyword:
-    - match: \b(reverse|preformat|all|meta|inline|indexed|and|or|all_projects|multiline_meta|indent|timestamp|markdown|html|plaintext|source|recursive)\b
+    - match: \b(reverse|last_accessed|preformat|all|meta|inline|indexed|and|or|all_projects|multiline_meta|indent|index|timestamp|markdown|html|plaintext|source|recursive)\b
       scope: dynamic-keyword.urtext
 
   key-value-string:
@@ -185,13 +188,18 @@ contexts:
     - match: (?<=\))
       pop: true
 
+  function-with-filename:
+    - match: \(
+      scope: dynamic-definition-parens
+      push: function-with-filename
+    - match: (?<=\))
+      pop: true
 
   # Node Nesting
 
   inline-node-1: 
     - meta_scope: inline_node_1 
     - include: datestamp
-    - include: node-separator
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
@@ -203,7 +211,6 @@ contexts:
   inline-node-2: 
     - meta_scope: inline_node_2 
     - include: datestamp
-    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -215,7 +222,6 @@ contexts:
   inline-node-3: 
     - meta_scope: inline_node_3
     - include: datestamp
-    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -227,7 +233,6 @@ contexts:
   inline-node-4: 
     - meta_scope: inline_node_4
     - include: datestamp
-    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -239,7 +244,6 @@ contexts:
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: datestamp
-    - include: node-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -267,12 +271,14 @@ contexts:
 
   meta-block:
     - meta_scope: meta-block.urtext
+    - include: link_title
     - include: tag-names
     - include: tag-values
     - include: tagname-separator
     - include: tagvalue-separator
     - include: datestamp
     - include: node_id
+
     - match: '--/'
       scope: punctuation.section.generic.end.urtext
       pop: true
@@ -280,10 +286,6 @@ contexts:
   meta-key-terminator:
     - match: ';'
       scope: punctuation.terminator.urtext
-
-  node-separator:
-    - match: ^\%(?!%)
-      scope: punctuation.separator.node_separator.urtext
 
   datestamp:
     - match: <.*?>
@@ -321,7 +323,6 @@ contexts:
 
   compact-node: 
     - include: datestamp
-    - include: node-separator
     - include: main
     - include: inline-node-1
     - match: .*?

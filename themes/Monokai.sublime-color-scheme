@@ -136,7 +136,7 @@
 
 	  		},
 	  		{   "scope": "urtext.compact_node",
-	  			 "background": "var(inline2)",
+	  			 //"background": "var(inline2)",
 	  			
 	  		},
 	  		{   "scope": "link.urtext.other-project",

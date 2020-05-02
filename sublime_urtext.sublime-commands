@@ -32,7 +32,6 @@
     { "caption": "Urtext: Mark as Done from Other Node", "command" :"tag_from_other_node"},
    
     /* Formatting */
-    { "caption": "Urtext: RightAlignHere", "command" :"right_align_here"},
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
 
     /* Help and Log */
@@ -46,15 +45,12 @@
     { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: Initialize Project", "command":"new_project"},
-    { "caption": "Urtext: Take Over", "command" :"take_over"},
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
-    { "caption": "Urtext: Rebuild Search Index", "command" :"rebuild_search_index"},
-    { "caption": "Urtext: Move File to Another Project", "command" :"move_file_to_another_project"},
+    { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
 
     /* Sync & Export */
     { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
-    { "caption": "Urtext: Export to ICS", "command" :"export_to_ics"},
-
+ 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
     { "caption": "Urtext: Debug2", "command" :"debug2"},
