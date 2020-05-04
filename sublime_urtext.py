@@ -482,6 +482,7 @@ class NodeBrowserCommand(UrtextTextCommand):
 
     def open_the_file(self, selected_option):        
         selected_item = self.menu.get_selection_from_index(selected_option)
+        self._UrtextProjectList.set_current_project(selected_item.project_title)
         self._UrtextProjectList.nav_new(selected_item.node_id)   
         open_urtext_node(self.view, selected_item.node_id)
 
@@ -497,8 +498,6 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
             self.view.window(), 
             self.menu.display_menu, 
             self.open_the_file)
-
-
 
 class FullTextSearchCommand(UrtextTextCommand):
 
@@ -985,8 +984,6 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
         new_cursor_position = sublime.Region(position + 12, position + 12) 
         self.view.sel().add(new_cursor_position) 
         
-
-
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
