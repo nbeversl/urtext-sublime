@@ -54,29 +54,25 @@ contexts:
     - include: link_title
     - include: link
 
-    - match: (INCLUDE|EXCLUDE|METADATA|TAG_ALL)
+    - match: (INCLUDE|EXCLUDE|METADATA|TAG_ALL)(?=\(.*\))
       scope: function-name.urtext
       push: function-with-key-values
     
-    - match: (SHOW|SEARCH)
+    - match: (SHOW|SEARCH)(?=\(.*\))
       scope: function-name.urtext
       push: function-with-format-string
     
-    - match: (SORT|TIMELINE|FORMAT|LIMIT|EXPORT)
+    - match: (SORT|TIMELINE|FORMAT|LIMIT|EXPORT)(?=\(.*\))
       scope: function-name.urtext
       push: function-with-keywords-only
    
-    - match: (ID|TREE)
+    - match: (ID|TREE)(?=\(.*\))
       scope: function-name.urtext
       push: function-with-node-id
 
-    - match: (FILE)
+    - match: (FILE)(?=\(.*\))
       scope: function-name.urtext
       push: function-with-filename
-    
-    - match: (ACCESS_HISTORY)
-      scope: function-name.urtext
-      push: function-with-optional-parameters
     
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
