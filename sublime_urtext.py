@@ -819,7 +819,7 @@ def sort_menu(menu):
         item.position = str(item.position)
         new_item = [
             item.title,
-            item.date.strftime('<%a., %b. %d, %Y, %I:%M %p>')
+            item.project_title + ' - ' + item.date.strftime('<%a., %b. %d, %Y, %I:%M %p>'),            
         ]
         display_menu.append(new_item)
     return display_menu
@@ -833,51 +833,64 @@ def show_panel(window, menu, main_callback):
         main_callback(menu[index])
     window.show_quick_panel(menu, private_callback)
 
-
 class LinkToNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
-        self.menu = NodeBrowserMenu(self._UrtextProjectList, self._UrtextProjectList.current_project)
-        show_panel(self.window, self.menu.display_menu, self.link_to_the_file)
+        self.menu = NodeBrowserMenu(self._UrtextProjectList, project=None)
+        show_panel(self.window, self.menu.display_menu, self.link_to_the_node)
 
-    def link_to_the_file(self, selected_option):
+    def link_to_the_node(self, selected_option):
         view = self.window.active_view()
-        node_id = self.menu.get_selection_from_index(selected_option).node_id
-        title = self.menu.get_selection_from_index(selected_option).title
-        view.run_command("insert", {"characters": '| '+title + ' >' + node_id})
+        selected_option = self.menu.get_selection_from_index(selected_option)
 
+        project_title = selected_option.project_title
+        node_id = selected_option.node_id
+        title = selected_option.title
 
-class LinkNodeFromCommand(UrtextTextCommand):
+        project_prefix = ''
+        if project_title != self._UrtextProjectList.current_project.title:
+            project_prefix = '{"'+project_title+'"}'
 
+        view.run_command("insert", {"characters": project_prefix + '| '+title + ' >' + node_id})
+
+class CopyLinkToHereCommand(UrtextTextCommand):
+    """
+    Copy a link to the node containing the cursor to the clipboard.
+    Does not include project title.
+    """
     @refresh_project_text_command
     def run(self):
-        self.current_file = os.path.basename(
-            self.window.active_view().file_name())
+        self.current_file = os.path.basename(self.window.active_view().file_name())
         self.position = self.window.active_view().sel()[0].a
-        self.menu = NodeBrowserMenu(self._UrtextProjectList, self._UrtextProjectList.current_project)
-        show_panel(
-            self.window, 
-            self.menu.display_menu,
-            self.link_from_the_file)
+        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(
+                self.current_file, 
+                self.position)
+        title = self._UrtextProjectList.current_project.nodes[node_id].title
+        link = self.prefix_link() + '| '+title + ' >' + node_id 
+        sublime.set_clipboard(link)
+        
+        self.view.show_popup(link + '\ncopied to the clipboard', 
+            max_width=1800, 
+            max_height=1000 
+                # max_height does not work correctly. 
+                # workaround for now using max_width
+                # FUTURE: Could also hard wrap.
+                # https://github.com/sublimehq/sublime_text/issues/2854
+                # https://github.com/SublimeLinter/SublimeLinter/pull/1609
+                # https://github.com/SublimeLinter/SublimeLinter/issues/1601
+            )
 
-    def link_from_the_file(self, selected_option):
-        new_view = self.window.open_file(
-            self.menu.get_selection_from_index(selected_option).filename)
-        self.show_tip(new_view)
+    def prefix_link(self):
+        return ''
 
-    def show_tip(self, view):
-        if not view.is_loading():
-            node_id = self._UrtextProjectList.current_project.get_node_id_from_position(
-                self.current_file, self.position)
-
-            title = self._UrtextProjectList.current_project.nodes[node_id].title
-            link = title + ' >' + node_id
-            sublime.set_clipboard(link)
-            view.show_popup('Link to ' + link + ' copied to the clipboard')
-        else:
-            sublime.set_timeout(lambda: self.show_tip(view), 10)
-
+class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
+    """
+    Copy a link to the node containing the cursor to the clipboard.
+    Does not include project title.
+    """
+    def prefix_link(self):
+        return '{"' + self._UrtextProjectList.current_project.title + '"}'
 
 def get_contents(view):
     if view != None:
@@ -1436,8 +1449,11 @@ class TraverseFileTree(EventListener):
 """
 Utility functions
 """
-def open_urtext_node(view, node_id, position=0):
+def open_urtext_node(view, node_id, project=None, position=0):
     
+    if project:
+        _UrtextProjectList.set_current_project(project.title)
+
     filename, position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename == None:
         return
@@ -1446,6 +1462,7 @@ def open_urtext_node(view, node_id, position=0):
         file_view = view.window().open_file(filename)
     view.window().focus_view(file_view)
     center_node(file_view, position)
+    return file_view
     """
     Note we do not involve this function with navigation, since it is
     use for purposes including forward/backward navigation and shouldn't

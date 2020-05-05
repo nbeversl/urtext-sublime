@@ -15,7 +15,6 @@
 
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
-    { "caption": "Urtext: Link from ...", "command":"link_from_node"},
     
     /* Generating Nodes */    
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
