@@ -843,16 +843,10 @@ class LinkToNodeCommand(UrtextTextCommand):
     def link_to_the_node(self, selected_option):
         view = self.window.active_view()
         selected_option = self.menu.get_selection_from_index(selected_option)
-
-        project_title = selected_option.project_title
-        node_id = selected_option.node_id
-        title = selected_option.title
-
-        project_prefix = ''
-        if project_title != self._UrtextProjectList.current_project.title:
-            project_prefix = '{"'+project_title+'"}'
-
-        view.run_command("insert", {"characters": project_prefix + '| '+title + ' >' + node_id})
+        link = self._UrtextProjectList.build_contextual_link(
+            selected_option.node_id,
+            project_title=selected_option.project_title)    
+        view.run_command("insert", {"characters": link})
 
 class CopyLinkToHereCommand(UrtextTextCommand):
     """
@@ -866,10 +860,8 @@ class CopyLinkToHereCommand(UrtextTextCommand):
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(
                 self.current_file, 
                 self.position)
-        title = self._UrtextProjectList.current_project.nodes[node_id].title
-        link = self.prefix_link() + '| '+title + ' >' + node_id 
-        sublime.set_clipboard(link)
-        
+        link = self.get_link(node_id)
+        sublime.set_clipboard(link)        
         self.view.show_popup(link + '\ncopied to the clipboard', 
             max_width=1800, 
             max_height=1000 
@@ -881,16 +873,18 @@ class CopyLinkToHereCommand(UrtextTextCommand):
                 # https://github.com/SublimeLinter/SublimeLinter/issues/1601
             )
 
-    def prefix_link(self):
-        return ''
+    def get_link(self, node_id):
+        return self._UrtextProjectList.build_contextual_link(node_id)       
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
     """
     Copy a link to the node containing the cursor to the clipboard.
     Does not include project title.
     """
-    def prefix_link(self):
-        return '{"' + self._UrtextProjectList.current_project.title + '"}'
+    def get_link(self, node_id):
+        return self._UrtextProjectList.build_contextual_link(
+            node_id, 
+            include_project=True)
 
 def get_contents(view):
     if view != None:
