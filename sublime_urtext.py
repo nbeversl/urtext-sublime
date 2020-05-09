@@ -1482,14 +1482,18 @@ def center_node(new_view, position):
 
 def add_compact_node(view):
     
-    region = view.sel()[0]
-    
+    region = view.sel()[0]    
     selection = view.substr(region)
+    line = view.line(region) # get full line
+    next_line_down = line.b
     new_node_contents = _UrtextProjectList.current_project.add_compact_node(contents=selection)
-    view.run_command("insert_snippet",
-                          {"contents": new_node_contents})
+
     view.sel().clear()
-    new_cursor_position = sublime.Region(region.a + 2, region.a + 2) 
+    view.sel().add(next_line_down) 
+    view.run_command("insert_snippet",
+                          {"contents": '\n'+new_node_contents})
+    new_cursor_position = sublime.Region(next_line_down + 3, next_line_down + 3) 
+    view.sel().clear()
     view.sel().add(new_cursor_position) 
 
 def get_path(view):  ## makes the path persist as much as possible ##
