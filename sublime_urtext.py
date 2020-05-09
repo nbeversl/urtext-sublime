@@ -286,18 +286,24 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         column = self.view.rowcol(position)[1]
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
         link = _UrtextProjectList.get_link_and_set_project(full_line, position=column)
+
         if link == None:   
             print('NO LINK') 
             return
 
         kind = link[0]
+        if kind == 'EDITOR_LINK':
+            file_view = self.view.window().open_file(link[1])
+
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
             open_urtext_node(self.view, link[1])
+
         if kind == 'HTTP':
             success = webbrowser.get().open(link[1])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
+
         if kind == 'FILE':
             open_external_file(link[1])
 
