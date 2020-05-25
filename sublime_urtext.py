@@ -32,7 +32,7 @@ from sublime_plugin import EventListener
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
-
+urtext_initiated = False
 quick_panel_waiting = False
 quick_panel_active  = False
 quick_panel_id = 0
@@ -51,7 +51,10 @@ def refresh_project_text_command(function, init_project=False):
     Used as a decorator in every command class.
     """
     def wrapper(*args, **kwargs):
-        
+
+        global urtext_initiated
+        urtext_initiated = True
+
         view = args[0].view
         edit = args[1]
 
@@ -91,6 +94,45 @@ def refresh_project_text_command(function, init_project=False):
         return None
 
     return wrapper
+
+def refresh_project_event_listener(function):
+
+    def wrapper(*args):
+        view = args[1]
+        
+        _UrtextProjectList = initialize_project_list(view)
+        if not _UrtextProjectList:
+            return None
+
+        window = sublime.active_window()
+        if not window:
+            print('NO WINDOW')
+            return
+        
+        view = window.active_view()
+        window_id = window.id()
+
+        if view.file_name():
+            current_path = os.path.dirname(view.file_name())
+            _UrtextProjectList.set_current_project(current_path)
+            args[0]._UrtextProjectList = _UrtextProjectList
+            return function(args[0], view)
+
+        if window_id in _SublimeUrtextWindows:
+            current_path = _SublimeUrtextWindows[window_id]
+            _UrtextProjectList.set_current_project(current_path)
+            args[0]._UrtextProjectList = _UrtextProjectList
+            return function(args[0], view)
+
+        if _UrtextProjectList.current_project:
+            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+            args[0]._UrtextProjectList = _UrtextProjectList
+
+            return function(args[0], view)
+        return None
+
+    return wrapper
+
 
 def initialize_project_list(view, init_project=False, reload_projects=False):
 
@@ -180,37 +222,6 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
             sublime.message_dialog('File was moved')
 
 
-
-def refresh_project_event_listener(function):
-
-    def wrapper(*args):
-        view = args[1]
-        
-        if initialize_project_list(view) == None:
-            return None
-
-        window = sublime.active_window()
-        if not window:
-            print('NO WINDOW')
-            print(function)
-            return
-
-        window_id = window.id()
-        if window_id in _SublimeUrtextWindows:
-            current_path = _SublimeUrtextWindows[window_id]
-            _UrtextProjectList.set_current_project(current_path)
-            args[0]._UrtextProjectList = _UrtextProjectList
-            return function(args[0], view)
-
-        if _UrtextProjectList.current_project:
-            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
-            args[0]._UrtextProjectList = _UrtextProjectList
-
-            return function(args[0], view)
-        return None
-
-    return wrapper
-
 class UrtextSaveListener(EventListener):
 
     def __init__(self):
@@ -219,15 +230,18 @@ class UrtextSaveListener(EventListener):
 
     def on_query_completions(self, view, prefix, locations):
 
-        if _UrtextProjectList.current_project == None:
-            return
+        global urtext_initiated
+        if urtext_initiated:
 
-        completions = []
-        
-        for pair in list(_UrtextProjectList.get_all_meta_pairs()):
-            completions.append([pair, '/-- '+pair+' --/'])
+            if _UrtextProjectList.current_project == None:
+                return
 
-        return completions
+            completions = []
+            
+            for pair in list(_UrtextProjectList.get_all_meta_pairs()):
+                completions.append([pair, '/-- '+pair+' --/'])
+
+            return completions
 
     @refresh_project_event_listener
     def on_post_save(self, view):
@@ -529,7 +543,6 @@ class FullTextSearchCommand(UrtextTextCommand):
             time.sleep(0.1)
 
         self.executor.submit(self.do_search, search_results)
-        #self.do_search(search_results)
 
     def do_search(self, search_results):
 
@@ -844,7 +857,7 @@ class LinkToNodeCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         self.menu = NodeBrowserMenu(self._UrtextProjectList, project=None)
-        show_panel(self.window, self.menu.display_menu, self.link_to_the_node)
+        show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
         view = self.window.active_view()
@@ -861,7 +874,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command
     def run(self):
-        self.current_file = os.path.basename(self.window.active_view().file_name())
+        self.current_file = os.path.basename(self.view.window().active_view().file_name())
         self.position = self.window.active_view().sel()[0].a
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(
                 self.current_file, 
@@ -1170,12 +1183,11 @@ class PopNodeCommand(UrtextTextCommand):
     def run(self):
         filename = self.view.file_name()
         position = self.view.sel()[0].a
-        new_position = self._UrtextProjectList.current_project.pop_node(filename=filename, position=position)
-        if new_position:
-            self.view.sel().clear()
-            new_cursor_position = sublime.Region(new_position, new_position) 
-            self.view.sel().add(new_cursor_position) 
-
+        future = self._UrtextProjectList.current_project.pop_node(filename=filename, position=position)
+        # if new_position:
+        #     self.view.sel().clear()
+        #     new_cursor_position = sublime.Region(new_position, new_position) 
+        #     self.view.sel().add(new_cursor_position) 
 
 class SplitNodeCommand(UrtextTextCommand):
 
