@@ -942,13 +942,14 @@ class NewNodeWithLinkCommand(UrtextTextCommand):
 
 class NewProjectCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
-    def run(self):
+    def run(self, view):
         global _UrtextProjectList        
         current_path = get_path(self.view)
+        print(current_path)
         new_view = self.window.new_file()
         new_view.set_scratch(True)
         _UrtextProjectList.init_new_project(current_path)
+        new_view.close()
         
 class DeleteThisNodeCommand(UrtextTextCommand):
 
