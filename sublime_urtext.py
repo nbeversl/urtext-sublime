@@ -112,7 +112,7 @@ def refresh_project_event_listener(function):
         view = window.active_view()
         window_id = window.id()
 
-        if view.file_name():
+        if view and view.file_name():
             current_path = os.path.dirname(view.file_name())
             _UrtextProjectList.set_current_project(current_path)
             args[0]._UrtextProjectList = _UrtextProjectList
@@ -230,12 +230,13 @@ class UrtextSaveListener(EventListener):
 
     def on_query_completions(self, view, prefix, locations):
 
-        global urtext_initiated
-        if urtext_initiated:
+        if not _UrtextProjectList.current_project:
+            return
 
-            if _UrtextProjectList.current_project == None:
-                return
-
+        current_path = os.path.dirname(view.file_name())
+      
+        if _UrtextProjectList.get_project(current_path):
+        
             completions = []
             
             for pair in list(_UrtextProjectList.get_all_meta_pairs()):
@@ -252,6 +253,8 @@ class UrtextSaveListener(EventListener):
 
         if future: 
             self.executor.submit(refresh_open_file, future, view)
+        else:
+            print('NO FUTURE/  SUBLIME LINE 256')
 
 class KeepPosition(EventListener):
 
@@ -945,7 +948,6 @@ class NewProjectCommand(UrtextTextCommand):
     def run(self, view):
         global _UrtextProjectList        
         current_path = get_path(self.view)
-        print(current_path)
         new_view = self.window.new_file()
         new_view.set_scratch(True)
         _UrtextProjectList.init_new_project(current_path)
@@ -1527,12 +1529,11 @@ def get_path_from_window(window):
     return None
 
 def refresh_open_file(future, view):
-    filename = view.file_name()
     changed_files = future.result()
-    print('DEBUGGING: modified files:')
-    print(changed_files)
-    if os.path.basename(filename) in changed_files:
-        view.run_command('revert') # undocumented
+    open_files = view.window().views()
+    for filename in open_files:
+        if os.path.basename(filename) in changed_files:
+            view.run_command('revert') # undocumented
 
 def open_external_file(filepath):
     if sublime.platform() == "osx":
