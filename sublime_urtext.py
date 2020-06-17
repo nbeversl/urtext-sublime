@@ -20,7 +20,6 @@ import sublime_plugin
 import os
 import re
 import datetime
-import logging
 import time
 import concurrent.futures
 import subprocess
@@ -747,15 +746,20 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     @refresh_project_text_command
     def run(self):
-        add_inline_node(self.view, include_timestamp=False)    
+        add_inline_node(self.view, trailing_id=True, include_timestamp=False)    
 
 
-def add_inline_node(view, include_timestamp=True, locate_inside=True):
+def add_inline_node(view, 
+    include_timestamp=True, 
+    trailing_id=False,
+    locate_inside=True):
+
     region = view.sel()[0]
     selection = view.substr(region)
     new_node = _UrtextProjectList.current_project.add_inline_node(
         metadata={},
         contents=selection,
+        trailing_id=trailing_id,
         include_timestamp=include_timestamp)
     new_node_contents = new_node[0]
     view.run_command("insert_snippet",
@@ -776,7 +780,6 @@ class RenameFileCommand(UrtextTextCommand):
         self.view.retarget(
             os.path.join(self._UrtextProjectList.current_project.path,
                          new_filenames[old_filename]))
-
 
 class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """

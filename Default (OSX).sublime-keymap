@@ -23,7 +23,6 @@
 	{ "keys": ["ctrl+shift+g"], "command": "toggle_history_traverse"},
 	{ "keys": ["ctrl+shift+c"], "command": "copy_link_to_here"},
 	{ "keys": ["ctrl+shift+super+c"], "command": "copy_link_to_here_with_project"},
-
 ]
 
 
