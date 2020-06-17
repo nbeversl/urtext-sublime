@@ -253,8 +253,6 @@ class UrtextSaveListener(EventListener):
 
         if future: 
             self.executor.submit(refresh_open_file, future, view)
-        else:
-            print('NO FUTURE/  SUBLIME LINE 256')
 
 class KeepPosition(EventListener):
 
@@ -509,6 +507,23 @@ class NodeBrowserCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(selected_item.node_id)   
         open_urtext_node(self.view, selected_item.node_id)
 
+
+class BacklinksBrowser(NodeBrowserCommand):
+
+    @refresh_project_text_command
+    def run(self):
+
+        self.menu = NodeBrowserMenu(
+            self._UrtextProjectList, 
+            project=self._UrtextProjectList.current_project,
+            nodes=self._UrtextProjectList.current_project.get_links_to(get_node_id(self.view))
+            )
+        show_panel(
+            self.view.window(), 
+            self.menu.display_menu, 
+            self.open_the_file)
+
+
 class AllProjectsNodeBrowser(NodeBrowserCommand):
     
     @refresh_project_text_command
@@ -635,10 +650,7 @@ class ShowTreeFromNode(UrtextTextCommand):
             else:
                 sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
 
-        filename = self.view.file_name()
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        tree_render = self._UrtextProjectList.current_project.show_tree_from(node_id)
+        tree_render = self._UrtextProjectList.current_project.show_tree_from(get_node_id(self.view))
         tree_view = target_tree_view(self.view)
         tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
         render_tree(tree_view, tree_render)
@@ -654,10 +666,8 @@ class ShowTreeFromRootCommand(UrtextTextCommand):
             else:
                 sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
 
-        filename = os.path.basename(self.view.file_name())
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        tree_render = self._UrtextProjectList.current_project.show_tree_from(node_id, from_root_of=True)
+        tree_render = self._UrtextProjectList.current_project.show_tree_from(
+            get_node_id(self.view), from_root_of=True)
         tree_view = target_tree_view(self.view)
         tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
         render_tree(tree_view, tree_render)
@@ -723,10 +733,7 @@ class InsertInterlinksCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        position = self.view.sel()[0].a
-        filename = self.view.file_name()
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        insertion =  self._UrtextProjectList.current_project.insert_interlinks(node_id)
+        insertion =  self._UrtextProjectList.current_project.insert_interlinks(get_node_id(self.view))
         self.view.run_command("insert_snippet",
                           {"contents": insertion}) 
 
@@ -771,7 +778,7 @@ class RenameFileCommand(UrtextTextCommand):
                          new_filenames[old_filename]))
 
 
-class NodeBrowserMenu():
+class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """
 
     def __init__(self, 
@@ -877,12 +884,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command
     def run(self):
-        self.current_file = os.path.basename(self.view.window().active_view().file_name())
-        self.position = self.window.active_view().sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(
-                self.current_file, 
-                self.position)
-        link = self.get_link(node_id)
+        link = self.get_link(get_node_id(self.window.active_view()))
         sublime.set_clipboard(link)        
         self.view.show_popup(link + '\ncopied to the clipboard', 
             max_width=1800, 
@@ -981,11 +983,9 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
         self.view.run_command('save')  # TODO insert notification
         current_file = self.view.file_name()
         if current_file:
-            filename = os.path.basename(current_file)
-            position = self.view.sel()[0].a
-            node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
             if node_id:
-                self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
+                self._UrtextProjectList.current_project.consolidate_metadata(
+                    get_node_id(self.view), one_line=True)
                 return True    
         print('No Urtext node or no Urtext node with ID found here.')
         return False
@@ -1059,10 +1059,7 @@ class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
 
     @refresh_project_text_command
     def run(self):
-        filename = os.path.basename(self.view.file_name())
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        render = self._UrtextProjectList.current_project.get_node_relationships(node_id)
+        render = self._UrtextProjectList.current_project.get_node_relationships(get_node_id(self.view))
 
         def draw_tree(view, render):
             if not view.is_loading():
@@ -1145,10 +1142,7 @@ class ExportFromIdCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):        
-        filename = self.view.file_name()
-        position = self.view.sel()[0].a
-        node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-        exported = self._UrtextProjectList.current_project.export_from_root_node(node_id)
+        exported = self._UrtextProjectList.current_project.export_from_root_node(get_node_id(self.view))
         new_view = self.view.window().new_file()
         new_view.run_command("insert_snippet", {
                 "contents":
@@ -1542,5 +1536,12 @@ def open_external_file(filepath):
         os.startfile(filepath)
     elif sublime.platform() == "linux":
         subprocess.open(('xdg-open', filepath))
+
+def get_node_id(view):
+    global _UrtextProjectList
+    filename = os.path.basename(view.file_name())
+    position = view.sel()[0].a
+    return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+
 
 

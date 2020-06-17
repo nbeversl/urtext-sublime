@@ -12,6 +12,7 @@
     { "caption": "Urtext: Select Project", "command" :"list_projects"},
     { "caption": "Urtext: To Source Node", "command" :"to_source_node"},
     { "caption": "Urtext: File History", "command" :"back_history"},
+    { "caption": "Urtext: Backlinks", "command" :"backlinks_browser"},
 
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
