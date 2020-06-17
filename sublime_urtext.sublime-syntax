@@ -14,6 +14,7 @@ contexts:
     - include: link_title
     - include: other-project-link
     - include: compact-node-opener
+    - include: ending_node_id
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -274,7 +275,7 @@ contexts:
     - include: tagvalue-separator
     - include: datestamp
     - include: node_id
-
+    
     - match: '--/'
       scope: punctuation.section.generic.end.urtext
       pop: true
@@ -305,6 +306,10 @@ contexts:
 
   node_id:
     - match: '\b[0-9,a-z]{3}\b'
+      scope: entity.name.struct.node_id.urtext
+
+  ending_node_id:
+    - match: '\b[0-9,a-z]{3}(?=}})'
       scope: entity.name.struct.node_id.urtext
 
   other-project-link:
