@@ -984,12 +984,10 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         self.view.run_command('save')  # TODO insert notification
-        current_file = self.view.file_name()
-        if current_file:
-            if node_id:
-                self._UrtextProjectList.current_project.consolidate_metadata(
-                    get_node_id(self.view), one_line=True)
-                return True    
+        node_id = get_node_id(self.view)
+        if node_id:
+            self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
+            return True    
         print('No Urtext node or no Urtext node with ID found here.')
         return False
 
@@ -1039,8 +1037,7 @@ class GenerateTimelineCommand(UrtextTextCommand):
     @refresh_project_text_command
     def run(self):
         new_view = self.view.window().new_file()
-        nodes = [self._UrtextProjectList.current_project.nodes[node_id] for node_id in self._UrtextProjectList.current_project.nodes]
-        timeline = self._UrtextProjectList.current_project.build_timeline(nodes)
+        timeline = self._UrtextProjectList.current_project.build_timeline()
         self.show_stuff(new_view, timeline)
         new_view.set_scratch(True)
 
@@ -1109,9 +1106,10 @@ class OpenUrtextLogCommand(UrtextTextCommand):
     
     @refresh_project_text_command
     def run(self):
-        file_view = self.view.window().open_file(
-            os.path.join(_UrtextProjectList.current_project.path,
-                         _UrtextProjectList.current_project.settings['logfile']))
+
+        log_id = self._UrtextProjectList.current_project.settings['log_id']
+        if log_id:
+            open_urtext_node(self.view, log_id)
 
         def go_to_end(view):
             if not view.is_loading():
@@ -1121,7 +1119,7 @@ class OpenUrtextLogCommand(UrtextTextCommand):
             else:
                 sublime.set_timeout(lambda: go_to_end(view), 10)
 
-        go_to_end(file_view)
+        go_to_end(self.view)
 
 class UrtextNodeListCommand(UrtextTextCommand):
 
