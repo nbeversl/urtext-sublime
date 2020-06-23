@@ -1531,6 +1531,7 @@ def refresh_open_file(future, view):
             view.run_command('revert') # undocumented
 
 def open_external_file(filepath):
+    print(filepath)
     if sublime.platform() == "osx":
         subprocess.Popen(('open', filepath))
     elif sublime.platform() == "windows":
