@@ -1537,7 +1537,7 @@ def open_external_file(filepath):
     elif sublime.platform() == "windows":
         os.startfile(filepath)
     elif sublime.platform() == "linux":
-        subprocess.open(('xdg-open', filepath))
+        subprocess.Popen(('xdg-open', filepath))
 
 def get_node_id(view):
     global _UrtextProjectList
