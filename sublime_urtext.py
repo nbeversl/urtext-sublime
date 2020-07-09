@@ -1173,7 +1173,7 @@ class CompactNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command
     def run(self):
-        add_compact_node(self.view)
+        add_compact_node(self.edit, self.view)
 
 class PopNodeCommand(UrtextTextCommand):
 
@@ -1490,9 +1490,9 @@ def center_node(new_view, position):
         else:
             sublime.set_timeout(lambda: center_node(new_view, position), 10)
 
-def add_compact_node(view):
+def add_compact_node(edit, view):
     
-    region = view.sel()[0]    
+    region = view.sel()[0]
     selection = view.substr(region)
     line = view.line(region) # get full line
     next_line_down = line.b
@@ -1502,9 +1502,11 @@ def add_compact_node(view):
     view.sel().add(next_line_down) 
     view.run_command("insert_snippet",
                           {"contents": '\n'+new_node_contents})
+
     new_cursor_position = sublime.Region(next_line_down + 3, next_line_down + 3) 
     view.sel().clear()
     view.sel().add(new_cursor_position) 
+    view.erase(edit, region)
 
 def get_path(view):  ## makes the path persist as much as possible ##
 

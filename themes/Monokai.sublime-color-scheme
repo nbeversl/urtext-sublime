@@ -2,6 +2,8 @@
 	"name": "Urtext Monokai",
     "variables": {
 		 "unobtrusive": "hsl(0, 0%, 20%)",
+		 "grey": "hsl(0, 0%, 50%)",
+		 
 		 "blue-bright" : "hsl(225, 80%, 40%)",
 		 "blue-brighter" : "hsl(225, 80%, 60%)",
 		 
@@ -179,9 +181,17 @@
 	  			"foreground": "var(bright-green)",
 	  			"font_style":"bold",
 	  		},
-
-
+	  		{   "scope": "urtext.inline_meta_key",
+	  			"foreground": "var(bright-green)",
+	  			"font_style":"bold",
+	  		},
+	  		{   "scope": "urtext.inline_meta_value",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold",
+	  		},
+			{   "scope": "urtext.inline_meta_separator",
+	  			"foreground": "var(grey)",
+	  		},
 	  		
-
 	],
 }

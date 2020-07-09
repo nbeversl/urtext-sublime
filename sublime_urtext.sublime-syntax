@@ -15,6 +15,9 @@ contexts:
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
+    - include: inline-metadata-key 
+    - include: inline-metadata-value
+    - include: inline-metadata-separator
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -197,6 +200,9 @@ contexts:
   inline-node-1: 
     - meta_scope: inline_node_1 
     - include: datestamp
+    - include: inline-metadata-key 
+    - include: inline-metadata-value
+    - include: inline-metadata-separator
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
@@ -208,6 +214,9 @@ contexts:
   inline-node-2: 
     - meta_scope: inline_node_2 
     - include: datestamp
+    - include: inline-metadata-key 
+    - include: inline-metadata-value
+    - include: inline-metadata-separator
     - match: '}}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -321,7 +330,6 @@ contexts:
       push: compact-node
       scope: urtext.compact_node_marker
    
-
   compact-node: 
     - include: datestamp
     - include: main
@@ -331,4 +339,15 @@ contexts:
     - match: $
       pop: true
   
-    
+  inline-metadata-key:
+    - match: \w+?(?=::)
+      scope: urtext.inline_meta_key
+
+  inline-metadata-value:
+    - match: (?<=::)\w+
+      scope: urtext.inline_meta_value
+
+  inline-metadata-separator:
+    - match: '::'
+      scope: urtext.inline_meta_separator
+
