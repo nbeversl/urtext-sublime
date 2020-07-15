@@ -44,55 +44,70 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-def refresh_project_text_command(function, init_project=False):
+def refresh_project_text_command(import_project=False):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
-    """
-    def wrapper(*args, **kwargs):
+    """    
+    def middle(function):
 
-        global urtext_initiated
-        urtext_initiated = True
+        def wrapper(*args, **kwargs):
 
-        view = args[0].view
-        edit = args[1]
+            global urtext_initiated
+            urtext_initiated = True
 
-        _UrtextProjectList = initialize_project_list(view)
-        if not _UrtextProjectList:
+            
+            view = args[0].view
+            edit = args[1]
+
+            _UrtextProjectList = initialize_project_list(view)
+            if not _UrtextProjectList:
+                return None
+
+            window = sublime.active_window()
+            if not window:
+                print('NO WINDOW')
+                print(function) # debugging
+                return
+
+            view = window.active_view()
+            window_id = window.id()
+
+            # get the current project first from the view
+            if view.file_name():
+                current_path = os.path.dirname(view.file_name())
+                _UrtextProjectList.set_current_project(current_path)
+                if import_project :
+                    _UrtextProjectList.import_project(current_path)
+            
+            # then try the window
+            elif window_id in _SublimeUrtextWindows:
+                current_path = _SublimeUrtextWindows[window_id]
+                _UrtextProjectList.set_current_project(current_path)
+                if import_project :
+                    _UrtextProjectList.import_project(current_path)
+
+            # otherwise assign the current window to the current project
+            elif _UrtextProjectList.current_project:
+                _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+                
+            # If there is a current project, return it
+            if _UrtextProjectList.current_project:
+                args[0].edit = edit
+                args[0]._UrtextProjectList = _UrtextProjectList
+                view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
+                return function(args[0])
+
+            elif import_project:
+                current_paths = window.folders()
+                for path in current_paths:
+                    _UrtextProjectList.import_project(path)
+
             return None
 
-        window = sublime.active_window()
-        if not window:
-            print('NO WINDOW')
-            print(function)
-            return
+        return wrapper
 
-        view = window.active_view()
-        window_id = window.id()
-
-        if view.file_name():
-            current_path = os.path.dirname(view.file_name())
-            _UrtextProjectList.set_current_project(current_path)
-        
-        elif window_id in _SublimeUrtextWindows:
-            current_path = _SublimeUrtextWindows[window_id]
-            _UrtextProjectList.set_current_project(current_path)
-
-        elif _UrtextProjectList.current_project:
-            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
-            
-        if _UrtextProjectList.current_project:
-            args[0].edit = edit
-            args[0]._UrtextProjectList = _UrtextProjectList
-            view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
-            return function(args[0])
-
-        if init_project:
-            return _UrtextProjectList
-        
-        return None
-
-    return wrapper
+    return middle
 
 def refresh_project_event_listener(function):
 
@@ -145,9 +160,6 @@ def initialize_project_list(view, init_project=False, reload_projects=False):
         if not current_path:
             return None
         _UrtextProjectList = ProjectList(current_path)
-
-    if not _UrtextProjectList.current_project and not init_project:
-        return None
         
     return _UrtextProjectList
 
@@ -171,7 +183,7 @@ def get_path(view):
       
 class ListProjectsCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         show_panel(
             self.view.window(), 
@@ -189,7 +201,7 @@ class ListProjectsCommand(UrtextTextCommand):
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         show_panel(
             self.window,
@@ -245,6 +257,10 @@ class UrtextSaveListener(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
+        
+        if not view.file_name():
+            return
+
         future = self._UrtextProjectList.on_modified(view.file_name())
 
         #always take a snapshot manually on save
@@ -257,8 +273,10 @@ class KeepPosition(EventListener):
 
     @refresh_project_event_listener
     def on_modified(self, view):
-        position = view.sel()
+        if not view:
+            return
 
+        position = view.sel()
         def restore_position(view, position):
             if not view.is_loading():
                 view.show(position)
@@ -270,7 +288,7 @@ class KeepPosition(EventListener):
 
 class UrtextHomeCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         node_id = _UrtextProjectList.current_project.get_home()
         _UrtextProjectList.nav_new(node_id)
@@ -278,7 +296,7 @@ class UrtextHomeCommand(UrtextTextCommand):
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         last_node = _UrtextProjectList.nav_reverse()
         if last_node:
@@ -286,7 +304,7 @@ class NavigateBackwardCommand(UrtextTextCommand):
 
 class NavigateForwardCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         next_node = _UrtextProjectList.nav_advance()
         if next_node:
@@ -294,7 +312,7 @@ class NavigateForwardCommand(UrtextTextCommand):
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         position = self.view.sel()[0].a
         column = self.view.rowcol(position)[1]
@@ -349,7 +367,8 @@ class JumpToSource(EventListener):
         For now, making available only if few is not dirty. However this should
         still be usable in many cases.
         """
-
+        if not view:
+            return
         position = view.sel()[0].a
         filename = view.file_name()
         if filename:
@@ -368,7 +387,7 @@ def take_snapshot(view, project):
 class ToggleHistoryTraverse(UrtextTextCommand):
     """ Toggles history traversing on/off """
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         global is_browsing_history
         window = self.view.window()
@@ -488,7 +507,7 @@ class TraverseHistoryView(EventListener):
 
 class NodeBrowserCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
@@ -509,7 +528,7 @@ class NodeBrowserCommand(UrtextTextCommand):
 
 class BacklinksBrowser(NodeBrowserCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
 
         self.menu = NodeBrowserMenu(
@@ -525,7 +544,7 @@ class BacklinksBrowser(NodeBrowserCommand):
 
 class AllProjectsNodeBrowser(NodeBrowserCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
@@ -538,7 +557,7 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
 
 class FullTextSearchCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
         self.view.window().show_input_panel(
@@ -589,7 +608,7 @@ def size_to_groups(groups, view):
 
 class TagNodeCommand(UrtextTextCommand):  #under construction
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.keynames = [value for value in self._UrtextProjectList.current_project.keynames]
         self.view.window().show_quick_panel(self.keynames, self.list_values)
@@ -640,7 +659,7 @@ class TagNodeCommand(UrtextTextCommand):  #under construction
 
 class ShowTreeFromNode(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
 
         def render_tree(view, tree_render):
@@ -656,7 +675,7 @@ class ShowTreeFromNode(UrtextTextCommand):
 
 class ShowTreeFromRootCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
 
         def render_tree(view, tree_render):
@@ -730,7 +749,7 @@ def target_tree_view(view):
 
 class InsertInterlinksCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         insertion =  self._UrtextProjectList.current_project.insert_interlinks(get_node_id(self.view))
         self.view.run_command("insert_snippet",
@@ -738,13 +757,13 @@ class InsertInterlinksCommand(UrtextTextCommand):
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         add_inline_node(self.view)
 
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         add_inline_node(self.view, trailing_id=True, include_timestamp=False)    
 
@@ -773,7 +792,7 @@ def add_inline_node(view,
 
 class RenameFileCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         old_filename = self.view.file_name()
         new_filenames = self._UrtextProjectList.current_project.rename_file_nodes(old_filename)
@@ -867,12 +886,14 @@ def show_panel(window, menu, main_callback):
 
 class LinkToNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.menu = NodeBrowserMenu(self._UrtextProjectList, project=None)
         show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
+        if not self.window:
+            return
         view = self.window.active_view()
         selected_option = self.menu.get_selection_from_index(selected_option)
         link = self._UrtextProjectList.build_contextual_link(
@@ -885,7 +906,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     Copy a link to the node containing the cursor to the clipboard.
     Does not include project title.
     """
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         link = self.get_link(get_node_id(self.window.active_view()))
         sublime.set_clipboard(link)        
@@ -921,7 +942,7 @@ def get_contents(view):
 
 class ShowAllNodesCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         new_view = self.view.window().new_file()
         output = self._UrtextProjectList.current_project.list_nodes()
@@ -929,7 +950,7 @@ class ShowAllNodesCommand(UrtextTextCommand):
 
 class NewNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
@@ -938,7 +959,7 @@ class NewNodeCommand(UrtextTextCommand):
 
 class NewNodeWithLinkCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
@@ -960,7 +981,7 @@ class NewProjectCommand(UrtextTextCommand):
         
 class DeleteThisNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         file_name = os.path.basename(self.view.file_name())
         if self.view.is_dirty():
@@ -970,7 +991,7 @@ class DeleteThisNodeCommand(UrtextTextCommand):
 
 class InsertTimestampCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         datestamp = self._UrtextProjectList.current_project.timestamp(datetime.datetime.now())
         for s in self.view.sel():
@@ -981,7 +1002,7 @@ class InsertTimestampCommand(UrtextTextCommand):
 
 class ConsolidateMetadataCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')  # TODO insert notification
         node_id = get_node_id(self.view)
@@ -993,7 +1014,7 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
 
 class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         now = datetime.datetime.now()
         node_id = add_inline_node(
@@ -1016,7 +1037,7 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
         
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         # save the current file first
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
@@ -1034,7 +1055,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
 
 class GenerateTimelineCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         new_view = self.view.window().new_file()
         timeline = self._UrtextProjectList.current_project.build_timeline()
@@ -1057,7 +1078,7 @@ class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
     # Also this command does not currently utilize the global array, it reads files manually.
     # Necessary to change it?
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         render = self._UrtextProjectList.current_project.get_node_relationships(get_node_id(self.view))
 
@@ -1076,7 +1097,7 @@ class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
 
 class ReIndexFilesCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         renamed_files = self._UrtextProjectList.current_project.reindex_files()
         for view in self.view.window().views():
@@ -1090,7 +1111,7 @@ class ReIndexFilesCommand(UrtextTextCommand):
 
 class AddNodeIdCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
@@ -1098,13 +1119,14 @@ class AddNodeIdCommand(UrtextTextCommand):
 
 class ImportProjectCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command(import_project=True)
     def run(self):
-        self._UrtextProjectList.import_project(get_path(self.view))
+        pass
+
 
 class OpenUrtextLogCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
 
         log_id = self._UrtextProjectList.current_project.settings['log_id']
@@ -1123,7 +1145,7 @@ class OpenUrtextLogCommand(UrtextTextCommand):
 
 class UrtextNodeListCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         if 'zzz' in self._UrtextProjectList.current_project.nodes:
             self._UrtextProjectList.nav_new('zzz')
@@ -1133,7 +1155,7 @@ class UrtextNodeListCommand(UrtextTextCommand):
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         if initialize_project_list(self.view, reload_projects=True) == None:
             print('No Urtext Project')
@@ -1141,7 +1163,7 @@ class UrtextReloadProjectCommand(UrtextTextCommand):
 
 class ExportFromIdCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):        
         exported = self._UrtextProjectList.current_project.export_from_root_node(get_node_id(self.view))
         new_view = self.view.window().new_file()
@@ -1152,7 +1174,7 @@ class ExportFromIdCommand(UrtextTextCommand):
 
 class ExportFileAsHtmlCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):        
         filename = self.view.file_name()
         self._UrtextProjectList.current_project.export(  filename, 
@@ -1165,31 +1187,27 @@ class ExportFileAsHtmlCommand(UrtextTextCommand):
 
 class ExportProjectAsHtmlCommand(UrtextTextCommand):
     
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):        
         self._UrtextProjectList.current_project.export_project(jekyll=True, style_titles=False)
 
 class CompactNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         add_compact_node(self.edit, self.view)
 
 class PopNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         filename = self.view.file_name()
         position = self.view.sel()[0].a
         future = self._UrtextProjectList.current_project.pop_node(filename=filename, position=position)
-        # if new_position:
-        #     self.view.sel().clear()
-        #     new_cursor_position = sublime.Region(new_position, new_position) 
-        #     self.view.sel().add(new_cursor_position) 
 
 class SplitNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         node_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
@@ -1197,7 +1215,7 @@ class SplitNodeCommand(UrtextTextCommand):
 
 class RandomNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         node_id = self._UrtextProjectList.current_project.random_node()
         self._UrtextProjectList.nav_new(node_id)
@@ -1206,7 +1224,7 @@ class RandomNodeCommand(UrtextTextCommand):
 
 class ToggleTraverse(UrtextTextCommand):
 
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
 
         # determine whether then view already has traverse settings attached
@@ -1255,13 +1273,13 @@ class ToggleTraverse(UrtextTextCommand):
         self.view.window().focus_group(active_group)
 
 class ShowAccessHistory(UrtextTextCommand):
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project._show_access_history()
 
 
 class ExportToIcs(UrtextTextCommand):
-    @refresh_project_text_command
+    @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project.export_to_ics()
 
