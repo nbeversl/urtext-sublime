@@ -255,19 +255,19 @@ class UrtextSaveListener(EventListener):
 
             return completions
 
-    @refresh_project_event_listener
-    def on_post_save(self, view):
+    # @refresh_project_event_listener
+    # def on_post_save(self, view):
         
-        if not view.file_name():
-            return
+    #     if not view.file_name():
+    #         return
 
-        future = self._UrtextProjectList.on_modified(view.file_name())
+    #     future = self._UrtextProjectList.on_modified(view.file_name())
 
-        #always take a snapshot manually on save
-        take_snapshot(view, self._UrtextProjectList.current_project)
+    #     #always take a snapshot manually on save
+    #     take_snapshot(view, self._UrtextProjectList.current_project)
 
-        if future: 
-            self.executor.submit(refresh_open_file, future, view)
+    #     if future: 
+    #         self.executor.submit(refresh_open_file, future, view)
 
 class KeepPosition(EventListener):
 
@@ -1129,9 +1129,11 @@ class OpenUrtextLogCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
 
-        log_id = self._UrtextProjectList.current_project.settings['log_id']
-        if log_id:
-            open_urtext_node(self.view, log_id)
+        log_id = self._UrtextProjectList.current_project.get_log_node()
+        if not log_id:
+            return
+
+        open_urtext_node(self.view, log_id)
 
         def go_to_end(view):
             if not view.is_loading():
