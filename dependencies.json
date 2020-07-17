@@ -2,7 +2,6 @@
    "*": {
       "*": [
          "pathtools",
-         "watchdog",
          "requests"
       ]
    }

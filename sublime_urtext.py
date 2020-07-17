@@ -35,7 +35,6 @@ urtext_initiated = False
 quick_panel_waiting = False
 quick_panel_active  = False
 quick_panel_id = 0
-
 is_browsing_history = False
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
