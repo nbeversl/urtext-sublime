@@ -158,7 +158,7 @@ def initialize_project_list(view, init_project=False, reload_projects=False):
         current_path = get_path(view)
         if not current_path:
             return None
-        _UrtextProjectList = ProjectList(current_path)
+        _UrtextProjectList = ProjectList(current_path, watchdog=True)
         
     return _UrtextProjectList
 
