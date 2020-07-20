@@ -4,7 +4,8 @@ import sublime_plugin
 from .sublime_urtext import refresh_project_text_command
 
 class DebugCommand(sublime_plugin.TextCommand):
-    @refresh_project_text_command
+
+    @refresh_project_text_command()
     def run(self):
         filename = self.view.file_name()
         position = self.view.sel()[0].a

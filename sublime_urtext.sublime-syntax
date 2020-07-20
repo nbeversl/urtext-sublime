@@ -344,7 +344,7 @@ contexts:
       scope: urtext.inline_meta_key
 
   inline-metadata-value:
-    - match: (?<=::)\w+
+    - match: (?<=::)[^\n};]+;?
       scope: urtext.inline_meta_value
 
   inline-metadata-separator:
