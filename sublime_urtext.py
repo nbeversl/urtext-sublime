@@ -250,23 +250,23 @@ class UrtextSaveListener(EventListener):
             completions = []
             
             for pair in list(_UrtextProjectList.get_all_meta_pairs()):
-                completions.append([pair, '/-- '+pair+' --/'])
+                completions.append([pair, pair+';'])
 
             return completions
 
-    # @refresh_project_event_listener
-    # def on_post_save(self, view):
+    @refresh_project_event_listener
+    def on_post_save(self, view):
         
-    #     if not view.file_name():
-    #         return
+        if not view.file_name():
+            return
 
-    #     future = self._UrtextProjectList.on_modified(view.file_name())
+        future = self._UrtextProjectList.on_modified(view.file_name())
 
-    #     #always take a snapshot manually on save
-    #     take_snapshot(view, self._UrtextProjectList.current_project)
+        #always take a snapshot manually on save
+        take_snapshot(view, self._UrtextProjectList.current_project)
 
-    #     if future: 
-    #         self.executor.submit(refresh_open_file, future, view)
+        if future: 
+            self.executor.submit(refresh_open_file, future, view)
 
 class KeepPosition(EventListener):
 

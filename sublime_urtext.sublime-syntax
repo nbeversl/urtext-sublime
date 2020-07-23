@@ -21,9 +21,6 @@ contexts:
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
-    - match: '/--'
-      scope: punctuation.section.generic.end.urtext
-      push: meta-block
     - match: '{{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-1
@@ -93,30 +90,24 @@ contexts:
       pop: true
 
   function-key-value-keyword-parameters:
-    - include: dynamic-keyword
-    - include: key-value-string
     - include: key-value 
+    - include: dynamic-keyword
     - include: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
 
   key-value:
-    - match: '([\w]+)\:([\w]*)'
+    - match: '(\w+)\s?[=|~|?|(::)]\s?([^\n;)]+)([\n;]?)'
       captures:
         1: dynamic-key.urtext
         2: dynamic-value.urtext  
+        3: dynamic-delimiter.urtext  
 
 
   dynamic-keyword:
-    - match: \b(reverse|last_accessed|preformat|all|meta|inline|indexed|and|or|all_projects|multiline_meta|indent|index|timestamp|markdown|html|plaintext|source|recursive)\b
+    - match: \b(reverse|last_accessed|preformat|all|meta|use_timestamp|inline|indexed|and|or|all_projects|multiline_meta|indent|index|timestamp|markdown|html|plaintext|source|recursive)\b
       scope: dynamic-keyword.urtext
-
-  key-value-string:
-    - match: '([\w]+)\:("[\w\s]+")'
-      captures: 
-        1: dynamic-key.urtext
-        2: dynamic-value.urtext
 
   # SHOW() function - uses only format string
 
@@ -139,8 +130,7 @@ contexts:
     - match: \$[A-Za-z0-9_-]+
       scope: dynamic-def-format-var.urtext
    
-    
-
+  
   # Functions with keywords only 
   # SORT, TIMELINE
 
@@ -275,20 +265,6 @@ contexts:
     - match: '\s(DONE|REMOVED|TODO|IN PROGRESS)'
       scope: markup.bold
 
-  meta-block:
-    - meta_scope: meta-block.urtext
-    - include: link_title
-    - include: tag-names
-    - include: tag-values
-    - include: tagname-separator
-    - include: tagvalue-separator
-    - include: datestamp
-    - include: node_id
-    
-    - match: '--/'
-      scope: punctuation.section.generic.end.urtext
-      pop: true
-
   meta-key-terminator:
     - match: ';'
       scope: punctuation.terminator.urtext
@@ -296,14 +272,6 @@ contexts:
   datestamp:
     - match: <.*?>
       scope: entity.name.struct.datestamp.urtext
-
-  tag-names:
-    - match: '[\w\s]+:'
-      scope: entity.name.tagname.urtext
-
-  tag-values:
-    - match: ((?!--\/)[^;|])*
-      scope: entity.name.value.urtext
 
   tagname-separator:
     - match: ';'
@@ -344,7 +312,7 @@ contexts:
       scope: urtext.inline_meta_key
 
   inline-metadata-value:
-    - match: (?<=::)[^\n};]+;?
+    - match: (?<=::)[^\s][^\n};]+;?
       scope: urtext.inline_meta_value
 
   inline-metadata-separator:
