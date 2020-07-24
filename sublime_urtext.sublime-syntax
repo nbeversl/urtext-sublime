@@ -106,7 +106,7 @@ contexts:
 
 
   dynamic-keyword:
-    - match: \b(reverse|last_accessed|preformat|all|meta|use_timestamp|inline|indexed|and|or|all_projects|multiline_meta|indent|index|timestamp|markdown|html|plaintext|source|recursive)\b
+    - match: '[\s](-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|all|-use-timestamp|-t|and|or|-all-projects|-*p|-multiline_meta|-mm|-markdown|-md|-html|-plaintext|-txt|-recursive)\b'
       scope: dynamic-keyword.urtext
 
   # SHOW() function - uses only format string

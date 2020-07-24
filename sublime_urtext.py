@@ -1049,7 +1049,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         timestamp = self._UrtextProjectList.current_project.timestamp(datetime.datetime.now())
 
         # TODO move this into urtext, not Sublime
-        tag = '/-- tags: done ' + timestamp + ' --/'
+        tag = ' tags::done ' + timestamp + '; '
         _UrtextProjectList.current_project.tag_other_node(node_id, tag)
 
 class GenerateTimelineCommand(UrtextTextCommand):
