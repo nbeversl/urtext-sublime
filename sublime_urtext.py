@@ -54,7 +54,6 @@ def refresh_project_text_command(import_project=False):
 
             global urtext_initiated
             urtext_initiated = True
-
             
             view = args[0].view
             edit = args[1]
@@ -112,14 +111,15 @@ def refresh_project_event_listener(function):
 
     def wrapper(*args):
         view = args[1]
-        
-        _UrtextProjectList = initialize_project_list(view)
+
+        # Listeners only run if Urtext project list is initialized
         if not _UrtextProjectList:
             return None
 
+        #_UrtextProjectList = initialize_project_list(view)
+        
         window = sublime.active_window()
         if not window:
-            print('NO WINDOW')
             return
         
         view = window.active_view()
@@ -140,8 +140,8 @@ def refresh_project_event_listener(function):
         if _UrtextProjectList.current_project:
             _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
             args[0]._UrtextProjectList = _UrtextProjectList
-
             return function(args[0], view)
+
         return None
 
     return wrapper

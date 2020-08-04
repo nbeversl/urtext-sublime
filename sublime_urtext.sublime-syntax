@@ -55,26 +55,26 @@ contexts:
     - include: link_title
     - include: link
 
-    - match: (INCLUDE|EXCLUDE|METADATA|TAG_ALL)(?=\()
+    - match: (INCLUDE|EXCLUDE|SORT)(?=\()
       scope: function-name.urtext
       push: function-with-key-values
     
-    - match: (SHOW|SEARCH)(?=\()
+    - match: (SHOW)(?=\()
       scope: function-name.urtext
       push: function-with-format-string
     
-    - match: (SORT|TIMELINE|FORMAT|LIMIT|EXPORT)(?=\()
+    - match: (FORMAT|LIMIT)(?=\()
       scope: function-name.urtext
       push: function-with-keywords-only
    
-    - match: (ID|TREE)(?=\()
+    - match: (ID|TARGET)(?=\()
       scope: function-name.urtext
       push: function-with-node-id
-
-    - match: (FILE)(?=\()
-      scope: function-name.urtext
-      push: function-with-filename
     
+    - match: (HEADER|FOOTER)(?=\()
+      scope: function-name.urtext
+      push: function-with-node-syntax
+
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
@@ -82,31 +82,54 @@ contexts:
   # Functions using key-value pairs, values with string literals, and keywords
   # INCLUDE, EXCLUDE, METADATA
 
-  function-with-key-values:
+  function-with-key-values:    
     - match: \(
       scope: dynamic-definition-parens
       push: function-key-value-keyword-parameters
     - match: (?<=\))
       pop: true
 
+  function-with-node-syntax:
+    - match: \(
+      scope: dynamic-definition-parens
+      push: function-node-syntax
+    - match: (?<=\))
+      pop: true
+
+  function-node-syntax:
+    - include: datestamp
+    - include: link
+    - include: link_prefix
+    - include: link_title
+    - include: other-project-link
+    - include: inline-metadata-key
+    - include: inline-metadata-value
+    - include: inline-metadata-separator
+    - match: \)
+      scope: dynamic-definition-parens
+      pop: true
+
   function-key-value-keyword-parameters:
-    - include: key-value 
     - include: dynamic-keyword
+    - include: key-value 
     - include: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
 
   key-value:
-    - match: '(\w+)\s?[=|~|?|(::)]\s?([^\n;)]+)([\n;]?)'
+    - match: '(\w+)\s?[=|~|?]\s?([^\n;\-)]+)([\n;]?)'
       captures:
         1: dynamic-key.urtext
         2: dynamic-value.urtext  
         3: dynamic-delimiter.urtext  
 
+  output-flags:
+    - match: '(-tree|-list|-collection|-search|-interlinks|-plaintext|-txt|-markdown|-md|-html)'
+      scope: dynamic-keyword.urtext
 
   dynamic-keyword:
-    - match: '[\s](-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|all|-use-timestamp|-t|and|or|-all-projects|-*p|-multiline_meta|-mm|-markdown|-md|-html|-plaintext|-txt|-recursive)\b'
+    - match: '(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm||-recursive)\b'
       scope: dynamic-keyword.urtext
 
   # SHOW() function - uses only format string
@@ -151,6 +174,7 @@ contexts:
   # ID, TREE
 
   function-with-node-id:
+
     - match: \(
       scope: dynamic-definition-parens
       push: function-with-node-id-parameters
@@ -158,6 +182,9 @@ contexts:
       pop: true
 
   function-with-node-id-parameters:
+    - include: link
+    - include: output-flags
+    - include: file_link
     - include: node-id-in-dynamic-definition
     - match: \)
       scope: dynamic-definition-parens
@@ -252,6 +279,10 @@ contexts:
   link:
     - match: '(?<=>)[0-9,a-z]{3}'
       scope: link.urtext
+
+  file_link:  
+    - match: '(?<=f>)[0-9,a-z]{10}'
+      scope: file_link.urtext
 
   link_title:
     - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'

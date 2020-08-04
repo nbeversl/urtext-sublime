@@ -192,6 +192,10 @@
 			{   "scope": "urtext.inline_meta_separator",
 	  			"foreground": "var(grey)",
 	  		},
+
+			{   "scope": "file_link.urtext",
+	  			"foreground": "var(grey)",
+	  		},
 	  		
 	],
 }
