@@ -1022,7 +1022,7 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
             locate_inside=False)
         # This should possibly be moved into Urtext as a utility method.
         position = self.view.sel()[0].a
-        content = '\n\n[[ ID(' + node_id + ')\n\n ]]'
+        content = '\n\n[[ ID(>' + node_id + ')\n\n ]]'
         
         for s in self.view.sel():
             if s.empty():

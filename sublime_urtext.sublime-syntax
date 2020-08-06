@@ -80,7 +80,7 @@ contexts:
       pop: true
    
   # Functions using key-value pairs, values with string literals, and keywords
-  # INCLUDE, EXCLUDE, METADATA
+  # INCLUDE, EXCLUDE
 
   function-with-key-values:    
     - match: \(
