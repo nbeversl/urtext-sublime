@@ -1114,7 +1114,7 @@ class AddNodeIdCommand(UrtextTextCommand):
     def run(self):
         new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
-                              {"contents": "/-- ID: " + new_id + " --/"})
+                              {"contents": "id::" + new_id})
 
 class ImportProjectCommand(UrtextTextCommand):
 
