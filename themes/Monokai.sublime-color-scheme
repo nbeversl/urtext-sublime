@@ -66,7 +66,7 @@
 	  		},		
 	  		{
 	  			"scope":"entity.name.struct.datestamp.urtext",
-	  			"foreground": "var(green)",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{
 	  			"scope":"entity.name.struct.node_id.urtext",
@@ -76,7 +76,7 @@
 	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{"scope":"link_prefix.urtext",
-	  			"foreground": "green",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{
 		        "scope" : "entity.name.tagname.urtext",

@@ -1,6 +1,5 @@
 %YAML 1.2
 ---
-# See http://www.sublimetext.com/docs/3/syntax.html
 name: Urtext
 file_extensions: 
   - txt
@@ -21,10 +20,10 @@ contexts:
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
-    - match: '{{'
+    - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-1
-    - match: '}}'
+    - match: '}'
       scope: invalid.illegal.stray-bracket-end
     - match: 'SCOPE-HTML'
       embed: Packages/HTML/HTML.sublime-syntax
@@ -220,10 +219,10 @@ contexts:
     - include: inline-metadata-key 
     - include: inline-metadata-value
     - include: inline-metadata-separator
-    - match: '{{'
+    - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
-    - match: '}}'
+    - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
     - include: main
@@ -234,10 +233,10 @@ contexts:
     - include: inline-metadata-key 
     - include: inline-metadata-value
     - include: inline-metadata-separator
-    - match: '}}'
+    - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
-    - match: '{{'
+    - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-3
     - include: main
@@ -245,10 +244,10 @@ contexts:
   inline-node-3: 
     - meta_scope: inline_node_3
     - include: datestamp
-    - match: '}}'
+    - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
-    - match: '{{'
+    - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-4
     - include: main
@@ -256,10 +255,10 @@ contexts:
   inline-node-4: 
     - meta_scope: inline_node_4
     - include: datestamp
-    - match: '}}'
+    - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
-    - match: '{{'
+    - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-5
     - include: main
@@ -267,7 +266,7 @@ contexts:
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: datestamp
-    - match: '}}'
+    - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
     - include: main
