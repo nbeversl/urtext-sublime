@@ -54,7 +54,7 @@ contexts:
     - include: link_title
     - include: link
 
-    - match: (INCLUDE|EXCLUDE|SORT)(?=\()
+    - match: (\+|\-|INCLUDE|EXCLUDE|SORT)(?=\()
       scope: function-name.urtext
       push: function-with-key-values
     
