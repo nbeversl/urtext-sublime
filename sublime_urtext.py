@@ -633,14 +633,14 @@ class TagNodeCommand(UrtextTextCommand):  #under construction
         selected_tag = self.values[index]
         max_size = self.view.size()
         region = self.view.sel()[0]
-        subnode_regexp = re.compile(r'{{(?!.*{{)(?:(?!}}).)*}}', re.DOTALL)
+        subnode_regexp = re.compile(r'{(?!.*{)(?:(?!}).)*}', re.DOTALL)
         selection = self.view.substr(region)
         while not subnode_regexp.search(selection):
             a = region.a
             b = region.b
-            if selection[:2] != '{{':
+            if selection[:1] != '{':
                 a -= 1
-            if selection[-2:] != '}}':
+            if selection[-1:] != '}':
                 b += 1
             region = sublime.Region(a, b)
             if a == 0 or b == max_size:  # entire file

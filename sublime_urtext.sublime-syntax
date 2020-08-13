@@ -112,6 +112,7 @@ contexts:
     - include: dynamic-keyword
     - include: key-value 
     - include: datestamp
+    - include: asterisk
     - match: \)
       scope: dynamic-definition-parens
       pop: true
@@ -128,7 +129,11 @@ contexts:
       scope: dynamic-keyword.urtext
 
   dynamic-keyword:
-    - match: '(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm||-recursive)\b'
+    - match: '(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
+      scope: dynamic-keyword.urtext
+
+  asterisk:
+    - match: '(?<=\(|\s)\*(?=\)|\s)'
       scope: dynamic-keyword.urtext
 
   # SHOW() function - uses only format string
