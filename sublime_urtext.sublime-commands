@@ -1,6 +1,4 @@
 [
-    /* Timeline */
-    { "caption": "Urtext: Show Timeline",   "command":  "generate_timeline", },
         
     /* Navigation */
     { "caption": "Urtext: Node List", "command": "node_browser"},

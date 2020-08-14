@@ -72,7 +72,7 @@ contexts:
     
     - match: (HEADER|FOOTER)(?=\()
       scope: function-name.urtext
-      push: function-with-node-syntax
+      #push: function-with-node-syntax # FIX
 
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
@@ -321,7 +321,7 @@ contexts:
       scope: entity.name.struct.node_id.urtext
 
   ending_node_id:
-    - match: '\b[0-9,a-z]{3}(?=}})'
+    - match: '\b[0-9,a-z]{3}(?=})'
       scope: entity.name.struct.node_id.urtext
 
   other-project-link:

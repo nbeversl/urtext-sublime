@@ -956,6 +956,14 @@ class NewNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(new_node['id'])        
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
+class InsertLinkToNewNodeCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        path = self._UrtextProjectList.current_project.path
+        new_node = self._UrtextProjectList.current_project.new_file_node()
+        self.view.run_command("insert", {"characters":'| >' + new_node['id']})
+
 class NewNodeWithLinkCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -1051,21 +1059,6 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         # TODO move this into urtext, not Sublime
         tag = ' tags::done ' + timestamp + '; '
         _UrtextProjectList.current_project.tag_other_node(node_id, tag)
-
-class GenerateTimelineCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        new_view = self.view.window().new_file()
-        timeline = self._UrtextProjectList.current_project.build_timeline()
-        self.show_stuff(new_view, timeline)
-        new_view.set_scratch(True)
-
-    def show_stuff(self, view, timeline):
-        if not view.is_loading():
-            view.run_command("append", {"characters": timeline + '\n|'})
-        else:
-            sublime.set_timeout(lambda: self.show_stuff(view, timeline), 10)
 
 class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
     """ Display a tree of all nodes connected to this one """
