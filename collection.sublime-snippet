@@ -1,0 +1,19 @@
+<snippet>
+	<content><![CDATA[
+[[ 
+	ID(>$1 -collection)
+	HEADER($2)
+	INCLUDE($3) +() +()
+	EXCLUDE() -() -()
+	COLLECT()
+	SHOW(${8:$entry $link \n $contents\n\n})
+	FOOTER($9)
+]]
+	]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>collect</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>urtext</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Urtext Collection Definition</description>
+</snippet>

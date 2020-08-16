@@ -1,0 +1,20 @@
+<snippet>
+	<content><![CDATA[
+[[ 
+	ID(>$1 -list)
+	HEADER($2)
+	INCLUDE($3) +($4) +()
+	EXCLUDE($4) -($5) -()
+	SORT($6)
+	LIMIT($7)
+	SHOW(${8:title $link\n})
+	FOOTER($9)
+]]
+	]]></content>
+    <!-- Optional: Tab trigger to activate the snippet -->
+    <tabTrigger>list</tabTrigger>
+    <!-- Optional: Scope the tab trigger will be active in -->
+    <scope>urtext</scope>
+    <!-- Optional: Description to show in the menu -->
+    <description>Urtext List Definition</description>
+</snippet>
