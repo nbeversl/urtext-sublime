@@ -3,9 +3,9 @@
 [[ 
 	ID(>$1 -tree)
 	HEADER($2)
-	INCLUDE($3)  
-	SHOW($8)
-	FOOTER($9)
+	INCLUDE($3) Accepts node ID(s) as the root of the tree.
+	SHOW(${4:title $link\n}) 
+	FOOTER($5)
 ]]
 	]]></content>
     <!-- Optional: Tab trigger to activate the snippet -->

@@ -3,12 +3,12 @@
 [[ 
 	ID(>$1 -list)
 	HEADER($2)
-	INCLUDE($3) +($4) +()
-	EXCLUDE($4) -($5) -()
-	SORT($6)
-	LIMIT($7)
-	SHOW(${8:title $link\n})
-	FOOTER($9)
+	INCLUDE($3) +($4) +($5)
+	EXCLUDE($5) -($6) -($7)
+	SORT($8)
+	LIMIT($9)
+	SHOW(${10:title $link\n})
+	FOOTER($11) 			
 ]]
 	]]></content>
     <!-- Optional: Tab trigger to activate the snippet -->
