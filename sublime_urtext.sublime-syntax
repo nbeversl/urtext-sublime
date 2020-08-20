@@ -14,6 +14,8 @@ contexts:
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
+    - include: metadata-key
+    - include: metadata-value
     
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
@@ -26,6 +28,11 @@ contexts:
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
     
+    - match: \<
+      push: datestamp
+      
+    - match: '(?<=::)'
+      push: metadata-value
 
     # Embedded Syntaxes
     - match: '%%-PYTHON'
@@ -52,15 +59,26 @@ contexts:
       escape: '%%-END'
       escape-captures: 0
   
-    # Metadata
+  # Metadata  
 
-    - match: \w+?(?=::)
+  metadata-key:
+    - match:  \w+?(?=::)
       scope: urtext.inline_meta_key
-    - match: '::(?=[^\s])'
-      scope: urtext.inline_meta_separator
-    - match: '(?<=::)[^;\}]*'
-      scope: urtext.inline_meta_value
 
+  metadata-value:
+    - meta_content_scope: urtext.inline_meta_value
+    - match: \<
+      push: datestamp
+    - match: ;|\n
+      pop: true
+    - match: \}
+      scope: punctuation.section.braces.end.inline_node.urtext
+      set: main
+
+  datestamp:
+    - meta_scope: entity.name.struct.datestamp.urtext
+    - match: '>'
+      pop: true
 
   # Dynamic Definition Closing Wrapper
 
@@ -307,10 +325,6 @@ contexts:
   meta-key-terminator:
     - match: ';'
       scope: punctuation.terminator.urtext
-
-  datestamp:
-    - match: <.*?>
-      scope: entity.name.struct.datestamp.urtext
 
   tagname-separator:
     - match: ';'
