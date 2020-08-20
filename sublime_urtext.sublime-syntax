@@ -14,41 +14,54 @@ contexts:
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    - match: \[\[
-      scope: punctuation.section.braces.begin.dynamic_definition.urtext
-      push: dynamic-definition
+    
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-1
     - match: '}'
       scope: invalid.illegal.stray-bracket-end
-    - match: 'SCOPE-HTML'
+    
+
+    - match: \[\[
+      scope: punctuation.section.braces.begin.dynamic_definition.urtext
+      push: dynamic-definition
+    
+
+    # Embedded Syntaxes
+    - match: '%%-PYTHON'
+      embed: Packages/Python/Python.sublime-syntax
+      embed_scope: urtext.json
+      escape: '%%-END'
+      escape-captures: 0
+    
+    - match: '%%-HTML'
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
       escape: '%%-END'
       escape-captures: 0
+    
     - match: '%%-JSON'
       embed: Packages/JavaScript/JSON.sublime-syntax
       embed_scope: urtext.json
       escape: '%%-END'
       escape-captures: 0
 
-    - match: '%%-PYTHON'
-      embed: Packages/Python/Python.sublime-syntax
-      embed_scope: urtext.json
-      escape: '%%-END'
-      escape-captures: 0
-    - match: \w+?(?=::)
-      scope: urtext.inline_meta_key
-    - match: '::'
-      scope: urtext.inline_meta_separator
-      push: inline-metadata-value
     - match: '%%-MARKDOWN'
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: urtext.markdown
       escape: '%%-END'
       escape-captures: 0
   
+    # Metadata
+
+    - match: \w+?(?=::)
+      scope: urtext.inline_meta_key
+    - match: '::(?=[^\s])'
+      scope: urtext.inline_meta_separator
+    - match: '(?<=::)[^;\}]*'
+      scope: urtext.inline_meta_value
+
+
   # Dynamic Definition Closing Wrapper
 
   dynamic-definition:
@@ -104,9 +117,9 @@ contexts:
     - include: link_prefix
     - include: link_title
     - include: other-project-link
-    - include: inline-metadata-key
-    - include: inline-metadata-value
-    - include: inline-metadata-separator
+    - include: metadata-key
+    - include: metadata-value
+    - include: metadata-separator
     - match: \)
       scope: dynamic-definition-parens
       pop: true
@@ -333,16 +346,7 @@ contexts:
     - match: $
       pop: true
   
-  inline-meta-key:
-    - match: '::'
-      pop: true
-    
-  inline-metadata-value:
-    - match: (?<=::)[^\s]+
-      meta_scope: urtext.inline_meta_value 
-    - match: ;|\n
-      pop: true   
-   
+ 
 
  
 
