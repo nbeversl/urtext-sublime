@@ -8,15 +8,12 @@ scope: urtext
 contexts:
   main:    
     - include: datestamp
-    - include: link
+    - include: node_link
     - include: link_prefix
     - include: link_title
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    - include: inline-metadata-key 
-    - include: inline-metadata-value
-    - include: inline-metadata-separator
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -35,12 +32,17 @@ contexts:
       embed_scope: urtext.json
       escape: '%%-END'
       escape-captures: 0
+
     - match: '%%-PYTHON'
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: urtext.json
       escape: '%%-END'
       escape-captures: 0
-
+    - match: \w+?(?=::)
+      scope: urtext.inline_meta_key
+    - match: '::'
+      scope: urtext.inline_meta_separator
+      push: inline-metadata-value
     - match: '%%-MARKDOWN'
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: urtext.markdown
@@ -52,9 +54,10 @@ contexts:
   dynamic-definition:
     - meta_scope: dynamic-definition
     - include: link_title
-    - include: link
+    - include: node_link
+    - include: file_link
 
-    - match: (\+|\-|INCLUDE|EXCLUDE|SORT)(?=\()
+    - match: (\+|\-|INCLUDE|EXCLUDE|SORT|COLLECT)(?=\()
       scope: function-name.urtext
       push: function-with-key-values
     
@@ -62,7 +65,7 @@ contexts:
       scope: function-name.urtext
       push: function-with-format-string
     
-    - match: (FORMAT|LIMIT)(?=\()
+    - match: (FORMAT|LIMIT|DEPTH)(?=\()
       scope: function-name.urtext
       push: function-with-keywords-only
    
@@ -97,7 +100,7 @@ contexts:
 
   function-node-syntax:
     - include: datestamp
-    - include: link
+    - include: node_link
     - include: link_prefix
     - include: link_title
     - include: other-project-link
@@ -178,7 +181,6 @@ contexts:
   # ID, TREE
 
   function-with-node-id:
-
     - match: \(
       scope: dynamic-definition-parens
       push: function-with-node-id-parameters
@@ -186,7 +188,7 @@ contexts:
       pop: true
 
   function-with-node-id-parameters:
-    - include: link
+    - include: node_link
     - include: output-flags
     - include: file_link
     - include: node-id-in-dynamic-definition
@@ -220,10 +222,6 @@ contexts:
 
   inline-node-1: 
     - meta_scope: inline_node_1 
-    - include: datestamp
-    - include: inline-metadata-key 
-    - include: inline-metadata-value
-    - include: inline-metadata-separator
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
@@ -234,10 +232,6 @@ contexts:
    
   inline-node-2: 
     - meta_scope: inline_node_2 
-    - include: datestamp
-    - include: inline-metadata-key 
-    - include: inline-metadata-value
-    - include: inline-metadata-separator
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -248,7 +242,6 @@ contexts:
 
   inline-node-3: 
     - meta_scope: inline_node_3
-    - include: datestamp
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -259,7 +252,6 @@ contexts:
 
   inline-node-4: 
     - meta_scope: inline_node_4
-    - include: datestamp
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -270,7 +262,6 @@ contexts:
 
   inline-node-5: 
     - meta_scope: inline_node_5
-    - include: datestamp
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -280,8 +271,8 @@ contexts:
     - match: '>(?=([0-9,a-z]{3}))'
       scope: link_prefix.urtext
 
-  link:
-    - match: '(?<=>)[0-9,a-z]{3}'
+  node_link:
+    - match: '(?<=[^f]>)[0-9,a-z]{3}'
       scope: link.urtext
 
   file_link:  
@@ -325,7 +316,7 @@ contexts:
       scope: entity.name.struct.node_id.urtext
 
   other-project-link:
-    - match: '\{\"(.*?)\"\}'
+    - match: '\{\{\"(.*?)\"\}\}'
       scope: link.urtext.other-project
 
   compact-node-opener:
@@ -342,15 +333,16 @@ contexts:
     - match: $
       pop: true
   
-  inline-metadata-key:
-    - match: \w+?(?=::)
-      scope: urtext.inline_meta_key
-
-  inline-metadata-value:
-    - match: (?<=::)[^\s][^\n};]+;?
-      scope: urtext.inline_meta_value
-
-  inline-metadata-separator:
+  inline-meta-key:
     - match: '::'
-      scope: urtext.inline_meta_separator
+      pop: true
+    
+  inline-metadata-value:
+    - match: (?<=::)[^\s]+
+      meta_scope: urtext.inline_meta_value 
+    - match: ;|\n
+      pop: true   
+   
+
+ 
 
