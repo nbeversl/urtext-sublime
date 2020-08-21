@@ -7,33 +7,32 @@ scope: urtext
 
 contexts:
   main:    
-    - include: datestamp
     - include: node_link
     - include: link_prefix
     - include: link_title
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    - include: metadata-key
-    - include: metadata-value
     
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-1
-    - match: '}'
-      scope: invalid.illegal.stray-bracket-end
     
-
+    # - match: '}'
+    #   scope: invalid.illegal.stray-bracket-end
+    
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
     
-    - match: \<
+    - match: <
       push: datestamp
       
     - match: '(?<=::)'
       push: metadata-value
-
+    
+    - match:  \w+?(?=::)
+      scope: urtext.inline_meta_key
     # Embedded Syntaxes
     - match: '%%-PYTHON'
       embed: Packages/Python/Python.sublime-syntax
@@ -60,21 +59,18 @@ contexts:
       escape-captures: 0
   
   # Metadata  
-
-  metadata-key:
-    - match:  \w+?(?=::)
-      scope: urtext.inline_meta_key
-
   metadata-value:
     - meta_content_scope: urtext.inline_meta_value
-    - match: \<
+    - include: node_link
+    - include: node_pointer
+    - include: file_link
+    - match: <
       push: datestamp
     - match: ;|\n
       pop: true
     - match: \}
       scope: punctuation.section.braces.end.inline_node.urtext
-      set: main
-
+      
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
     - match: '>'
@@ -253,15 +249,17 @@ contexts:
 
   inline-node-1: 
     - meta_scope: inline_node_1 
+    - include: main
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
-    - include: main
+    
    
   inline-node-2: 
+    - include: main
     - meta_scope: inline_node_2 
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
@@ -269,7 +267,7 @@ contexts:
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-3
-    - include: main
+    
 
   inline-node-3: 
     - meta_scope: inline_node_3
