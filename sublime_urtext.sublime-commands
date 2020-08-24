@@ -10,7 +10,6 @@
     { "caption": "Urtext: Select Project", "command" :"list_projects"},
     { "caption": "Urtext: To Source Node", "command" :"to_source_node"},
     { "caption": "Urtext: File History", "command" :"back_history"},
-    { "caption": "Urtext: Backlinks", "command" :"backlinks_browser"},
 
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
@@ -18,14 +17,12 @@
     /* Generating Nodes */    
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
-    { "caption": "Urtext: Insert Interlinks", "command" :"insert_interlinks"},
-    
+  
 
     /* Trees */
     { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},
     { "caption": "Urtext: Show Tree From Root", "command" :"show_tree_from_root"},
-    { "caption": "Urtext: Show Linked Relationships ...", "command" : "show_linked_relationships"},
-    
+  
     /* Metadata */
     { "caption": "Urtext: Tag This Node", "command" :"tag_node"}, 
     { "caption": "Urtext: Mark as Done from Other Node", "command" :"tag_from_other_node"},
@@ -45,6 +42,7 @@
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: Initialize Project", "command":"new_project"},
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
+    { "caption": "Urtext: Pull Node", "command" :"pull_node"},
     { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
 
     /* Sync & Export */

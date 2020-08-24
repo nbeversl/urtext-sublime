@@ -114,11 +114,9 @@ def refresh_project_event_listener(function):
     def wrapper(*args):
         view = args[1]
 
-        # Listeners only run if Urtext project list is initialized
+        #  only run if Urtext project list is initialized
         if not _UrtextProjectList:
             return None
-
-        #_UrtextProjectList = initialize_project_list(view)
         
         window = sublime.active_window()
         if not window:
@@ -149,7 +147,9 @@ def refresh_project_event_listener(function):
     return wrapper
 
 
-def initialize_project_list(view, init_project=False, reload_projects=False):
+def initialize_project_list(view, 
+    init_project=False, 
+    reload_projects=False):
 
     global _UrtextProjectList
 
@@ -531,17 +531,35 @@ class BacklinksBrowser(NodeBrowserCommand):
 
     @refresh_project_text_command()
     def run(self):
+        backlinks = self._UrtextProjectList.current_project.get_links_to(get_node_id(self.view))
 
+        if backlinks:
+            self.menu = NodeBrowserMenu(
+                self._UrtextProjectList, 
+                project=self._UrtextProjectList.current_project,
+                nodes=backlinks)
+
+            show_panel(
+                self.view.window(), 
+                self.menu.display_menu, 
+                self.open_the_file)
+
+
+
+class ForwardlinksBrowser(NodeBrowserCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        forward_links = self._UrtextProjectList.current_project.get_links_from(get_node_id(self.view))
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project,
-            nodes=self._UrtextProjectList.current_project.get_links_to(get_node_id(self.view))
+            nodes=forward_links,
             )
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
             self.open_the_file)
-
 
 class AllProjectsNodeBrowser(NodeBrowserCommand):
     
@@ -1489,7 +1507,7 @@ Utility functions
 def open_urtext_node(view, node_id, project=None, position=0):
     
     if project:
-        _UrtextProjectList.set_current_project(project.title)
+        _UrtextProjectList.set_current_project(project.path)
 
     filename, position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename == None:

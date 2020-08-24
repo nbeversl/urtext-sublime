@@ -18,4 +18,6 @@
   { "keys": ["alt+shift+p"], "command": "insert_node_single_line"},
   { "keys": ["ctrl+shift+6"], "command": "compact_node"},
   { "keys": ["ctrl+shift+delete"], "command": "delete_this_node"},
+  { "keys": ["ctrl+shift+-"], "command" :"backlinks_browser"},
+
 ]
