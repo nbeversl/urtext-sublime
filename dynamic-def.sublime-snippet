@@ -8,11 +8,10 @@
 	- Other text (like this) is ignored and can be used for comments.
 	
 	(required): Specify the output target and type.
-	TARGET(>$1 -list) 
+	TARGET(>$1 ) 
 		- first parameter is a file (f>) or node ID (>)
 		- second parameter is one of: 
 			-list 
-			-tree 
 			-collect 
 			-search 
 			-links 

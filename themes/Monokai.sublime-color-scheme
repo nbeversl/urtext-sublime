@@ -1,18 +1,38 @@
 {
 	"name": "Urtext Monokai",
     "variables": {
-     "unobtrusive": "hsl(0, 0%, 20%)",
-     "blue-bright" : "hsl(225, 80%, 40%)",
-     "blue-brighter" : "hsl(225, 80%, 60%)",
-     "blue-grey" : "hsl(225, 10%, 50%)",
-     "yellow":"hsl(54, 95%, 67%)",
-     "bright-yellow" : "hsl(60, 100%, 75%)",
-     "black3": "hsl(70, 8%, 15%)",
-     "red": "hsl(0, 100%, 50%)",
-     "white-ish": "hsla(0, 0%, 67%, 1)",
-    "bright-green":"hsl(225, 80%, 60%)",
-    "reg-text-white" : "hsl(300, 4%, 85%)"
-  },
+		 "unobtrusive": "hsl(0, 0%, 20%)",
+		 "grey": "hsl(0, 0%, 50%)",
+		 
+		 "blue-bright" : "hsl(225, 80%, 40%)",
+		 "blue-brighter" : "hsl(225, 80%, 60%)",
+		 
+		 "yellow":"hsl(54, 95%, 67%)",
+		 "bright-yellow" : "hsl(60, 100%, 75%)",
+		 "inline1" : "hsl(70, 8%, 17%)",
+		 "inline2" : "hsl(70, 8%, 19%)",
+		 "inline3" : "hsl(70, 8%, 21%)",
+		 "inline4" : "hsl(70, 8%, 23%)",
+		 "inline5" : "hsl(70, 8%, 25%)",
+		 
+		 "inline1_fore" : "hsl(335, 100%, 90%)",
+		 "inline2_fore" : "hsl(182, 100%, 90%)",
+		 "inline3_fore" : "hsl(335, 100%, 90%)",
+		 "inline4_fore" : "hsl(335, 100%, 90%)",
+		 "inline5_fore" : "hsl(335, 100%, 90%)",
+
+
+		 "black3": "hsl(70, 8%, 15%)",
+		 "red": "hsl(0, 100%, 50%)",
+		 "white-ish": "hsla(0, 0%, 67%, 1)",
+
+
+		"medium-green":"hsl(117, 57%, 63%)",
+		"bright-green":"hsl(113, 77%, 50%)",
+		"pastel-green":"hsl(141, 77%, 50%)",
+		"aqua-green":"hsl(161, 57%, 77%)",
+		"reg-text-white" : "hsl(300, 4%, 85%)"
+	},
 
 
 	"rules": [
@@ -21,6 +41,17 @@
 				"font_style":"bold",
 				"background": "var(black3)"
 			},
+			{
+				"scope": "punctuation.section.braces.begin.dynamic_definition.urtext",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold italic"
+	  		},
+	  		{
+				"scope": "punctuation.section.braces.end.dynamic_definition.urtext",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold italic"
+	  		},
+		
 			{
 				"scope": "punctuation.section.generic.end.urtext",
 	  			"foreground": "var(unobtrusive)",
@@ -35,7 +66,11 @@
 	  		},		
 	  		{
 	  			"scope":"entity.name.struct.datestamp.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(aqua-green)",
+	  		},
+	  		{
+	  			"scope":"entity.name.struct.datestamp.urtext",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{
 	  			"scope":"entity.name.struct.node_id.urtext",
@@ -45,8 +80,7 @@
 	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{"scope":"link_prefix.urtext",
-	  			"font_style":"bold",
-	  	//		"foreground": "var(blue-brighter)",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{
 		        "scope" : "entity.name.tagname.urtext",
@@ -65,25 +99,50 @@
 		        "foreground": "var(unobtrusive)"
 	        },
 	        { 
+		        "scope" : "inline_node_1",
+		        "foreground" : "var(inline1_fore)",
+		        //"background": "var(inline1)"
+	        },
+	        { 
+		        "scope" : "inline_node_2",
+		         "foreground" : "var(inline2_fore)",
+		        //"background": "var(inline2)"
+	        },
+	        { 
+		        "scope" : "inline_node_3",
+		         "foreground" : "var(inline3_fore)",
+		        //"background": "var(inline3)"
+	        },
+	        { 
+		        "scope" : "inline_node_4",
+		         "foreground" : "var(inline4_fore)",
+		        //"background": "var(inline4)"
+	        },
+	         { 
+		        "scope" : "inline_node_5",
+		         "foreground" : "var(inline5_fore)",
+		        //"background": "var(inline5)"
+	        },
+	        { 
 		        "scope" : "no-highlight",
 		        "background": "var(black3)"
 	        },
 	        {
 				"scope": "link_title.urtext",
-				"font_style":"bold",
-	  		//	"foreground": "var(bright-yellow)",
+	  			"foreground": "var(bright-yellow)",
+
 	  		},
 	  		{   "scope": "punctuation.section.marker.urtext",
-	  			"foreground": "var(blue-grey)",
+	  			"foreground": "var(bright-yellow)",
 
 	  		},
 	  		{   "scope": "urtext.compact_node_marker",
-	  			"foreground": "var(blue-bright)",
+	  			"foreground": "var(red)",
 	  			"font_style":"bold",
 
 	  		},
 	  		{   "scope": "urtext.compact_node",
-	  			 "background": "var(inline2)",
+	  			 //"background": "var(inline2)",
 	  			
 	  		},
 	  		{   "scope": "link.urtext.other-project",
@@ -91,63 +150,56 @@
 	  			"foreground": "var(yellow)",
 	  		},
 	  		
-// Dynamic Definition Commands Syntax Shading
-
 	  		{   "scope": "function-name.urtext",
 	  			"foreground": "var(medium-green)",
 	  			"font_style":"bold",
 	  		},
-			{	"scope": "punctuation.section.braces.begin.dynamic_definition.urtext",
-	  			"foreground": "var(blue-grey)",
-	  			"font_style":"bold italic"
-	  		},
-			{	"scope": "punctuation.section.braces.end.dynamic_definition.urtext",
-	  			"foreground": "var(blue-grey)",
-	  			"font_style":"bold italic"
-	  		},
-	  		{   "scope": "dynamic-definition-parens",
-	  			"foreground": "var(blue-grey)",
-	  			"font_style":"bold",
-	  		},
-	  		{   "scope": "function-name.urtext",
-	  			"foreground": "var(blue-grey)",
-	  			"font_style":"bold",
-	  		},
-// Dynamic Definition Values Syntax Shading
 
+	  		{   "scope": "dynamic-key.urtext",
+	  			"foreground": "var(bright-green)",
+	  		},
 
 	  		{   "scope": "dynamic-value.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(aqua-green)",
 	  		},
+
 	  		{   "scope": "key-value-pair-string.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(aqua-green)",
 	  		},
 	  		{   "scope": "dynamic-keyword.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(pastel-green)",
 	  			"font_style":"italic",
 	  		},
 	  		{   "scope": "format-string.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(bright-green)",
 	  		},
 	  		{   "scope": "dynamic-def-node_id.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(bright-green)",
+	  			"font_style":"bold",
+	  		},
+	  		{   "scope": "dynamic-definition-parens",
+	  			"foreground": "var(white)",
 	  			"font_style":"bold",
 	  		},
 	  		{   "scope": "dynamic-def-format-var.urtext",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(bright-green)",
 	  			"font_style":"bold",
 	  		},
-// Inline Meta Shading
-			{   "scope": "urtext.inline_meta_key",
-	  			"foreground": "var(blue-grey)",
+	  		{   "scope": "urtext.inline_meta_key",
+	  			"foreground": "var(bright-green)",
+	  			"font_style":"bold",
 	  		},
 	  		{   "scope": "urtext.inline_meta_value",
-	  			"foreground": "var(blue-brighter)",
+	  			"foreground": "var(bright-yellow)",
+	  			"font_style":"bold",
 	  		},
 			{   "scope": "urtext.inline_meta_separator",
 	  			"foreground": "var(grey)",
 	  		},
 
+			{   "scope": "file_link.urtext",
+	  			"foreground": "var(grey)",
+	  		},
+	  		
 	],
 }
-

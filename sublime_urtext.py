@@ -161,7 +161,6 @@ def initialize_project_list(view,
         if not current_path:
             return None
         _UrtextProjectList = ProjectList(current_path, watchdog=WATCHDOG)
-        
     return _UrtextProjectList
 
 def get_path(view):
@@ -1224,13 +1223,13 @@ class PullNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        print('RUNNING')
         filename = self.view.file_name()
         position = self.view.sel()[0].a
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-        print(full_line)
-        future = self._UrtextProjectList.current_project.pull_node(full_line, dest_filename=filename, position=position)
-        print(future)
+        future = self._UrtextProjectList.current_project.pull_node(
+            full_line, 
+            filename, 
+            position)
 
 class SplitNodeCommand(UrtextTextCommand):
 

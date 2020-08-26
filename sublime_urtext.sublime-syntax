@@ -62,7 +62,6 @@ contexts:
   metadata-value:
     - meta_content_scope: urtext.inline_meta_value
     - include: node_link
-    - include: node_pointer
     - include: file_link
     - match: <
       push: datestamp
@@ -102,7 +101,7 @@ contexts:
     
     - match: (HEADER|FOOTER)(?=\()
       scope: function-name.urtext
-      #push: function-with-node-syntax # FIX
+      push: function-with-node-syntax
 
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
@@ -126,14 +125,19 @@ contexts:
       pop: true
 
   function-node-syntax:
-    - include: datestamp
+    - meta_scope: node_syntax_in_param.urtext
     - include: node_link
+    - match:  \w+?(?=::)
+      scope: urtext.inline_meta_key
     - include: link_prefix
     - include: link_title
     - include: other-project-link
-    - include: metadata-key
-    - include: metadata-value
-    - include: metadata-separator
+    - include: compact-node-opener
+    - include: ending_node_id
+    - match: '(?<=::)'
+      push: metadata-value
+    - match: <
+      push: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
