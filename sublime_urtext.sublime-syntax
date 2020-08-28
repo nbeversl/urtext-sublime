@@ -6,7 +6,13 @@ file_extensions:
 scope: urtext
 
 contexts:
-  main:    
+  main: 
+    - include: syntax-main
+    - match: '{'
+      scope: punctuation.section.braces.begin.inline_node.urtext
+      push: inline-node-1
+  
+  syntax-main:    
     - include: node_link
     - include: link_prefix
     - include: link_title
@@ -14,9 +20,7 @@ contexts:
     - include: compact-node-opener
     - include: ending_node_id
     
-    - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
-      push: inline-node-1
+    
     
     # - match: '}'
     #   scope: invalid.illegal.stray-bracket-end
@@ -24,19 +28,26 @@ contexts:
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
-    
-    - match: <
-      push: datestamp
-      
+   
     - match: '(?<=::)'
       push: metadata-value
+
+    - match: '(?<=::)<'
+      push: metadata-timestamp
     
     - match:  \w+?(?=::)
       scope: urtext.inline_meta_key
+    
+    - match: <[^!]
+      push: datestamp
+
+    - match: <!
+      push: system-message
+      
     # Embedded Syntaxes
     - match: '%%-PYTHON'
       embed: Packages/Python/Python.sublime-syntax
-      embed_scope: urtext.json
+      embed_scope: urtext.python
       escape: '%%-END'
       escape-captures: 0
     
@@ -44,27 +55,28 @@ contexts:
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
       escape: '%%-END'
-      escape-captures: 0
+      escape_captures: 0
     
     - match: '%%-JSON'
       embed: Packages/JavaScript/JSON.sublime-syntax
       embed_scope: urtext.json
       escape: '%%-END'
-      escape-captures: 0
+      escape_captures: 0
 
     - match: '%%-MARKDOWN'
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: urtext.markdown
       escape: '%%-END'
-      escape-captures: 0
+      escape_captures: 0
   
   # Metadata  
   metadata-value:
     - meta_content_scope: urtext.inline_meta_value
-    - include: node_link
-    - include: file_link
     - match: <
       push: datestamp
+    - include: node_link
+    - include: file_link
+    
     - match: ;|\n
       pop: true
     - match: \}
@@ -74,6 +86,16 @@ contexts:
     - meta_scope: entity.name.struct.datestamp.urtext
     - match: '>'
       pop: true
+
+  system-message:
+    - meta_scope: entity.name.struct.message.urtext
+    - match: '>'
+      pop: true
+
+  metadata-timestamp:
+    - meta_scope: entity.name.struct.datestamp.urtext
+    - match: '>'
+      set: metadata-value
 
   # Dynamic Definition Closing Wrapper
 
@@ -252,8 +274,8 @@ contexts:
   # Node Nesting
 
   inline-node-1: 
-    - meta_scope: inline_node_1 
-    - include: main
+    - meta_scope: inline_node_1
+    - include: syntax-main
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-2
@@ -263,8 +285,8 @@ contexts:
     
    
   inline-node-2: 
-    - include: main
     - meta_scope: inline_node_2 
+    - include: syntax-main
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
@@ -275,30 +297,30 @@ contexts:
 
   inline-node-3: 
     - meta_scope: inline_node_3
+    - include: syntax-main
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-4
-    - include: main
 
   inline-node-4: 
     - meta_scope: inline_node_4
-    - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
-      pop: true
+    - include: syntax-main
     - match: '{'
       scope: punctuation.section.braces.begin.inline_node.urtext
       push: inline-node-5
-    - include: main
-
-  inline-node-5: 
-    - meta_scope: inline_node_5
     - match: '}'
       scope: punctuation.section.braces.end.inline_node.urtext
       pop: true
-    - include: main
+
+  inline-node-5: 
+    - meta_scope: inline_node_5
+    - include: syntax-main
+    - match: '}'
+      scope: punctuation.section.braces.end.inline_node.urtext
+      pop: true
 
   link_prefix:
     - match: '>(?=([0-9,a-z]{3}))'
