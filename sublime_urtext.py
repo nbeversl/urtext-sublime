@@ -241,19 +241,19 @@ class UrtextSaveListener(EventListener):
 
     def on_query_completions(self, view, prefix, locations):
 
-        if not _UrtextProjectList.current_project:
+        if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
 
         current_path = os.path.dirname(view.file_name())
       
         if _UrtextProjectList.get_project(current_path):
-        
-            completions = []
             
-            for pair in list(_UrtextProjectList.get_all_meta_pairs()):
-                completions.append([pair, pair+';'])
+            # completions = _UrtextProjectList.get_all_meta_pairs()
+            # print(completions)
+            completions = _UrtextProjectList.current_project.get_all_titles()
 
             return completions
+
 
     @refresh_project_event_listener
     def on_post_save(self, view):
@@ -262,7 +262,7 @@ class UrtextSaveListener(EventListener):
             return
 
         future = self._UrtextProjectList.on_modified(view.file_name())
-
+        
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
 
