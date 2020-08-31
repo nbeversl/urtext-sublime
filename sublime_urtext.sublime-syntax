@@ -9,8 +9,10 @@ contexts:
   main: 
     - include: syntax-main
     - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
+      scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
+    - match: '}'
+      scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
     - include: node_link
@@ -19,11 +21,7 @@ contexts:
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    
-    
-    
-    # - match: '}'
-    #   scope: invalid.illegal.stray-bracket-end
+        
     
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
@@ -36,7 +34,7 @@ contexts:
       push: metadata-timestamp
     
     - match:  \w+?(?=::)
-      scope: urtext.inline_meta_key
+      scope: urtext.meta_key
     
     - match: <[^!]
       push: datestamp
@@ -71,9 +69,10 @@ contexts:
   
   # Metadata  
   metadata-value:
-    - meta_content_scope: urtext.inline_meta_value
+    - meta_content_scope: urtext.meta_value
     - match: <
       push: datestamp
+    - include: tagvalue-separator
     - include: node_link
     - include: file_link
     
@@ -117,7 +116,7 @@ contexts:
       scope: function-name.urtext
       push: function-with-keywords-only
    
-    - match: (ID|TARGET)(?=\()
+    - match: (ID|EXPORT)(?=\()
       scope: function-name.urtext
       push: function-with-node-id
     
@@ -150,14 +149,17 @@ contexts:
     - meta_scope: node_syntax_in_param.urtext
     - include: node_link
     - match:  \w+?(?=::)
-      scope: urtext.inline_meta_key
+      scope: urtext.meta_key
     - include: link_prefix
     - include: link_title
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    - match: '(?<=::)'
-      push: metadata-value
+    # - match: '(?<=::)([^\)])*'
+    #   meta_content_scope: urtext.inline_meta_value
+    - match: \)
+      scope: dynamic-definition-parens
+      pop: true   
     - match: <
       push: datestamp
     - match: \)
@@ -277,21 +279,20 @@ contexts:
     - meta_scope: inline_node_1
     - include: syntax-main
     - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
+      scope: punctuation.section.braces.begin.inline_node_2.urtext
       push: inline-node-2
     - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
+      scope: punctuation.section.braces.end.inline_node_1.urtext
       pop: true
-    
    
   inline-node-2: 
     - meta_scope: inline_node_2 
     - include: syntax-main
     - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
+      scope: punctuation.section.braces.end.inline_node_2.urtext
       pop: true
     - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
+      scope: punctuation.section.braces.begin.inline_node_3.urtext
       push: inline-node-3
     
 
@@ -299,40 +300,36 @@ contexts:
     - meta_scope: inline_node_3
     - include: syntax-main
     - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
+      scope: punctuation.section.braces.end.inline_node_3.urtext
       pop: true
     - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
+      scope: punctuation.section.braces.begin.inline_node_4.urtext
       push: inline-node-4
 
   inline-node-4: 
     - meta_scope: inline_node_4
     - include: syntax-main
     - match: '{'
-      scope: punctuation.section.braces.begin.inline_node.urtext
+      scope: punctuation.section.braces.begin.inline_node_5.urtext
       push: inline-node-5
     - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
+      scope: punctuation.section.braces.end.inline_node_4.urtext
       pop: true
 
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: syntax-main
     - match: '}'
-      scope: punctuation.section.braces.end.inline_node.urtext
+      scope: punctuation.section.braces.end.inline_node_5.urtext
       pop: true
 
   link_prefix:
-    - match: '>(?=([0-9,a-z]{3}))'
+    - match: '>{1,2}(?=([0-9,a-z]{3}))'
       scope: link_prefix.urtext
 
   node_link:
     - match: '(?<=[^f]>)[0-9,a-z]{3}'
       scope: link.urtext
-
-  file_link:  
-    - match: '(?<=f>)[0-9,a-z]{10}'
-      scope: file_link.urtext
 
   link_title:
     - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'
@@ -356,7 +353,7 @@ contexts:
 
   tagvalue-separator:
     - match: '\|'
-      scope: entity.name.tagvalue_separator.urtext
+      scope: entity.name.value_separator.urtext
 
   node_id:
     - match: '\b[0-9,a-z]{3}\b'

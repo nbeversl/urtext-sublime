@@ -1,81 +1,74 @@
 {
-	"name": "Urtext Sixteen",
+	"name": "Urtext Monokai",
+    
     "variables": {
 		
-    	 /* background */
-		 "paper" : "hsl(9, 4%, 90%)",
+		 /* all unobtrusives */		
+		 "node-id" :"var(unobtrusive)",
+		 "link": "var(unobtrusive)",
+		 "link-prefix" : "var(unobtrusive)",
 
-		 // main syntax 
+		 /* main syntax */
 
-		 	// metadata
-		 	 "meta-key" : "",
-			 "value-separator" : "",
-			 "meta-value" : "",
-
-			 "node-id" :"var(unobtrusive)",
-
-			 // links
-			 "link": "var(unobtrusive)",
-			 "link-prefix" : "var(unobtrusive)",
-			 "other-project-link" : "var(blue)",		
-			 "link-title" : "var(grey4)",
+			 // Links
+			 "other-project-link" : "var(blue)",
+			 "file-link" : "",
+			 "link-title" : "var(yellow)",
 			 "datestamp" : "var(aqua-green)",
 
+	 		 // metadata
+			 "meta-key" : "var(bright-green)",
+			 "value_separator" : "",
+			 "meta-value" : "var(yellow)",
+
 		 // wrappers
-		 "wrapper1" : "var(purple)",
-		 "wrapper2" : "var(deep_blue)",
+		 "wrapper1" : "var(deep_blue)",
+		 "wrapper2" : "var(purple)",
 		 "wrapper3" : "var(lime)",
 		 "wrapper4" : "var(bright-green)",
 		 "wrapper5" : "var(aqua-green)",
 
-		 /* dynamic definitions */
+
+		 // dynamic definitions
 		 "open-dynamic": "var(grey6)",
 		 "close-dynamic" : "var(grey6)",
-		 "dynamic-key": "",
+		 "dynamic-key": "var(green)",
 		 "dynamic-value" : "",
 		 "function-name" : "var(grey)",
-	
 
 		 "dynamic-keyword" : "var(pink)",
-	  	 "dynamic-def-node-id"  : "var(",
+	  	 "dynamic-def-node-id"  : "var(white)",
 		 "dynamic-parens"  : "var(white2)",
-	  	 "format-variable" :"", // bold only
+	  	 "format-variable" :"", 
 	  	 "format-string" : "",
-
-	  	 /* compact node */
+	  	 // Compact Node
 	  	 "compact-node-marker" : "var(red)",
 
-	  	 /* sytem message */
+	  	 // System Message
 	  	 "system-message" : "var(red)",
 
+	  	 /* 
+	  	  *	Color definitions - - - - - - - - - 
+	  	  */
 
-
-		 /* color definitions - - - - - - - - - */
-		 "blue-bright" : "#0661EE",
-		 "blue-gray": "#E2E1EF",	 
-		 "unobtrusive": "hsl(20, 5%, 84%)",		  
+		 "unobtrusive": "hsl(0, 0%, 20%)",
+		 "grey": "hsl(0, 0%, 50%)",
+		 
+		 "yellow":"hsl(54, 95%, 67%)",
+		 "bright-yellow" : "hsl(60, 100%, 75%)",
 		 
 		 "purple" : "hsl(299, 100%, 50%)",
 		 "deep_blue" : "hsl(239, 100%, 46%)",
 		 "lime" : "hsl(164, 100%, 46%)",
-		 
+
 		 "red": "hsl(0, 100%, 50%)",
 	 	 "medium-green":"hsl(117, 57%, 63%)",
  		 "bright-green":"hsl(113, 77%, 50%)",
 		 "pastel-green":"hsl(141, 77%, 50%)",
 		 "aqua-green":"hsl(161, 57%, 77%)",
 
+	},
 
-	},	
-
-	  "globals":
-	    {
-	        "foreground": "var(grey5)",
-	        "background": "var(paper)",
-	        "line_highlight": "var(white4)",
-	        "selection": "var(white4)",
-	        "selection_border": "var(white6)",
-	    },
 
 	"rules": [
 

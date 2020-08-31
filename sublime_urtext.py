@@ -320,7 +320,10 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         link = _UrtextProjectList.get_link_and_set_project(full_line, position=column)
 
         if link == None:   
-            print('NO LINK') 
+            if not _UrtextProjectList.current_project.compiled:
+                   sublime.error_message("Project is still compiling")
+            else:
+                print('NO LINK') 
             return
 
         kind = link[0]
