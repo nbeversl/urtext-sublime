@@ -249,9 +249,8 @@ class UrtextSaveListener(EventListener):
         if _UrtextProjectList.get_project(current_path):
             
             # completions = _UrtextProjectList.get_all_meta_pairs()
-            # print(completions)
-            completions = _UrtextProjectList.current_project.get_all_titles()
-
+            completions = _UrtextProjectList.current_project.title_completions
+            
             return completions
 
 

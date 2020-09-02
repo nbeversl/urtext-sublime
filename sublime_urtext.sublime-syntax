@@ -39,7 +39,7 @@ contexts:
     - match: <[^!]
       push: datestamp
 
-    - match: <!
+    - match: <!!
       push: system-message
       
     # Embedded Syntaxes
@@ -61,11 +61,12 @@ contexts:
       escape: '%%-END'
       escape_captures: 0
 
-    - match: '%%-MARKDOWN'
-      embed: Packages/Markdown/Markdown.sublime-syntax
-      embed_scope: urtext.markdown
-      escape: '%%-END'
+    - match: '%%-PLAINTEXT'
+      embed: Packages/JavaScript/text.sublime-syntax
+      embed_scope: urtext.text
+      escape: '%%-END-PLAINTEXT'
       escape_captures: 0
+
   
   # Metadata  
   metadata-value:
@@ -88,7 +89,7 @@ contexts:
 
   system-message:
     - meta_scope: entity.name.struct.message.urtext
-    - match: '>'
+    - match: '!!>'
       pop: true
 
   metadata-timestamp:
@@ -187,7 +188,7 @@ contexts:
       scope: dynamic-keyword.urtext
 
   dynamic-keyword:
-    - match: '(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
+    - match: '(\s)(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
       scope: dynamic-keyword.urtext
 
   asterisk:
