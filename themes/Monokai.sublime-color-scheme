@@ -12,16 +12,16 @@
 			 "meta-key" : "var(blue-grey)",
 			 "value-separator" : "var(grey)",
 			 "meta-value" : "var(blue-brighter)",
-
+			 "meta-separator" : "",
 	 		 "node-id" :"var(unobtrusive)",
 
 			 // Links
 			 "link": "var(unobtrusive)",
-			 "other-project-link" : "var(yellow)",
+			 "other-project-link" : "var(reg-text-white)",
 			 "file-link" : "",
-			 "link-title" : "var(yellow)",
+			 "link-title" : "var(reg-text-white)",
 			 "datestamp" : "var(blue-brighter)",
-			 "link-prefix" : "var(blue-brighter)",
+			 "link-prefix" : "var(reg-text-white)",
 
 
 		 // wrappers
@@ -64,7 +64,29 @@
 	     "red": "hsl(0, 100%, 50%)",
 	     "white-ish": "hsla(0, 0%, 67%, 1)",
 	     "bright-green":"hsl(225, 80%, 60%)",
-	     "reg-text-white" : "hsl(300, 4%, 85%)"
+	     "reg-text-white" : "hsl(300, 4%, 100%)",
+	     /* color definitions - - - - - - - - - */
+		 "blue-bright" : "#0661EE",
+		 "blue-gray": "#E2E1EF",	 
+		 "unobtrusive": "hsl(20, 5%, 84%)",		 
+
+	     "blue-brighter" : "hsl(225, 80%, 60%)",
+	     "blue-gray2" : "hsl(225, 10%, 50%)", 
+		 
+		 "purple" : "hsl(299, 100%, 50%)",
+		 
+		 "red": "hsl(0, 100%, 50%)",
+	 	 "medium-green":"hsl(117, 57%, 63%)",
+		 "pastel-green":"hsl(141, 77%, 50%)",
+//		Nested Defs:
+
+		 "blue-lighter2" : "hsl(225, 40%, 85%)",
+ 		 "bright-green2":"hsl(113, 40%, 70%)",
+		 "aqua-green2":"hsl(161, 20%, 77%)",
+		 "lime2" : "hsl(164, 40%, 46%)",
+		 "deep_blue2" : "hsl(285, 40%, 85%)",
+
+         "grey3": "hsl(0, 0%, 5%)",
   },
 
 
@@ -74,6 +96,12 @@
 			{
 	  			"scope":"urtext",
 	  			"background": "var(background)",
+	  		},
+	  		{   "scope": "link_title.urtext",
+	  			"font_style":"bold",
+	  		},
+	  		{   "scope": "link_prefix.urtext",
+	  			"font_style":"bold",
 	  		},
 
 			
@@ -92,7 +120,10 @@
 		        "scope" : "entity.name.value_separator.urtext",
 	  			"foreground": "var(value-separator)",
 		        "font_style":"bold",
-
+	        },
+	        { 
+		        "scope" : "urtext.meta_separator",
+	  			"foreground": "var(meta-separator)",
 	        },
 
 

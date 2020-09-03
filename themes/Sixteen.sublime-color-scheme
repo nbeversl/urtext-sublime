@@ -11,7 +11,7 @@
 		 	 "meta-key" : "",
 			 "value-separator" : "",
 			 "meta-value" : "",
-
+			 "meta-separator" : "",
 			 "node-id" :"var(unobtrusive)",
 
 			 // links
@@ -19,14 +19,14 @@
 			 "link-prefix" : "var(unobtrusive)",
 			 "other-project-link" : "var(blue)",		
 			 "link-title" : "var(grey4)",
-			 "datestamp" : "var(aqua-green)",
-
+			 "datestamp" : "var(grey3)",
+			 
 		 // wrappers
-		 "wrapper1" : "var(purple)",
-		 "wrapper2" : "var(deep_blue)",
-		 "wrapper3" : "var(lime)",
-		 "wrapper4" : "var(bright-green)",
-		 "wrapper5" : "var(aqua-green)",
+		 "wrapper1" : "var(blue-lighter2)",
+		 "wrapper2" : "var(aqua-green2)",
+		 "wrapper3" : "var(lime2)",
+		 "wrapper4" : "var(bright-green2)",
+		 "wrapper5" : "var(deep_blue2)",
 
 		 /* dynamic definitions */
 		 "open-dynamic": "var(grey6)",
@@ -37,7 +37,7 @@
 	
 
 		 "dynamic-keyword" : "var(pink)",
-	  	 "dynamic-def-node-id"  : "var(",
+	  	 "dynamic-def-node-id"  : "var()",
 		 "dynamic-parens"  : "var(white2)",
 	  	 "format-variable" :"", // bold only
 	  	 "format-string" : "",
@@ -51,20 +51,14 @@
 
 
 		 /* color definitions - - - - - - - - - */
-		 "blue-bright" : "#0661EE",
-		 "blue-gray": "#E2E1EF",	 
-		 "unobtrusive": "hsl(20, 5%, 84%)",		  
-		 
-		 "purple" : "hsl(299, 100%, 50%)",
-		 "deep_blue" : "hsl(239, 100%, 46%)",
-		 "lime" : "hsl(164, 100%, 46%)",
-		 
+		 "unobtrusive": "hsl(20, 5%, 84%)",				 
 		 "red": "hsl(0, 100%, 50%)",
-	 	 "medium-green":"hsl(117, 57%, 63%)",
- 		 "bright-green":"hsl(113, 77%, 50%)",
-		 "pastel-green":"hsl(141, 77%, 50%)",
-		 "aqua-green":"hsl(161, 57%, 77%)",
-
+		 "blue-lighter2" : "hsl(225, 40%, 85%)",
+ 		 "bright-green2":"hsl(113, 40%, 70%)",
+		 "aqua-green2":"hsl(161, 20%, 77%)",
+		 "lime2" : "hsl(164, 40%, 46%)",
+		 "deep_blue2" : "hsl(285, 40%, 85%)",
+         "grey3": "hsl(0, 0%, 5%)",
 
 	},	
 
