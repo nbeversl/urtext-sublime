@@ -1069,17 +1069,14 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
     def run(self):
         # save the current file first
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-        links = re.findall(
-            '(?:[^\|]*\s)?>(' + node_id_regex + ')(?:\s[^\|]*)?\|?', full_line)
-        if len(links) == 0:
+        link = _UrtextProjectList.get_link_and_set_project(full_line)
+        if link[0] != 'NODE':
             return
-        path = get_path(self.view)
-        node_id = links[0]
+        node_id = link[1]
         timestamp = self._UrtextProjectList.current_project.timestamp(datetime.datetime.now())
 
-        # TODO move this into urtext, not Sublime
-        tag = ' tags::done ' + timestamp + '; '
-        _UrtextProjectList.current_project.tag_other_node(node_id, tag)
+        _UrtextProjectList.current_project.tag_other_node(node_id, 
+            {   'tags':'done '+timestamp })
 
 class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
     """ Display a tree of all nodes connected to this one """

@@ -73,17 +73,15 @@ contexts:
   
   # Metadata  
   metadata-value:
-    - meta_content_scope: urtext.meta_value
+    - meta_scope: urtext.meta_value
     - match: <
       push: datestamp
     - include: tagvalue-separator
     - include: node_link
-    - include: file_link
-    
-    - match: ;|\n
+    - include: file_link    
+    - match: ;|\n|(?=\})
       pop: true
-    - match: \}
-      scope: punctuation.section.braces.end.inline_node.urtext
+
       
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
@@ -335,6 +333,10 @@ contexts:
     - match: '(?<=[^f]>)[0-9,a-z]{3}'
       scope: link.urtext
 
+  file_link:
+    - match: '(?<=f>)[^;]*'
+      scope: link.urtext
+
   link_title:
     - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'
       scope: link_title.urtext
@@ -368,7 +370,7 @@ contexts:
       scope: entity.name.struct.node_id.urtext
 
   other-project-link:
-    - match: '\{\{\"(.*?)\"\}\}'
+    - match: '=>\"(.*?)\"'
       scope: link.urtext.other-project
 
   compact-node-opener:
