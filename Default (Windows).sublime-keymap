@@ -18,6 +18,5 @@
   { "keys": ["ctrl+shift+delete"], "command": "delete_this_node"},
   { "keys": ["ctrl+shift+1"], "command" :"backlinks_browser"},
   { "keys": ["ctrl+shift+2"], "command" :"forwardlinks_browser"},
-  { "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
 
 ]

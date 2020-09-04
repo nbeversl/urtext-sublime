@@ -21,5 +21,4 @@
   { "keys": ["ctrl+shift+g"], "command": "toggle_history_traverse"},
   { "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},
   { "keys": ["ctrl+shift+'-"], "command" :"backlinks_browser"},
-  { "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
 ]

@@ -918,19 +918,6 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
         new_node = self._UrtextProjectList.current_project.new_file_node()
         self.view.run_command("insert", {"characters":'| >' + new_node['id']})
 
-class NewNodeWithLinkCommand(UrtextTextCommand):
-
-    """ same as above but opens the new node"""
-    @refresh_project_text_command()
-    def run(self):
-        path = self._UrtextProjectList.current_project.path
-        new_node = self._UrtextProjectList.current_project.new_file_node()
-        new_node_id = new_node['id']
-        self.view.run_command("insert", {"characters":'| >' + new_node_id})
-        #self.view.run_command("save")
-        self._UrtextProjectList.nav_new(new_node_id)
-        new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
-
 class NewProjectCommand(UrtextTextCommand):
 
     def run(self, view):
