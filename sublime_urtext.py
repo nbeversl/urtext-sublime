@@ -626,57 +626,6 @@ def size_to_groups(groups, view):
     cols.append(1)
     view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
 
-class TagNodeCommand(UrtextTextCommand):  #under construction
-    
-    @refresh_project_text_command()
-    def run(self):
-        self.keynames = [value for value in self._UrtextProjectList.current_project.keynames]
-        self.view.window().show_quick_panel(self.keynames, self.list_values)
-
-    def list_values(self, index):
-        if index == -1:
-            return
-        self.selected_tag = self.keynames[index]
-        self.values = [
-            value for value in self._UrtextProjectList.current_project.keynames[self.selected_tag]
-        ]
-        self.view.window().show_quick_panel(self.values, self.insert_tag)
-
-    def insert_tag(self, index):
-        if index == -1:
-            return
-        self.selected_value = self.values[index]
-        timestamp = self.timestamp(datetime.datetime.now())
-        tag = '/-- ' + self.selected_tag + ': ' + self.selected_value + ' ' + timestamp + ' --/'
-        self.view.run_command("insert_snippet", {"contents": tag})
-
-    def locate_from_in_node(self, index):  # useful in the future.
-        selected_tag = self.values[index]
-        max_size = self.view.size()
-        region = self.view.sel()[0]
-        subnode_regexp = re.compile(r'{(?!.*{)(?:(?!}).)*}', re.DOTALL)
-        selection = self.view.substr(region)
-        while not subnode_regexp.search(selection):
-            a = region.a
-            b = region.b
-            if selection[:1] != '{':
-                a -= 1
-            if selection[-1:] != '}':
-                b += 1
-            region = sublime.Region(a, b)
-            if a == 0 or b == max_size:  # entire file
-                break
-            selection = self.view.substr(region)
-
-        metadata = urtext.metadata.NodeMetadata(selection[2:-2])
-        # this all successfully identifies which node the cursor is in.
-        # from here this should probably be done in the metadata class, not here.
-        # get the metadata string out, probably using regex
-        # find a place where the tag is
-
-        if selected_tag not in metadata.get_meta_value(self.selected_tag):
-            print('ADD IT')  # DEBUGGING
-
 class ShowTreeFromNode(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -766,14 +715,6 @@ def target_tree_view(view):
             view.window().set_view_index(tree_view, active_group, 0)
             view.window().focus_group(active_group)
     return tree_view
-
-class InsertInterlinksCommand(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):
-        insertion =  self._UrtextProjectList.current_project.insert_interlinks(get_node_id(self.view))
-        self.view.run_command("insert_snippet",
-                          {"contents": insertion}) 
 
 class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
@@ -960,14 +901,6 @@ def get_contents(view):
         return contents
     return None
 
-class ShowAllNodesCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        new_view = self.view.window().new_file()
-        output = self._UrtextProjectList.current_project.list_nodes()
-        new_view.run_command("insert", {"characters": output})
-
 class NewNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -987,13 +920,14 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
 class NewNodeWithLinkCommand(UrtextTextCommand):
 
+    """ same as above but opens the new node"""
     @refresh_project_text_command()
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
         new_node_id = new_node['id']
-        self.view.run_command("insert", {"characters":' >' + new_node_id})
-        self.view.run_command("save")
+        self.view.run_command("insert", {"characters":'| >' + new_node_id})
+        #self.view.run_command("save")
         self._UrtextProjectList.nav_new(new_node_id)
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
@@ -1078,33 +1012,6 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         _UrtextProjectList.current_project.tag_other_node(node_id, 
             {   'tags':'done '+timestamp })
 
-class ShowLinkedRelationshipsCommand(sublime_plugin.TextCommand):
-    """ Display a tree of all nodes connected to this one """
-
-    # TODO: for files that link to the same place more than one time,
-    # show how many times on one tree node, instead of showing multiple nodes
-    # would this require building the tree after scanning all files?
-    #
-    # Also this command does not currently utilize the global array, it reads files manually.
-    # Necessary to change it?
-
-    @refresh_project_text_command()
-    def run(self):
-        render = self._UrtextProjectList.current_project.get_node_relationships(get_node_id(self.view))
-
-        def draw_tree(view, render):
-            if not view.is_loading():
-                view.run_command("insert_snippet", {"contents": render})
-                view.set_scratch(True)
-            else:
-                sublime.set_timeout(lambda: draw_tree(view, render), 10)
-
-        window = self.view.window()
-        window.focus_group(0)  # always show the tree on the leftmost focus'
-        new_view = window.new_file()
-        window.focus_view(new_view)
-        draw_tree(new_view, render)
-
 class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -1154,16 +1061,6 @@ class OpenUrtextLogCommand(UrtextTextCommand):
                 sublime.set_timeout(lambda: go_to_end(view), 10)
 
         go_to_end(self.view)
-
-class UrtextNodeListCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        if 'zzz' in self._UrtextProjectList.current_project.nodes:
-            self._UrtextProjectList.nav_new('zzz')
-            open_urtext_node(self.view, 'zzz')
-        else:
-            print('No zzz node')
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -1230,14 +1127,6 @@ class PullNodeCommand(UrtextTextCommand):
             filename, 
             position)
 
-class SplitNodeCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        node_id = self._UrtextProjectList.current_project.next_index()
-        self.view.run_command("insert_snippet",
-                          {"contents": '/-- id:'+node_id+' --/\n% '})
-
 class RandomNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -1245,7 +1134,6 @@ class RandomNodeCommand(UrtextTextCommand):
         node_id = self._UrtextProjectList.current_project.random_node()
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
-
 
 class ToggleTraverse(UrtextTextCommand):
 
@@ -1296,18 +1184,6 @@ class ToggleTraverse(UrtextTextCommand):
                 index += 1
 
         self.view.window().focus_group(active_group)
-
-class ShowAccessHistory(UrtextTextCommand):
-    @refresh_project_text_command()
-    def run(self):
-        self._UrtextProjectList.current_project._show_access_history()
-
-
-class ExportToIcs(UrtextTextCommand):
-    @refresh_project_text_command()
-    def run(self):
-        self._UrtextProjectList.current_project.export_to_ics()
-
 
 class TraverseFileTree(EventListener):
 
@@ -1589,6 +1465,3 @@ def get_node_id(view):
     filename = os.path.basename(view.file_name())
     position = view.sel()[0].a
     return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
-
-
-

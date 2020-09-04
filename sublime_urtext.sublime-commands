@@ -2,13 +2,11 @@
         
     /* Navigation */
     { "caption": "Urtext: Node List", "command": "node_browser"},
-    { "caption": "Urtext: Show Tags", "command":"show_tags"},
     { "caption": "Urtext: Search", "command" :"full_text_search"},
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
     { "caption": "Urtext: Select Project", "command" :"list_projects"},
-    { "caption": "Urtext: To Source Node", "command" :"to_source_node"},
-    { "caption": "Urtext: File History", "command" :"back_history"},
+    //{ "caption": "Urtext: To Source Node", "command" :"to_source_node"},
 
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
@@ -17,14 +15,9 @@
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
   
-
     /* Trees */
-    { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},
-    { "caption": "Urtext: Show Tree From Root", "command" :"show_tree_from_root"},
-  
-    /* Metadata */
-    { "caption": "Urtext: Tag This Node", "command" :"tag_node"}, 
-    { "caption": "Urtext: Mark as Done from Other Node", "command" :"tag_from_other_node"},
+    // { "caption": "Urtext: Show Tree From Current Node", "command" :"show_tree_from_node"},
+    // { "caption": "Urtext: Show Tree From Root", "command" :"show_tree_from_root"},
    
     /* Formatting */
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
@@ -49,6 +42,4 @@
  
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
-    { "caption": "Urtext: Debug2", "command" :"debug2"},
-    { "caption": "Urtext: Show Access History", "command" :"show_access_history"},
 ] 

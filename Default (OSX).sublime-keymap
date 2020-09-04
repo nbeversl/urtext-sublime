@@ -14,7 +14,6 @@
 	{ "keys": ["ctrl+shift+h"], "command": "urtext_home"},
 	{ "keys": ["ctrl+shift+p"], "command": "insert_node_single_line"},
 	{ "keys": ["ctrl+shift+6"], "command": "compact_node"},
-	{ "keys": ["ctrl+shift+5"], "command": "split_node"},
 	{ "keys": ["ctrl+shift+f"], "command": "random_node"},
 	{ "keys": ["ctrl+shift+m"], "command": "new_node_with_link"},
 	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
