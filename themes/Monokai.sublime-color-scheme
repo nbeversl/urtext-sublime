@@ -12,7 +12,7 @@
 			 "meta-key" : "var(blue-grey)",
 			 "value-separator" : "var(grey)",
 			 "meta-value" : "var(blue-brighter)",
-			 "meta-separator" : "",
+			 "meta-separator" : "var(grey)",
 	 		 "node-id" :"var(unobtrusive)",
 
 			 // Links
@@ -25,11 +25,11 @@
 
 
 		 // wrappers
-		 "wrapper1" : "var(unobtrusive)",
-		 "wrapper2" : "var(unobtrusive)",
-		 "wrapper3" : "var(unobtrusive)",
-		 "wrapper4" : "var(unobtrusive)",
-		 "wrapper5" : "var(unobtrusive)",
+		 "wrapper1" : "var(dark1)",
+		 "wrapper2" : "var(dark2)",
+		 "wrapper3" : "var(dark3)",
+		 "wrapper4" : "var(dark4)",
+		 "wrapper5" : "var(dark5)",
 
 
 		 // dynamic definitions
@@ -79,13 +79,11 @@
 		 "pastel-green":"hsl(141, 77%, 50%)",
 //		Nested Defs:
 
-		 "blue-lighter2" : "hsl(225, 40%, 85%)",
- 		 "bright-green2":"hsl(113, 40%, 70%)",
-		 "aqua-green2":"hsl(161, 20%, 77%)",
-		 "lime2" : "hsl(164, 40%, 46%)",
-		 "deep_blue2" : "hsl(285, 40%, 85%)",
-
-         "grey3": "hsl(0, 0%, 5%)",
+		 "dark1" : "hsl(0, 5%, 30%)",
+ 		 "dark2" : "hsl(0, 15%, 40%)",
+ 		 "dark3" : "hsl(0, 22%, 50%)",
+ 		 "dark4" : "hsl(0, 40%, 60%)",
+ 		 "dark5" : "hsl(0, 50%, 80%)",
   },
 
 
