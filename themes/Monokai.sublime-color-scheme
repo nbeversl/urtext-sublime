@@ -68,7 +68,6 @@
 	     /* color definitions - - - - - - - - - */
 		 "blue-bright" : "#0661EE",
 		 "blue-gray": "#E2E1EF",	 
-		 "unobtrusive": "hsl(20, 5%, 84%)",		 
 
 	     "blue-brighter" : "hsl(225, 80%, 60%)",
 	     "blue-gray2" : "hsl(225, 10%, 50%)", 
