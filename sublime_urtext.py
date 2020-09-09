@@ -248,8 +248,8 @@ class UrtextSaveListener(EventListener):
       
         if _UrtextProjectList.get_project(current_path):
             
-            # completions = _UrtextProjectList.get_all_meta_pairs()
-            completions = _UrtextProjectList.current_project.title_completions
+            completions = _UrtextProjectList.get_all_meta_pairs()
+            completions.extend(_UrtextProjectList.current_project.title_completions)
             
             return completions
 
@@ -798,7 +798,7 @@ class NodeInfo():
 def make_node_menu(
     project_list, 
     project=None, 
-    nodes=[]):
+    nodes=None):
 
     menu = []
 
