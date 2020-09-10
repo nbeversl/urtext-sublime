@@ -4,14 +4,15 @@
 		
     	 /* background */
 		 "paper" : "hsl(9, 4%, 90%)",
-
+		 "background" : "var(paper)",
+		 "foreground": "var(grey5)",
 		 // main syntax 
 
 		 	// metadata
-		 	 "meta-key" : "",
-			 "value-separator" : "",
-			 "meta-value" : "",
-			 "meta-separator" : "",
+		 	 "meta-key" : "var(foreground)",  // bold only
+			 "value-separator" : "var(foreground)",
+			 "meta-value" : "var(foreground)",
+			 "meta-separator" : "var(foreground)",
 			 "node-id" :"var(unobtrusive)",
 
 			 // links
@@ -20,7 +21,11 @@
 			 "other-project-link" : "var(blue)",		
 			 "link-title" : "var(grey4)",
 			 "datestamp" : "var(grey3)",
-			 
+			 "file-link" : "var(foreground)",
+		 
+		 // pass marker:
+		 "pass-marker" : "var(foreground)",
+
 		 // wrappers
 		 "wrapper1" : "var(blue-lighter2)",
 		 "wrapper2" : "var(aqua-green2)",
@@ -31,24 +36,22 @@
 		 /* dynamic definitions */
 		 "open-dynamic": "var(grey6)",
 		 "close-dynamic" : "var(grey6)",
-		 "dynamic-key": "",
-		 "dynamic-value" : "",
+		 "dynamic-key": "var(foreground)",
+		 "dynamic-value" : "var(foreground)",
 		 "function-name" : "var(grey)",
 	
 
 		 "dynamic-keyword" : "var(pink)",
-	  	 "dynamic-def-node-id"  : "var()",
+	  	 "dynamic-def-node-id"  : "var(foreground)",
 		 "dynamic-parens"  : "var(white2)",
-	  	 "format-variable" :"", // bold only
-	  	 "format-string" : "",
+	  	 "format-variable" :"var(foreground)", // bold only
+	  	 "format-string" : "var(foreground)",
 
 	  	 /* compact node */
 	  	 "compact-node-marker" : "var(red)",
 
 	  	 /* sytem message */
 	  	 "system-message" : "var(red)",
-
-
 
 		 /* color definitions - - - - - - - - - */
 		 "unobtrusive": "hsl(20, 5%, 84%)",				 
@@ -247,7 +250,11 @@
 		         "font_style":"bold",
 	        },
 
-	  		
+	  		{
+	  			"scope" : "urtext.pass_marker",
+	  			"foreground" : "var(pass-marker)",
+	  			"font_style" : "italic bold",
+	  		},
 	/* system message */
 
 	  		{  "scope": "entity.name.struct.message.urtext",

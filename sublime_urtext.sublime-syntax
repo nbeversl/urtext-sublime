@@ -47,27 +47,47 @@ contexts:
       
     # Embedded Syntaxes
     - match: '%%-PYTHON'
+      scope: urtext.pass_marker
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: urtext.python
-      escape: '%%-END'
+      escape: '%%-END-PYTHON'
       escape-captures: 0
     
     - match: '%%-HTML'
+      scope: urtext.pass_marker
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
-      escape: '%%-END'
+      escape: '%%-END-HTML'
+
       escape_captures: 0
     
     - match: '%%-JSON'
+      scope: urtext.pass_marker
       embed: Packages/JavaScript/JSON.sublime-syntax
       embed_scope: urtext.json
-      escape: '%%-END'
+      escape: '%%-END-JSON'
+
       escape_captures: 0
 
     - match: '%%-PLAINTEXT'
+      scope: urtext.pass_marker
       embed: Packages/JavaScript/text.sublime-syntax
       embed_scope: urtext.text
       escape: '%%-END-PLAINTEXT'
+
+      escape_captures: 0
+
+    - match: '%%-DOC*'
+      scope: urtext.pass_marker
+      escape: '%%-END-DOC'
+      meta_scope: urtext.pass_marker
+      escape_captures: 0
+
+    - match: '%%-[A-Z-]*'
+      scope: urtext.pass_marker
+      embed_scope: urtext.text
+      escape: '%%-END-[A-Z-]*'
+      meta_scope: urtext.pass_marker
       escape_captures: 0
 
   
