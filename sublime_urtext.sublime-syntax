@@ -21,7 +21,7 @@ contexts:
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-        
+    - include: file_link
     
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
@@ -354,8 +354,8 @@ contexts:
       scope: link.urtext
 
   file_link:
-    - match: '(?<=f>)[^;]*'
-      scope: link.urtext
+    - match: '(?<=f>)[^\s][^;]*'
+      scope: file_link.urtext
 
   link_title:
     - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'

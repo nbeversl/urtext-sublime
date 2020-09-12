@@ -17,6 +17,7 @@
 
 			 // links
 			 "link": "var(unobtrusive)",
+			 "file-link" : "var(foreground)",
 			 "link-prefix" : "var(unobtrusive)",
 			 "other-project-link" : "var(blue)",		
 			 "link-title" : "var(grey4)",
@@ -255,6 +256,14 @@
 	  			"foreground" : "var(pass-marker)",
 	  			"font_style" : "italic bold",
 	  		},
+	  		{
+	  			"scope" : "file_link.urtext",
+	  			"foreground" : "var(file-link)",
+	  			"font_style" : "italic bold",
+	  		},
+
+
+
 	/* system message */
 
 	  		{  "scope": "entity.name.struct.message.urtext",

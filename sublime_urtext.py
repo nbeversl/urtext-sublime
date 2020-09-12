@@ -331,7 +331,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
 
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
-            open_urtext_node(self.view, link[1])
+            open_urtext_node(self.view, link[1], position=link[2])
 
         if kind == 'HTTP':
             success = webbrowser.get().open(link[1])
@@ -853,8 +853,7 @@ class LinkToNodeCommand(UrtextTextCommand):
         show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
-        if not self.window:
-            return
+
         view = self.window.active_view()
         selected_option = self.menu.get_selection_from_index(selected_option)
         link = self._UrtextProjectList.build_contextual_link(
@@ -869,6 +868,10 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command()
     def run(self):
+
+        if not self.window:
+            self.window = self.view.window()
+
         link = self.get_link(get_node_id(self.window.active_view()))
         sublime.set_clipboard(link)        
         self.view.show_popup(link + '\ncopied to the clipboard', 
@@ -1370,13 +1373,16 @@ def open_urtext_node(view, node_id, project=None, position=0):
     if project:
         _UrtextProjectList.set_current_project(project.path)
 
-    filename, position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+    filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename == None:
         return
     file_view = view.window().find_open_file(filename)
     if not file_view:
         file_view = view.window().open_file(filename)
     view.window().focus_view(file_view)
+    if not position:
+        position = node_position
+
     center_node(file_view, position)
     return file_view
     """
@@ -1439,7 +1445,7 @@ def refresh_open_file(future, view):
             view.run_command('revert') # undocumented
 
 def open_external_file(filepath):
-    print(filepath)
+
     if sublime.platform() == "osx":
         subprocess.Popen(('open', filepath))
     elif sublime.platform() == "windows":
