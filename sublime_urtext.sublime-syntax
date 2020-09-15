@@ -39,7 +39,7 @@ contexts:
     - match: '(?<=\w)::'
       scope: urtext.meta_separator
 
-    - match: <[^!]
+    - match: <[^!\s-]
       push: datestamp
 
     - match: <!!
@@ -66,7 +66,6 @@ contexts:
       embed: Packages/JavaScript/JSON.sublime-syntax
       embed_scope: urtext.json
       escape: '%%-END-JSON'
-
       escape_captures: 0
 
     - match: '%%-PLAINTEXT'
@@ -74,20 +73,17 @@ contexts:
       embed: Packages/JavaScript/text.sublime-syntax
       embed_scope: urtext.text
       escape: '%%-END-PLAINTEXT'
-
       escape_captures: 0
 
-    - match: '%%-DOC*'
+    - match: '%%-DOC'
       scope: urtext.pass_marker
       escape: '%%-END-DOC'
-      meta_scope: urtext.pass_marker
       escape_captures: 0
 
     - match: '%%-[A-Z-]*'
       scope: urtext.pass_marker
       embed_scope: urtext.text
       escape: '%%-END-[A-Z-]*'
-      meta_scope: urtext.pass_marker
       escape_captures: 0
 
   
@@ -354,7 +350,7 @@ contexts:
       scope: link.urtext
 
   file_link:
-    - match: '(?<=f>)[^\s][^;]*'
+    - match: '(f>{1,2})[^\s][^;]*'
       scope: file_link.urtext
 
   link_title:

@@ -238,8 +238,9 @@ class UrtextSaveListener(EventListener):
     def __init__(self):
         
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        self.completions = []
 
-    def on_query_completions(self, view, prefix, locations):
+    def get_completions(self, view):
 
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
@@ -247,18 +248,21 @@ class UrtextSaveListener(EventListener):
         current_path = os.path.dirname(view.file_name())
       
         if _UrtextProjectList.get_project(current_path):
-            
+
             completions = _UrtextProjectList.get_all_meta_pairs()
             completions.extend(_UrtextProjectList.current_project.title_completions)
-            
-            return completions
+            self.completions = completions
 
+    def on_query_completions(self, view, prefix, locations):
+        return self.completions
 
     @refresh_project_event_listener
     def on_post_save(self, view):
         
         if not view.file_name():
             return
+        
+        self.get_completions(view)
 
         future = self._UrtextProjectList.on_modified(view.file_name())
         
@@ -334,6 +338,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             open_urtext_node(self.view, link[1], position=link[2])
 
         if kind == 'HTTP':
+            print(link)
             success = webbrowser.get().open(link[1])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
@@ -358,27 +363,27 @@ class TakeSnapshot(EventListener):
         take_snapshot(view, self._UrtextProjectList.current_project)
 
 
-class JumpToSource(EventListener):
+# class JumpToSource(EventListener):
 
-    @refresh_project_event_listener
-    def on_modified(self, view):
-        """
-        problematic -- this doesn't work if the view is dirty.
+#     @refresh_project_event_listener
+#     def on_modified(self, view):
+#         """
+#         problematic -- this doesn't work if the view is dirty.
 
-        TODO: revise
-        For now, making available only if few is not dirty. However this should
-        still be usable in many cases.
-        """
-        if not view:
-            return
-        position = view.sel()[0].a
-        filename = view.file_name()
-        if filename:
-            destination_node = _UrtextProjectList.is_in_export(filename, position)
-            if destination_node:
-                view.window().run_command('undo') # undo the manual change made to the view
-                open_urtext_node(view, destination_node[0])
-                center_node(view, destination_node[1])
+#         TODO: revise
+#         For now, making available only if few is not dirty. However this should
+#         still be usable in many cases.
+#         """
+#         if not view:
+#             return
+#         position = view.sel()[0].a
+#         filename = view.file_name()
+#         if filename:
+#             destination_node = _UrtextProjectList.is_in_export(filename, position)
+#             if destination_node:
+#                 view.window().run_command('undo') # undo the manual change made to the view
+#                 open_urtext_node(view, destination_node[0])
+#                 center_node(view, destination_node[1])
 
 def take_snapshot(view, project):
     contents = get_contents(view)
@@ -853,7 +858,7 @@ class LinkToNodeCommand(UrtextTextCommand):
         show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
-
+        print(self.view)
         view = self.window.active_view()
         selected_option = self.menu.get_selection_from_index(selected_option)
         link = self._UrtextProjectList.build_contextual_link(
@@ -1060,36 +1065,6 @@ class UrtextReloadProjectCommand(UrtextTextCommand):
             print('No Urtext Project')
             return None
 
-class ExportFromIdCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):        
-        exported = self._UrtextProjectList.current_project.export_from_root_node(get_node_id(self.view))
-        new_view = self.view.window().new_file()
-        new_view.run_command("insert_snippet", {
-                "contents":
-               exported
-            })
-
-class ExportFileAsHtmlCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):        
-        filename = self.view.file_name()
-        self._UrtextProjectList.current_project.export(  filename, 
-                                html_filename, 
-                                kind='HTML',
-                                single_file=True,
-                                strip_urtext_syntax=False, 
-                                style_titles=False)
-        html_view = self.view.window().open_file(os.path.join(self._UrtextProjectList.current_project.path, html_filename))
-
-class ExportProjectAsHtmlCommand(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):        
-        self._UrtextProjectList.current_project.export_project(jekyll=True, style_titles=False)
-
 class CompactNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -1276,7 +1251,7 @@ class TraverseFileTree(EventListener):
                 if filename:
                     filenames.append(filename)
 
-            if len(filenames) > 0:
+            if len(filenames) > 0 and link[1:] in _UrtextProjectList.current_project.nodes:
                 filename = filenames[0]
                 position = _UrtextProjectList.current_project.nodes[link[1:]].ranges[0][0]
                 
