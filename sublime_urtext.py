@@ -338,7 +338,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             open_urtext_node(self.view, link[1], position=link[2])
 
         if kind == 'HTTP':
-            print(link)
             success = webbrowser.get().open(link[1])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
@@ -387,7 +386,7 @@ class TakeSnapshot(EventListener):
 
 def take_snapshot(view, project):
     contents = get_contents(view)
-    if view.file_name():
+    if view:
         filename = os.path.basename(view.file_name())
         project.snapshot_diff(filename, contents)
 

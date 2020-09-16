@@ -1,7 +1,7 @@
 {
    "*": {
       "*": [
-         "pathtools",
+         "pathtools"
       ]
    }
 }
