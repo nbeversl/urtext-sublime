@@ -17,7 +17,6 @@ contexts:
   syntax-main:    
     - include: node_link
     - include: link_prefix
-    - include: link_title
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
@@ -122,7 +121,10 @@ contexts:
 
   dynamic-definition:
     - meta_scope: dynamic-definition
-    - include: link_title
+    
+    - match: '\|[^<][^\s]{2}'
+      push: link_title
+
     - include: node_link
     - include: file_link
 
@@ -173,7 +175,9 @@ contexts:
     - match:  \w+?(?=::)
       scope: urtext.meta_key
     - include: link_prefix
-    - include: link_title
+    - match: '\|[^<][^\s]{2}'
+      push: link_title
+
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
