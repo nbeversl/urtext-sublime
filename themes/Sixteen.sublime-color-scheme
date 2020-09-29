@@ -6,6 +6,7 @@
 		 "paper" : "hsl(9, 4%, 90%)",
 		 "background" : "var(paper)",
 		 "foreground": "var(grey5)",
+		 "raw": "var(white2)",
 		 // main syntax 
 
 		 	// metadata
@@ -23,7 +24,7 @@
 			 "link-title" : "var(grey4)",
 			 "datestamp" : "var(grey3)",
 			 "file-link" : "var(foreground)",
-		 
+		 	
 		 // pass marker:
 		 "pass-marker" : "var(foreground)",
 
@@ -41,7 +42,6 @@
 		 "dynamic-value" : "var(foreground)",
 		 "function-name" : "var(grey)",
 	
-
 		 "dynamic-keyword" : "var(pink)",
 	  	 "dynamic-def-node-id"  : "var(foreground)",
 		 "dynamic-parens"  : "var(white2)",
@@ -51,6 +51,7 @@
 	  	 /* compact node */
 	  	 "compact-node-marker" : "var(red)",
 
+		  	
 	  	 /* sytem message */
 	  	 "system-message" : "var(red)",
 
@@ -63,6 +64,7 @@
 		 "lime2" : "hsl(164, 40%, 46%)",
 		 "deep_blue2" : "hsl(285, 40%, 85%)",
          "grey3": "hsl(0, 0%, 5%)",
+         "white2": "hsl(0, 0%, 97%)"
 
 	},	
 
@@ -261,6 +263,11 @@
 	  			"foreground" : "var(file-link)",
 	  			"font_style" : "italic bold",
 	  		},
+	  		{
+	  			"scope" : "raw.urtext",
+	  			"background" : "var(raw)",
+	  		},
+
 
 
 

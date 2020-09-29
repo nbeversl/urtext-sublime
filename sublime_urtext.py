@@ -288,7 +288,6 @@ class KeepPosition(EventListener):
 
         restore_position(view, position)
 
-
 class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -345,21 +344,21 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if kind == 'FILE':
             open_external_file(link[1])
 
-class TakeSnapshot(EventListener):
+# class TakeSnapshot(EventListener):
 
-    def __init__(self):
-        self.last_time = time.time()
+#     def __init__(self):
+#         self.last_time = time.time()
 
-    @refresh_project_event_listener
-    def on_modified(self, view):
-        global is_browsing_history
-        if is_browsing_history:
-            return
-        now = time.time()
-        if now - self.last_time < 10:
-            return None
-        self.last_time = now 
-        take_snapshot(view, self._UrtextProjectList.current_project)
+#     @refresh_project_event_listener
+#     def on_modified(self, view):
+#         global is_browsing_history
+#         if is_browsing_history:
+#             return
+#         now = time.time()
+#         if now - self.last_time < 10:
+#             return None
+#         self.last_time = now 
+#         take_snapshot(view, self._UrtextProjectList.current_project)
 
 
 # class JumpToSource(EventListener):

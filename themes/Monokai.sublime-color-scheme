@@ -7,7 +7,6 @@
 				 
 		 // main syntax
 
-
 	 		 // metadata
 			 "meta-key" : "var(blue-grey)",
 			 "value-separator" : "var(grey)",
@@ -31,6 +30,8 @@
 		 "wrapper4" : "var(dark4)",
 		 "wrapper5" : "var(dark5)",
 
+		 // 
+		 "raw" : "var(dark1)",
 
 		 // dynamic definitions
 		 "open-dynamic": "var(blue-grey)",
@@ -77,6 +78,7 @@
 		 "red": "hsl(0, 100%, 50%)",
 	 	 "medium-green":"hsl(117, 57%, 63%)",
 		 "pastel-green":"hsl(141, 77%, 50%)",
+
 //		Nested Defs:
 
 		 "dark1" : "hsl(0, 5%, 30%)",
@@ -272,6 +274,10 @@
 		         "foreground" : "var(wrapper5)",
 
 	        },
+	        {
+	  			"scope" : "raw.urtext",
+	  			"background" : "var(raw)",
+	  		},
 
 	  		
 	/* system message */

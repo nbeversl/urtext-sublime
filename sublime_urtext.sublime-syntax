@@ -22,7 +22,11 @@ contexts:
     - include: compact-node-opener
     - include: ending_node_id
     - include: file_link
+    - include: raw
     
+    - match: '\|[^<][^\s]{2}'
+      push: link_title
+
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -353,9 +357,15 @@ contexts:
     - match: '(f>{1,2})[^\s][^;]*'
       scope: file_link.urtext
 
+  raw:
+    - match: '`.*?`'
+      scope: raw.urtext
+
   link_title:
-    - match: '\|[^<][^\s]{2}.*?(?=>[0-9,a-z]{3}\b)'
-      scope: link_title.urtext
+    - meta_scope: link_title.urtext
+    - include: raw
+    - match: '(?=>[0-9,a-z]{3}\b)|\n'
+      pop: true
 
   url: # not yet styled
     - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'

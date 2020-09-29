@@ -24,7 +24,6 @@
 	{ "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},
 	{ "keys": ["ctrl+shift+1"], "command" :"backlinks_browser"},
 	{ "keys": ["ctrl+shift+2"], "command" :"forwardlinks_browser"},
-
 ]
 
 

@@ -1,10 +1,8 @@
 [
   { "keys": ["ctrl+shift+;"], "command": "new_node" },
-  { "keys": ["ctrl+shift+1"], "command": "generate_timeline" },
-  { "keys": ["ctrl+shift+o"], "command": "node_browser"},
+  { "keys": ["ctrl+shift+e"], "command": "node_browser"},
   { "keys": ["ctrl+shift+r"], "command": "toggle_traverse"},
   { "keys": ["ctrl+shift+s"], "command": "rename_file"},
-  { "keys": ["ctrl+shift+c"], "command": "consolidate_metadata"},
   { "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
   { "keys": ["ctrl+shift+t"], "command": "insert_timestamp"},
   { "keys": ["ctrl+shift+["], "command": "insert_node"},
@@ -21,4 +19,8 @@
   { "keys": ["ctrl+shift+g"], "command": "toggle_history_traverse"},
   { "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},
   { "keys": ["ctrl+shift+'-"], "command" :"backlinks_browser"},
+  { "keys": ["ctrl+shift+8"], "command": "all_projects_node_browser"},
+  { "keys": ["ctrl+shift+o"], "command": "list_projects"},
+  { "keys": ["ctrl+shift+c"], "command": "copy_link_to_here"},
+  { "keys": ["ctrl+shift+super+c"], "command": "copy_link_to_here_with_project"},
 ]
