@@ -257,12 +257,12 @@ class UrtextSaveListener(EventListener):
         return self.completions
 
     @refresh_project_event_listener
-    def on_post_save(self, view):
-        
+    def on_post_save_async(self, view):
+
         if not view.file_name():
             return
         
-        self.get_completions(view)
+        #self.get_completions(view)
 
         future = self._UrtextProjectList.on_modified(view.file_name())
         
@@ -334,6 +334,8 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
 
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
+           
+            print(link)
             open_urtext_node(self.view, link[1], position=link[2])
 
         if kind == 'HTTP':
@@ -344,21 +346,21 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if kind == 'FILE':
             open_external_file(link[1])
 
-# class TakeSnapshot(EventListener):
+class TakeSnapshot(EventListener):
 
-#     def __init__(self):
-#         self.last_time = time.time()
+    def __init__(self):
+        self.last_time = time.time()
 
-#     @refresh_project_event_listener
-#     def on_modified(self, view):
-#         global is_browsing_history
-#         if is_browsing_history:
-#             return
-#         now = time.time()
-#         if now - self.last_time < 10:
-#             return None
-#         self.last_time = now 
-#         take_snapshot(view, self._UrtextProjectList.current_project)
+    @refresh_project_event_listener
+    def on_modified(self, view):
+        global is_browsing_history
+        if is_browsing_history:
+            return
+        now = time.time()
+        if now - self.last_time < 10:
+            return None
+        self.last_time = now 
+        take_snapshot(view, self._UrtextProjectList.current_project)
 
 
 # class JumpToSource(EventListener):
@@ -856,13 +858,11 @@ class LinkToNodeCommand(UrtextTextCommand):
         show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
-        print(self.view)
-        view = self.window.active_view()
         selected_option = self.menu.get_selection_from_index(selected_option)
         link = self._UrtextProjectList.build_contextual_link(
             selected_option.node_id,
             project_title=selected_option.project_title)    
-        view.run_command("insert", {"characters": link})
+        self.view.run_command("insert", {"characters": link})
 
 class CopyLinkToHereCommand(UrtextTextCommand):
     """

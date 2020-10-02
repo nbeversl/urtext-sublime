@@ -23,7 +23,7 @@ contexts:
     - include: file_link
     - include: raw
     
-    - match: '\|[^<][^\s]{2}'
+    - match: '\|\s'
       push: link_title
 
     - match: \[\[
@@ -127,6 +127,7 @@ contexts:
 
     - include: node_link
     - include: file_link
+    - include: raw
 
     - match: (\+|\-|INCLUDE|EXCLUDE|SORT|COLLECT)(?=\()
       scope: function-name.urtext
@@ -175,9 +176,7 @@ contexts:
     - match:  \w+?(?=::)
       scope: urtext.meta_key
     - include: link_prefix
-    - match: '\|[^<][^\s]{2}'
-      push: link_title
-
+    
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
@@ -354,16 +353,18 @@ contexts:
       scope: link_prefix.urtext
 
   node_link:
-    - match: '(?<=[^f]>)[0-9,a-z]{3}'
+    - match: '(?<=>)[0-9,a-z]{3}\b'
       scope: link.urtext
 
   file_link:
     - match: '(f>{1,2})[^\s][^;]*'
+      
       scope: file_link.urtext
 
   raw:
-    - match: '`.*?`'
-      scope: raw.urtext
+    - match: '(`)(.*?)(`)'
+      captures: 
+        2 : raw.urtext
 
   link_title:
     - meta_scope: link_title.urtext
