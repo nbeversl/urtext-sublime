@@ -633,6 +633,7 @@ def size_to_groups(groups, view):
     view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
 
 def size_to_thirds(groups,view):
+    # https://forum.sublimetext.com/t/set-layout-reference/5713
     # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
     view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
 
