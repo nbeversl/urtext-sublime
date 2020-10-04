@@ -629,7 +629,12 @@ def size_to_groups(groups, view):
         cols.append(cols[index - 1] + panel_size)
         cells.append([index, 0, index + 1, 1])
     cols.append(1)
+    print({"cols": cols, "rows": [0, 1], "cells": cells})
     view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
+
+def size_to_thirds(groups,view):
+    # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
+    view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
 
 class ShowTreeFromNode(UrtextTextCommand):
     
@@ -1129,7 +1134,8 @@ class ToggleTraverse(UrtextTextCommand):
         active_group = self.view.window().active_group()  # 0-indexed
         if active_group + 1 == groups:
             groups += 1
-        size_to_groups(groups, self.view)
+        #size_to_groups(groups, self.view)
+        size_to_thirds(groups,self.view)
         self.view.settings().set("word_wrap", False)
 
         #
