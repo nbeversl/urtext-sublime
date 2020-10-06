@@ -1,8 +1,8 @@
 # Urtext package for Sublime Text
 
-Urtext is a syntax and system for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. For desktop use (PC/Mac/Linux) Urtext is implemented in Sublime Text.
+Urtext is a syntax and system for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form.
 
-This is an alpha release.
+For desktop use (PC/Mac/Linux) Urtext is currently implemented in Sublime Text.
 
 ## Issues
 
