@@ -1,7 +1,10 @@
 {
    "*": {
       "*": [
-         "pathtools"
+         "dateutil",
+         "diffmatchpatch",
+         "python-six",
+         "pytz"
       ]
    }
 }

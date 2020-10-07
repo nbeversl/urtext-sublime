@@ -24,9 +24,8 @@ import time
 import concurrent.futures
 import subprocess
 import webbrowser
-from urtext.metadata import NodeMetadata
-from urtext.project_list import ProjectList
-from urtext.project import node_id_regex
+from .urtext.project_list import ProjectList
+from .urtext.project import node_id_regex
 from sublime_plugin import EventListener
 
 _SublimeUrtextWindows = {}
@@ -262,15 +261,30 @@ class UrtextSaveListener(EventListener):
         if not view.file_name():
             return
         
-        #self.get_completions(view)
-
-        future = self._UrtextProjectList.on_modified(view.file_name())
-        
+        filename = view.file_name()
+        result = self._UrtextProjectList.on_modified(filename)
+        if self._UrtextProjectList.current_project.is_async:
+            if result:
+                renamed_file = result.result()
+                if renamed_file and renamed_file != filename:
+                    view.set_scratch(True) # already saved
+                    view.close()
+                    new_view = view.window().open_file(renamed_file)
+                else:
+                    self.executor.submit(refresh_open_file, filename, view)
+        else:
+            if result and result != filename:
+                window = view.window()
+                view.set_scratch(True) # already saved
+                view.close()
+                new_view = window.open_file(result)
+            else:
+                self.executor.submit(refresh_open_file, filename, view)
+    
+        self.get_completions(view)
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
-
-        if future: 
-            self.executor.submit(refresh_open_file, future, view)
+            
 
 class KeepPosition(EventListener):
 
@@ -518,8 +532,7 @@ class NodeBrowserCommand(UrtextTextCommand):
     def run(self):
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
-            project=self._UrtextProjectList.current_project
-            )
+            project=self._UrtextProjectList.current_project)
 
         show_panel(
             self.view.window(), 
@@ -629,13 +642,22 @@ def size_to_groups(groups, view):
         cols.append(cols[index - 1] + panel_size)
         cells.append([index, 0, index + 1, 1])
     cols.append(1)
-    print({"cols": cols, "rows": [0, 1], "cells": cells})
     view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
-
+    # view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
 def size_to_thirds(groups,view):
     # https://forum.sublimetext.com/t/set-layout-reference/5713
     # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
     view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+
+# view.window().set_layout({
+#     "cols": [0.0, 0.3333, 0.66666, 1], 
+#     "rows": [0, 0.33333, 0.6666, 1], 
+#     "cells": [
+#         [0, 0, 1, 1], [0,1,1,2], [1,1,2,2], 
+#         [1, 0, 2, 1], [2,0,3,1], [2,1,3,2],
+#         [0, 2, 1, 3], [1,2,2,3], [2,2,3,3],
+#         ]
+#     })
 
 class ShowTreeFromNode(UrtextTextCommand):
     
@@ -778,7 +800,7 @@ class NodeBrowserMenu:
     def __init__(self, 
         project_list, 
         project=None, 
-        nodes=[]):
+        nodes=None):
 
         self.full_menu = make_node_menu(
             project_list,
@@ -818,7 +840,7 @@ def make_node_menu(
     if project:
         projects = [project]
 
-    if nodes:
+    if nodes != None:
         for node_id in nodes:
             menu.append(
                   NodeInfo(

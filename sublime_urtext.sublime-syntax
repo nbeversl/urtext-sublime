@@ -98,7 +98,7 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link    
-    - match: ;|\n|(?=\})
+    - match: ;|\n|(?=( [a-z,0-9]{3})?\})
       pop: true
 
       
