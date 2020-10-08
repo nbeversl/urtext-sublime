@@ -1257,7 +1257,7 @@ class UrtextProject:
         if rewritten_contents:
             self._set_file_contents(filename, rewritten_contents)
         self._parse_file(filename)
-        full_filename = None
+        full_filename = filename
         # if self.settings['atomic_rename']:
         #     renamed = self._rename_file_nodes(filename)
         #     if os.path.join(self.path, filename) in renamed:
