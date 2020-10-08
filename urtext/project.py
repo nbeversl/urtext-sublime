@@ -643,7 +643,7 @@ class UrtextProject:
                     del self.navigation[index]
                     if self.nav_index > index: # >= ?
                         self.nav_index -= 1            
-            self.remove_file(filename)
+            self.remove_file(filename, async=False)
             os.remove(os.path.join(self.path, filename))
             return node_ids
         return []
@@ -1155,6 +1155,7 @@ class UrtextProject:
         
         contents =self._full_file_contents(filename=self.nodes[node_id].filename)
         replaced_file_contents = ''.join([contents[0:start],contents[end:len(contents)]])
+
         if self.nodes[node_id].root_node:
             self.delete_file(self.nodes[node_id].filename)  
         else:
@@ -1298,8 +1299,8 @@ class UrtextProject:
                 self._compile()
 
 
-    def remove_file(self, filename):
-        if self.is_async:
+    def remove_file(self, filename, async=True):
+        if self.is_async and async:
             self.executor.submit(self._remove_file, os.path.basename(filename))
             return self.executor.submit(self._compile)
         else:
