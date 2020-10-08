@@ -1193,9 +1193,7 @@ class UrtextProject:
     def get_all_meta_pairs(self):
         pairs = []
         ignore = [ 'id' ]
-        for k in self.keynames: 
-            if k in ignore:
-                continue
+        for k in [kn for kn in self.keynames if kn not in ignore]: 
             for value in list(self.keynames[k]):
                 meta_string = ''.join([k, '::', str(value) ])            
                 pairs.append(meta_string)

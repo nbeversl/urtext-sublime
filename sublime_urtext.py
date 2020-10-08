@@ -247,10 +247,16 @@ class UrtextSaveListener(EventListener):
         current_path = os.path.dirname(view.file_name())
       
         if _UrtextProjectList.get_project(current_path):
-
-            completions = _UrtextProjectList.get_all_meta_pairs()
-            completions.extend(_UrtextProjectList.current_project.title_completions)
-            self.completions = completions
+            subl_completions = []
+            proj_completions = _UrtextProjectList.get_all_meta_pairs()
+            for c in proj_completions:
+                t = c.split('::')
+                if len(t) > 1:
+                    subl_completions.append([t[1]+'\t'+c, c])
+            title_completions = _UrtextProjectList.current_project.title_completions
+            for t in title_completions:
+                subl_completions.append([t[0],t[1]])
+            self.completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
     def on_query_completions(self, view, prefix, locations):
         return self.completions
@@ -282,6 +288,7 @@ class UrtextSaveListener(EventListener):
                 self.executor.submit(refresh_open_file, filename, view)
     
         self.get_completions(view)
+        
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
             

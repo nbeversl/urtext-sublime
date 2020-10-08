@@ -272,7 +272,7 @@ class ProjectList():
             meta_pairs = project.get_all_meta_pairs()
             for pair in meta_pairs:
                 if pair not in meta_values:
-                    meta_values.append((pair, pair+';'))
+                    meta_values.append(pair)
         return meta_values
         
     def get_node_link(self, string):
