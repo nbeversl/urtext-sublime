@@ -267,6 +267,10 @@
 	  			"scope" : "raw.urtext",
 	  			"background" : "var(raw)",
 	  		},
+	  		{
+	  			"scope" : "node_title.urtext",
+	  			"font_style" : "bold",
+	  		},
 
 
 

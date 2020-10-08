@@ -15,6 +15,7 @@ contexts:
       scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
+    - include: node_title
     - include: node_link
     - include: link_prefix
     - include: other-project-link
@@ -22,7 +23,7 @@ contexts:
     - include: ending_node_id
     - include: file_link
     - include: raw
-    
+
     - match: '\|\s'
       push: link_title
 
@@ -358,13 +359,16 @@ contexts:
 
   file_link:
     - match: '(f>{1,2})[^\s][^;]*'
-      
       scope: file_link.urtext
 
   raw:
     - match: '(`)(.*?)(`)'
       captures: 
         2 : raw.urtext
+
+  node_title:
+    - match: '(?<={)([^_]*?(?= _))|(^[^_{]*?(?= _))'
+      scope: node_title.urtext
 
   link_title:
     - meta_scope: link_title.urtext

@@ -75,8 +75,6 @@ class UrtextNode:
         self.hashed_contents = hash(contents)
 
         stripped_contents = self.strip_dynamic_definitions(contents)
-        if ' _ ' in contents and ' _ ' not in stripped_contents:
-            print('CRAP')
         self.metadata = NodeMetadata(self, stripped_contents, settings=settings)
 
         stripped_contents = self.strip_metadata(contents=stripped_contents)
