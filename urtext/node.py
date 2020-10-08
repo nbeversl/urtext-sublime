@@ -38,7 +38,6 @@ timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]*?)(?:>)', flags=re.DOTALL)
 inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
 embedded_syntax = re.compile('%%-[^E][A-Z-]*.*?%%-END-[A-Z-]*', flags=re.DOTALL)
 
-
 class UrtextNode:
     """ Urtext Node object"""
     def __init__(self, 
@@ -76,6 +75,8 @@ class UrtextNode:
         self.hashed_contents = hash(contents)
 
         stripped_contents = self.strip_dynamic_definitions(contents)
+        if ' _ ' in contents and ' _ ' not in stripped_contents:
+            print('CRAP')
         self.metadata = NodeMetadata(self, stripped_contents, settings=settings)
 
         stripped_contents = self.strip_metadata(contents=stripped_contents)

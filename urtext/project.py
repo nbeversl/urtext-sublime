@@ -27,7 +27,10 @@ import time
 import pickle
 from time import strftime
 import concurrent.futures
-import diff_match_patch as dmp_module
+try:
+    import diff_match_patch as dmp_module
+except:
+    import diffmatchpatch as dmp_module
 from dateutil.parser import *
 from pytz import timezone
 
@@ -75,7 +78,7 @@ class UrtextProject:
                  watchdog=False):
         
         self.is_async = True 
-        #self.is_async = False # development only
+        self.is_async = False # development only
         self.path = path
         self.nodes = {}
         self.h_content = {}
@@ -1317,6 +1320,7 @@ class UrtextProject:
     File History
     """
     def snapshot_diff(self, filename, contents):
+        pass
         dmp = dmp_module.diff_match_patch()
         filename = os.path.basename(filename)
         if filename not in self.files:

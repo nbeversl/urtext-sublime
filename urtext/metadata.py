@@ -24,6 +24,7 @@ import pytz
 default_date = pytz.timezone('UTC').localize(datetime.datetime(1970,1,1))
 timestamp_match = re.compile('(?:<)([^-/<\s][^=<]*?)(?:>)')
 inline_meta = re.compile('\*{0,2}\w+\:\:[^\n};]+;?(?=>:})?')
+node_title_regex = re.compile('^[^\n_]*?(?= _)', re.MULTILINE)
 
 class NodeMetadata:
 
@@ -247,7 +248,6 @@ def parse_contents(full_contents, node, settings=None):
 
         if children or recursive:
             dynamic_entries.append(entry)
-
         else:
             entries.append(entry)
 
@@ -266,6 +266,20 @@ def parse_contents(full_contents, node, settings=None):
                 stamp[1:-1],     
                 position=position, 
                 end_position=end_position)
-                )    
+                )   
+
+    # parse title
+
+    s = node_title_regex.search(parsed_contents)
+    if s:
+       title = s.group(0).strip()
+       entries.append( 
+            MetadataEntry(
+                'title',
+                [title],
+                '',
+                position=s.start(),
+                end_position=s.end())
+            )
 
     return entries, dynamic_entries
