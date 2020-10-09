@@ -236,7 +236,12 @@ def parse_contents(full_contents, node, settings=None):
                 key = key[1:]
 
         end_position = m.start() + len(m.group())
-        
+
+        # remove trailing node IDs intuitively    
+        if values and not node.compact and not node.root_node and end_position == len(full_contents):
+            if re.match('\s[a-z0-9]{3}', str(values[-1])[-4:]):
+                values[-1] = values[-1][:-4]
+
         entry = MetadataEntry(
                 key, 
                 values, 

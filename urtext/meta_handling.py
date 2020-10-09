@@ -36,6 +36,8 @@ def _tag_other_node(self, node_id, metadata={}):
     """adds a metadata tag to a node programmatically"""
 
     if metadata == {}:
+        if len(self.settings['tag_other']) < 2:
+            return None
         timestamp = self.timestamp(datetime.datetime.now())
         metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + timestamp}
    

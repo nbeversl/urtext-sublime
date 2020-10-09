@@ -78,7 +78,7 @@ class UrtextProject:
                  watchdog=False):
         
         self.is_async = True 
-        #self.is_async = False # development only
+        self.is_async = False # development only
         self.path = path
         self.nodes = {}
         self.h_content = {}
@@ -1039,6 +1039,10 @@ class UrtextProject:
 
             if key == 'numerical_keys':
                 self.settings['numerical_keys'].extend(values)
+                continue
+
+            if key == 'tag_other':
+                self.settings['tag_other'] = values # replace
                 continue
 
             if key == 'filenames':
