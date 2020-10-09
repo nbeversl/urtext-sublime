@@ -1029,10 +1029,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         if link[0] != 'NODE':
             return
         node_id = link[1]
-        timestamp = self._UrtextProjectList.current_project.timestamp(datetime.datetime.now())
-
-        _UrtextProjectList.current_project.tag_other_node(node_id, 
-            {   'tags':'done '+timestamp })
+        _UrtextProjectList.current_project.tag_other_node(node_id)
 
 class ReIndexFilesCommand(UrtextTextCommand):
     

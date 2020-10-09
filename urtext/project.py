@@ -78,7 +78,7 @@ class UrtextProject:
                  watchdog=False):
         
         self.is_async = True 
-        self.is_async = False # development only
+        #self.is_async = False # development only
         self.path = path
         self.nodes = {}
         self.h_content = {}
@@ -120,6 +120,7 @@ class UrtextProject:
             'numerical_keys': ['_index' ,'index'],
             'preload': [],
             'atomic_rename' : False,
+            'tag_other': ['tags','done'],
             'case_sensitive': [
                 'title',
                 'notes',

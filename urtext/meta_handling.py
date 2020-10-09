@@ -27,11 +27,18 @@ from .node import UrtextNode
 entry_regex = re.compile('\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
 
 def tag_other_node(self,node_id, metadata={}):
-    return self.executor.submit(self._tag_other_node, node_id, metadata=metadata)
-
+    if self.is_async:
+        return self.executor.submit(self._tag_other_node, node_id, metadata=metadata)
+    else:
+        self._tag_other_node(node_id, metadata=metadata)
+        
 def _tag_other_node(self, node_id, metadata={}):
     """adds a metadata tag to a node programmatically"""
 
+    if metadata == {}:
+        timestamp = self.timestamp(datetime.datetime.now())
+        metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + timestamp}
+   
     territory = self.nodes[node_id].ranges
     metadata_contents = UrtextNode.build_metadata(metadata)
    
@@ -40,7 +47,9 @@ def _tag_other_node(self, node_id, metadata={}):
 
     new_contents = ''.join([
         full_file_contents[:tag_position],
+        '\n',
         metadata_contents,
+        '\n',
         full_file_contents[tag_position:]])
 
     self._set_file_contents(self.nodes[node_id].filename, new_contents)
