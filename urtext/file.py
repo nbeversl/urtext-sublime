@@ -266,11 +266,20 @@ class UrtextFile:
                     nested -= 1                       
 
                 if nested < 0:
-                    message = 'Stray closing wrapper ', str(position)
+                    message = 'Stray closing wrapper at %s' % str(position)
                     if self.strict:
                         return self.log_error(message, position)  
                     else:
                         self.messages.append(message) 
+
+        if nested > 0:
+            message = 'Un-closed node at %s' % str(position)
+            print(message)
+            print(self.filename)
+            if self.strict:
+                return self.log_error(message, position)  
+            else:
+                self.messages.append(message) 
 
         if len(self.root_nodes) == 0:
             message = 'No root nodes found'
@@ -328,12 +337,14 @@ class UrtextFile:
         if messages:
             self.messages = messages
             
-        contents = self.get_file_contents()        
+        contents = self.get_file_contents()  
+
         messages = ''.join([ 
             '<!!\n',
             '\n'.join(self.messages),
             '\n!!>\n',
             ])
+
         message_length = len(messages)
         
         for n in re.finditer('position \d{1,10}', messages):

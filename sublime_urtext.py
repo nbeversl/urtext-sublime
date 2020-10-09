@@ -231,21 +231,12 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         else:
             sublime.message_dialog('File was moved')
 
+class UrtextCompletions(EventListener):
 
-class UrtextSaveListener(EventListener):
-
-    def __init__(self):
-        
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        self.completions = []
-
-    def get_completions(self, view):
-
+    def on_query_completions(self, view, prefix, locations):
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
-
         current_path = os.path.dirname(view.file_name())
-      
         if _UrtextProjectList.get_project(current_path):
             subl_completions = []
             proj_completions = _UrtextProjectList.get_all_meta_pairs()
@@ -256,11 +247,16 @@ class UrtextSaveListener(EventListener):
             title_completions = _UrtextProjectList.current_project.title_completions
             for t in title_completions:
                 subl_completions.append([t[0],t[1]])
-            self.completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
+            completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
+    
+            return completions
+        return []
 
-    def on_query_completions(self, view, prefix, locations):
-        return self.completions
+class UrtextSaveListener(EventListener):
 
+    def __init__(self):   
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+     
     @refresh_project_event_listener
     def on_post_save_async(self, view):
 
@@ -286,8 +282,6 @@ class UrtextSaveListener(EventListener):
                 new_view = window.open_file(result)
             else:
                 self.executor.submit(refresh_open_file, filename, view)
-    
-        self.get_completions(view)
         
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
