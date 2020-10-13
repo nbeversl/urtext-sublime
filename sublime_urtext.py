@@ -495,8 +495,8 @@ class TraverseHistoryView(EventListener):
         if not new_history:
             return None
 
-        ts_format = '%a., %b. %d, %Y, %I:%M:%S %p'
-        string_timestamps = [datetime.datetime.fromtimestamp(i).strftime(ts_format) for i in sorted(new_history.keys(),reverse=True)]
+        ts_format =  _UrtextProjectList.current_project.settings['timestamp_format']
+        string_timestamps = [datetime.datetime.fromtimestamp(int(i)).strftime(ts_format) for i in sorted(new_history.keys(),reverse=True)]
 
         if string_timestamps != self.string_timestamps or not get_contents(history_view).strip():
             self.string_timestamps = string_timestamps

@@ -30,6 +30,7 @@ import concurrent.futures
 try:
     import diff_match_patch as dmp_module
 except:
+    # Sublime Text
     import diffmatchpatch as dmp_module
 from dateutil.parser import *
 from pytz import timezone
@@ -78,7 +79,7 @@ class UrtextProject:
                  watchdog=False):
         
         self.is_async = True 
-        #self.is_async = False # development only
+        self.is_async = False # development only
         self.path = path
         self.nodes = {}
         self.h_content = {}
@@ -1324,27 +1325,25 @@ class UrtextProject:
     File History
     """
     def snapshot_diff(self, filename, contents):
-        pass
         dmp = dmp_module.diff_match_patch()
         filename = os.path.basename(filename)
         if filename not in self.files:
             return None
         now = int(time.time())
-        history_file = filename.replace('.txt','.pkl')
+        history_file = filename.replace('.txt','.diff')
         file_history = self.get_history(filename)
         if not file_history:
             file_history = {}
             file_history[now] = contents
-            with open( os.path.join(self.path, 'history', history_file), "wb") as f:
-                pickle.dump(file_history, f )
+            with open( os.path.join(self.path, 'history', history_file), "w") as f:
+            	f.write(json.dumps(file_history))
             return
         else:
-
             latest_history = self.apply_patches(file_history)
             if contents != latest_history:
-                file_history[now] = dmp.patch_make(latest_history, contents)
-                with open( os.path.join(self.path, 'history', history_file), "wb") as f:
-                    pickle.dump(file_history, f )
+                file_history[now] = dmp.patch_toText(dmp.patch_make(latest_history, contents))
+                with open( os.path.join(self.path, 'history', history_file), "w") as f:
+                    f.write(json.dumps(file_history))
 
     def apply_patches(self, history, distance_back=0):
         dmp = dmp_module.diff_match_patch()
@@ -1352,7 +1351,7 @@ class UrtextProject:
         original = history[timestamps[0]]
         for index in range(1,len(timestamps)-distance_back):
             next_patch = history[timestamps[index]]
-            original = dmp.patch_apply(next_patch, original)[0]
+            original = dmp.patch_apply(dmp.patch_fromText(next_patch), original)[0]
 
         return original
 
@@ -1363,12 +1362,13 @@ class UrtextProject:
         return version
 
     def get_history(self, filename):
+        dmp = dmp_module.diff_match_patch()
         filename = os.path.basename(filename)
-        history_file = os.path.join(self.path, 'history', filename.replace('.txt','.pkl'))
+        history_file = os.path.join(self.path, 'history', filename.replace('.txt','.diff'))
         if os.path.exists(history_file):
-            with open(history_file, "rb") as f:
-                file_history = pickle.load(f)
-            return file_history
+            with open(history_file, "r") as f:
+                file_history = f.read()
+            return json.loads(file_history)
         return None
 
     def most_recent_history(self, history):
