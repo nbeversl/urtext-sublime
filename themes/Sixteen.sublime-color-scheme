@@ -18,8 +18,9 @@
 
 			 // links
 			 "link": "var(unobtrusive)",
+			 "pointer_id": "var(unobtrusive)",
 			 "file-link" : "var(foreground)",
-			 "link-prefix" : "var(unobtrusive)",
+			 "link-prefix" : "var(foreground)",
 			 "other-project-link" : "var(blue)",		
 			 "link-title" : "var(grey4)",
 			 "datestamp" : "var(grey3)",
@@ -119,7 +120,7 @@
 	  		
 	  		/* Links */
 	  		
-	  		{	"scope":"link.urtext",
+	  		{	"scope":"link_id.urtext",
 	  			"foreground": "var(link)",
 	  		},
 
@@ -271,7 +272,14 @@
 	  			"scope" : "node_title.urtext",
 	  			"font_style" : "bold",
 	  		},
-
+	  		{
+	  			"scope" : "pointer_prefix.urtext",
+	  			"font_style" : "bold",
+	  		},
+	  		{
+	  			"scope" : "pointer_id.urtext",
+	  			"foreground": "var(link)",
+	  		},
 
 
 

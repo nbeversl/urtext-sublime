@@ -16,6 +16,7 @@ contexts:
   
   syntax-main:    
     - include: node_title
+    - include: node_pointer
     - include: node_link
     - include: link_prefix
     - include: other-project-link
@@ -349,13 +350,17 @@ contexts:
       scope: punctuation.section.braces.end.inline_node_5.urtext
       pop: true
 
-  link_prefix:
-    - match: '>{1,2}(?=([0-9,a-z]{3}))'
-      scope: link_prefix.urtext
-
   node_link:
-    - match: '(?<=>)[0-9,a-z]{3}\b'
-      scope: link.urtext
+    - match: '([>]{1})([0-9,a-z]{3}\b)'
+      captures: 
+        1: link_prefix.urtext
+        2: link_id.urtext
+
+  node_pointer:
+    - match: '([>]{2})([0-9,a-z]{3}\b)'
+      captures:
+        1: pointer_prefix.urtext
+        2: pointer_id.urtext
 
   file_link:
     - match: '(f>{1,2})[^\s][^;]*'
