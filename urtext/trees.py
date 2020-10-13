@@ -29,7 +29,6 @@ def _set_tree_elements(self, filename):
         in case this node begins the file and is an an inline node,
         set the inline node's parent as the root node manually.
         """
-
         if position == 0 and parsed_items[0] == '{':
             self.nodes[node].tree_node.parent = self.nodes[root_node_id].tree_node
             continue

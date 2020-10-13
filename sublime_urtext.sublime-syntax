@@ -8,7 +8,7 @@ scope: urtext
 contexts:
   main: 
     - include: syntax-main
-    - match: '{'
+    - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
     - match: '}'
@@ -305,7 +305,7 @@ contexts:
   inline-node-1: 
     - meta_scope: inline_node_1
     - include: syntax-main
-    - match: '{'
+    - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_2.urtext
       push: inline-node-2
     - match: '}'
@@ -318,7 +318,7 @@ contexts:
     - match: '}'
       scope: punctuation.section.braces.end.inline_node_2.urtext
       pop: true
-    - match: '{'
+    - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_3.urtext
       push: inline-node-3
     
@@ -329,14 +329,14 @@ contexts:
     - match: '}'
       scope: punctuation.section.braces.end.inline_node_3.urtext
       pop: true
-    - match: '{'
+    - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_4.urtext
       push: inline-node-4
 
   inline-node-4: 
     - meta_scope: inline_node_4
     - include: syntax-main
-    - match: '{'
+    - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_5.urtext
       push: inline-node-5
     - match: '}'

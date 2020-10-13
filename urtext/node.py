@@ -30,7 +30,7 @@ import pytz
 from anytree import Node, PreOrderIter
 
 dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
-subnode_regexp = re.compile(r'{(?!.*{)(?:(?!}).)*}', re.DOTALL)
+subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
 default_date = pytz.timezone('UTC').localize(datetime.datetime(1970,2,1))
 node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'

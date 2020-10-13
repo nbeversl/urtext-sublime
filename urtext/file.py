@@ -30,7 +30,7 @@ compact_node_regex =    '\^[^\n]*'
 error_messages =        '<!{1,2}.*?!{1,2}>\n?'
 
 compiled_symbols = [re.compile(symbol) for symbol in  [
-    '{',                # inline node opening wrapper
+    r'(?<!\\){',                # inline node opening wrapper
     '}',                # inline node closing wrapper
     '>>',               # node pointer
     '[\n$]',            # line ending (closes compact node)
@@ -46,7 +46,7 @@ compiled_symbols.extend( [re.compile(symbol, re.M) for symbol in [
 # number of positions to advance parsing for of each possible symbol
 symbol_length = {   
     '^[^\S\n]*\^':  0, # compact node opening wrapper
-    '{' :          1, # inline opening wrapper
+    r'(?<!\\){' :          1, # inline opening wrapper
     '}' :          1, # inline closing wrapper
     '>>' :          2, # node pointer
     '[\n$]' :       0, # compact node closing
@@ -167,7 +167,7 @@ class UrtextFile:
             """
             If this opens a new node
             """
-            if self.symbols[position] == '{':
+            if self.symbols[position] == r'(?<!\\){':
 
                 # begin tracking the ranges of the next outer one
                 if [last_position, position + 1] not in nested_levels[nested]:
