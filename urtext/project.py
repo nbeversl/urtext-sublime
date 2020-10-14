@@ -1328,20 +1328,20 @@ class UrtextProject:
         filename = os.path.basename(filename)
         if filename not in self.files:
             return None
-        now = int(time.time())
-        history_file = filename.replace('.txt','.diff')
+        history_file = os.path.join(self.path, 'history',filename.replace('.txt','.diff'))
         file_history = self.get_history(filename)
         if not file_history:
             file_history = {}
-            file_history[now] = contents
-            with open( os.path.join(self.path, 'history', history_file), "w") as f:
+            file_history[int(time.time())] = contents
+            with open( history_file, "w") as f:
             	f.write(json.dumps(file_history))
-            return
         else:
             latest_history = self.apply_patches(file_history)
             if contents != latest_history:
-                file_history[now] = dmp.patch_toText(dmp.patch_make(latest_history, contents))
-                with open( os.path.join(self.path, 'history', history_file), "w") as f:
+                file_history[int(time.time())] = dmp.patch_toText(dmp.patch_make(latest_history, contents))
+                # prevent duplicate files on cloud storage
+                os.remove(history_file)
+                with open( history_file, "w") as f:
                     f.write(json.dumps(file_history))
 
     def apply_patches(self, history, distance_back=0):
@@ -1351,14 +1351,11 @@ class UrtextProject:
         for index in range(1,len(timestamps)-distance_back):
             next_patch = history[timestamps[index]]
             original = dmp.patch_apply(dmp.patch_fromText(next_patch), original)[0]
-
         return original
 
     def get_version(self, filename, distance_back=0):
         history = self.get_history(filename)
-        version = self.apply_patches(history, distance_back)
-       
-        return version
+        return self.apply_patches(history, distance_back)       
 
     def get_history(self, filename):
         dmp = dmp_module.diff_match_patch()
@@ -1406,7 +1403,9 @@ class UrtextProject:
     def _save_access_history(self):
 
         accessed_file = os.path.join(self.path, "history", "URTEXT_accessed.json")
-
+        # prevent duplicate files on cloud storage
+        if os.path.exists(accessed_file):
+            os.remove(accessed_file)
         with open(accessed_file,"w") as f:
             f.write(json.dumps(self.access_history))
     
