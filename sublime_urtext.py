@@ -350,7 +350,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if kind == 'NODE':
             _UrtextProjectList.nav_new(link[1])
            
-            print(link)
             open_urtext_node(self.view, link[1], position=link[2])
 
         if kind == 'HTTP':
@@ -1374,6 +1373,7 @@ def open_urtext_node(view, node_id, project=None, position=0):
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+    
     if filename == None:
         return
     file_view = view.window().find_open_file(filename)
@@ -1398,9 +1398,11 @@ def center_node(new_view, position):
             new_view.show_at_center(position)
             new_view.sel().add(sublime.Region(position, position))
             # this has to be called both before and after:
+            new_view.show(sublime.Region(position, position))
             new_view.show_at_center(position)
         else:
-            sublime.set_timeout(lambda: center_node(new_view, position), 10)
+            # NOTE: if node does not center in the view, adjust the delay higher.
+            sublime.set_timeout(lambda: center_node(new_view, position), 30) 
 
 def add_compact_node(edit, view):
     
