@@ -19,7 +19,10 @@ def _set_tree_elements(self, filename):
         # parse each marker, positioning it within its parent node
         if node[:2] == '>>':
             inserted_node_id = node[2:]
-            parent_node = self.get_node_id_from_position(filename,position)      
+            parent_node = self.get_node_id_from_position(filename,position) 
+            if not parent_node:
+                print('Node node found at position '+str(position)+' in '+filename)
+                continue
             alias_node = Node('ALIAS'+inserted_node_id)
             alias_node.parent = self.nodes[parent_node].tree_node
             self.files[filename].alias_nodes.append(alias_node)
