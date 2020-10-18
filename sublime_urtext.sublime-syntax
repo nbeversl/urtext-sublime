@@ -11,7 +11,7 @@ contexts:
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
@@ -308,14 +308,14 @@ contexts:
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_2.urtext
       push: inline-node-2
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_1.urtext
       pop: true
    
   inline-node-2: 
     - meta_scope: inline_node_2 
     - include: syntax-main
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_2.urtext
       pop: true
     - match: '(?<!\\){'
@@ -326,7 +326,7 @@ contexts:
   inline-node-3: 
     - meta_scope: inline_node_3
     - include: syntax-main
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_3.urtext
       pop: true
     - match: '(?<!\\){'
@@ -339,14 +339,14 @@ contexts:
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_5.urtext
       push: inline-node-5
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_4.urtext
       pop: true
 
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: syntax-main
-    - match: '}'
+    - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_5.urtext
       pop: true
 

@@ -751,18 +751,13 @@ class UrtextProject:
 
     #     return '\n'.join([insertion, dynamic_def])
 
-    def add_compact_node(self, 
-            date=None, 
+    def add_compact_node(self,  
             contents='', 
             metadata={},
         ):
-        if date == None:
-            date = datetime.datetime.now()
-        metadata['id']=self.next_index()
-        if self.settings['node_date_keyname']:
-            metadata[self.settings['node_date_keyname']] = self.timestamp(date)
-        metadata_block = UrtextNode.build_metadata(metadata, one_line=True)
-        return '^  '+contents + ' ' + metadata_block
+        	metadata['id']=self.next_index()
+        	metadata_block = UrtextNode.build_metadata(metadata, one_line=True)
+        	return '^  '+contents + ' ' + metadata_block
 
     def _prefix_length(self):
         """ Determines the prefix length for indexing files (requires an already-compiled project) """
@@ -1364,7 +1359,10 @@ class UrtextProject:
         if os.path.exists(history_file):
             with open(history_file, "r") as f:
                 file_history = f.read()
+            print('HAS HISTORY')
             return json.loads(file_history)
+        print('DOES NOT HAVE HISTORY')
+
         return None
 
     def most_recent_history(self, history):
