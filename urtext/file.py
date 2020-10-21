@@ -31,7 +31,7 @@ error_messages =        '<!{1,2}.*?!{1,2}>\n?'
 
 compiled_symbols = [re.compile(symbol) for symbol in  [
     r'(?<!\\){',                # inline node opening wrapper
-    '}',                # inline node closing wrapper
+    r'(?<!\\)}',                # inline node closing wrapper
     '>>',               # node pointer
     '[\n$]',            # line ending (closes compact node)
     '%%-[^E][A-Z-]*',       # push syntax
@@ -47,7 +47,7 @@ compiled_symbols.extend( [re.compile(symbol, re.M) for symbol in [
 symbol_length = {   
     '^[^\S\n]*\^':  0, # compact node opening wrapper
     r'(?<!\\){' :          1, # inline opening wrapper
-    '}' :          1, # inline closing wrapper
+    r'(?<!\\)}' :          1, # inline closing wrapper
     '>>' :          2, # node pointer
     '[\n$]' :       0, # compact node closing
     'EOF':          0,
@@ -210,7 +210,7 @@ class UrtextFile:
             """
             Node closing symbols :  }, newline, EOF
             """
-            if self.symbols[position] in ['}', '[\n$]', 'EOF']:  # pop
+            if self.symbols[position] in [r'(?<!\\)}', '[\n$]', 'EOF']:  # pop
                 
                 compact, root = False, False
 
