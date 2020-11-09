@@ -37,7 +37,10 @@ def _set_tree_elements(self, filename):
         if start_of_node == 0 and self.nodes[node].compact:
             parent = self.files[filename].root_nodes[0]
         else:
-            parent = self.get_node_id_from_position(filename, start_of_node - 1)
+            if not self.nodes[node].compact:
+                parent = self.get_node_id_from_position(filename, start_of_node - 1)
+            else:
+                parent = self.get_node_id_from_position(filename, start_of_node - 2)
         if parent:
             self.nodes[node].tree_node.parent = self.nodes[parent].tree_node
 

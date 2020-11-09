@@ -563,8 +563,6 @@ class BacklinksBrowser(NodeBrowserCommand):
                 self.menu.display_menu, 
                 self.open_the_file)
 
-
-
 class ForwardlinksBrowser(NodeBrowserCommand):
 
     @refresh_project_text_command()
@@ -1457,6 +1455,8 @@ def open_external_file(filepath):
 
 def get_node_id(view):
     global _UrtextProjectList
-    filename = os.path.basename(view.file_name())
-    position = view.sel()[0].a
-    return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+    if view.file_name():
+        filename = os.path.basename(view.file_name())
+        position = view.sel()[0].a
+        return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+    
