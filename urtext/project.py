@@ -855,10 +855,15 @@ class UrtextProject:
         for node_id in list(self.nodes):
             index = self.nodes[node_id].metadata.get_first_value('index')
             if index:
+                try:
+                    index = int(index)
+                except:
+                    index = 99999999
                 indexed_nodes_list.append([
                     node_id,
                     index
                 ])
+
         sorted_indexed_nodes = sorted(indexed_nodes_list, key=lambda item: item[1])
         for index, node in enumerate(sorted_indexed_nodes):
             sorted_indexed_nodes[index] = node[0] 
@@ -998,7 +1003,6 @@ class UrtextProject:
 
         if date.tzinfo == None:
             date = self.default_timezone.localize(date)    
-
         timestamp_format = '<' + self.settings['timestamp_format'] + '>'
         return date.strftime(timestamp_format)
 
