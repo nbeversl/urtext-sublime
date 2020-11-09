@@ -73,10 +73,7 @@ class NodeMetadata:
         if not entries or not entries[0].values:
             return ''
         return entries[0].values[0]
-
-    
         
-
     def get_values(self, 
         keyname,
         # use_timestamp=False, # use timestamp as value (FUTURE)
@@ -214,7 +211,6 @@ def parse_contents(full_contents, node, settings=None):
         value_list = value.split('|')
 
         for value in value_list:
-
             if key not in settings['case_sensitive']:
                 value = value.lower()
             value = value.strip()
@@ -240,7 +236,7 @@ def parse_contents(full_contents, node, settings=None):
         # remove trailing node IDs intuitively    
         if values and not node.compact and not node.root_node and end_position == len(full_contents):
             if re.match('\s[a-z0-9]{3}', str(values[-1])[-4:]):
-                values[-1] = values[-1][:-4]
+                values[-1] = values[-1][:-4].strip()
 
         entry = MetadataEntry(
                 key, 
