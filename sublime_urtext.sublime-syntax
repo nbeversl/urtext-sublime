@@ -68,7 +68,7 @@ contexts:
     
     - match: '%%-JSON'
       scope: urtext.pass_marker
-      embed: Packages/JavaScript/JSON.sublime-syntax
+      embed: Packages/JSON/JSON.sublime-syntax
       embed_scope: urtext.json
       escape: '%%-END-JSON'
       escape_captures: 0
