@@ -136,8 +136,7 @@ class ProjectList():
             return None
         if  ( not self.current_project ) or ( project and project.title != self.current_project.title ) :
            self.current_project = project
-           print('Urtext project switched to ' + self.current_project.title)
-
+           print('Switched to project: ' + self.current_project.title)
         return project
 
     def build_contextual_link(self, 
@@ -145,7 +144,6 @@ class ProjectList():
         project_title=None, 
         pointer=False, 
         include_project=False):
-        
         if project_title == None:
             project = self.current_project
         else:

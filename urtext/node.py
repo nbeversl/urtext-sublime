@@ -16,11 +16,13 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+
+#/Users/n_beversluis/Library/Mobile Documents/iCloud~com~omz-software~Pythonista3/Documents/archive_new_ID_style/nate-big-project
 import os
 import json
 from .metadata import NodeMetadata
 from .dynamic import UrtextDynamicDefinition
-
+from .rake import Rake
 from anytree.exporter import JsonExporter
 
 import re
@@ -28,6 +30,7 @@ import datetime
 import logging
 import pytz
 from anytree import Node, PreOrderIter
+
 
 dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
@@ -37,6 +40,7 @@ node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
 timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]*?)(?:>)', flags=re.DOTALL)
 inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
 embedded_syntax = re.compile('%%-[^E][A-Z-]*.*?%%-END-[A-Z-]*', flags=re.DOTALL)
+short_id = re.compile(r'(?:\s?)@[0-9,a-z]{3}\b')
 
 class UrtextNode:
     """ Urtext Node object"""
@@ -73,6 +77,7 @@ class UrtextNode:
         self.blank = False
         self.title = None
         self.hashed_contents = hash(contents)
+        self.keywords = {}
 
         stripped_contents = self.strip_dynamic_definitions(contents)
         self.metadata = NodeMetadata(self, stripped_contents, settings=settings)
@@ -88,6 +93,8 @@ class UrtextNode:
         if self.metadata.get_first_value('id'):
             node_id = self.metadata.get_first_value('id')
             node_id = node_id.lower().strip()
+
+            # trailing node ID
             if re.match(r'^[a-z0-9]{3}$', node_id):
                 self.id = node_id
         else:
@@ -97,6 +104,12 @@ class UrtextNode:
                 self.id = contents[-3:]
                 self.trailing_node_id = True
                 self.metadata.add_meta_entry('id',[self.id],position=len(contents)-3)
+            else:
+                r = re.search(r'(?:\s?)@[0-9,a-z]{3}\b',contents)
+                if r:
+                    node_id = r.group(0).strip()[1:]
+                    self.id = node_id
+                    self.metadata.add_meta_entry('id',[self.id], position = r.start())
 
         title_value = self.metadata.get_first_value('title')
         if title_value and title_value == 'project_settings':
@@ -122,6 +135,8 @@ class UrtextNode:
         # parse back and forward links
         self.get_links(contents=self.strip_metadata(contents=stripped_contents))
     
+        r = Rake()
+        self.keywords = [t[0] for t in r.run(stripped_contents)]
 
     def default_sort(self):
         r = str(self.date.timestamp()) + self.title
@@ -164,7 +179,7 @@ class UrtextNode:
             contents = contents.replace('{','')
             contents = contents.replace('}','')
         if self.compact: # don't include the compact marker
-             contents = contents.lstrip().replace('^','',1)        
+             contents = contents.lstrip().replace('•','',1)        
         return contents
 
     @classmethod
@@ -174,6 +189,8 @@ class UrtextNode:
 
         stripped_contents = inline_meta.sub('', contents )
         stripped_contents = timestamp_match.sub('',  stripped_contents)
+        stripped_contents = short_id.sub('', stripped_contents)
+        stripped_contents = stripped_contents.replace('• ','')
 
         # TODO: integrate this with checking for self.trailing_node_id
         if re.match('\s[a-z0-9]{3}', stripped_contents[-4:]):
@@ -219,7 +236,6 @@ class UrtextNode:
 
     def content_only(self, contents=None):
         if contents == None:
-            #contents = self.contents
             contents = self.contents()
         contents = self.strip_metadata(contents=contents)
         contents = self.strip_dynamic_definitions(contents=contents)
@@ -230,7 +246,7 @@ class UrtextNode:
     
     def get_links(self, contents=None):
         if contents == None:
-            contents = self.contents_only()
+            contents = self.content_only()
         nodes = re.findall(node_link_regex, contents)  # link RegEx
         for node in nodes:
             self.links_from.append(node[-3:])
@@ -266,9 +282,9 @@ class UrtextNode:
         first_line = first_line.replace('┌──','')
         first_line = first_line.replace('|','') # pipe character cannot be in node names
        
-        # make conditional?
-        if '^' in first_line:
-            first_line = re.sub(r'^[\s]*\^','',first_line)           # compact node opening wrapper
+        if '•' in first_line:
+            # compact node opening wrapper
+            first_line = re.sub(r'^[\s]*\•','',first_line)           
         return first_line.strip().strip('\n').strip()
 
     def get_ID(self):

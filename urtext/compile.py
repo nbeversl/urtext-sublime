@@ -20,7 +20,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 from .export import UrtextExport
 from .node import UrtextNode
-from. search import UrtextSearch
+from .search import UrtextSearch
 from .dynamic_output import DynamicOutput
 import os
 import re

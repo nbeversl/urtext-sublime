@@ -19,14 +19,14 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import re
 from .node import UrtextNode
-from . import node
 import concurrent.futures
 import hashlib
 
 node_id_regex =         r'\b[0-9,a-z]{3}\b'
 node_link_regex =       r'>[0-9,a-z]{3}\b'
 node_pointer_regex =    r'>>[0-9,a-z]{3}\b'
-compact_node_regex =    '\^[^\n]*'
+compact_node_regex =    '•[^\n]*'
+
 error_messages =        '<!{1,2}.*?!{1,2}>\n?'
 
 compiled_symbols = [re.compile(symbol) for symbol in  [
@@ -40,12 +40,13 @@ compiled_symbols = [re.compile(symbol) for symbol in  [
 
 # additional symbols using MULTILINE flag
 compiled_symbols.extend( [re.compile(symbol, re.M) for symbol in [
-    '^[^\S\n]*\^',  # compact node opening wrapper
+    #'^[^\S\n]*\^',  # compact node opening wrapper
+    '^[^\S\n]*•',  # compact node opening wrapper
     ] ])
 
 # number of positions to advance parsing for of each possible symbol
 symbol_length = {   
-    '^[^\S\n]*\^':  0, # compact node opening wrapper
+    '^[^\S\n]*•':  0, # compact node opening wrapper
     r'(?<!\\){' :          1, # inline opening wrapper
     r'(?<!\\)}' :          1, # inline closing wrapper
     '>>' :          2, # node pointer
@@ -197,7 +198,7 @@ class UrtextFile:
             """
             If the symbol opens a compact node
             """
-            if self.symbols[position] == '^[^\S\n]*\^': 
+            if self.symbols[position] == '^[^\S\n]*•': 
                 # TODO - FIGURE OUT WHY ADDING + 1 to these positions to correct the 
                 # parsing causes exporting to skip entire regions
                 if [last_position, position  ] not in nested_levels[nested] and position  > last_position:

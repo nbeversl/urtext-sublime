@@ -34,6 +34,7 @@ except:
 from dateutil.parser import *
 from pytz import timezone
 
+from .rake import Rake
 from .file import UrtextFile
 from .interlinks import Interlinks
 from .node import UrtextNode 
@@ -102,6 +103,7 @@ class UrtextProject:
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.access_history = {}
         self.messages = {}
+        self.corpus = []
         self.title_completions = []
         self.settings = {  # defaults
             'home': None,
@@ -134,7 +136,7 @@ class UrtextProject:
         }
         self.default_timezone = timezone('UTC')
         self.title = self.path # default
-
+        self.keywords = {}
         self.quick_load(import_project=import_project)
         if self.is_async:
             self.executor.submit(self._initialize_project,
@@ -148,8 +150,8 @@ class UrtextProject:
         if not os.path.exists(os.path.join(self.path, "history")):
             os.mkdir(os.path.join(self.path, "history"))
 
-        if watchdog:
-            self._initialize_watchdog()        
+        # if watchdog:
+        #     self._initialize_watchdog()   
 
     def quick_load(self, import_project=False):
 
@@ -309,16 +311,16 @@ class UrtextProject:
         self.files[new_file.basename] = new_file  
 
         for node_id in new_file.nodes:
-            file_docs = []
             self._add_node(new_file.nodes[node_id])
-
-
+            for word in new_file.nodes[node_id].keywords:
+                self.keywords.setdefault(word, [])
+                if node_id not in self.keywords[word]:
+                    self.keywords[word].append(node_id)
         
         self._set_tree_elements(new_file.basename)
         
         for node_id in new_file.nodes:
             self._rebuild_node_meta(node_id)
-
 
         """
         If this is not the initial load of the project, parse the timestamps in the file
@@ -329,7 +331,7 @@ class UrtextProject:
                 self._parse_meta_dates(node_id)
                 for e in self.nodes[node_id].metadata.dynamic_entries:                
                     self._add_sub_tags( node_id, node_id, e)
-     
+    
         """ returns None if successful """
         return None
 
@@ -356,7 +358,6 @@ class UrtextProject:
             return duplicate_nodes
 
         return False
-
 
     def _rewrite_titles(self, filename):
         
@@ -695,7 +696,8 @@ class UrtextProject:
             one_line = self.settings['always_oneline_meta']
 
         if not node_id:
-            node_id = self.next_index()   
+            node_id = self.next_index()
+
         metadata['id'] = node_id
         if self.settings['node_date_keyname']:
             metadata[self.settings['node_date_keyname']] = self.timestamp(date)
@@ -714,15 +716,18 @@ class UrtextProject:
     def add_inline_node(self, 
             date=None, 
             contents='',
-            metadata={},
+            metadata=None,
             one_line=None,
-            trailing_id=False,
+            trailing_id=None,
             include_timestamp=False):
-              
+        
         if one_line == None:
             one_line = self.settings['always_oneline_meta']
             
         node_id = self.next_index()
+
+        if not metadata:
+            metadata = {}
 
         if not trailing_id:
             metadata['id']=node_id
@@ -734,7 +739,7 @@ class UrtextProject:
  
             if 'node_date_keyname' in self.settings:
                 metadata[self.settings['node_date_keyname']] = self.timestamp(date)
- 
+        
         new_node_contents = ''.join([
             '{ ', 
             contents,
@@ -762,7 +767,7 @@ class UrtextProject:
         ):
         	metadata['id']=self.next_index()
         	metadata_block = UrtextNode.build_metadata(metadata, one_line=True)
-        	return '^  '+contents + ' ' + metadata_block
+        	return '•  '+contents + ' ' + metadata_block
 
     def _prefix_length(self):
         """ Determines the prefix length for indexing files (requires an already-compiled project) """
@@ -824,7 +829,6 @@ class UrtextProject:
         return last_node
 
     def nav_current(self):
-
         if self.navigation and self.nav_index > -1:
             return self.navigation[self.nav_index]
         alternative = self.get_home()
@@ -895,7 +899,6 @@ class UrtextProject:
         return root_nodes
           
     def get_node_id_from_position(self, filename, position):
-
         filename = os.path.basename(filename)
         if filename in self.files:
             for node_id in self.files[filename].nodes:
@@ -1140,9 +1143,13 @@ class UrtextProject:
     def pull_node(self, string, current_file, current_position):
         """ File must be saved in the editor first for this to work """
         if self.is_async:
-            return self.executor.submit(self._pull_node, string, current_file, current_position) 
+            return self.executor.submit(
+                self._pull_node, 
+                string, 
+                os.path.basename(current_file), 
+                current_position) 
         else:
-            self._pull_node(string, current_file, current_position)
+            self._pull_node(string, os.path.basename(current_file), current_position)
     
     def _pull_node(self, string, current_file, current_position):
 
@@ -1486,6 +1493,27 @@ class UrtextProject:
             results = results.union(set(n for n in self.nodes if value in self.nodes[n].metadata.get_values(key)))
 
         return results
+    """
+    Free Association
+    """
+
+    def get_assoc_nodes(self, string, filename, position):
+        node_id = self.get_node_id_from_position(filename, position)
+        r = Rake()
+        string = UrtextNode.strip_contents(string)
+        keywords = [t[0] for t in r.run(string)]
+        print(keywords)
+        assoc_nodes = []
+        for k in keywords:
+            if k in self.keywords:
+                assoc_nodes.extend(self.keywords[k])
+        assoc_nodes = list(set(assoc_nodes))
+        if node_id in assoc_nodes:
+            assoc_nodes.remove(node_id)
+        for node_id in assoc_nodes:
+            if self.nodes[node_id].dynamic:
+                assoc_nodes.remove(node_id)
+        return assoc_nodes
 
     """
     Export

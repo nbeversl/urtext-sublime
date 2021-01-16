@@ -38,7 +38,8 @@ def reindex_files(self):
 def rename_file_nodes(self, filename, reindex=False):
     if self.is_async:
         future = self.executor.submit(self._rename_file_nodes, filename, reindex=reindex)
-        return future.result()
+        renamed_files = future.result()
+        return renamed_files
     else:
         return self._rename_file_nodes(filename, reindex=reindex)
 
@@ -105,7 +106,6 @@ def _rename_file_nodes(self, filenames, reindex=False):
 
         if new_filename in used_names:
             new_filename = new_filename.replace('.txt',' - '+root_node.id+'.txt')
-
         # renamed_files retains full file paths
         renamed_files[os.path.join(self.path, old_filename)] = os.path.join(self.path, new_filename)
         used_names.append(new_filename)

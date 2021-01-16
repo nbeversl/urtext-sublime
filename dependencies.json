@@ -4,7 +4,8 @@
          "dateutil",
          "diffmatchpatch",
          "python-six",
-         "pytz"
+         "pytz",
+         "anytree",
       ]
    }
 }

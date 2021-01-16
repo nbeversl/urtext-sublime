@@ -497,7 +497,7 @@ class UrtextExport:
         if contents and contents[-1] == '{':
             contents = contents[:-1]
             
-        contents = re.sub(r'^[^\S\n]*\^', '', contents, flags=re.MULTILINE)
+        contents = re.sub(r'^[•\S\n]*\^', '', contents, flags=re.MULTILINE)
         return contents
  
     def _opening_wrapper(self, kind, node_id, nested):
