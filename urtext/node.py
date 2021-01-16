@@ -88,7 +88,7 @@ class UrtextNode:
         if self.metadata.get_first_value('id'):
             node_id = self.metadata.get_first_value('id')
             node_id = node_id.lower().strip()
-            if re.match('^[a-z0-9]{3}$', node_id):
+            if re.match(r'^[a-z0-9]{3}$', node_id):
                 self.id = node_id
         else:
             contents = self.strip_wrappers(contents)

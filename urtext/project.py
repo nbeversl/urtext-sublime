@@ -309,12 +309,16 @@ class UrtextProject:
         self.files[new_file.basename] = new_file  
 
         for node_id in new_file.nodes:
+            file_docs = []
             self._add_node(new_file.nodes[node_id])
+
+
         
         self._set_tree_elements(new_file.basename)
         
         for node_id in new_file.nodes:
             self._rebuild_node_meta(node_id)
+
 
         """
         If this is not the initial load of the project, parse the timestamps in the file
@@ -352,6 +356,7 @@ class UrtextProject:
             return duplicate_nodes
 
         return False
+
 
     def _rewrite_titles(self, filename):
         
@@ -644,7 +649,7 @@ class UrtextProject:
                     del self.navigation[index]
                     if self.nav_index > index: # >= ?
                         self.nav_index -= 1            
-            self.remove_file(filename, async=False)
+            self.remove_file(filename, is_async=False)
             os.remove(os.path.join(self.path, filename))
             return node_ids
         return []
@@ -1301,8 +1306,8 @@ class UrtextProject:
                 self._compile()
 
 
-    def remove_file(self, filename, async=True):
-        if self.is_async and async:
+    def remove_file(self, filename, is_async=True):
+        if self.is_async and is_async:
             self.executor.submit(self._remove_file, os.path.basename(filename))
             return self.executor.submit(self._compile)
         else:
@@ -1507,15 +1512,36 @@ class UrtextProject:
     FUTURE : Calendar
     """
     def export_to_ics(self):
-        c = Calendar()
-        for node_id in self.nodes:
-            e = Event()
+
+        for node_id in list(self.nodes):
             urtext_node = self.nodes[node_id]
-            e.name = urtext_node.title
-            e.begin = urtext_node.date.isoformat()
-            c.add(e)
-        with open('my.ics', 'w') as f:
-            f.write(c)
+            t = urtext_node.metadata.get_entries('timestamp')
+
+            if not t:
+                continue
+            ics_start_time = t[0].dt_stamp.strftime('%Y%m%dT%H%M%SZ')
+            t_end = t[0].dt_stamp + datetime.timedelta(hours=2)
+            ics_end_time = t_end.strftime('%Y%m%dT%H%M%SZ')
+            text = urtext_node.content_only().encode('utf-8').decode('utf-8')
+            ics = ['BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//hacksw/handcal//NONSGML v1.0//EN',
+            'BEGIN:VEVENT',
+            'METHOD:PUBLISH',
+            'UID:nathanielbeversluis@gmail.com',
+            'SUMMARY:'+urtext_node.title,
+            'DTSTART:'+ics_start_time,
+            'DTEND:'+ics_end_time,
+            'ORGANIZER;CN=Test User:MAILTO:test.user@tstdomain.com',
+            'DESCRIPTION:'+text,
+            'END:VEVENT',
+            'END:VCALENDAR',
+            ]
+            try: 
+                with open(os.path.join(self.path,urtext_node.id+'.ics'), 'w', encoding='utf-8') as f:
+                    f.write('\n'.join(ics))
+            except:
+                pass
 
 class NoProject(Exception):
     """ no Urtext nodes are in the folder """

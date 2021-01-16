@@ -33,7 +33,7 @@ compiled_symbols = [re.compile(symbol) for symbol in  [
     r'(?<!\\){',                # inline node opening wrapper
     r'(?<!\\)}',                # inline node closing wrapper
     '>>',               # node pointer
-    '[\n$]',            # line ending (closes compact node)
+    r'\n',            # line ending (closes compact node)
     '%%-[^E][A-Z-]*',       # push syntax
     '%%-END-[A-Z-]*'    # pop syntax 
     ]]
@@ -49,7 +49,7 @@ symbol_length = {
     r'(?<!\\){' :          1, # inline opening wrapper
     r'(?<!\\)}' :          1, # inline closing wrapper
     '>>' :          2, # node pointer
-    '[\n$]' :       0, # compact node closing
+    r'\n' :       0, # compact node closing
     'EOF':          0,
 }
 
@@ -141,7 +141,7 @@ class UrtextFile:
         """
 
         if self.positions:
-            while self.positions and self.symbols[self.positions[0]] == '[\n$]' :
+            while self.positions and self.symbols[self.positions[0]] == r'\n' :
                 self.positions.pop(0)
         
         ## find the first (possible) wrapper 
@@ -149,7 +149,7 @@ class UrtextFile:
         while first_wrapper < len(self.positions) - 1 and self.symbols[self.positions[first_wrapper]] == '>>' :
              first_wrapper += 1
         
-        if self.positions and self.symbols[self.positions[first_wrapper]] != '[\n$]':
+        if self.positions and self.symbols[self.positions[first_wrapper]] != r'\n':
             nested_levels[0] = [ [0, self.positions[first_wrapper] + symbol_length[self.symbols[self.positions[first_wrapper]]] ] ]
 
         self.positions.append(len(contents))
@@ -210,11 +210,11 @@ class UrtextFile:
             """
             Node closing symbols :  }, newline, EOF
             """
-            if self.symbols[position] in [r'(?<!\\)}', '[\n$]', 'EOF']:  # pop
+            if self.symbols[position] in [r'(?<!\\)}', r'\n', 'EOF']:  # pop
                 
                 compact, root = False, False
 
-                if self.symbols[position] == '[\n$]':
+                if self.symbols[position] == r'\n':
                     if compact_node_open:
                         compact = True
                         compact_node_open = False   

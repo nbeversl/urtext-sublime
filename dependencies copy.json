@@ -1,0 +1,10 @@
+{
+   "*": {
+      "*": [
+         "dateutil",
+         "diffmatchpatch",
+         "python-six",
+         "pytz"
+      ]
+   }
+}

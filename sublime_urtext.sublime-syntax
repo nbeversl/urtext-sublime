@@ -15,22 +15,24 @@ contexts:
       scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
-    - include: node_title
     - include: node_pointer
     - include: node_link
     - include: link_prefix
     - include: other-project-link
-    - include: compact-node-opener
-    - include: ending_node_id
     - include: file_link
-    - include: raw
-
-    - match: '\|\s'
-      push: link_title
 
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
+
+    - include: node_title
+    - include: raw
+    - include: ending_node_id
+    - include: compact-node-opener
+
+    - match: '\|\s'
+      push: link_title
+    
    
     - match: '(?<=::)'
       push: metadata-value

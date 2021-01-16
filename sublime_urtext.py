@@ -853,7 +853,7 @@ def make_node_menu(
                     node_id, 
                     project_list, 
                     project=single_project))
- 
+    
     return menu
 
 def sort_menu(menu):
@@ -1171,6 +1171,12 @@ class ToggleTraverse(UrtextTextCommand):
                 index += 1
 
         self.view.window().focus_group(active_group)
+
+class ToIcs(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+         _UrtextProjectList.current_project.export_to_ics()
 
 class TraverseFileTree(EventListener):
 

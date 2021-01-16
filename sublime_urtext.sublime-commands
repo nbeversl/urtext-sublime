@@ -42,4 +42,5 @@
  
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
+    { "caption": "Urtext: Export to ICS", "command" :"to_ics"},
 ] 
