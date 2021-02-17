@@ -18,10 +18,10 @@ contexts:
     - include: minimal-node-id
     - include: node_pointer
     - include: node_link
-    - include: link_prefix
     - include: other-project-link
     - include: file_link
-
+    - include: shorthand_meta
+    
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
@@ -34,7 +34,6 @@ contexts:
     - match: '\|\s'
       push: link_title
     
-   
     - match: '(?<=::)'
       push: metadata-value
 
@@ -66,7 +65,6 @@ contexts:
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
       escape: '%%-END-HTML'
-
       escape_captures: 0
     
     - match: '%%-JSON'
@@ -83,6 +81,13 @@ contexts:
       escape: '%%-END-PLAINTEXT'
       escape_captures: 0
 
+    - match: '%%-PHP'
+      scope: urtext.pass_marker
+      embed: Packages/PHP/PHP Source.sublime-syntax
+      embed_scope: urtext.php
+      escape: '%%-END-PHP'
+      escape_captures: 0
+
     - match: '%%-DOC'
       scope: urtext.pass_marker
       escape: '%%-END-DOC'
@@ -94,6 +99,8 @@ contexts:
       escape: '%%-END-[A-Z-]*'
       escape_captures: 0
 
+
+
   
   # Metadata  
   metadata-value:
@@ -103,12 +110,16 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link    
-    - match: ;|\n|(?=( [a-z,0-9]{3})?\})
+    - match: ;|\n|(?=( @[a-z,0-9]{3})?)
       pop: true
 
   minimal-node-id:
-    - match: '(?:\s?)@[0-9,a-z]{3}\b'
+    - match: '(^|\s)@[0-9,a-z]{3}\b'
       scope: urtext.minimal_node_id
+
+  shorthand_meta:
+    - match: '(?:^|\s)#[A-Z,a-z].*?\b'
+      scope: urtext.hash_meta
 
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
@@ -183,13 +194,11 @@ contexts:
     - include: node_link
     - match:  \w+?(?=::)
       scope: urtext.meta_key
-    - include: link_prefix
     
     - include: other-project-link
     - include: compact-node-opener
     - include: ending_node_id
-    # - match: '(?<=::)([^\)])*'
-    #   meta_content_scope: urtext.inline_meta_value
+ 
     - match: \)
       scope: dynamic-definition-parens
       pop: true   
@@ -202,8 +211,9 @@ contexts:
   function-key-value-keyword-parameters:
     - include: dynamic-keyword
     - include: key-value 
-    - include: datestamp
     - include: asterisk
+    - match: <[^!\s-]
+      push: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
@@ -220,7 +230,7 @@ contexts:
       scope: dynamic-keyword.urtext
 
   dynamic-keyword:
-    - match: '(\s)(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
+    - match: '(\s)(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|before|after|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
       scope: dynamic-keyword.urtext
 
   asterisk:
@@ -378,7 +388,7 @@ contexts:
         2 : raw.urtext
 
   node_title:
-    - match: '(?<={)([^_]*?(?= _))|(^[^_{]*?(?= _))'
+    - match: '(?<={)([^\n{_]*?(?= _\b))|(^[^\n_\({]*?(?= _\b))'
       scope: node_title.urtext
 
   link_title:

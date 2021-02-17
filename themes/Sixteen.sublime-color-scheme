@@ -16,6 +16,7 @@
 			 "meta-separator" : "var(foreground)",
 			 "node-id" :"var(unobtrusive)",
 			 "minimal-node-id" : "var(unobtrusive)",
+			 //"hash_meta" : "var(unobtrusive)",
 
 			 // links
 			 "link": "var(unobtrusive)",
@@ -284,6 +285,11 @@
 	  		{
 	  			"scope" : "urtext.minimal_node_id",
 	  			"foreground": "var(minimal-node-id)",
+	  		},
+	  		{
+	  			"scope" : "urtext.hash_meta",
+	  			"foreground": "var(hash_meta)",
+	  			"font_style" : "bold",
 	  		},
 
 

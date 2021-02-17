@@ -24,4 +24,5 @@
   { "keys": ["ctrl+shift+c"], "command": "copy_link_to_here"},
   { "keys": ["ctrl+shift+super+c"], "command": "copy_link_to_here_with_project"},
   { "keys": ["ctrl+shift+l"], "command":"link_to_node"},
+  { "keys": ["ctrl+shift+space"], "command":"associate"},
 ]
