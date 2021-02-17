@@ -15,6 +15,7 @@
 			 "meta-value" : "var(foreground)",
 			 "meta-separator" : "var(foreground)",
 			 "node-id" :"var(unobtrusive)",
+			 "minimal-node-id" : "var(unobtrusive)",
 
 			 // links
 			 "link": "var(unobtrusive)",
@@ -280,6 +281,11 @@
 	  			"scope" : "pointer_id.urtext",
 	  			"foreground": "var(link)",
 	  		},
+	  		{
+	  			"scope" : "urtext.minimal_node_id",
+	  			"foreground": "var(minimal-node-id)",
+	  		},
+
 
 
 

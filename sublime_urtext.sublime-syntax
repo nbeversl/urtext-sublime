@@ -15,6 +15,7 @@ contexts:
       scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
+    - include: minimal-node-id
     - include: node_pointer
     - include: node_link
     - include: link_prefix
@@ -105,7 +106,10 @@ contexts:
     - match: ;|\n|(?=( [a-z,0-9]{3})?\})
       pop: true
 
-      
+  minimal-node-id:
+    - match: '(?:\s?)@[0-9,a-z]{3}\b'
+      scope: urtext.minimal_node_id
+
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
     - match: '>'
@@ -416,7 +420,7 @@ contexts:
       scope: link.urtext.other-project
 
   compact-node-opener:
-    - match: ^[^\S\n]*\^
+    - match: ^[•\S\n]*\^
       push: compact-node
       scope: urtext.compact_node_marker
    

@@ -24,8 +24,8 @@ import time
 import concurrent.futures
 import subprocess
 import webbrowser
-from .urtext.project_list import ProjectList
-from .urtext.project import node_id_regex
+from urtext.project_list import ProjectList
+from urtext.project import node_id_regex
 from sublime_plugin import EventListener
 
 _SublimeUrtextWindows = {}
@@ -196,7 +196,6 @@ class ListProjectsCommand(UrtextTextCommand):
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
-
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
@@ -400,8 +399,8 @@ class TakeSnapshot(EventListener):
 #                 center_node(view, destination_node[1])
 
 def take_snapshot(view, project):
-    contents = get_contents(view)
-    if view:
+    if view and view.file_name():
+        contents = get_contents(view)
         filename = os.path.basename(view.file_name())
         project.snapshot_diff(filename, contents)
 
@@ -757,12 +756,11 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     @refresh_project_text_command()
     def run(self):
-        add_inline_node(self.view, trailing_id=True, include_timestamp=False)    
+        add_inline_node(self.view, include_timestamp=False)    
 
 
 def add_inline_node(view, 
     include_timestamp=True, 
-    trailing_id=False,
     locate_inside=True):
 
     region = view.sel()[0]
@@ -770,7 +768,6 @@ def add_inline_node(view,
     new_node = _UrtextProjectList.current_project.add_inline_node(
         metadata={},
         contents=selection,
-        trailing_id=trailing_id,
         include_timestamp=include_timestamp)
     new_node_contents = new_node[0]
     view.run_command("insert_snippet",
