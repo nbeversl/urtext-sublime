@@ -418,7 +418,7 @@ contexts:
       scope: entity.name.value_separator.urtext
 
   node_id:
-    - match: '\b[0-9,a-z]{3}\b'
+    - match: '\b[0-9,a-z]{3}\b(?:\{)'
       scope: entity.name.struct.node_id.urtext
 
   ending_node_id:

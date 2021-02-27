@@ -156,10 +156,12 @@ def initialize_project_list(view,
         _UrtextProjectList = None        
 
     if _UrtextProjectList == None:
-        current_path = get_path(view)
-        if not current_path:
+        folders = view.window().folders()       
+        if not folders:
             return None
+        current_path = folders[0]
         _UrtextProjectList = ProjectList(current_path, watchdog=WATCHDOG)
+
     return _UrtextProjectList
 
 def get_path(view):
@@ -179,7 +181,7 @@ def get_path(view):
     if 'folder' in window_variables:
         return window.extract_variables()['folder']
     return None
-      
+  
 class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -229,6 +231,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
             sublime.message_dialog('File was moved but error occured. Check the console.')
         else:
             sublime.message_dialog('File was moved')
+
 
 class UrtextCompletions(EventListener):
 
@@ -285,7 +288,6 @@ class UrtextSaveListener(EventListener):
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
             
-
 class KeepPosition(EventListener):
 
     @refresh_project_event_listener
@@ -374,29 +376,6 @@ class TakeSnapshot(EventListener):
             return None
         self.last_time = now 
         take_snapshot(view, self._UrtextProjectList.current_project)
-
-
-# class JumpToSource(EventListener):
-
-#     @refresh_project_event_listener
-#     def on_modified(self, view):
-#         """
-#         problematic -- this doesn't work if the view is dirty.
-
-#         TODO: revise
-#         For now, making available only if few is not dirty. However this should
-#         still be usable in many cases.
-#         """
-#         if not view:
-#             return
-#         position = view.sel()[0].a
-#         filename = view.file_name()
-#         if filename:
-#             destination_node = _UrtextProjectList.is_in_export(filename, position)
-#             if destination_node:
-#                 view.window().run_command('undo') # undo the manual change made to the view
-#                 open_urtext_node(view, destination_node[0])
-#                 center_node(view, destination_node[1])
 
 def take_snapshot(view, project):
     if view and view.file_name():
@@ -590,47 +569,6 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
             self.menu.display_menu, 
             self.open_the_file)
 
-class FullTextSearchCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
-        self.view.window().show_input_panel(
-            'search terms',
-            '',
-            self.show_results,
-            None,
-            None
-            )
-    
-    def show_results(self, string):
-        search_results = self._UrtextProjectList.current_project.search_term(string)
-        search_results.initiate_search()
-        self.results_view = self.window.new_file()
-        self.results_view.set_scratch(True)
-        self.results_view.set_syntax_file('sublime_urtext.sublime-syntax')
-
-        while self.results_view.is_loading():
-            time.sleep(0.1)
-
-        self.executor.submit(self.do_search, search_results)
-
-    def do_search(self, search_results):
-
-        t = []
-        while not search_results.complete:
-            r = len(t)
-            t = search_results.result            
-            if len(t) > r:
-                for item in t[r:]:
-                    self.results_view.run_command("append", {"characters": item+'\n'})
-
-        final_results = search_results.result            
-        if t != final_results:
-            final_results = final_results[len(t):]
-            for item in final_results:
-                self.results_view.run_command("append", {"characters": item +'\n'})
-
 def size_to_groups(groups, view):
     panel_size = 1 / groups
     cols = [0]
@@ -656,96 +594,6 @@ def size_to_thirds(groups,view):
 #         ]
 #     })
 
-class ShowTreeFromNode(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):
-
-        def render_tree(view, tree_render):
-            if not view.is_loading():
-                view.run_command("insert_snippet", {"contents": tree_render})
-            else:
-                sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
-
-        tree_render = self._UrtextProjectList.current_project.show_tree_from(get_node_id(self.view))
-        tree_view = target_tree_view(self.view)
-        tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
-        render_tree(tree_view, tree_render)
-
-class ShowTreeFromRootCommand(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):
-
-        def render_tree(view, tree_render):
-            if not view.is_loading():
-                view.run_command("insert_snippet", {"contents": tree_render})
-            else:
-                sublime.set_timeout(lambda: render_tree(view, tree_render), 10)
-
-        tree_render = self._UrtextProjectList.current_project.show_tree_from(
-            get_node_id(self.view), from_root_of=True)
-        tree_view = target_tree_view(self.view)
-        tree_view.erase(self.edit, sublime.Region(0, tree_view.size()))
-        render_tree(tree_view, tree_render)
-
-def target_tree_view(view):
-
-    filename = view.file_name()
-    if filename == None:
-        return
-
-    def locate_view(view, name):
-        all_views = view.window().views()
-        for view in all_views:
-            if view.name() == name:
-                return view
-        return None
-
-    tree_name = filename + 'TREE'  # Make a name for the view
-    tree_view = locate_view(view, tree_name)
-    if tree_view == None:
-        tree_view = view.window().new_file()
-        tree_view.set_name(filename + 'TREE')
-        tree_view.set_scratch(True)
-
-    # copied from traverse. Should refactor
-    groups = view.window().num_groups()  
-    
-    active_group = view.window().active_group()  # 0-indexed
-    if active_group == 0 or view.window().get_view_index(
-            tree_view)[0] != active_group - 1:
-        if groups > 1 and view.window().active_view_in_group(
-                active_group - 1).file_name() == None:
-            view.window().set_view_index(tree_view, active_group - 1, 0)
-        else:
-            groups += 1
-            panel_size = 1 / groups
-            cols = [0]
-            cells = [[0, 0, 1, 1]]
-            for index in range(1, groups):
-                cols.append(cols[index - 1] + panel_size)
-                cells.append([index, 0, index + 1, 1])
-            cols.append(1)
-            view.window().set_layout({
-                "cols": cols,
-                "rows": [0, 1],
-                "cells": cells
-            })
-            view.settings().set("word_wrap", False)
-
-            sheets = tree_view.window().sheets_in_group(active_group)
-            index = 0
-            for sheet in sheets:
-                tree_view.window().set_sheet_index(
-                    sheet,
-                    groups - 1,  # 0-indexed from 1-indexed value
-                    index)
-                index += 1
-            view.window().set_view_index(tree_view, active_group, 0)
-            view.window().focus_group(active_group)
-    return tree_view
-
 class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     @refresh_project_text_command()
@@ -765,19 +613,17 @@ def add_inline_node(view,
 
     region = view.sel()[0]
     selection = view.substr(region)
-    new_node = _UrtextProjectList.current_project.add_inline_node(
+    new_node = _UrtextProjectList.current_project.new_inline_node(
         metadata={},
-        contents=selection,
-        include_timestamp=include_timestamp)
-    new_node_contents = new_node[0]
+        contents=selection)
+    new_node_contents = new_node['contents']
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
     if locate_inside:
         view.sel().clear()
         new_cursor_position = sublime.Region(region.a + 3, region.a + 3 ) 
         view.sel().add(new_cursor_position) 
-    return new_node[1] # id
-
+    return new_node['id'] # id
 
 class RenameFileCommand(UrtextTextCommand):
 
@@ -859,7 +705,7 @@ def sort_menu(menu):
         item.position = str(item.position)
         new_item = [
             item.title,
-            item.project_title + ' - ' + item.date.strftime('<%a., %b. %d, %Y, %I:%M %p>'),            
+            item.project_title + ' - ' + item.date().strftime('<%a., %b. %d, %Y, %I:%M %p>'),            
         ]
         display_menu.append(new_item)
     return display_menu
@@ -1025,6 +871,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         node_id = link[1]
         _UrtextProjectList.current_project.tag_other_node(node_id)
 
+#BOOKMARK
 class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -1365,6 +1212,34 @@ class TraverseFileTree(EventListener):
         else:
             sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 10)
 
+
+class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
+    
+    def run(self, edit, **kwargs):
+
+        click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
+        region = self.view.full_line(click_position)
+        full_line = self.view.substr(region)
+        row, col = self.view.rowcol(click_position)
+
+        link = _UrtextProjectList.get_link_and_set_project(full_line, position=col)
+
+        kind = link[0]
+        if kind == 'EDITOR_LINK':
+            file_view = self.view.window().open_file(link['link'])
+        if kind == 'NODE':
+            open_urtext_node(self.view, link[1], position=link[2])
+        if kind == 'HTTP':
+            success = webbrowser.get().open(link[1])
+            if not success:
+                self.log('Could not open tab using your "web_browser_path" setting')       
+        if kind == 'FILE':
+            open_external_file(link[1])
+
+    def want_event(self):
+        return True
+
+
 """
 Utility functions
 """
@@ -1376,6 +1251,8 @@ def open_urtext_node(view, node_id, project=None, position=0):
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     
     if filename == None:
+        return
+    if not view.window():
         return
     file_view = view.window().find_open_file(filename)
     if not file_view:
