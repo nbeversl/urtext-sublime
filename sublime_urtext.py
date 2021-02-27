@@ -288,6 +288,44 @@ class UrtextSaveListener(EventListener):
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
             
+
+class KeywordsCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        window = self.view.window()
+        keyphrases = list(self._UrtextProjectList.current_project.keywords.keys())
+        self.chosen_keyphrase = ''
+
+        # BOOKMARK
+        def multiple_selections(selection):
+
+            open_urtext_node(self.view, 
+                self.second_menu.full_menu[selection].node_id,
+                position=self.second_menu.full_menu[selection].position,
+                highlight=self.chosen_keyphrase)
+
+        def result(i):
+            self.chosen_keyphrase =keyphrases[i]
+            if len(self._UrtextProjectList.current_project.keywords[self.chosen_keyphrase]) == 1:
+                node_id = self._UrtextProjectList.current_project.keywords[keyphrases[i]][0]
+                open_urtext_node(
+                    self.view,     
+                    node_id,
+                    position=self._UrtextProjectList.current_project.nodes[node_id].position,
+                    highlight=self.chosen_keyphrase)
+            else:
+                self.second_menu = NodeBrowserMenu(
+                    self._UrtextProjectList, 
+                    nodes=self._UrtextProjectList.current_project.keywords[self.chosen_keyphrase])
+                show_panel(
+                    window, 
+                    self.second_menu.display_menu, 
+                    multiple_selections,
+                    return_index=True)
+        
+        window.show_quick_panel(keyphrases, result)
+
 class KeepPosition(EventListener):
 
     @refresh_project_event_listener
@@ -710,12 +748,14 @@ def sort_menu(menu):
         display_menu.append(new_item)
     return display_menu
 
-def show_panel(window, menu, main_callback):
+def show_panel(window, menu, main_callback, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """
     def private_callback(index):
         if index == -1:
             return
         # otherwise return the main callback with the index of the selected item
+        if return_index:
+            return main_callback(index)
         main_callback(menu[index])
     window.show_quick_panel(menu, private_callback)
 
@@ -871,7 +911,6 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         node_id = link[1]
         _UrtextProjectList.current_project.tag_other_node(node_id)
 
-#BOOKMARK
 class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -892,15 +931,9 @@ class AddNodeIdCommand(UrtextTextCommand):
     def run(self):
         new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
-                              {"contents": "id::" + new_id})
+                              {"contents": "@" + new_id})
 
-class ImportProjectCommand(UrtextTextCommand):
-
-    @refresh_project_text_command(import_project=True)
-    def run(self):
-        pass
-
-
+#REWRITE
 class OpenUrtextLogCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -943,7 +976,6 @@ class PopNodeCommand(UrtextTextCommand):
         filename = self.view.file_name()
         position = self.view.sel()[0].a
         future = self._UrtextProjectList.current_project.pop_node(filename=filename, position=position)
-
 
 class PullNodeCommand(UrtextTextCommand):
 
@@ -1016,6 +1048,7 @@ class ToggleTraverse(UrtextTextCommand):
 
         self.view.window().focus_group(active_group)
 
+# FUTURE / #TODO
 class ToIcs(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -1060,8 +1093,7 @@ class TraverseFileTree(EventListener):
         
         # TAB of the content (right) view. ("sheet" = tab)        
         self.content_tab = called_from_view.window().active_sheet_in_group(self.tree_group)
-
-        
+      
         # the contents of the content tab. 
         contents = get_contents(self.content_tab.view())
 
@@ -1212,7 +1244,6 @@ class TraverseFileTree(EventListener):
         else:
             sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 10)
 
-
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
     
     def run(self, edit, **kwargs):
@@ -1243,7 +1274,12 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 """
 Utility functions
 """
-def open_urtext_node(view, node_id, project=None, position=0):
+def open_urtext_node(
+    view, 
+    node_id, 
+    project=None, 
+    position=0,
+    highlight=''):
     
     if project:
         _UrtextProjectList.set_current_project(project.path)
@@ -1270,6 +1306,7 @@ def open_urtext_node(view, node_id, project=None, position=0):
     """
 
 def center_node(new_view, position): 
+        position = int(position)
         if not new_view.is_loading():
             new_view.sel().clear()
             # this has to be called both before and after:
