@@ -27,6 +27,7 @@ import webbrowser
 from urtext.project_list import ProjectList
 from urtext.project import node_id_regex
 from sublime_plugin import EventListener
+from urtext.project import soft_match_compact_node
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
@@ -706,6 +707,7 @@ class NodeInfo():
         self.title = project.nodes[node_id].title
         self.node_id = project.nodes[node_id].id
         self.project_title = project.title
+        self.display_meta = project.nodes[node_id].display_meta
 
 def make_node_menu(
     project_list, 
@@ -741,9 +743,12 @@ def sort_menu(menu):
     display_menu = []
     for item in menu:  # there is probably a better way to copy this list.
         item.position = str(item.position)
+        display_meta = item.display_meta
+        if display_meta:
+            display_meta = ' - '+display_meta
         new_item = [
             item.title,
-            item.project_title + ' - ' + item.date().strftime('<%a., %b. %d, %Y, %I:%M %p>'),            
+            item.project_title + display_meta,            
         ]
         display_menu.append(new_item)
     return display_menu
@@ -915,15 +920,16 @@ class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        renamed_files = self._UrtextProjectList.current_project.reindex_files()
+        renamed_files = self._UrtextProjectList.current_project.reindex_files().result()
         for view in self.view.window().views():
             if view.file_name() == None:
                 continue
-            if os.path.basename(view.file_name()) in renamed_files:
+            if os.path.join(self._UrtextProjectList.current_project.path, view.file_name()) in renamed_files:               
                 view.retarget(
                     os.path.join(
                         self._UrtextProjectList.current_project.path,
-                        renamed_files[os.path.basename(view.file_name())]))
+                        renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
+                    )
 
 class AddNodeIdCommand(UrtextTextCommand):
 
@@ -967,7 +973,36 @@ class CompactNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        add_compact_node(self.edit, self.view)
+        region = self.view.sel()[0]
+        selection = self.view.substr(region)
+        line_region = self.view.line(region) # get full line region
+        line_contents = self.view.substr(line_region)
+
+        if soft_match_compact_node(line_contents):
+        # If it is already a compact node, make a new one on the next line down.
+            replace = False
+            contents = self._UrtextProjectList.current_project.add_compact_node()
+
+        else:
+            # If it is not a compact node, make it one and add an ID
+            replace = True
+            contents = self._UrtextProjectList.current_project.add_compact_node(contents=line_contents)
+
+        if replace:
+            self.view.erase(self.edit, line_region)
+            self.view.run_command("insert_snippet",{"contents": contents})
+            region = self.view.sel()[0]
+            self.view.sel().clear()
+            self.view.sel().add(sublime.Region(region.a-5, region.b-5))
+        else:
+            next_line_down = line_region.b    
+            self.view.sel().clear()
+            self.view.sel().add(next_line_down) 
+            self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
+            new_cursor_position = sublime.Region(next_line_down + 3, next_line_down + 3) 
+            self.view.sel().clear()
+            self.view.sel().add(new_cursor_position) 
+
 
 class PopNodeCommand(UrtextTextCommand):
 
@@ -1318,24 +1353,6 @@ def center_node(new_view, position):
         else:
             # NOTE: if node does not center in the view, adjust the delay higher.
             sublime.set_timeout(lambda: center_node(new_view, position), 30) 
-
-def add_compact_node(edit, view):
-    
-    region = view.sel()[0]
-    selection = view.substr(region)
-    line = view.line(region) # get full line
-    next_line_down = line.b
-    new_node_contents = _UrtextProjectList.current_project.add_compact_node(contents=selection)
-
-    view.sel().clear()
-    view.sel().add(next_line_down) 
-    view.run_command("insert_snippet",
-                          {"contents": '\n'+new_node_contents})
-
-    new_cursor_position = sublime.Region(next_line_down + 3, next_line_down + 3) 
-    view.sel().clear()
-    view.sel().add(new_cursor_position) 
-    view.erase(edit, region)
 
 def get_path(view):  ## makes the path persist as much as possible ##
 
