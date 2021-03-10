@@ -417,10 +417,13 @@ class TakeSnapshot(EventListener):
         take_snapshot(view, self._UrtextProjectList.current_project)
 
 def take_snapshot(view, project):
-    if view and view.file_name():
-        contents = get_contents(view)
-        filename = os.path.basename(view.file_name())
-        project.snapshot_diff(filename, contents)
+    if not view:
+        return
+    contents = get_contents(view)
+    if not view.file_name():
+        return
+    filename = os.path.basename(view.file_name())
+    project.snapshot_diff(filename, contents)
 
 class ToggleHistoryTraverse(UrtextTextCommand):
     """ Toggles history traversing on/off """
