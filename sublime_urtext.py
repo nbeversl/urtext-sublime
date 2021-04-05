@@ -240,8 +240,11 @@ class UrtextCompletions(EventListener):
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
         current_path = os.path.dirname(view.file_name())
+
         if _UrtextProjectList.get_project(current_path):
             subl_completions = []
+            for k in _UrtextProjectList.get_all_for_hash():
+                subl_completions.append([k,'#'+k])
             proj_completions = _UrtextProjectList.get_all_meta_pairs()
             for c in proj_completions:
                 t = c.split('::')
@@ -250,8 +253,9 @@ class UrtextCompletions(EventListener):
             title_completions = _UrtextProjectList.current_project.title_completions
             for t in title_completions:
                 subl_completions.append([t[0],t[1]])
+            
             completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
-    
+
             return completions
         return []
 
@@ -399,6 +403,8 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
 
         if kind == 'FILE':
             open_external_file(link[1])
+
+
 
 class TakeSnapshot(EventListener):
 
@@ -564,6 +570,7 @@ class NodeBrowserCommand(UrtextTextCommand):
         self._UrtextProjectList.set_current_project(selected_item.project_title)
         self._UrtextProjectList.nav_new(selected_item.node_id)   
         open_urtext_node(self.view, selected_item.node_id)
+
 
 
 class BacklinksBrowser(NodeBrowserCommand):
@@ -1091,7 +1098,8 @@ class ToIcs(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-         _UrtextProjectList.current_project.export_to_ics()
+        node_id = get_node_id(self.view)
+        _UrtextProjectList.current_project.export_to_ics(node_id)
 
 class TraverseFileTree(EventListener):
 
@@ -1283,27 +1291,28 @@ class TraverseFileTree(EventListener):
             sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 10)
 
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
-    
-    def run(self, edit, **kwargs):
 
+    def run(self, edit, **kwargs):
+        if not _UrtextProjectList:
+            return
+            
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.full_line(click_position)
         full_line = self.view.substr(region)
         row, col = self.view.rowcol(click_position)
-
         link = _UrtextProjectList.get_link_and_set_project(full_line, position=col)
-
-        kind = link[0]
-        if kind == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link['link'])
-        if kind == 'NODE':
-            open_urtext_node(self.view, link[1], position=link[2])
-        if kind == 'HTTP':
-            success = webbrowser.get().open(link[1])
-            if not success:
-                self.log('Could not open tab using your "web_browser_path" setting')       
-        if kind == 'FILE':
-            open_external_file(link[1])
+        if link:
+            kind = link[0]
+            if kind == 'EDITOR_LINK':
+                file_view = self.view.window().open_file(link[1])
+            if kind == 'NODE':
+                open_urtext_node(self.view, link[1], position=link[2])
+            if kind == 'HTTP':
+                success = webbrowser.get().open(link[1])
+                if not success:
+                    self.log('Could not open tab using your "web_browser_path" setting')       
+            if kind == 'FILE':
+                open_external_file(link[1])
 
     def want_event(self):
         return True
