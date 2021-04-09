@@ -27,7 +27,10 @@ contexts:
       push: dynamic-definition
 
     - include: node_title
-    - include: raw
+
+    - match: '`'
+      push: raw 
+
     - include: ending_node_id
     - include: compact-node-opener
 
@@ -42,9 +45,6 @@ contexts:
     
     - match:  \w+?(?=::)
       scope: urtext.meta_key
-
-    - match: '(?<=\w)::'
-      scope: urtext.meta_separator
 
     - match: <[^!\s-]
       push: datestamp
@@ -110,7 +110,7 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link    
-    - match: ;|\n|(?=( @[a-z,0-9]{3})?)
+    - match: ;|\n
       pop: true
 
   minimal-node-id:
@@ -140,13 +140,15 @@ contexts:
 
   dynamic-definition:
     - meta_scope: dynamic-definition
+
+    - match: '`'
+      push: raw 
     
     - match: '\|[^<][^\s]{2}'
       push: link_title
-
+      
     - include: node_link
     - include: file_link
-    - include: raw
 
     - match: (\+|\-|INCLUDE|EXCLUDE|SORT|COLLECT)(?=\()
       scope: function-name.urtext
@@ -383,17 +385,20 @@ contexts:
       scope: file_link.urtext
 
   raw:
-    - match: '(`)(.*?)(`)'
-      captures: 
-        2 : raw.urtext
+    - meta_scope: raw.urtext
+    - match: '`'
+      pop: true
 
   node_title:
-    - match: '(?<={)([^\n{_]*?(?= _\b))|(^[^\n_\({]*?(?= _\b))'
+    - match: '(?<={)([^\n{_]*?(?= _\b))|(^[^\n_{]*?(?= _\b))'
       scope: node_title.urtext
-
+    - match: '`'
+      push: raw 
+  
   link_title:
     - meta_scope: link_title.urtext
-    - include: raw
+    - match: '`'
+      push: raw 
     - match: '(?=>[0-9,a-z]{3}\b)|\n'
       pop: true
 

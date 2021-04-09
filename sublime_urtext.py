@@ -1093,7 +1093,6 @@ class ToggleTraverse(UrtextTextCommand):
 
         self.view.window().focus_group(active_group)
 
-# FUTURE / #TODO
 class ToIcs(UrtextTextCommand):
 
     @refresh_project_text_command()
