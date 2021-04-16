@@ -250,8 +250,7 @@ class UrtextCompletions(EventListener):
                 t = c.split('::')
                 if len(t) > 1:
                     subl_completions.append([t[1]+'\t'+c, c])
-            title_completions = _UrtextProjectList.current_project.title_completions
-            for t in title_completions:
+            for t in _UrtextProjectList.current_project.title_completions():
                 subl_completions.append([t[0],t[1]])
             
             completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
@@ -282,7 +281,7 @@ class UrtextSaveListener(EventListener):
                 else:
                     self.executor.submit(refresh_open_file, filename, view)
         else:
-            if result and result != filename:
+            if result and result != os.path.basename(filename):
                 window = view.window()
                 view.set_scratch(True) # already saved
                 view.close()
@@ -299,7 +298,7 @@ class KeywordsCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         window = self.view.window()
-        keyphrases = list(self._UrtextProjectList.current_project.keywords.keys())
+        keyphrases = list(self._UrtextProjectList.current_project.get_keywords())
         self.chosen_keyphrase = ''
 
         # BOOKMARK
@@ -311,18 +310,18 @@ class KeywordsCommand(UrtextTextCommand):
                 highlight=self.chosen_keyphrase)
 
         def result(i):
-            self.chosen_keyphrase =keyphrases[i]
-            if len(self._UrtextProjectList.current_project.keywords[self.chosen_keyphrase]) == 1:
-                node_id = self._UrtextProjectList.current_project.keywords[keyphrases[i]][0]
+            self.chosen_keyphrase = keyphrases[i]
+            result = self._UrtextProjectList.current_project.get_by_keyword(self.chosen_keyphrase)
+            if len(result) == 1:
                 open_urtext_node(
                     self.view,     
-                    node_id,
-                    position=self._UrtextProjectList.current_project.nodes[node_id].position,
+                    result[0],
+                    position=self._UrtextProjectList.current_project.nodes[result[0]].position,
                     highlight=self.chosen_keyphrase)
             else:
                 self.second_menu = NodeBrowserMenu(
                     self._UrtextProjectList, 
-                    nodes=self._UrtextProjectList.current_project.keywords[self.chosen_keyphrase])
+                    nodes=self._UrtextProjectList.current_project.get_by_keyword(self.chosen_keyphrase))
                 show_panel(
                     window, 
                     self.second_menu.display_menu, 
@@ -331,21 +330,21 @@ class KeywordsCommand(UrtextTextCommand):
         
         window.show_quick_panel(keyphrases, result)
 
-class KeepPosition(EventListener):
+# class KeepPosition(EventListener):
 
-    @refresh_project_event_listener
-    def on_modified(self, view):
-        if not view:
-            return
+#     @refresh_project_event_listener
+#     def on_modified(self, view):
+#         if not view:
+#             return
 
-        position = view.sel()
-        def restore_position(view, position):
-            if not view.is_loading():
-                view.show(position)
-            else:
-                sublime.set_timeout(lambda: restore_position(view, position), 10)
+#         position = view.sel()
+#         def restore_position(view, position):
+#             if not view.is_loading():
+#                 view.show(position)
+#             else:
+#                 sublime.set_timeout(lambda: restore_position(view, position), 10)
 
-        restore_position(view, position)
+#         restore_position(view, position)
 
 class UrtextHomeCommand(UrtextTextCommand):
     
@@ -570,8 +569,6 @@ class NodeBrowserCommand(UrtextTextCommand):
         self._UrtextProjectList.set_current_project(selected_item.project_title)
         self._UrtextProjectList.nav_new(selected_item.node_id)   
         open_urtext_node(self.view, selected_item.node_id)
-
-
 
 class BacklinksBrowser(NodeBrowserCommand):
 
@@ -1339,11 +1336,19 @@ def open_urtext_node(
     file_view = view.window().find_open_file(filename)
     if not file_view:
         file_view = view.window().open_file(filename)
-    view.window().focus_view(file_view)
+
     if not position:
         position = node_position
+    position = int(position)
 
-    center_node(file_view, position)
+    def focus_position(focus_view, position):
+        if not focus_view.is_loading():
+            view.window().focus_view(focus_view)
+            center_node(focus_view, position)
+        else:
+            sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+
+    focus_position(file_view, position)
     return file_view
     """
     Note we do not involve this function with navigation, since it is
@@ -1352,18 +1357,13 @@ def open_urtext_node(
     """
 
 def center_node(new_view, position): 
-        position = int(position)
-        if not new_view.is_loading():
-            new_view.sel().clear()
-            # this has to be called both before and after:
-            new_view.show_at_center(position)
-            new_view.sel().add(sublime.Region(position, position))
-            # this has to be called both before and after:
-            new_view.show(sublime.Region(position, position))
-            new_view.show_at_center(position)
-        else:
-            # NOTE: if node does not center in the view, adjust the delay higher.
-            sublime.set_timeout(lambda: center_node(new_view, position), 30) 
+    new_view.sel().clear()
+    # this has to be called both before and after:
+    new_view.sel().add(sublime.Region(position, position))
+    # this has to be called both before and after:
+    new_view.show(sublime.Region(position, position))
+    new_view.show_at_center(position)
+
 
 def get_path(view):  ## makes the path persist as much as possible ##
 
