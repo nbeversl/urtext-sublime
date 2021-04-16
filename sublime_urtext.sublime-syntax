@@ -110,7 +110,7 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link    
-    - match: ;|\n
+    - match: ;|\n|(?=\})
       pop: true
 
   minimal-node-id:
