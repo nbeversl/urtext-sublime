@@ -268,9 +268,10 @@ class UrtextSaveListener(EventListener):
 
         if not view.file_name():
             return
-        
-        filename = view.file_name()
-        result = self._UrtextProjectList.on_modified(filename)
+        window = view.window()
+        open_files = [view.file_name()]
+        open_files.extend([f.file_name() for f in window.views() if f.file_name() not in [None, view.file_name()]])
+        result = self._UrtextProjectList.on_modified(open_files)
         if self._UrtextProjectList.current_project.is_async:
             if result:
                 renamed_file = result.result()
@@ -281,17 +282,18 @@ class UrtextSaveListener(EventListener):
                 else:
                     self.executor.submit(refresh_open_file, filename, view)
         else:
-            if result and result != os.path.basename(filename):
-                window = view.window()
-                view.set_scratch(True) # already saved
-                view.close()
-                new_view = window.open_file(result)
-            else:
-                self.executor.submit(refresh_open_file, filename, view)
-        
+            if result:
+                for f in open_files:
+                    if f in result:
+                        window = view.window()
+                        view.set_scratch(True) # already saved
+                        view.close()
+                        new_view = window.open_file(f)
+                    else:
+                        self.executor.submit(refresh_open_file, f, view)
+            
         #always take a snapshot manually on save
         take_snapshot(view, self._UrtextProjectList.current_project)
-            
 
 class KeywordsCommand(UrtextTextCommand):
 
@@ -859,11 +861,13 @@ class DeleteThisNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        file_name = os.path.basename(self.view.file_name())
-        if self.view.is_dirty():
-            self.view.set_scratch(True)
-        self.view.window().run_command('close_file')
-        self._UrtextProjectList.delete_file(file_name) 
+        if self.view.file_name():
+            open_files = [f.file_name() for f in self.view.window().views() if f.file_name() != self.view.file_name()]
+            file_name = os.path.basename(self.view.file_name())
+            if self.view.is_dirty():
+                self.view.set_scratch(True)
+            self.view.window().run_command('close_file')            
+            self._UrtextProjectList.delete_file(file_name, open_files=open_files)
 
 class InsertTimestampCommand(UrtextTextCommand):
 
@@ -1329,27 +1333,26 @@ def open_urtext_node(
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     
-    if filename == None:
-        return
-    if not view.window():
-        return
-    file_view = view.window().find_open_file(filename)
-    if not file_view:
-        file_view = view.window().open_file(filename)
+    if filename and view.window():
+        file_view = view.window().find_open_file(filename)
+        if not file_view:
+            file_view = view.window().open_file(filename)
+        if not position:
+            position = node_position
+        position = int(position)
 
-    if not position:
-        position = node_position
-    position = int(position)
+        def focus_position(focus_view, position):
+            if not focus_view.is_loading():
+                if view.window():
+                    view.window().focus_view(focus_view)
+                    center_node(focus_view, position)
+            else:
+                sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
 
-    def focus_position(focus_view, position):
-        if not focus_view.is_loading():
-            view.window().focus_view(focus_view)
-            center_node(focus_view, position)
-        else:
-            sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+        focus_position(file_view, position)
 
-    focus_position(file_view, position)
-    return file_view
+        return file_view
+    return None
     """
     Note we do not involve this function with navigation, since it is
     use for purposes including forward/backward navigation and shouldn't
