@@ -31,6 +31,10 @@
 		 // pass marker:
 		 "pass-marker" : "var(foreground)",
 
+		// pass marker:
+		 "trigger" : "var(red)",
+
+
 		 // wrappers
 		 "wrapper1" : "var(blue-lighter2)",
 		 "wrapper2" : "var(aqua-green2)",
@@ -289,6 +293,12 @@
 	  		{
 	  			"scope" : "urtext.hash_meta",
 	  			"foreground": "var(hash_meta)",
+	  			"font_style" : "bold",
+	  		},
+
+	  		{
+	  			"scope" : "urtext.trigger_name",
+	  			"foreground": "var(trigger)",
 	  			"font_style" : "bold",
 	  		},
 

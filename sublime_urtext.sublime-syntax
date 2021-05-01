@@ -28,6 +28,8 @@ contexts:
 
     - include: node_title
 
+    - include: trigger
+
     - match: '`'
       push: raw 
 
@@ -99,9 +101,19 @@ contexts:
       escape: '%%-END-[A-Z-]*'
       escape_captures: 0
 
+  trigger:
+    - match: '(>>>[A-Z_]+)(?=\()'
+      scope: urtext.trigger_name
+      push: trigger-with-args
 
 
-  
+  trigger-with-args:    
+    - match: \(
+      scope: dynamic-definition-parens
+      push: function-key-value-keyword-parameters
+    - match: (?<=\))
+      pop: true
+
   # Metadata  
   metadata-value:
     - meta_scope: urtext.meta_value
@@ -158,9 +170,6 @@ contexts:
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
    
-  # Functions using key-value pairs, values with string literals, and keywords
-  # INCLUDE, EXCLUDE
-
   function-with-key-values:    
     - match: \(
       scope: dynamic-definition-parens

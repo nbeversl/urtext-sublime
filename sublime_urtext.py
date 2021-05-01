@@ -387,8 +387,12 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             else:
                 print('NO LINK') 
             return
-
+        
         kind = link[0]
+        
+        if kind == 'SYSTEM':
+            open_external_file(link[1])
+
         if kind == 'EDITOR_LINK':
             file_view = self.view.window().open_file(link[1])
 
@@ -401,10 +405,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             success = webbrowser.get().open(link[1])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
-
-        if kind == 'FILE':
-            open_external_file(link[1])
-
 
 
 class TakeSnapshot(EventListener):
@@ -931,16 +931,18 @@ class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        renamed_files = self._UrtextProjectList.current_project.reindex_files().result()
-        for view in self.view.window().views():
-            if view.file_name() == None:
-                continue
-            if os.path.join(self._UrtextProjectList.current_project.path, view.file_name()) in renamed_files:               
-                view.retarget(
-                    os.path.join(
-                        self._UrtextProjectList.current_project.path,
-                        renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
-                    )
+
+        renamed_files = self._UrtextProjectList.current_project.trigger("REINDEX")
+        if renamed_files:
+            for view in self.view.window().views():
+                if view.file_name() == None:
+                    continue
+                if os.path.join(self._UrtextProjectList.current_project.path, view.file_name()) in renamed_files:               
+                    view.retarget(
+                        os.path.join(
+                            self._UrtextProjectList.current_project.path,
+                            renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
+                        )
 
 class AddNodeIdCommand(UrtextTextCommand):
 
@@ -949,28 +951,6 @@ class AddNodeIdCommand(UrtextTextCommand):
         new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
                               {"contents": "@" + new_id})
-
-#REWRITE
-class OpenUrtextLogCommand(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):
-
-        log_id = self._UrtextProjectList.current_project.get_log_node()
-        if not log_id:
-            return
-
-        open_urtext_node(self.view, log_id)
-
-        def go_to_end(view):
-            if not view.is_loading():
-                view.show_at_center(sublime.Region(view.size()))
-                view.sel().add(sublime.Region(view.size()))
-                view.show_at_center(sublime.Region(view.size()))
-            else:
-                sublime.set_timeout(lambda: go_to_end(view), 10)
-
-        go_to_end(self.view)
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -1311,7 +1291,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
                 success = webbrowser.get().open(link[1])
                 if not success:
                     self.log('Could not open tab using your "web_browser_path" setting')       
-            if kind == 'FILE':
+            if kind == 'SYSTEM':
                 open_external_file(link[1])
 
     def want_event(self):
