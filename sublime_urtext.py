@@ -397,10 +397,9 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             file_view = self.view.window().open_file(link[1])
 
         if kind == 'NODE':
-            _UrtextProjectList.nav_new(link[1])
-           
+            _UrtextProjectList.nav_new(link[1])   
             open_urtext_node(self.view, link[1], position=link[2])
-
+        
         if kind == 'HTTP':
             success = webbrowser.get().open(link[1])
             if not success:
@@ -1286,6 +1285,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
             if kind == 'EDITOR_LINK':
                 file_view = self.view.window().open_file(link[1])
             if kind == 'NODE':
+                _UrtextProjectList.nav_new(link[1])   
                 open_urtext_node(self.view, link[1], position=link[2])
             if kind == 'HTTP':
                 success = webbrowser.get().open(link[1])
@@ -1312,7 +1312,7 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    
+    _UrtextProjectList.current_project.refresh_file(filename)
     if filename and view.window():
         file_view = view.window().find_open_file(filename)
         if not file_view:
