@@ -59,46 +59,46 @@ contexts:
       scope: urtext.pass_marker
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: urtext.python
-      escape: '%%-END-PYTHON'
+      escape: '%%-PYTHON-END'
       escape-captures: 0
     
     - match: '%%-HTML'
       scope: urtext.pass_marker
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: urtext.html
-      escape: '%%-END-HTML'
+      escape: '%%-HTML-END'
       escape_captures: 0
     
     - match: '%%-JSON'
       scope: urtext.pass_marker
       embed: Packages/JSON/JSON.sublime-syntax
       embed_scope: urtext.json
-      escape: '%%-END-JSON'
+      escape: '%%-JSON-END'
       escape_captures: 0
 
     - match: '%%-PLAINTEXT'
       scope: urtext.pass_marker
       embed: Packages/JavaScript/text.sublime-syntax
       embed_scope: urtext.text
-      escape: '%%-END-PLAINTEXT'
+      escape: '%%-PLAINTEXT-END'
       escape_captures: 0
 
     - match: '%%-PHP'
       scope: urtext.pass_marker
       embed: Packages/PHP/PHP Source.sublime-syntax
       embed_scope: urtext.php
-      escape: '%%-END-PHP'
+      escape: '%%-PHP-END'
       escape_captures: 0
 
     - match: '%%-DOC'
       scope: urtext.pass_marker
-      escape: '%%-END-DOC'
+      escape: '%%-DOC-END'
       escape_captures: 0
 
     - match: '%%-[A-Z-]*'
       scope: urtext.pass_marker
       embed_scope: urtext.text
-      escape: '%%-END-[A-Z-]*'
+      escape: '%%-[A-Z-]+-END'
       escape_captures: 0
 
   trigger:
