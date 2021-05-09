@@ -288,7 +288,8 @@ class UrtextSaveListener(EventListener):
                         new_view = window.open_file(f)
                     else:
                         self.executor.submit(refresh_open_file, f, view)
-            
+
+# BOOKMARK
 class KeywordsCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -739,7 +740,10 @@ class ReIndexFilesCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
 
-        renamed_files = self._UrtextProjectList.current_project.trigger("REINDEX")
+        renamed_files = self._UrtextProjectList.current_project.run_action("REINDEX",
+            self.view.substr(self.view.line(self.view.sel()[0])),
+            self.view.file_name()
+            )
         if renamed_files:
             for view in self.view.window().views():
                 if view.file_name() == None:
@@ -806,21 +810,25 @@ class PopNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        filename = self.view.file_name()
-        position = self.view.sel()[0].a
-        future = self._UrtextProjectList.current_project.pop_node(filename=filename, position=position)
+        file_pos = self.view.sel()[0].a
+        self._UrtextProjectList.current_project.run_action('POP_NODE',
+            self.view.substr(self.view.line(self.view.sel()[0])),
+            self.view.file_name(),
+            file_pos = file_pos,
+            col_pos = self.view.rowcol(file_pos)[1]
+            )
 
 class PullNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        filename = self.view.file_name()
-        position = self.view.sel()[0].a
-        full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-        future = self._UrtextProjectList.current_project.pull_node(
-            full_line, 
-            filename, 
-            position)
+        file_pos = self.view.sel()[0].a
+        self._UrtextProjectList.current_project.run_action('PULL_NODE',
+            self.view.substr(self.view.line(self.view.sel()[0])),
+            self.view.file_name(),
+            file_pos = file_pos,
+            col_pos = self.view.rowcol(file_pos)[1]
+            )
 
 class RandomNodeCommand(UrtextTextCommand):
 
@@ -829,14 +837,6 @@ class RandomNodeCommand(UrtextTextCommand):
         node_id = self._UrtextProjectList.current_project.random_node()
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
-
-
-class ToIcs(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        node_id = get_node_id(self.view)
-        _UrtextProjectList.current_project.export_to_ics(node_id)
 
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
