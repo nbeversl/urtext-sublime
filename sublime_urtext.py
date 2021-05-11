@@ -289,44 +289,6 @@ class UrtextSaveListener(EventListener):
                     else:
                         self.executor.submit(refresh_open_file, f, view)
 
-# BOOKMARK
-class KeywordsCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        window = self.view.window()
-        keyphrases = list(self._UrtextProjectList.current_project.get_keywords())
-        self.chosen_keyphrase = ''
-
-        # BOOKMARK
-        def multiple_selections(selection):
-
-            open_urtext_node(self.view, 
-                self.second_menu.full_menu[selection].node_id,
-                position=self.second_menu.full_menu[selection].position,
-                highlight=self.chosen_keyphrase)
-
-        def result(i):
-            self.chosen_keyphrase = keyphrases[i]
-            result = self._UrtextProjectList.current_project.get_by_keyword(self.chosen_keyphrase)
-            if len(result) == 1:
-                open_urtext_node(
-                    self.view,     
-                    result[0],
-                    position=self._UrtextProjectList.current_project.nodes[result[0]].position,
-                    highlight=self.chosen_keyphrase)
-            else:
-                self.second_menu = NodeBrowserMenu(
-                    self._UrtextProjectList, 
-                    nodes=self._UrtextProjectList.current_project.get_by_keyword(self.chosen_keyphrase))
-                show_panel(
-                    window, 
-                    self.second_menu.display_menu, 
-                    multiple_selections,
-                    return_index=True)
-        
-        window.show_quick_panel(keyphrases, result)
-
 class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -843,10 +805,13 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
     def run(self, edit, **kwargs):
         if not _UrtextProjectList:
             return
-    
+        
+        click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
+        region = self.view.full_line(click_position)
+        full_line = self.view.substr(region)
+        row, col_pos = self.view.rowcol(click_position)
         file_pos = self.view.sel()[0].a
-        col_pos = self.view.rowcol(file_pos)[1]
-        full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
             self.view.file_name(), 
