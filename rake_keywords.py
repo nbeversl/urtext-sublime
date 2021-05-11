@@ -1,5 +1,4 @@
-from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command
-from .sublime_urtext import UrtextTextCommand, open_urtext_node, NodeBrowserMenu, show_panel
+from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command, UrtextTextCommand, open_urtext_node, NodeBrowserMenu, show_panel, make_node_menu
 
 
 class KeywordsCommand(UrtextTextCommand):
@@ -37,3 +36,32 @@ class KeywordsCommand(UrtextTextCommand):
                     return_index=True)
         
         window.show_quick_panel(keyphrases, result)
+
+class RakeAssociateCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        window = self.view.window()
+        file_pos = self.view.sel()[0].a
+        full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+
+
+
+        menu = NodeBrowserMenu(
+            self._UrtextProjectList,
+            nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
+                full_line, self.view.file_name(), file_pos)
+            )
+        
+        def open_selection(selection):
+            open_urtext_node(self.view, 
+                menu.full_menu[selection].node_id)
+
+        show_panel(
+            window, 
+            menu.display_menu, 
+            open_selection,
+            return_index=True)
+
+
+        #window.show_quick_panel(keyphrases, result)

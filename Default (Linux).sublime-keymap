@@ -26,6 +26,5 @@
   { "keys": ["ctrl+shift+right"], "command" :"forwardlinks_browser"},
   { "keys": ["ctrl+shift+l"], "command":"link_to_node"},
   { "keys": ["ctrl+shift+x"], "command":"keywords"},
-  { "keys": ["ctrl+shift+space"], "command":"associate"},
-  { "keys": ["ctrl+shift+x"], "command":"keywords"},
+  { "keys": ["ctrl+shift+space"], "command":"rake_associate"},
 ]

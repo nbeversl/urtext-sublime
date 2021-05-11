@@ -179,6 +179,7 @@ def get_path(view):
         return window.extract_variables()['folder']
     return None
   
+
 class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -544,6 +545,7 @@ def show_panel(window, menu, main_callback, return_index=False):
         # otherwise return the main callback with the index of the selected item
         if return_index:
             return main_callback(index)
+        print(menu[index])
         main_callback(menu[index])
     window.show_quick_panel(menu, private_callback)
 
