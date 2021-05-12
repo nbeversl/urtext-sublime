@@ -12,7 +12,7 @@
   { "keys": ["ctrl+shift+."], "command": "navigate_forward"},
   { "keys": ["ctrl+shift+i"], "command": "add_node_id"},
   { "keys": ["ctrl+shift+h"], "command": "urtext_home"},
-  { "keys": ["ctrl+shift+p"], "command": "insert_node_single_line"},
+  { "keys": ["ctrl+shift+1"], "command": "insert_node_single_line"},
   { "keys": ["ctrl+shift+6"], "command": "compact_node"},
   { "keys": ["ctrl+shift+f"], "command": "random_node"},
   { "keys": ["ctrl+shift+o"], "command": "list_projects"},

@@ -448,16 +448,6 @@ def add_inline_node(view,
         view.sel().add(new_cursor_position) 
     return new_node['id'] # id
 
-class RenameFileCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        old_filename = self.view.file_name()
-        new_filenames = self._UrtextProjectList.current_project.rename_file_nodes(old_filename)
-        self.view.retarget(
-            os.path.join(self._UrtextProjectList.current_project.path,
-                         new_filenames[old_filename]))
-
 class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """
 
@@ -704,7 +694,8 @@ class ReIndexFilesCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
 
-        renamed_files = self._UrtextProjectList.current_project.run_action("REINDEX",
+        renamed_files = self._UrtextProjectList.current_project.run_action(
+            "REINDEX",
             self.view.substr(self.view.line(self.view.sel()[0])),
             self.view.file_name()
             )
@@ -718,6 +709,24 @@ class ReIndexFilesCommand(UrtextTextCommand):
                             self._UrtextProjectList.current_project.path,
                             renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
                         )
+
+class RenameFileCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        
+        filename = self.view.file_name()
+        renamed_files = self._UrtextProjectList.current_project.run_action(
+            "RENAME_SINGLE_FILE",
+            self.view.substr(self.view.line(self.view.sel()[0])),
+            filename=filename
+            )
+        if renamed_files:
+            self.view.retarget(
+                os.path.join(
+                    self._UrtextProjectList.current_project.path,
+                    renamed_files[filename])
+                )
 
 class AddNodeIdCommand(UrtextTextCommand):
 
