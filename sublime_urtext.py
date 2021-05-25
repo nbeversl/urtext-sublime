@@ -351,6 +351,48 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
 
+class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
+
+    def run(self, edit, **kwargs):
+        if not _UrtextProjectList:
+            return
+
+        click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
+        region = self.view.full_line(click_position)
+        full_line = self.view.substr(region)
+        row, col_pos = self.view.rowcol(click_position)
+        file_pos = self.view.sel()[0].a
+
+        link = _UrtextProjectList.get_link_and_set_project(
+            full_line, 
+            self.view.file_name(), 
+            col_pos=col_pos,
+            file_pos=file_pos)
+
+        if link == None:   
+            if not _UrtextProjectList.current_project.compiled:
+                   return sublime.error_message("Project is still compiling")
+            else:
+                return print('NO LINK') 
+            return
+
+        kind = link[0]
+        if kind == 'EDITOR_LINK':
+            file_view = self.view.window().open_file(link[1])
+        if kind == 'NODE':
+            _UrtextProjectList.nav_new(link[1])   
+            open_urtext_node(self.view, link[1], position=link[2])
+        if kind == 'HTTP':
+            success = webbrowser.get().open(link[1])
+            if not success:
+                self.log('Could not open tab using your "web_browser_path" setting')       
+        if kind == 'SYSTEM':
+            open_external_file(link[1])
+
+    def want_event(self):
+        return True
+
+
 class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -811,46 +853,6 @@ class RandomNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
-class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
-
-    def run(self, edit, **kwargs):
-        if not _UrtextProjectList:
-            return
-        
-        click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
-        region = self.view.full_line(click_position)
-        full_line = self.view.substr(region)
-        row, col_pos = self.view.rowcol(click_position)
-        file_pos = self.view.sel()[0].a
-
-        link = _UrtextProjectList.get_link_and_set_project(
-            full_line, 
-            self.view.file_name(), 
-            col_pos=col_pos,
-            file_pos=file_pos)
-
-        if link == None:   
-            if not _UrtextProjectList.current_project.compiled:
-                   return sublime.error_message("Project is still compiling")
-            else:
-                return print('NO LINK') 
-            return
-
-        kind = link[0]
-        if kind == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link[1])
-        if kind == 'NODE':
-            _UrtextProjectList.nav_new(link[1])   
-            open_urtext_node(self.view, link[1], position=link[2])
-        if kind == 'HTTP':
-            success = webbrowser.get().open(link[1])
-            if not success:
-                self.log('Could not open tab using your "web_browser_path" setting')       
-        if kind == 'SYSTEM':
-            open_external_file(link[1])
-
-    def want_event(self):
-        return True
 
 
 """
@@ -867,7 +869,7 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    _UrtextProjectList.current_project.refresh_file(filename)
+ 
     if filename and view.window():
         file_view = view.window().find_open_file(filename)
         if not file_view:
@@ -883,7 +885,7 @@ def open_urtext_node(
                     center_node(focus_view, position)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
-
+                
         focus_position(file_view, position)
 
         return file_view
