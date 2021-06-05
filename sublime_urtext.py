@@ -320,7 +320,8 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     def run(self):
         file_pos = self.view.sel()[0].a
         col_pos = self.view.rowcol(file_pos)[1]
-        full_line = self.view.substr(self.view.line(self.view.sel()[0]))
+        full_line_region = self.view.line(self.view.sel()[0])
+        full_line =  self.view.substr(full_line_region)
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
             self.view.file_name(), 
@@ -334,20 +335,18 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
                 print('NO LINK') 
             return
         
-        kind = link[0]
-        
-        if kind == 'SYSTEM':
-            open_external_file(link[1])
+        if link['kind'] == 'SYSTEM':
+            open_external_file(link['link'])
 
-        if kind == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link[1])
+        if link['kind'] == 'EDITOR_LINK':
+            file_view = self.view.window().open_file(link['link'])
 
-        if kind == 'NODE':
-            _UrtextProjectList.nav_new(link[1])   
-            open_urtext_node(self.view, link[1], position=link[2])
+        if link['kind'] == 'NODE':
+            _UrtextProjectList.nav_new(link['link'])   
+            open_urtext_node(self.view, link['link'], position=link['dest_position'])
         
-        if kind == 'HTTP':
-            success = webbrowser.get().open(link[1])
+        if link['kind'] == 'HTTP':
+            success = webbrowser.get().open(link['link'])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
 
@@ -358,11 +357,10 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
             return
 
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
-        region = self.view.full_line(click_position)
+        region = self.view.line(click_position)
         full_line = self.view.substr(region)
         row, col_pos = self.view.rowcol(click_position)
         file_pos = self.view.sel()[0].a
-
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
             self.view.file_name(), 
@@ -376,18 +374,17 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
                 return print('NO LINK') 
             return
 
-        kind = link[0]
-        if kind == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link[1])
-        if kind == 'NODE':
-            _UrtextProjectList.nav_new(link[1])   
-            open_urtext_node(self.view, link[1], position=link[2])
-        if kind == 'HTTP':
-            success = webbrowser.get().open(link[1])
+        if link['kind'] == 'EDITOR_LINK':
+            file_view = self.view.window().open_file(link['link'])
+        if link['kind'] == 'NODE':
+            _UrtextProjectList.nav_new(link['link'])   
+            open_urtext_node(self.view, link['link'], position=link['dest_position'])
+        if link['kind'] == 'HTTP':
+            success = webbrowser.get().open(link['link'])
             if not success:
                 self.log('Could not open tab using your "web_browser_path" setting')       
-        if kind == 'SYSTEM':
-            open_external_file(link[1])
+        if link['kind'] == 'SYSTEM':
+            open_external_file(link['link'])
 
     def want_event(self):
         return True
@@ -726,9 +723,9 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         link = _UrtextProjectList.get_link_and_set_project(
             full_line,
             self.view.file_name())
-        if link[0] != 'NODE':
+        if link['kind'] != 'NODE':
             return
-        node_id = link[1]
+        node_id = link['link']
         _UrtextProjectList.current_project.tag_other_node(node_id)
 
 class ReIndexFilesCommand(UrtextTextCommand):
@@ -826,12 +823,14 @@ class PopNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         file_pos = self.view.sel()[0].a
-        self._UrtextProjectList.current_project.run_action('POP_NODE',
+        r = self._UrtextProjectList.current_project.run_action(
+            'POP_NODE',
             self.view.substr(self.view.line(self.view.sel()[0])),
             self.view.file_name(),
             file_pos = file_pos,
             col_pos = self.view.rowcol(file_pos)[1]
             )
+        print(r)
 
 class PullNodeCommand(UrtextTextCommand):
 
@@ -864,7 +863,7 @@ def open_urtext_node(
     project=None, 
     position=0,
     highlight=''):
-    
+   
     if project:
         _UrtextProjectList.set_current_project(project.path)
 

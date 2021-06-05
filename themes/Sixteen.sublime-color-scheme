@@ -16,7 +16,7 @@
 			 "meta-separator" : "var(foreground)",
 			 "node-id" :"var(unobtrusive)",
 			 "minimal-node-id" : "var(unobtrusive)",
-			 //"hash_meta" : "var(unobtrusive)",
+			 "hash_meta" : "var(grey5)",
 
 			 // links
 			 "link": "var(unobtrusive)",
