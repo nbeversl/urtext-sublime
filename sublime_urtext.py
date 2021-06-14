@@ -41,7 +41,7 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-def refresh_project_text_command(import_project=False):
+def refresh_project_text_command(import_project=False, change_project=True):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
@@ -60,6 +60,11 @@ def refresh_project_text_command(import_project=False):
             if not _UrtextProjectList:
                 return None
 
+            if not change_project:
+                args[0].edit = edit
+                args[0]._UrtextProjectList = _UrtextProjectList
+                return function(args[0])
+                
             window = sublime.active_window()
             if not window:
                 print('NO WINDOW')
@@ -292,7 +297,7 @@ class UrtextSaveListener(EventListener):
 
 class UrtextHomeCommand(UrtextTextCommand):
     
-    @refresh_project_text_command()
+    @refresh_project_text_command(change_project=False)
     def run(self):
         node_id = _UrtextProjectList.current_project.get_home()
         _UrtextProjectList.nav_new(node_id)
@@ -392,11 +397,12 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
 class NodeBrowserCommand(UrtextTextCommand):
     
-    @refresh_project_text_command()
+    @refresh_project_text_command(change_project=False)
     def run(self):
+            
         self.menu = NodeBrowserMenu(
-            self._UrtextProjectList, 
-            project=self._UrtextProjectList.current_project)
+            _UrtextProjectList, 
+            project=_UrtextProjectList.current_project)
 
         show_panel(
             self.view.window(), 

@@ -24,3 +24,6 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].export_points)
         print('PARENT')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
+        print('CHILDREN')
+        print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
+ 
