@@ -264,7 +264,7 @@ class UrtextCompletions(EventListener):
 class UrtextSaveListener(EventListener):
 
     def __init__(self):   
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
      
     @refresh_project_event_listener
     def on_post_save_async(self, view):
@@ -275,8 +275,8 @@ class UrtextSaveListener(EventListener):
         open_files = [view.file_name()]
         open_files.extend([f.file_name() for f in window.views() if f.file_name() not in [None, view.file_name()]])
         result = self._UrtextProjectList.on_modified(open_files)
-        if self._UrtextProjectList.current_project.is_async:
-            if result:
+        if result:
+            if self._UrtextProjectList.current_project.is_async:
                 renamed_file = result.result()
                 if renamed_file and renamed_file != filename:
                     view.set_scratch(True) # already saved
@@ -284,8 +284,7 @@ class UrtextSaveListener(EventListener):
                     new_view = view.window().open_file(renamed_file)
                 else:
                     self.executor.submit(refresh_open_file, filename, view)
-        else:
-            if result:
+            else:
                 for f in open_files:
                     if f in result:
                         window = view.window()
@@ -294,6 +293,12 @@ class UrtextSaveListener(EventListener):
                         new_view = window.open_file(f)
                     else:
                         self.executor.submit(refresh_open_file, f, view)
+
+class RefreshUrtextFile(sublime_plugin.ViewEventListener):
+
+    def on_activated_async(self):
+        if _UrtextProjectList and self.view.file_name():
+            modified = _UrtextProjectList.visit_file(self.view.file_name())
 
 class UrtextHomeCommand(UrtextTextCommand):
     
@@ -473,7 +478,6 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     @refresh_project_text_command()
     def run(self):
         add_inline_node(self.view, include_timestamp=False)    
-
 
 def add_inline_node(view, 
     include_timestamp=True, 
@@ -732,7 +736,9 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         if link['kind'] != 'NODE':
             return
         node_id = link['link']
-        _UrtextProjectList.current_project.tag_other_node(node_id)
+        open_files = [f.file_name() for f in self.view.window().views()]
+        _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
+        
 
 class ReIndexFilesCommand(UrtextTextCommand):
     
@@ -944,6 +950,9 @@ def get_path_from_window(window):
 
 def refresh_open_file(future, view):
     changed_files = future.result()
+    print(changed_files)
+    return
+    ## 
     open_files = view.window().views()
     for filename in open_files:
         if os.path.basename(filename) in changed_files:

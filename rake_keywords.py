@@ -45,8 +45,6 @@ class RakeAssociateCommand(UrtextTextCommand):
         file_pos = self.view.sel()[0].a
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
 
-
-
         menu = NodeBrowserMenu(
             self._UrtextProjectList,
             nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
