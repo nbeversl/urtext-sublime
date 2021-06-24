@@ -648,6 +648,16 @@ class NewNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(new_node['id'])        
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
+        def set_cursor(new_view):
+            if not new_view.is_loading():
+                new_cursor_position = new_view.text_point(4, 0)
+                new_view.sel().clear()
+                new_view.sel().add(new_cursor_position) 
+            else:
+                sublime.set_timeout(lambda: set_cursor(new_view), 50) 
+
+        set_cursor(new_view)
+
 class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
