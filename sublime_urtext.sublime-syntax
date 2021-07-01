@@ -163,7 +163,7 @@ contexts:
     - include: node_link
     - include: file_link
 
-    - match: ((\+|\-)|([A-Z]+)(?=\())
+    - match: ((\+|\-)|([A-Z_]+)(?=\())
       scope: function-name.urtext
       push: function-with-key-values
     
@@ -276,9 +276,6 @@ contexts:
       scope: dynamic-def-node_id.urtext
 
 
-  # Functions with optional parameters
-  # ACCESS_HISTORY
-
   function-with-optional-parameters:
     - match: \(
       scope: dynamic-definition-parens
@@ -344,10 +341,11 @@ contexts:
       pop: true
 
   node_link:
-    - match: '([>]{1})([0-9,a-z]{3}\b)'
+    - match: '([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?'
       captures: 
         1: link_prefix.urtext
         2: link_id.urtext
+        3: link_char.urtext
 
   node_pointer:
     - match: '([>]{2})([0-9,a-z]{3}\b)'
@@ -408,11 +406,6 @@ contexts:
   other-project-link:
     - match: '=>\"(.*?)\"'
       scope: link.urtext.other-project
-
-  compact-node-opener:
-    - match: ^[•\S\n]*\^
-      push: compact-node
-      scope: urtext.compact_node_marker
    
   compact-node: 
     - include: datestamp

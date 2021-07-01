@@ -54,10 +54,6 @@
 		 "dynamic-parens"  : "var(white2)",
 	  	 "format-variable" :"var(foreground)", // bold only
 	  	 "format-string" : "var(foreground)",
-
-	  	 /* compact node */
-	  	 "compact-node-marker" : "var(red)",
-
 		  	
 	  	 /* sytem message */
 	  	 "system-message" : "var(red)",
@@ -129,7 +125,10 @@
 	  		{	"scope":"link_id.urtext",
 	  			"foreground": "var(link)",
 	  		},
-
+	  		{
+	  			"scope":"link_char.urtext",
+	  			"foreground": "var(link)",
+	  		},
 	  		
 	  		{	"scope":"link_prefix.urtext",
 	  			"foreground": "var(link-prefix)",
@@ -148,16 +147,6 @@
 
 			{   "scope": "file_link.urtext",
 	  			"foreground": "var(file-link)",
-	  		},
-
-	  	
-
-	        /* Compact Node (^) */
-	  		
-	  		{   "scope": "urtext.compact_node_marker",
-	  			"foreground": "var(compact-node-marker)",
-	  			"font_style":"bold",
-
 	  		},
 
 

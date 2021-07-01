@@ -274,10 +274,15 @@ class UrtextSaveListener(EventListener):
         window = view.window()
         open_files = [view.file_name()]
         open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
-        result = self._UrtextProjectList.on_modified(view.file_name())
+        result = self._UrtextProjectList.on_modified(open_files)
         if result:
             if self._UrtextProjectList.current_project.is_async:
                 renamed_file = result.result()
+                # if renamed_file and renamed_file != filename:
+                #     view.set_scratch(True) # already saved
+                #     view.close()
+                #     new_view = view.window().open_file(renamed_file)
+                # else:
                 self.executor.submit(refresh_open_file, renamed_file, view)
             else:
                 for f in open_files:
@@ -488,7 +493,7 @@ def add_inline_node(view,
                           {"contents": new_node_contents})  # (whitespace)
     if locate_inside:
         view.sel().clear()
-        new_cursor_position = sublime.Region(region.a + 3, region.a + 3 ) 
+        new_cursor_position = sublime.Region(region.a + 2, region.a + 2 ) 
         view.sel().add(new_cursor_position) 
     return new_node['id'] # id
 
