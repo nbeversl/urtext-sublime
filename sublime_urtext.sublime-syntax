@@ -34,7 +34,6 @@ contexts:
       push: raw 
 
     - include: ending_node_id
-    - include: compact-node-opener
 
     - match: '\|\s'
       push: link_title
@@ -192,7 +191,6 @@ contexts:
       scope: urtext.meta_key
     
     - include: other-project-link
-    - include: compact-node-opener
     - include: ending_node_id
  
     - match: \)
@@ -226,7 +224,7 @@ contexts:
       scope: dynamic-keyword.urtext
 
   dynamic-keyword:
-    - match: '(\s)(-n(um)?|-r(everse)?|-rr?|-la(st-accessed)?|before|after|-p(reformat)?|-all|-timestamp|-t|-and|-or|-all_projects|-\*p|-multiline_meta|-mm|-recursive)\b'
+    - match: '(\s)(-[a-z_]+)\b'
       scope: dynamic-keyword.urtext
 
   asterisk:
@@ -392,7 +390,7 @@ contexts:
       scope: entity.name.tagname_separator.urtext
 
   tagvalue-separator:
-    - match: '\|'
+    - match: '\s-\s'
       scope: entity.name.value_separator.urtext
 
   node_id:
