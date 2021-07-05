@@ -650,9 +650,8 @@ class NewNodeCommand(UrtextTextCommand):
 
         def set_cursor(new_view):
             if not new_view.is_loading():
-                new_cursor_position = new_view.text_point(4, 0)
                 new_view.sel().clear()
-                new_view.sel().add(new_cursor_position) 
+                new_view.sel().add(sublime.Region(int(new_node['cursor_pos']),int(new_node['cursor_pos'])))
             else:
                 sublime.set_timeout(lambda: set_cursor(new_view), 50) 
 
