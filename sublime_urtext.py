@@ -754,6 +754,8 @@ class ReIndexFilesCommand(UrtextTextCommand):
             self.view.substr(self.view.line(self.view.sel()[0])),
             self.view.file_name()
             )
+        if self._UrtextProjectList.current_project.is_async:
+            renamed_files=renamed_files.result()
         if renamed_files:
             for view in self.view.window().views():
                 if view.file_name() == None:
@@ -776,6 +778,10 @@ class RenameFileCommand(UrtextTextCommand):
             self.view.substr(self.view.line(self.view.sel()[0])),
             filename=filename
             )
+
+        if self._UrtextProjectList.current_project.is_async:
+            renamed_files=renamed_files.result()
+
         if renamed_files:
             self.view.retarget(
                 os.path.join(
@@ -846,14 +852,14 @@ class PopNodeCommand(UrtextTextCommand):
             file_pos = file_pos,
             col_pos = self.view.rowcol(file_pos)[1]
             )
-        print(r)
 
 class PullNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
         file_pos = self.view.sel()[0].a
-        self._UrtextProjectList.current_project.run_action('PULL_NODE',
+        self._UrtextProjectList.current_project.run_action(
+            'PULL_NODE',
             self.view.substr(self.view.line(self.view.sel()[0])),
             self.view.file_name(),
             file_pos = file_pos,
