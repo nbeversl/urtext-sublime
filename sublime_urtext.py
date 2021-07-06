@@ -278,11 +278,6 @@ class UrtextSaveListener(EventListener):
         if result:
             if self._UrtextProjectList.current_project.is_async:
                 renamed_file = result.result()
-                # if renamed_file and renamed_file != filename:
-                #     view.set_scratch(True) # already saved
-                #     view.close()
-                #     new_view = view.window().open_file(renamed_file)
-                # else:
                 self.executor.submit(refresh_open_file, renamed_file, view)
             else:
                 for f in open_files:
