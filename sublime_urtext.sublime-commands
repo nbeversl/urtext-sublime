@@ -39,5 +39,6 @@
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
+    { "caption": "Urtext: Turn Off Async (debuggin)", "command" :"no_async"},
   
 ] 

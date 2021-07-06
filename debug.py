@@ -27,3 +27,8 @@ class DebugCommand(sublime_plugin.TextCommand):
         print('CHILDREN')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
  
+class NoAsync(sublime_plugin.TextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        self._UrtextProjectList.current_project.is_async = False

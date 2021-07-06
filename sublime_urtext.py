@@ -773,6 +773,8 @@ class RenameFileCommand(UrtextTextCommand):
     def run(self):
         
         filename = self.view.file_name()
+        self.view.run_command('save')
+
         renamed_files = self._UrtextProjectList.current_project.run_action(
             "RENAME_SINGLE_FILE",
             self.view.substr(self.view.line(self.view.sel()[0])),
