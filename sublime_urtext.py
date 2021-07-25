@@ -268,7 +268,6 @@ class UrtextSaveListener(EventListener):
      
     @refresh_project_event_listener
     def on_post_save_async(self, view):
-
         if not view.file_name():
             return
         window = view.window()
@@ -773,8 +772,6 @@ class RenameFileCommand(UrtextTextCommand):
     def run(self):
         
         filename = self.view.file_name()
-        self.view.run_command('save')
-
         renamed_files = self._UrtextProjectList.current_project.run_action(
             "RENAME_SINGLE_FILE",
             self.view.substr(self.view.line(self.view.sel()[0])),
@@ -846,6 +843,7 @@ class PopNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
+        self.view.run_command('save')
         file_pos = self.view.sel()[0].a
         r = self._UrtextProjectList.current_project.run_action(
             'POP_NODE',
@@ -859,14 +857,22 @@ class PullNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
+        self.view.run_command('save')  # TODO insert notification
         file_pos = self.view.sel()[0].a
-        self._UrtextProjectList.current_project.run_action(
+        file_to_close = self._UrtextProjectList.current_project.run_action(
             'PULL_NODE',
             self.view.substr(self.view.line(self.view.sel()[0])),
             self.view.file_name(),
             file_pos = file_pos,
             col_pos = self.view.rowcol(file_pos)[1]
             )
+        if file_to_close:
+            if self._UrtextProjectList.current_project.is_async:
+                file_to_close=file_to_close.result()
+            for view in self.window.views():
+                if view.file_name() == file_to_close:
+                    view.close()
+
 
 class RandomNodeCommand(UrtextTextCommand):
 

@@ -22,7 +22,6 @@
     { "caption": "Urtext: Log", "command" :"open_urtext_log"},
 
     /* Project and File Management */
-    { "caption": "Urtext: Import Project", "command" :"import_project"},
     { "caption": "Urtext: Reload Project", "command" :"urtext_reload_project"},
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
     { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
