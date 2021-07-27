@@ -268,25 +268,29 @@ class UrtextSaveListener(EventListener):
      
     @refresh_project_event_listener
     def on_post_save_async(self, view):
-        if not view.file_name():
-            return
-        window = view.window()
-        open_files = [view.file_name()]
-        open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
-        result = self._UrtextProjectList.on_modified(open_files)
-        if result:
-            if self._UrtextProjectList.current_project.is_async:
-                renamed_file = result.result()
-                self.executor.submit(refresh_open_file, renamed_file, view)
-            else:
-                for f in open_files:
-                    if f in result:
-                        window = view.window()
-                        view.set_scratch(True) # already saved
-                        view.close()
-                        new_view = window.open_file(f)
-                    else:
-                        self.executor.submit(refresh_open_file, f, view)
+        urtext_on_modified(view)
+
+def urtext_on_modified(view):
+    if not view.file_name():
+        return
+    window = view.window()
+    open_files = [view.file_name()]
+    open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
+    result = _UrtextProjectList.on_modified(open_files)
+    if result:
+        if _UrtextProjectList.current_project.is_async:
+            renamed_file = result.result()
+            if result:
+                refresh_open_file(renamed_file, view)
+        else:
+            for f in open_files:
+                if f in result:
+                    window = view.window()
+                    view.set_scratch(True) # already saved
+                    view.close()
+                    new_view = window.open_file(f)
+                else:
+                    refresh_open_file( f, view)
 
 class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
@@ -844,7 +848,8 @@ class PopNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')
-        file_pos = self.view.sel()[0].a
+        urtext_on_modified(self.view)
+        file_pos = self.view.sel()[0].a + 1
         r = self._UrtextProjectList.current_project.run_action(
             'POP_NODE',
             self.view.substr(self.view.line(self.view.sel()[0])),
@@ -858,6 +863,7 @@ class PullNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')  # TODO insert notification
+        urtext_on_modified(self.view)
         file_pos = self.view.sel()[0].a
         file_to_close = self._UrtextProjectList.current_project.run_action(
             'PULL_NODE',
@@ -966,14 +972,10 @@ def get_path_from_window(window):
         return window.project_data()['folders'][0]['path']
     return None
 
-def refresh_open_file(future, view):
-    changed_files = future.result()
-    print(changed_files)
-    return
-    ## 
+def refresh_open_file(changed_files, view):
     open_files = view.window().views()
-    for filename in open_files:
-        if os.path.basename(filename) in changed_files:
+    for v in open_files:
+        if v.file_name() and os.path.basename(v.file_name()) in changed_files:
             view.run_command('revert') # undocumented
 
 def open_external_file(filepath):
