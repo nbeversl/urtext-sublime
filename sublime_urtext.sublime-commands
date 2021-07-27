@@ -5,8 +5,8 @@
     { "caption": "Urtext: Home", "command" :"urtext_home"},
     { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
     { "caption": "Urtext: Select Project", "command" :"list_projects"},
-    //{ "caption": "Urtext: To Source Node", "command" :"to_source_node"},
-
+    { "caption": "Urtext: Metadata Browser", "command" :"find_by_meta"},
+    
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
     
