@@ -27,4 +27,6 @@
   { "keys": ["ctrl+shift+l"], "command":"link_to_node"},
   { "keys": ["ctrl+shift+x"], "command":"keywords"},
   { "keys": ["ctrl+shift+space"], "command":"rake_associate"},
+  { "keys": ["ctrl+shift+super+right"], "command":"pop_node"},
+  { "keys": ["ctrl+shift+super+left"], "command":"pull_node"},
 ]

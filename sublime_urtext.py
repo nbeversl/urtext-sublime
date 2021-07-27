@@ -973,10 +973,11 @@ def get_path_from_window(window):
     return None
 
 def refresh_open_file(changed_files, view):
-    open_files = view.window().views()
-    for v in open_files:
-        if v.file_name() and os.path.basename(v.file_name()) in changed_files:
-            view.run_command('revert') # undocumented
+    if changed_files:
+        open_files = view.window().views()
+        for v in open_files:
+            if v.file_name() and os.path.basename(v.file_name()) in changed_files:
+                view.run_command('revert') # undocumented
 
 def open_external_file(filepath):
 
