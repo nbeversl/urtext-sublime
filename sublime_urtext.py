@@ -246,8 +246,6 @@ class UrtextCompletions(EventListener):
 
         if _UrtextProjectList.get_project(current_path):
             subl_completions = []
-            for k in _UrtextProjectList.get_all_for_hash():
-                subl_completions.append([k,'#'+k])
             proj_completions = _UrtextProjectList.get_all_meta_pairs()
             for c in proj_completions:
                 t = c.split('::')
