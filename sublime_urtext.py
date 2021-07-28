@@ -909,8 +909,8 @@ class PullNodeCommand(UrtextTextCommand):
                 file_to_close=file_to_close.result()
             for view in self.window.views():
                 if view.file_name() == file_to_close:
+                    view.set_scratch(True)
                     view.close()
-
 
 class RandomNodeCommand(UrtextTextCommand):
 
