@@ -896,21 +896,23 @@ class PullNodeCommand(UrtextTextCommand):
     def run(self):
         self.view.run_command('save')  # TODO insert notification
         urtext_on_modified(self.view)
-        file_pos = self.view.sel()[0].a
-        file_to_close = self._UrtextProjectList.current_project.run_action(
-            'PULL_NODE',
-            self.view.substr(self.view.line(self.view.sel()[0])),
-            self.view.file_name(),
-            file_pos = file_pos,
-            col_pos = self.view.rowcol(file_pos)[1]
-            )
-        if file_to_close:
-            if self._UrtextProjectList.current_project.is_async:
-                file_to_close=file_to_close.result()
-            for view in self.window.views():
-                if view.file_name() == file_to_close:
-                    view.set_scratch(True)
-                    view.close()
+        if self.view.file_name():
+            file_pos = self.view.sel()[0].a
+            file_to_close = self._UrtextProjectList.current_project.run_action(
+                'PULL_NODE',
+                self.view.substr(self.view.line(self.view.sel()[0])),
+                self.view.file_name(),
+                file_pos = file_pos,
+                col_pos = self.view.rowcol(file_pos)[1]
+                )
+            if file_to_close:
+                if self._UrtextProjectList.current_project.is_async:
+                    file_to_close=file_to_close.result()
+                for view in self.window.views():
+                    if view.file_name() == file_to_close:
+                        view.set_scratch(True)
+                        view.close()
+                        return
 
 class RandomNodeCommand(UrtextTextCommand):
 
