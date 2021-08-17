@@ -17,6 +17,7 @@
 			 "node-id" :"var(unobtrusive)",
 			 "minimal-node-id" : "var(unobtrusive)",
 			 "hash_meta" : "var(grey5)",
+			 "meta-value-issue" : "var(red)",
 
 			 // links
 			 "link": "var(unobtrusive)",
@@ -99,6 +100,10 @@
 	  		{   "scope": "urtext.meta_value",
 	  			"foreground": "var(meta-value)",
 	  		},
+	  		{   "scope": "urtext.meta_value_issue",
+	  			"foreground": "var(meta-value-issue)",
+	  		},
+		
 		
 	        { 
 		        "scope" : "entity.name.value_separator.urtext",

@@ -30,7 +30,6 @@ from urtext.project import soft_match_compact_node
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
-urtext_initiated = False
 quick_panel_waiting = False
 quick_panel_active  = False
 quick_panel_id = 0
@@ -49,9 +48,6 @@ def refresh_project_text_command(import_project=False, change_project=True):
     def middle(function):
 
         def wrapper(*args, **kwargs):
-
-            global urtext_initiated
-            urtext_initiated = True
             
             view = args[0].view
             edit = args[1]
@@ -68,7 +64,6 @@ def refresh_project_text_command(import_project=False, change_project=True):
             window = sublime.active_window()
             if not window:
                 print('NO WINDOW')
-                print(function) # debugging
                 return
 
             view = window.active_view()
@@ -157,12 +152,21 @@ def initialize_project_list(view,
     if reload_projects:
         _UrtextProjectList = None        
 
-    if _UrtextProjectList == None:
-        folders = view.window().folders()       
-        if not folders:
-            return None
+    folders = view.window().folders()       
+
+    #TODO Refactor
+    if not folders and view.file_name():
+        folder = os.path.dirname(view.file_name())
+        if _UrtextProjectList:
+            _UrtextProjectList._add_folder(folder)
+        else:
+            _UrtextProjectList = ProjectList(folder)    
+    else:
         current_path = folders[0]
-        _UrtextProjectList = ProjectList(current_path)
+        if _UrtextProjectList:
+            _UrtextProjectList._add_folder(current_path)
+        else:
+            _UrtextProjectList = ProjectList(current_path)    
 
     return _UrtextProjectList
 
@@ -206,8 +210,9 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
+        window = self.view.window()
         show_panel(
-            self.window,
+            window,
             self._UrtextProjectList.project_titles(), 
             self.move_file)
 
