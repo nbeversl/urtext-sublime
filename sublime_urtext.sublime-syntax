@@ -339,11 +339,13 @@ contexts:
       pop: true
 
   node_link:
-    - match: '([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?'
+    - match: '(\(\()?([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?(\)\))?'
       captures: 
-        1: link_prefix.urtext
-        2: link_id.urtext
-        3: link_char.urtext
+        1: def_ref_open.urtext
+        2: link_prefix.urtext
+        3: link_id.urtext
+        4: link_char.urtext
+        5: def_ref_close.urtext
 
   node_pointer:
     - match: '([>]{2})([0-9,a-z]{3}\b)'

@@ -38,8 +38,6 @@ def take_snapshot(view, project):
         view.file_name()
         )
 
-
-
 def get_contents(view):
     if view != None:
         contents = view.substr(sublime.Region(0, view.size()))

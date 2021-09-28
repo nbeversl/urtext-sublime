@@ -40,6 +40,8 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
+
+
 def refresh_project_text_command(import_project=False, change_project=True):
     """ 
     Determine which project we are in based on the Sublime window.
@@ -91,7 +93,6 @@ def refresh_project_text_command(import_project=False, change_project=True):
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
-                view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
                 return function(args[0])
 
             elif import_project:
@@ -200,7 +201,6 @@ class ListProjectsCommand(UrtextTextCommand):
 
     def set_window_project(self, title):
         self._UrtextProjectList.set_current_project(title)
-        self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
@@ -218,15 +218,9 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 
     def move_file(self, new_project_title):
                 
-        replace_links = sublime.yes_no_cancel_dialog(
-            'Do you want to also rewrite links to nodes in this file as links to the new project?')
-        replace_links = True if replace_links == sublime.DIALOG_YES else False
-        filename = self.view.file_name()
-
-        success = self._UrtextProjectList.move_file(
-            filename, 
-            new_project_title,
-            replace_links=replace_links)
+        self._UrtextProjectList.move_file(
+            self.view.file_name(), 
+            new_project_title)
 
         self.view.window().run_command('close_file')
 
@@ -234,21 +228,14 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         if last_node:
             open_urtext_node(self.view, last_node)
 
-        # temporary.
-        if not success:
-            sublime.message_dialog('File was moved but error occured. Check the console.')
-        else:
-            sublime.message_dialog('File was moved')
-
-
 class UrtextCompletions(EventListener):
 
     def on_query_completions(self, view, prefix, locations):
+        
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
-        
-        current_path = os.path.dirname(view.file_name())
 
+        current_path = os.path.dirname(view.file_name())
         if _UrtextProjectList.get_project(current_path):
             subl_completions = []
             proj_completions = _UrtextProjectList.get_all_meta_pairs()
@@ -258,7 +245,17 @@ class UrtextCompletions(EventListener):
                     subl_completions.append([t[1]+'\t'+c, c])
             for t in _UrtextProjectList.current_project.title_completions():
                 subl_completions.append([t[0],t[1]])
-            
+
+            file_pos = view.sel()[0].a
+            full_line = view.substr(view.line(view.sel()[0]))
+
+            related_nodes=_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
+                    full_line, 
+                    view.file_name(), 
+                    file_pos)
+            for n in list(set(related_nodes)):
+                subl_completions.append([_UrtextProjectList.current_project.nodes[n].title, _UrtextProjectList.current_project.nodes[n].title])
+
             completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
             return completions
@@ -380,14 +377,14 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
         if link == None:   
             if not _UrtextProjectList.current_project.compiled:
-                   return sublime.error_message("Project is still compiling")
+                return sublime.error_message("Project is still compiling")
             else:
                 return print('NO LINK') 
             return
 
         if link['kind'] == 'EDITOR_LINK':
             file_view = self.view.window().open_file(link['link'])
-        if link['kind'] == 'NODE':
+        if link['kind'] in ['NODE','OTHER_PROJECT']:
             _UrtextProjectList.nav_new(link['link'])   
             open_urtext_node(self.view, link['link'], position=link['dest_position'])
         if link['kind'] == 'HTTP':
@@ -704,11 +701,20 @@ class NewProjectCommand(UrtextTextCommand):
 
     def run(self, view):
         global _UrtextProjectList        
-        current_path = get_path(self.view)
-        new_view = self.window.new_file()
-        new_view.set_scratch(True)
-        _UrtextProjectList.init_new_project(current_path)
-        new_view.close()
+        self.view.window().show_input_panel(
+            "Folder for the new project", 
+            _UrtextProjectList.base_path, 
+            _UrtextProjectList.init_new_project,
+            None, 
+            None)
+
+        # current_path = get_path(self.view)
+
+
+        # new_view = self.window.new_file()
+
+        # new_view.set_scratch(True)
+        # new_view.close()
         
 class DeleteThisNodeCommand(UrtextTextCommand):
 
@@ -807,6 +813,14 @@ class ReIndexFilesCommand(UrtextTextCommand):
                             renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
                         )
 
+
+class UrtextShowCurrentProject(sublime_plugin.EventListener):
+
+    @refresh_project_event_listener
+    def on_activated(self, view):
+        if _UrtextProjectList and _UrtextProjectList.current_project:
+            view.set_status('urtext_project', _UrtextProjectList.current_project.title)
+
 class RenameFileCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -865,8 +879,10 @@ class CompactNodeCommand(UrtextTextCommand):
             contents = self._UrtextProjectList.current_project.add_compact_node(contents=line_contents)
 
         if replace:
+            column = self.view.rowcol(self.view.sel()[0].b)[1]
+            spacing = ' ' * column
             self.view.erase(self.edit, line_region)
-            self.view.run_command("insert_snippet",{"contents": contents})
+            self.view.run_command("insert_snippet",{"contents": spacing+contents})
             region = self.view.sel()[0]
             self.view.sel().clear()
             self.view.sel().add(sublime.Region(region.a-5, region.b-5))

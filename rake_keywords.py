@@ -60,6 +60,3 @@ class RakeAssociateCommand(UrtextTextCommand):
             menu.display_menu, 
             open_selection,
             return_index=True)
-
-
-        #window.show_quick_panel(keyphrases, result)
