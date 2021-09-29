@@ -128,8 +128,11 @@ class TraverseHistoryView(EventListener):
         new_history = self._UrtextProjectList.current_project.run_action(
             'HISTORY_GET_HISTORY',
             '',
-            self.current_file).result()
+            self.current_file)
         
+        if self._UrtextProjectList.current_project.is_async:
+            new_history = new_history.result()
+            
         if not new_history:
             return None
       
@@ -166,7 +169,11 @@ class TraverseHistoryView(EventListener):
         state = self._UrtextProjectList.current_project.run_action(
             'APPLY_HISTORY_PATCHES',
             str(index),
-            self.file_view.file_name()).result()
+            self.file_view.file_name())
+
+        if self._UrtextProjectList.current_project.is_async:
+            state = state.result()
+
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
         for line in state.split('\n'):
