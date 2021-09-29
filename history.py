@@ -27,21 +27,15 @@ class TakeSnapshot(EventListener):
         take_snapshot(view, self._UrtextProjectList.current_project)
 
 def take_snapshot(view, project):
-    if not view:
-        return
-    contents = get_contents(view)
-    if not view.file_name():
-        return
-    filename = os.path.basename(view.file_name())
-    project.run_action('HISTORY_SNAPSHOT',
-        view.substr(sublime.Region(0, view.size())),
-        view.file_name()
-        )
+    if view and view.file_name():
+        project.run_action('HISTORY_SNAPSHOT',
+            view.substr(sublime.Region(0, view.size())),
+            os.path.basename(view.file_name())
+            )
 
 def get_contents(view):
-    if view != None:
-        contents = view.substr(sublime.Region(0, view.size()))
-        return contents
+    if view != None: 
+        return view.substr(sublime.Region(0, view.size()))
     return None
 
 
@@ -134,7 +128,7 @@ class TraverseHistoryView(EventListener):
         new_history = self._UrtextProjectList.current_project.run_action(
             'HISTORY_GET_HISTORY',
             '',
-            self.current_file).result()
+            self.current_file)
         
         if not new_history:
             return None
@@ -172,7 +166,7 @@ class TraverseHistoryView(EventListener):
         state = self._UrtextProjectList.current_project.run_action(
             'APPLY_HISTORY_PATCHES',
             str(index),
-            self.file_view.file_name()).result()
+            self.file_view.file_name())
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
         for line in state.split('\n'):
