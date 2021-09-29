@@ -128,13 +128,13 @@ class TraverseHistoryView(EventListener):
         new_history = self._UrtextProjectList.current_project.run_action(
             'HISTORY_GET_HISTORY',
             '',
-            self.current_file)
+            self.current_file).result()
         
         if not new_history:
             return None
       
         ts_format =  self._UrtextProjectList.current_project.settings['timestamp_format']
-        string_timestamps = [datetime.datetime.fromtimestamp(int(i)).strftime(ts_format) for i in sorted(new_history.result().keys(),reverse=True)]
+        string_timestamps = [datetime.datetime.fromtimestamp(int(i)).strftime(ts_format) for i in sorted(new_history.keys(),reverse=True)]
 
         if string_timestamps != self.string_timestamps or not get_contents(history_view).strip():
             self.string_timestamps = string_timestamps
