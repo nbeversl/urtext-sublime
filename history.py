@@ -134,7 +134,7 @@ class TraverseHistoryView(EventListener):
             return None
       
         ts_format =  self._UrtextProjectList.current_project.settings['timestamp_format']
-        string_timestamps = [datetime.datetime.fromtimestamp(int(i)).strftime(ts_format) for i in sorted(new_history.keys(),reverse=True)]
+        string_timestamps = [datetime.datetime.fromtimestamp(int(i)).strftime(ts_format) for i in sorted(new_history.result().keys(),reverse=True)]
 
         if string_timestamps != self.string_timestamps or not get_contents(history_view).strip():
             self.string_timestamps = string_timestamps
@@ -166,7 +166,7 @@ class TraverseHistoryView(EventListener):
         state = self._UrtextProjectList.current_project.run_action(
             'APPLY_HISTORY_PATCHES',
             str(index),
-            self.file_view.file_name())
+            self.file_view.file_name()).result()
         self.file_view.run_command("select_all")
         self.file_view.run_command("right_delete")
         for line in state.split('\n'):
