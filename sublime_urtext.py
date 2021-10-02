@@ -294,9 +294,12 @@ def urtext_on_modified(view):
 
 class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
-    def on_activated_async(self):
+    def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
             modified = _UrtextProjectList.visit_file(self.view.file_name())
+            if _UrtextProjectList.current_project:
+                self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
+
 
 class UrtextHomeCommand(UrtextTextCommand):
     
@@ -813,14 +816,6 @@ class ReIndexFilesCommand(UrtextTextCommand):
                             self._UrtextProjectList.current_project.path,
                             renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
                         )
-
-
-class UrtextShowCurrentProject(sublime_plugin.EventListener):
-
-    @refresh_project_event_listener
-    def on_activated(self, view):
-        if _UrtextProjectList and _UrtextProjectList.current_project:
-            view.set_status('urtext_project', _UrtextProjectList.current_project.title)
 
 class RenameFileCommand(UrtextTextCommand):
 
