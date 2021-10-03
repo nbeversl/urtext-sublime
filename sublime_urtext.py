@@ -145,7 +145,7 @@ def refresh_project_event_listener(function):
 
 
 def initialize_project_list(view, 
-    init_project=False, 
+    new_project=False, 
     reload_projects=False):
 
     global _UrtextProjectList
@@ -200,6 +200,7 @@ class ListProjectsCommand(UrtextTextCommand):
             self.set_window_project)
 
     def set_window_project(self, title):
+        # if self.view.window():
         self._UrtextProjectList.set_current_project(title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
@@ -650,17 +651,18 @@ class CopyLinkToHereCommand(UrtextTextCommand):
 
         link = self.get_link(get_node_id(
             self.window.active_view(), use_buffer=True))
-        sublime.set_clipboard(link)        
-        self.view.show_popup(link + '\ncopied to the clipboard', 
-            max_width=1800, 
-            max_height=1000 
-                # max_height does not work correctly. 
-                # workaround for now using max_width
-                # FUTURE: Could also hard wrap.
-                # https://github.com/sublimehq/sublime_text/issues/2854
-                # https://github.com/SublimeLinter/SublimeLinter/pull/1609
-                # https://github.com/SublimeLinter/SublimeLinter/issues/1601
-            )
+        if link:
+            sublime.set_clipboard(link)
+            self.view.show_popup(link + '\ncopied to the clipboard', 
+                max_width=1800, 
+                max_height=1000 
+                    # max_height does not work correctly. 
+                    # workaround for now using max_width
+                    # FUTURE: Could also hard wrap.
+                    # https://github.com/sublimehq/sublime_text/issues/2854
+                    # https://github.com/SublimeLinter/SublimeLinter/pull/1609
+                    # https://github.com/SublimeLinter/SublimeLinter/issues/1601
+                )
 
     def get_link(self, node_id):
         return self._UrtextProjectList.build_contextual_link(node_id)       

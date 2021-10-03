@@ -26,7 +26,7 @@
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
     { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
-    { "caption": "Urtext: Initialize Project", "command":"new_project"},
+    { "caption": "Urtext: New Project", "command":"new_project"},
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
     { "caption": "Urtext: Pull Node", "command" :"pull_node"},
     { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
