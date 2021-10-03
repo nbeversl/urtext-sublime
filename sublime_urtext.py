@@ -334,6 +334,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         col_pos = self.view.rowcol(file_pos)[1]
         full_line_region = self.view.line(self.view.sel()[0])
         full_line =  self.view.substr(full_line_region)
+
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
             self.view.file_name(), 
@@ -353,7 +354,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if link['kind'] == 'EDITOR_LINK':
             file_view = self.view.window().open_file(link['link'])
 
-        if link['kind'] == 'NODE':
+        if link['kind'] in ['NODE','OTHER_PROJECT']:
             _UrtextProjectList.nav_new(link['link'])   
             open_urtext_node(self.view, link['link'], position=link['dest_position'])
         
@@ -373,6 +374,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         full_line = self.view.substr(region)
         row, col_pos = self.view.rowcol(click_position)
         file_pos = self.view.sel()[0].a
+
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
             self.view.file_name(), 
