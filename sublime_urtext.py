@@ -272,6 +272,7 @@ class UrtextSaveListener(EventListener):
         urtext_on_modified(view)
 
 def urtext_on_modified(view):
+    
     if not view.file_name():
         return
     window = view.window()

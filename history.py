@@ -27,7 +27,7 @@ class TakeSnapshot(EventListener):
         if is_browsing_history:
             return
         now = time.time()
-        if now - self.last_time < self._UrtextProjectList.current_project.settings['history_interval']:
+        if now - self.last_time < 10:
             return None
         self.last_time = now 
         take_snapshot(view, self._UrtextProjectList.current_project)
