@@ -99,7 +99,6 @@ def refresh_project_text_command(import_project=False, change_project=True):
                 current_paths = window.folders()
                 for path in current_paths:
                     _UrtextProjectList.import_project(path)
-
             return None
 
         return wrapper
@@ -162,7 +161,7 @@ def initialize_project_list(view,
             _UrtextProjectList._add_folder(folder)
         else:
             _UrtextProjectList = ProjectList(folder)    
-    else:
+    elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
             _UrtextProjectList._add_folder(current_path)
@@ -708,23 +707,25 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
 class NewProjectCommand(UrtextTextCommand):
 
-    def run(self, view):
-        global _UrtextProjectList        
-        self.view.window().show_input_panel(
-            "Folder for the new project", 
-            _UrtextProjectList.base_path, 
-            _UrtextProjectList.init_new_project,
-            None, 
-            None)
+    def run(self, edit):
+        sublime.open_dialog(
+                self.init_new_project,
+                allow_folders=True
+            )
 
-        # current_path = get_path(self.view)
+    def init_new_project(self, path):
+        global _UrtextProjectList
+        if not _UrtextProjectList:
+            _UrtextProjectList = ProjectList(path, first_project=True)
+        else:
+            _UrtextProjectList.init_new_project(path)
+        _UrtextProjectList.set_current_project(path)
+        node_id = _UrtextProjectList.current_project.get_home()
+        _UrtextProjectList.nav_new(node_id)
+        filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+        print(filename)
+        sublime.active_window().open_file(filename)
 
-
-        # new_view = self.window.new_file()
-
-        # new_view.set_scratch(True)
-        # new_view.close()
-        
 class DeleteThisNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -945,7 +946,6 @@ class RandomNodeCommand(UrtextTextCommand):
         open_urtext_node(self.view, node_id)
 
 
-
 """
 Utility functions
 """
@@ -960,11 +960,9 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
- 
-    if filename and view.window():
-        file_view = view.window().find_open_file(filename)
-        if not file_view:
-            file_view = view.window().open_file(filename)
+    if filename:
+        file_view = view.window().open_file(filename)
+
         if not position:
             position = node_position
         position = int(position)
@@ -980,6 +978,7 @@ def open_urtext_node(
         focus_position(file_view, position)
 
         return file_view
+ 
     return None
     """
     Note we do not involve this function with navigation, since it is

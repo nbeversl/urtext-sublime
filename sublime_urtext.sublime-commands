@@ -1,40 +1,23 @@
 [
         
     /* Navigation */
-    { "caption": "Urtext: Node List", "command": "node_browser"},
-    { "caption": "Urtext: Home", "command" :"urtext_home"},
-    { "caption": "Urtext: Toggle Traverse Mode", "command":"toggle_traverse"},
-    { "caption": "Urtext: Select Project", "command" :"list_projects"},
     { "caption": "Urtext: Metadata Browser", "command" :"find_by_meta"},
     
     /* Linking */
     { "caption": "Urtext: Link to ...", "command":"link_to_node"},
     
-    /* Generating Nodes */    
-  	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
-    { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
-  
     /* Formatting */
     { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
 
-    /* Help and Log */
-    { "caption": "Urtext: Documentation", "command" :"show_urtext_help"},
-    { "caption": "Urtext: Log", "command" :"open_urtext_log"},
-
     /* Project and File Management */
     { "caption": "Urtext: Reload Project", "command" :"urtext_reload_project"},
+    { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
     { "caption": "Urtext: Reindex All Files", "command" :"re_index_files"},
-    { "caption": "Urtext: Rename File from Meta", "command":"rename_file"},
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: New Project", "command":"new_project"},
-    { "caption": "Urtext: Pop Node", "command" :"pop_node"},
-    { "caption": "Urtext: Pull Node", "command" :"pull_node"},
-    { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
-
-
+    
     /* Sync & Export */
     { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
-    { "caption": "Urtext: Export to ICS", "command" :"to_ics"},
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
