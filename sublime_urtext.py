@@ -708,10 +708,8 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
 class NewProjectCommand(UrtextTextCommand):
 
     def run(self, edit):
-        sublime.open_dialog(
-                self.init_new_project,
-                allow_folders=True
-            )
+
+        sublime.select_folder_dialog(self.init_new_project)
 
     def init_new_project(self, path):
         global _UrtextProjectList
@@ -719,12 +717,17 @@ class NewProjectCommand(UrtextTextCommand):
             _UrtextProjectList = ProjectList(path, first_project=True)
         else:
             _UrtextProjectList.init_new_project(path)
-        _UrtextProjectList.set_current_project(path)
-        node_id = _UrtextProjectList.current_project.get_home()
-        _UrtextProjectList.nav_new(node_id)
-        filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        print(filename)
-        sublime.active_window().open_file(filename)
+        _UrtextProjectList.set_current_project(path)    
+    
+        def open_home_node():   
+            if _UrtextProjectList.current_project.compiled:
+                node_id = _UrtextProjectList.current_project.get_home()
+                _UrtextProjectList.nav_new(node_id)
+                filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+                sublime.active_window().open_file(filename)
+            else:
+                sublime.set_timeout(lambda: open_home_node(), 50) 
+        open_home_node()
 
 class DeleteThisNodeCommand(UrtextTextCommand):
 

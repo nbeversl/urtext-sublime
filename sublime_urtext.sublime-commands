@@ -16,9 +16,6 @@
     { "caption": "Urtext: Delete This Node", "command":"delete_this_node"},
     { "caption": "Urtext: New Project", "command":"new_project"},
     
-    /* Sync & Export */
-    { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
-
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
     { "caption": "Urtext: Turn Off Async (debugginh)", "command" :"no_async"},
