@@ -17,23 +17,24 @@ class KeywordsCommand(UrtextTextCommand):
                 highlight=self.chosen_keyphrase)
 
         def result(i):
-            self.chosen_keyphrase = keyphrases[i]
-            result = self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_by_keyword(self.chosen_keyphrase)
-            if len(result) == 1:
-                open_urtext_node(
-                    self.view,     
-                    result[0],
-                    position=self._UrtextProjectList.current_project.nodes[result[0]].position,
-                    highlight=self.chosen_keyphrase)
-            else:
-                self.second_menu = NodeBrowserMenu(
-                    self._UrtextProjectList, 
-                    nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_by_keyword(self.chosen_keyphrase))
-                show_panel(
-                    window, 
-                    self.second_menu.display_menu, 
-                    multiple_selections,
-                    return_index=True)
+            if i > -1:
+                self.chosen_keyphrase = keyphrases[i]
+                result = self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_by_keyword(self.chosen_keyphrase)
+                if len(result) == 1:
+                    open_urtext_node(
+                        self.view,     
+                        result[0],
+                        position=self._UrtextProjectList.current_project.nodes[result[0]].position,
+                        highlight=self.chosen_keyphrase)
+                else:
+                    self.second_menu = NodeBrowserMenu(
+                        self._UrtextProjectList, 
+                        nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_by_keyword(self.chosen_keyphrase))
+                    show_panel(
+                        window, 
+                        self.second_menu.display_menu, 
+                        multiple_selections,
+                        return_index=True)
         
         window.show_quick_panel(keyphrases, result)
 

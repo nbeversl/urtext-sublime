@@ -28,8 +28,8 @@
 	{ "keys": ["ctrl+shift+x"], "command":"keywords"},
 	{ "keys": ["ctrl+shift+space"], "command":"rake_associate"},
     { "keys": ["ctrl+shift+x"], "command":"keywords"},
-	{ "keys": ["ctrl+shift+super+right"], "command":"pop_node"},
-  	{ "keys": ["ctrl+shift+super+left"], "command":"pull_node"},
+	{ "keys": ["ctrl+shift+alt+right"], "command":"pop_node"},
+  	{ "keys": ["ctrl+shift+alt+left"], "command":"pull_node"},
   ]
 
 
