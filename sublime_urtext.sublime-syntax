@@ -17,15 +17,14 @@ contexts:
   syntax-main:    
     - include: minimal-node-id
     - include: node_pointer
+    - include: dynamic-definition-reference
     - include: node_link
     - include: other-project-link
     - include: file_link
     - include: shorthand_meta
-    
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
-
     - include: node_title
 
     - include: trigger
@@ -415,6 +414,10 @@ contexts:
     - meta_scope: urtext.compact_node 
     - match: $
       pop: true
+
+  dynamic-definition-reference:
+    - match: '\(\(>[0-9,a-z]{3}:\d+\)\)'
+      scope: urtext.dynamic-definition-reference
   
  
 

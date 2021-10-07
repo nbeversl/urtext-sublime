@@ -295,6 +295,9 @@
 	  			"foreground": "var(trigger)",
 	  			"font_style" : "bold",
 	  		},
+	  		{ 	"scope" : "urtext.dynamic-definition-reference",
+	  			"foreground": "var(unobtrusive)",
+	  		},
 
 
 
