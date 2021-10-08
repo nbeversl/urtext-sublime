@@ -963,7 +963,8 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    if filename:
+    if filename and view.window():
+        
         file_view = view.window().open_file(filename)
 
         if not position:
