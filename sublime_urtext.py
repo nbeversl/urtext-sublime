@@ -509,7 +509,7 @@ class InsertNodeCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
     @refresh_project_text_command()
     def run(self):
-        add_inline_node(self.view)
+        add_inline_node(self.view, contents =' ')
 
 class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     """ inline only, does not make a new file """
@@ -517,22 +517,43 @@ class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
     def run(self):
         add_inline_node(self.view, include_timestamp=False)    
 
+
+class WrapLineCommand(sublime_plugin.TextCommand):
+    @refresh_project_text_command()
+    def run(self):
+        region = self.view.sel()[0]
+        selection = self.view.substr(region)
+        line_region = self.view.line(region) # get full line region
+        line_contents = self.view.substr(line_region)
+        line_contents = line_contents.strip('{')
+        line_contents = line_contents.strip('}')
+        line_contents = line_contents.strip()
+        line_contents = ' ' + line_contents + ' '
+        self.view.replace(self.edit, line_region, '')
+        add_inline_node(self.view, contents=line_contents)
+        self.view.sel().clear()
+        self.view.sel().add(region) 
+
 def add_inline_node(view, 
     include_timestamp=True, 
-    locate_inside=True):
+    locate_inside=True,
+    contents=''):
 
     region = view.sel()[0]
-    selection = view.substr(region)
+    if contents == '':        
+        contents = view.substr(region)
+
     new_node = _UrtextProjectList.current_project.new_inline_node(
         metadata={},
-        contents=selection)
+        contents=contents)
     new_node_contents = new_node['contents']
     view.run_command("insert_snippet",
                           {"contents": new_node_contents})  # (whitespace)
     if locate_inside:
         view.sel().clear()
-        new_cursor_position = sublime.Region(region.a + 2, region.a + 2 ) 
+        new_cursor_position = sublime.Region(region.a + 1, region.a + 1 ) 
         view.sel().add(new_cursor_position) 
+    
     return new_node['id'] # id
 
 class NodeBrowserMenu:
@@ -975,7 +996,7 @@ def open_urtext_node(
             if not focus_view.is_loading():
                 if view.window():
                     view.window().focus_view(focus_view)
-                    center_node(focus_view, position)
+                    position_node(focus_view, position)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
                 
@@ -999,21 +1020,18 @@ def size_to_groups(groups, view):
         cells.append([index, 0, index + 1, 1])
     cols.append(1)
     view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
-    # view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
-
+  
 def size_to_thirds(groups,view):
     # https://forum.sublimetext.com/t/set-layout-reference/5713
     # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
     view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
 
-def center_node(new_view, position): 
+def position_node(new_view, position): 
     new_view.sel().clear()
-    # this has to be called both before and after:
     new_view.sel().add(sublime.Region(position, position))
-    # this has to be called both before and after:
-    new_view.show(sublime.Region(position, position))
-    new_view.show_at_center(position)
-
+    r = new_view.text_to_layout(position)
+    new_view.set_viewport_position(r)
+    
 def get_path(view):  ## makes the path persist as much as possible ##
 
     if view.file_name():
