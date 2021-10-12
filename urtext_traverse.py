@@ -116,8 +116,11 @@ class TraverseFileTree(EventListener):
 				# focus on the window division with the content
 				moved_view.window().focus_group(self.content_group)
 
-				# show the content tab with the given position as center
-				self.content_tab.view().show_at_center(position)
+				# show the content tab with the given position as top=				
+				self.content_tab.view.sel().clear()
+				self.content_tab.view.sel().add(sublime.Region(position, position))
+				r = self.content_tab.view.text_to_layout(position)
+				self.content_tab.view.set_viewport_position(r)
 
 				# Make this the selected spot and set word wrap
 				moved_view.sel().clear()
@@ -128,8 +131,7 @@ class TraverseFileTree(EventListener):
 				self.return_to_left(moved_view, tree_view)
 
 			else:
-				sublime.set_timeout(lambda: move_to_location(moved_view, position),
-									10)
+				sublime.set_timeout(lambda: move_to_location(moved_view, position), 10)
 
 		""" Only if Traverse is on for this group (window division) """
 
@@ -185,9 +187,11 @@ class TraverseFileTree(EventListener):
 					""" If the duplicate view is in the content group """
 					if duplicate_file_view in window.views_in_group(self.content_group):
 						window.focus_view(duplicate_file_view)
-						duplicate_file_view.show_at_center(position)
+						
 						duplicate_file_view.sel().clear()
-						duplicate_file_view.sel().add(position)
+						duplicate_file_view.sel().add(sublime.Region(position, position))
+						r = duplicate_file_view.text_to_layout(position)
+						duplicate_file_view.set_viewport_position(r)
 						
 						self.return_to_left(duplicate_file_view, tree_view)
 						duplicate_file_view.settings().set('traverse', 'false')
@@ -198,7 +202,12 @@ class TraverseFileTree(EventListener):
 						window.focus_group(self.tree_group)
 						duplicate_file_view.settings().set('traverse', 'false')  # this is for the cloned view
 						window.set_view_index(duplicate_file_view, self.content_group, 0)
-						duplicate_file_view.show_at_center(position)
+
+						duplicate_file_view.sel().clear()
+						duplicate_file_view.sel().add(sublime.Region(position, position))
+						r = duplicate_file_view.text_to_layout(position)
+						duplicate_file_view.set_viewport_position(r)
+
 						window.focus_view(tree_view)
 						window.focus_group(self.tree_group)
 						self.restore_traverse(view, tree_view)
@@ -210,8 +219,12 @@ class TraverseFileTree(EventListener):
 					window.focus_group(self.content_group)
 					file_view = window.open_file(os.path.join(path, filename),
 												 sublime.TRANSIENT)
-					file_view.show_at_center(position)
+
 					file_view.sel().clear()
+					file_view.sel().add(sublime.Region(position, position))
+					r = file_view.text_to_layout(position)
+					file_view.set_viewport_position(r)
+
 					file_view.sel().add(position)
 					window.focus_group(self.tree_group)
 					self.return_to_left(file_view, tree_view)
