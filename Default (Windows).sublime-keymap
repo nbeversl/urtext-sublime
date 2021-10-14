@@ -12,7 +12,7 @@
   { "keys": ["ctrl+shift+."], "command": "navigate_forward"},
   { "keys": ["ctrl+shift+i"], "command": "add_node_id"},
   { "keys": ["ctrl+shift+h"], "command": "urtext_home"},
-  { "keys": ["alt+shift+1"], "command": "insert_node_single_line"},
+  { "keys": ["ctrl+shift+1"], "command": "insert_node_single_line"},
   { "keys": ["ctrl+shift+6"], "command": "compact_node"},
   { "keys": ["ctrl+shift+f"], "command": "random_node"},
   { "keys": ["ctrl+shift+o"], "command": "list_projects"},
@@ -20,14 +20,17 @@
   { "keys": ["ctrl+shift+8"], "command": "all_projects_node_browser"},
   { "keys": ["ctrl+shift+g"], "command": "browse_history"},
   { "keys": ["ctrl+shift+c"], "command": "copy_link_to_here"},
-  { "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},
   { "keys": ["ctrl+shift+super+c"], "command": "copy_link_to_here_with_project"},
+  { "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},
   { "keys": ["ctrl+shift+left"], "command" :"backlinks_browser"},
   { "keys": ["ctrl+shift+right"], "command" :"forwardlinks_browser"},
   { "keys": ["ctrl+shift+l"], "command":"link_to_node"},
-  { "keys": ["ctrl+shift+x"], "command":"keywords"},  
+  { "keys": ["ctrl+shift+x"], "command":"keywords"},
   { "keys": ["ctrl+shift+space"], "command":"rake_associate"},
   { "keys": ["ctrl+shift+alt+right"], "command":"pop_node"},
   { "keys": ["ctrl+shift+alt+left"], "command":"pull_node"},
+  { "keys": ["ctrl+shift+2"], "command":"wrap_line"},
+  { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
+
 
 ]
