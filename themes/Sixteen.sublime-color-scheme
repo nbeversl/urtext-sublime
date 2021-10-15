@@ -25,7 +25,7 @@
 			 "file-link" : "var(foreground)",
 			 "link-prefix" : "var(foreground)",
 			 "other-project-link" : "var(blue)",		
-			 "link-title" : "var(grey4)",
+			 "link-title" : "var(blue)",
 			 "datestamp" : "var(grey3)",
 			 "file-link" : "var(foreground)",
 		 	
@@ -83,7 +83,7 @@
 
 	"rules": [
 
-	/* Main syntax */
+			/* Main syntax */
 			{
 	  			"scope":"urtext",
 	  			"background": "var(background)",
@@ -92,15 +92,15 @@
 			
 			/* Metadata:  | */	     
 	  		
-	  		{   "scope": "urtext.meta_key",
+	  		{   "scope": "meta_key.urtext",
 	  			"font_style":"bold",
 	  			"foreground": "var(meta-key)",
 	  		},
 	  		
-	  		{   "scope": "urtext.meta_value",
+	  		{   "scope": "meta_value.urtext",
 	  			"foreground": "var(meta-value)",
 	  		},
-	  		{   "scope": "urtext.meta_value_issue",
+	  		{   "scope": "meta_value_issue.urtext",
 	  			"foreground": "var(meta-value-issue)",
 	  		},
 		
@@ -145,7 +145,7 @@
 
 	  		},
 	  		
-	  		{   "scope": "link.urtext.other-project",
+	  		{   "scope": "link.other-project.urtext",
 	  			"font_style":"bold",
 	  			"foreground": "var(other-project-link)",
 	  		},
@@ -255,7 +255,7 @@
 	        },
 
 	  		{
-	  			"scope" : "urtext.pass_marker",
+	  			"scope" : "pass_marker.urtext",
 	  			"foreground" : "var(pass-marker)",
 	  			"font_style" : "italic bold",
 	  		},
@@ -281,25 +281,31 @@
 	  			"foreground": "var(link)",
 	  		},
 	  		{
-	  			"scope" : "urtext.minimal_node_id",
+	  			"scope" : "minimal_node_id.urtext",
 	  			"foreground": "var(minimal-node-id)",
 	  		},
 	  		{
-	  			"scope" : "urtext.hash_meta",
+	  			"scope" : "hash_meta.urtext",
 	  			"foreground": "var(hash_meta)",
 	  			"font_style" : "bold",
 	  		},
 
 	  		{
-	  			"scope" : "urtext.trigger_name",
+	  			"scope" : "trigger_name.urtext",
 	  			"foreground": "var(trigger)",
 	  			"font_style" : "bold",
 	  		},
-	  		{ 	"scope" : "urtext.dynamic-definition-reference",
+	  		{ 	"scope" : "dynamic-definition-reference.urtext",
 	  			"foreground": "var(unobtrusive)",
 	  		},
-
-
+	  		{
+	  		 	"scope" : "bold.urtext",
+	  			"font_style":"bold",
+	  		},
+	  		{ 
+	  			"scope" : "url_link.urtext",
+	  			"foreground" : "var(blue)"
+	  		},
 
 
 	/* system message */

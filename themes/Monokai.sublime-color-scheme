@@ -106,12 +106,12 @@
 			
 			/* Metadata:  | */	     
 	  		
-	  		{   "scope": "urtext.meta_key",
+	  		{   "scope": "meta_key.urtext",
 	  			"font_style":"bold",
 	  			"foreground": "var(meta-key)",
 	  		},
 	  		
-	  		{   "scope": "urtext.meta_value",
+	  		{   "scope": "meta_value.urtext",
 	  			"foreground": "var(meta-value)",
 	  		},
 		
@@ -121,7 +121,7 @@
 		        "font_style":"bold",
 	        },
 	        { 
-		        "scope" : "urtext.meta_separator",
+		        "scope" : "meta_separator.urtext",
 	  			"foreground": "var(meta-separator)",
 	        },
 
@@ -140,6 +140,11 @@
 	  		},
 	  		
 	  		/* Links */
+
+	  		{	"scope":"link_id.urtext",
+	  			"foreground": "var(unobtrusive)",
+	  		},
+
 	  		
 	  		{	"scope":"link.urtext",
 	  			"foreground": "var(link)",
@@ -156,7 +161,7 @@
 
 	  		},
 	  		
-	  		{   "scope": "link.urtext.other-project",
+	  		{   "scope": "link.other-project.urtext",
 	  			"font_style":"bold",
 	  			"foreground": "var(other-project-link)",
 	  		},
@@ -169,7 +174,7 @@
 
 	        /* Compact Node (^) */
 	  		
-	  		{   "scope": "urtext.compact_node_marker",
+	  		{   "scope": "compact_node_marker.urtext",
 	  			"foreground": "var(compact-node-marker)",
 	  			"font_style":"bold",
 
@@ -277,6 +282,44 @@
 	        {
 	  			"scope" : "raw.urtext",
 	  			"background" : "var(raw)",
+	  		},
+	  		{
+	  			"scope" : "node_title.urtext",
+	  			"font_style" : "bold",
+	  		},
+	  		{
+	  			"scope" : "pointer_prefix.urtext",
+	  			"font_style" : "bold",
+	  		},
+	  		{
+	  			"scope" : "pointer_id.urtext",
+	  			"foreground": "var(link)",
+	  		},
+	  		{
+	  			"scope" : "minimal_node_id.urtext",
+	  			"foreground": "var(minimal-node-id)",
+	  		},
+	  		{
+	  			"scope" : "hash_meta.urtext",
+	  			"foreground": "var(hash_meta)",
+	  			"font_style" : "bold",
+	  		},
+
+	  		{
+	  			"scope" : "trigger_name.urtext",
+	  			"foreground": "var(trigger)",
+	  			"font_style" : "bold",
+	  		},
+	  		{ 	"scope" : "dynamic-definition-reference.urtext",
+	  			"foreground": "var(unobtrusive)",
+	  		},
+	  		{
+	  		 	"scope" : "bold.urtext",
+	  			"font_style":"bold",
+	  		},
+	  		{ 
+	  			"scope" : "url_link.urtext",
+	  			"foreground" : "var(blue-bright)"
 	  		},
 
 	  		
