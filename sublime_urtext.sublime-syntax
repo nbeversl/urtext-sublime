@@ -8,6 +8,8 @@ scope: urtext
 contexts:
   main: 
     - include: syntax-main
+    - include: bold-text
+    - include: url
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
@@ -44,7 +46,7 @@ contexts:
       push: metadata-timestamp
     
     - match:  \w+?(?=::)
-      scope: urtext.meta_key
+      scope: meta_key.urtext
 
     - match: <[^!\s-]
       push: datestamp
@@ -54,55 +56,55 @@ contexts:
       
     # Embedded Syntaxes
     - match: '%%-PYTHON'
-      scope: urtext.pass_marker
+      scope: pass_marker
       embed: Packages/Python/Python.sublime-syntax
-      embed_scope: urtext.python
+      embed_scope: python.urtext
       escape: '%%-PYTHON-END'
       escape-captures: 0
     
     - match: '%%-HTML'
-      scope: urtext.pass_marker
+      scope: pass_marker.urtext
       embed: Packages/HTML/HTML.sublime-syntax
-      embed_scope: urtext.html
+      embed_scope: html.urtext
       escape: '%%-HTML-END'
       escape_captures: 0
     
     - match: '%%-JSON'
-      scope: urtext.pass_marker
+      scope: pass_marker.urtext
       embed: Packages/JSON/JSON.sublime-syntax
-      embed_scope: urtext.json
+      embed_scope: json.urtext
       escape: '%%-JSON-END'
       escape_captures: 0
 
     - match: '%%-PLAINTEXT'
-      scope: urtext.pass_marker
+      scope: pass_marker.urtext
       embed: Packages/JavaScript/text.sublime-syntax
-      embed_scope: urtext.text
+      embed_scope: text.urtext
       escape: '%%-PLAINTEXT-END'
       escape_captures: 0
 
     - match: '%%-PHP'
-      scope: urtext.pass_marker
+      scope: pass_marker.urtext
       embed: Packages/PHP/PHP Source.sublime-syntax
-      embed_scope: urtext.php
+      embed_scope: php.urtext
       escape: '%%-PHP-END'
       escape_captures: 0
 
     - match: '%%-DOC'
-      scope: urtext.pass_marker
+      scope: pass_marker.urtext
       escape: '%%-DOC-END'
       escape_captures: 0
 
     - match: '%%-[A-Z-]*'
       embed: Packages/JavaScript/text.sublime-syntax
-      scope: urtext.pass_marker
-      embed_scope: urtext.text
+      scope: pass_marker.urtext
+      embed_scope: text.urtext
       escape: '%%-[A-Z-]*-END'
       escape_captures: 0
 
   trigger:
     - match: '(>>>[A-Z_]+)(?=\()'
-      scope: urtext.trigger_name
+      scope: trigger_name.urtext
       push: trigger-with-args
 
 
@@ -115,7 +117,7 @@ contexts:
 
   # Metadata  
   metadata-value:
-    - meta_scope: urtext.meta_value
+    - meta_scope: meta_value.urtext
     - match: <
       push: datestamp
     - include: tagvalue-separator
@@ -126,11 +128,11 @@ contexts:
 
   minimal-node-id:
     - match: '(^|\s)@[0-9,a-z]{3}\b'
-      scope: urtext.minimal_node_id
+      scope: minimal_node_id.urtext
 
   shorthand_meta:
     - match: '(?:^|\s)#[A-Z,a-z].*?\b'
-      scope: urtext.hash_meta
+      scope: hash_meta.urtext
 
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
@@ -187,7 +189,7 @@ contexts:
     - meta_scope: node_syntax_in_param.urtext
     - include: node_link
     - match:  \w+?(?=::)
-      scope: urtext.meta_key
+      scope: meta_key.urtext
     
     - include: other-project-link
     - include: ending_node_id
@@ -374,13 +376,9 @@ contexts:
     - match: '(?=>[0-9,a-z]{3}\b)|\n'
       pop: true
 
-  url: # not yet styled
-    - match: '[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
+  url:
+    - match: '(http(s)?://)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
       scope: url_link.urtext
-
-  task-status:
-    - match: '\s(DONE|REMOVED|TODO|IN PROGRESS)'
-      scope: markup.bold
 
   meta-key-terminator:
     - match: ';'
@@ -404,20 +402,25 @@ contexts:
 
   other-project-link:
     - match: '=>\"(.*?)\"'
-      scope: link.urtext.other-project
-   
+      scope: link.other-project.urtext
+  
+  bold-text:
+    - match: '(\*\*)(.*)(\*\*)'
+      captures:
+        2: bold.urtext
+
   compact-node: 
     - include: datestamp
     - include: main
     - include: inline-node-1
     - match: .*?
-    - meta_scope: urtext.compact_node 
+    - meta_scope: compact_node.urtext 
     - match: $
       pop: true
 
   dynamic-definition-reference:
     - match: '\(\(>[0-9,a-z]{3}:\d+\)\)'
-      scope: urtext.dynamic-definition-reference
+      scope: dynamic-definition-reference.urtext
   
  
 

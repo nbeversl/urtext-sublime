@@ -281,24 +281,21 @@
 	  			"foreground": "var(link)",
 	  		},
 	  		{
-	  			"scope" : "urtext.minimal_node_id",
+	  			"scope" : "minimal_node_id.urtext",
 	  			"foreground": "var(minimal-node-id)",
 	  		},
 	  		{
-	  			"scope" : "urtext.hash_meta",
+	  			"scope" : "hash_meta.urtext",
 	  			"foreground": "var(hash_meta)",
 	  			"font_style" : "bold",
 	  		},
 
 	  		{
-	  			"scope" : "urtext.trigger_name",
+	  			"scope" : "trigger_name.urtext.",
 	  			"foreground": "var(trigger)",
 	  			"font_style" : "bold",
 	  		},
-	  		{ 	"scope" : "urtext.dynamic-definition-reference",
-	  			"foreground": "var(unobtrusive)",
-	  		},
-	  		{ 	"scope" : "urtext.dynamic-definition-reference",
+	  		{ 	"scope" : "dynamic-definition-reference.urtext.",
 	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{

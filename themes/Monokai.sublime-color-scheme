@@ -136,7 +136,7 @@
 	  		
 	  		{
 	  			"scope":"entity.name.struct.node_id.urtext",
-	  			"foreground": "var(node-id)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		
 	  		/* Links */
@@ -297,7 +297,7 @@
 	  		},
 	  		{
 	  			"scope" : "minimal_node_id.urtext",
-	  			"foreground": "var(minimal-node-id)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
 	  			"scope" : "hash_meta.urtext",
