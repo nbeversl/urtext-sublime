@@ -1,0 +1,43 @@
+
+Thanks for trying out Urtext.
+
+Urtext is a syntax and system for writing using plaintext. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. This package is an implementation for desktop (PC/Mac/Linux) using Sublime Text.
+
+Urtext itself (a standalone Python module) and its dependencies are not included in this package. The current recommended setup path is to install dependencies manually into Sublime's Python 3.3 environment. 
+
+There are two options for this:
+
+Download and Install Dependencies Manually
+==========================================
+
+anytree: https://github.com/c0fec0de/anytree.
+The folder needed is anytree inside this download; add it to Sublime Text 4/Lib/python33.
+
+pytz: https://pypi.org/project/pytz/
+The folder needed is pytz; add it to Sublime Text 4/Lib/python33.
+
+six: https://pypi.org/project/six/ 
+The only FILE needed is six.py, nothing else; add this directly to Sublime Text 4/Lib/python33.
+
+dateutil: https://pypi.org/project/python-dateutil/
+The folder needed is pytz; add it to Sublime Text 4/Lib/python33.
+
+diff-match-patch: https://pypi.org/project/diff-match-patch/
+The folder needed is diff_match_patch; add it to Sublime Text 4/Lib/python33. 
+
+and:
+
+urtext: https://github.com/nbeversl/urtext 
+This is Urtext itself. Put the entire folder (urtext) into Sublime Text 4/Lib/python33.
+
+or Download Dependencies from a Monorepo
+========================================
+
+As a convenience, all of the above depenencies are (for now) maintained in recent versions at https://github.com/nbeversl/urtext_deps, with all files in the path locations described above. You can either download this repository as a .ZIP file and unzip it, or if you want to maintain version control, use: git clone --recurse-submodules https://github.com/nbeversl/urtext_deps
+
+Put the contents of the cloned/unzipped folder (important: not the folder itself) directly into your Sublime Text 3/Lib/python3.3 folder. 
+
+Close and reopen Sublime Text. Urtext is now ready to use.
+
+The documentation of Urtext is itself an Urtext project at https://github.com/nbeversl/urtext-docs
+You can read it in directly on Github or download it as a navigable project.

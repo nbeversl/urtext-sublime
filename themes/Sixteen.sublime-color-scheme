@@ -282,7 +282,7 @@
 	  		},
 	  		{
 	  			"scope" : "minimal_node_id.urtext",
-	  			"foreground": "var(minimal-node-id)",
+	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
 	  			"scope" : "hash_meta.urtext",
@@ -296,6 +296,9 @@
 	  			"font_style" : "bold",
 	  		},
 	  		{ 	"scope" : "dynamic-definition-reference.urtext.",
+	  			"foreground": "var(unobtrusive)",
+	  		},
+	  		{ 	"scope" : "urtext.dynamic-definition-reference",
 	  			"foreground": "var(unobtrusive)",
 	  		},
 	  		{
