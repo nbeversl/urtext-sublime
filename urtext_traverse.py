@@ -2,7 +2,7 @@ from .sublime_urtext import refresh_project_event_listener, refresh_project_text
 from .sublime_urtext import size_to_groups, size_to_thirds
 from .sublime_urtext import UrtextTextCommand
 from sublime_plugin import EventListener
-from urtext.project import node_id_regex
+from urtext_sublime.urtext.project import node_id_regex
 import sublime
 from .sublime_urtext import refresh_project_text_command, refresh_project_event_listener
 import re
