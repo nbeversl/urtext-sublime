@@ -14,7 +14,7 @@ from urtext_sublime.dateutil import tz
 from functools import wraps
 
 import re
-import six
+import urtext_sublime.six.six as six
 
 __all__ = ["isoparse", "isoparser"]
 

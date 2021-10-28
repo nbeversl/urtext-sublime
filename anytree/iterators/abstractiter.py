@@ -1,4 +1,4 @@
-import six
+import urtext_sublime.six.six as six
 
 
 class AbstractIter(six.Iterator):
