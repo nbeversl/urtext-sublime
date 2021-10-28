@@ -17,9 +17,9 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 import re
-from urtext_sublime.anytree import Node
-from urtext_sublime.anytree import RenderTree
-from urtext_sublime.urtext.directive  import UrtextDirectiveWithParamsFlags
+from Urtext.anytree import Node
+from Urtext.anytree import RenderTree
+from Urtext.urtext.directive  import UrtextDirectiveWithParamsFlags
 
 node_id_regex = '[0-9,a-z]{3}'
 node_link_regex =       r'>[0-9,a-z]{3}\b'

@@ -19,8 +19,8 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import re
-from urtext_sublime.urtext.directive import UrtextDirectiveWithParamsFlags
-import urtext_sublime.urtext.node
+from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+import Urtext.urtext.node
 
 node_link_regex = r'[^>]>[0-9,a-z]{3}\b'
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'
@@ -362,7 +362,7 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
 
     def _strip_urtext_syntax(self, contents):
         
-        contents = urtext_sublime.urtext.node.strip_contents(contents, 
+        contents = Urtext.urtext.node.strip_contents(contents, 
             include_backtick=False, 
             reformat_and_keep_embedded_syntaxes=True).strip()
         if contents and contents[0] == '{':

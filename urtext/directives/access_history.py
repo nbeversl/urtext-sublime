@@ -1,4 +1,4 @@
-from urtext_sublime.urtext.directive import UrtextDirectiveWithKeysFlags
+from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
 import datetime
 
 # This class should be abstracted as an accumulator (prepend/append)

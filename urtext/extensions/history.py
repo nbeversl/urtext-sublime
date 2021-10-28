@@ -1,4 +1,4 @@
-from urtext_sublime.urtext.extension import UrtextExtension
+from Urtext.urtext.extension import UrtextExtension
 import os
 
 class RenameHistoryFiles(UrtextExtension):

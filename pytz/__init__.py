@@ -12,13 +12,13 @@ import sys
 import datetime
 import os.path
 
-from urtext_sublime.pytz.exceptions import AmbiguousTimeError
-from urtext_sublime.pytz.exceptions import InvalidTimeError
-from urtext_sublime.pytz.exceptions import NonExistentTimeError
-from urtext_sublime.pytz.exceptions import UnknownTimeZoneError
-from urtext_sublime.pytz.lazy import LazyDict, LazyList, LazySet  # noqa
-from urtext_sublime.pytz.tzinfo import unpickler, BaseTzInfo
-from urtext_sublime.pytz.tzfile import build_tzinfo
+from Urtext.pytz.exceptions import AmbiguousTimeError
+from Urtext.pytz.exceptions import InvalidTimeError
+from Urtext.pytz.exceptions import NonExistentTimeError
+from Urtext.pytz.exceptions import UnknownTimeZoneError
+from Urtext.pytz.lazy import LazyDict, LazyList, LazySet  # noqa
+from Urtext.pytz.tzinfo import unpickler, BaseTzInfo
+from Urtext.pytz.tzfile import build_tzinfo
 
 
 # The IANA (nee Olson) database is updated several times a year.

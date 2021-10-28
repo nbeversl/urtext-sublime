@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-from urtext_sublime.urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
+from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
 
 
 class NodeQuery(UrtextDirectiveWithParamsFlags):

@@ -1,5 +1,5 @@
-from urtext_sublime.urtext.extension import UrtextExtension
-from urtext_sublime.anytree import Node
+from Urtext.urtext.extension import UrtextExtension
+from Urtext.anytree import Node
 
 class UrtextAnyTree(UrtextExtension):
 

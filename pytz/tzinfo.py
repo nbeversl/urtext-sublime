@@ -7,8 +7,8 @@ try:
 except NameError:
     from sets import Set as set
 
-import urtext_sublime.pytz
-from urtext_sublime.pytz.exceptions import AmbiguousTimeError, NonExistentTimeError
+import Urtext.pytz
+from Urtext.pytz.exceptions import AmbiguousTimeError, NonExistentTimeError
 
 __all__ = []
 

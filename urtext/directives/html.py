@@ -1,4 +1,4 @@
-from urtext_sublime.urtext.directives.export import UrtextExport
+from Urtext.urtext.directives.export import UrtextExport
 
 class HTMLExport(UrtextExport):
 

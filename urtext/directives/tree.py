@@ -1,5 +1,5 @@
-from urtext_sublime.anytree import Node, RenderTree, PreOrderIter
-from urtext_sublime.anytree.render import ContStyle
+from Urtext.anytree import Node, RenderTree, PreOrderIter
+from Urtext.anytree.render import ContStyle
 from ..dynamic_output import DynamicOutput
 from ..timestamp import UrtextTimestamp
 import datetime

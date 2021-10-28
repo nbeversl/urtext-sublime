@@ -1,4 +1,4 @@
-from urtext_sublime.urtext.directive import UrtextDirectiveWithInteger
+from Urtext.urtext.directive import UrtextDirectiveWithInteger
 
 class Limit(UrtextDirectiveWithInteger):
 

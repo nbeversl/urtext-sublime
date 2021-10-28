@@ -1,4 +1,4 @@
-from urtext_sublime.urtext.directive import UrtextDirective
+from Urtext.urtext.directive import UrtextDirective
 from .tree import Tree
 
 class NodeList(UrtextDirective):

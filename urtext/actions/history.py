@@ -1,6 +1,6 @@
 
-from urtext_sublime.urtext.action import UrtextAction
-import urtext_sublime.diff_match_patch as dmp_module
+from Urtext.urtext.action import UrtextAction
+import Urtext.diff_match_patch as dmp_module
 import os
 import json
 import time

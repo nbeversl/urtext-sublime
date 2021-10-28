@@ -27,7 +27,7 @@ import time
 import sys
 from time import strftime
 import concurrent.futures
-from urtext_sublime.pytz import timezone
+from Urtext.pytz import timezone
 from ..anytree import Node, PreOrderIter, RenderTree
 
 from .file import UrtextFile, UrtextBuffer
@@ -62,17 +62,17 @@ def all_subclasses(cls):
 for i in os.listdir(os.path.join(os.path.dirname(__file__),'extensions')):
     if '.py' in i:
         i = os.path.basename(os.path.splitext(i)[0])
-        import_module('urtext_sublime.urtext.extensions.'+i)
+        import_module('Urtext.urtext.extensions.'+i)
 
 for i in os.listdir(os.path.join(os.path.dirname(__file__),'directives')):
     if '.py' in i:
         i = os.path.basename(os.path.splitext(i)[0])
-        import_module('urtext_sublime.urtext.directives.'+i)
+        import_module('Urtext.urtext.directives.'+i)
 
 for i in os.listdir(os.path.join(os.path.dirname(__file__),'actions')):
     if '.py' in i:
         i = os.path.basename(os.path.splitext(i)[0])
-        import_module('urtext_sublime.urtext.actions.'+i)
+        import_module('Urtext.urtext.actions.'+i)
 
 
 def add_functions_as_methods(functions):

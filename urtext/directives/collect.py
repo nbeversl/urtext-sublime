@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-from urtext_sublime.urtext.dynamic_output import DynamicOutput
-from urtext_sublime.anytree import Node, PreOrderIter, RenderTree
-from urtext_sublime.urtext.timestamp import UrtextTimestamp, default_date
-from urtext_sublime.urtext.directive import UrtextDirectiveWithParamsFlags
+from Urtext.urtext.dynamic_output import DynamicOutput
+from Urtext.anytree import Node, PreOrderIter, RenderTree
+from Urtext.urtext.timestamp import UrtextTimestamp, default_date
+from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
 
 class Collect (UrtextDirectiveWithParamsFlags):
 

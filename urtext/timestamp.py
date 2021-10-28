@@ -1,6 +1,6 @@
 import datetime
-from urtext_sublime.pytz import timezone
-from urtext_sublime.dateutil.parser import *
+from Urtext.pytz import timezone
+from Urtext.dateutil.parser import *
 
 default_date = timezone('UTC').localize(datetime.datetime(1970,1,1))
 

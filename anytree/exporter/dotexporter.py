@@ -6,9 +6,9 @@ from os import remove
 from subprocess import check_call
 from tempfile import NamedTemporaryFile
 
-import urtext_sublime.six.six as six
+import Urtext.six.six as six
 
-from urtext_sublime.anytree import PreOrderIter
+from Urtext.anytree import PreOrderIter
 
 _RE_ESC = re.compile(r'["\\]')
 

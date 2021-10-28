@@ -11,7 +11,7 @@ Tree Rendering.
 
 import collections
 
-import urtext_sublime.six.six as six
+import Urtext.six.six as six
 
 Row = collections.namedtuple("Row", ("pre", "fill", "node"))
 

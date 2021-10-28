@@ -39,8 +39,8 @@ import warnings
 from calendar import monthrange
 from io import StringIO
 
-import urtext_sublime.six.six as six
-from urtext_sublime.six.six import integer_types, text_type
+import Urtext.six.six as six
+from Urtext.six.six import integer_types, text_type
 
 from decimal import Decimal
 

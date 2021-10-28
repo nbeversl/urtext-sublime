@@ -1,6 +1,6 @@
 import os
 import concurrent.futures
-from urtext_sublime.urtext.action import UrtextAction
+from Urtext.urtext.action import UrtextAction
 
 
 class ReindexFiles(UrtextAction):

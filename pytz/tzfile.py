@@ -6,8 +6,8 @@ $Id: tzfile.py,v 1.8 2004/06/03 00:15:24 zenzen Exp $
 from datetime import datetime
 from struct import unpack, calcsize
 
-from urtext_sublime.pytz.tzinfo import StaticTzInfo, DstTzInfo, memorized_ttinfo
-from urtext_sublime.pytz.tzinfo import memorized_datetime, memorized_timedelta
+from Urtext.pytz.tzinfo import StaticTzInfo, DstTzInfo, memorized_ttinfo
+from Urtext.pytz.tzinfo import memorized_datetime, memorized_timedelta
 
 
 def _byte_string(s):

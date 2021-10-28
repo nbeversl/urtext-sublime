@@ -1,5 +1,5 @@
 
-from urtext_sublime.urtext.action import UrtextAction
+from Urtext.urtext.action import UrtextAction
 import os
 import datetime
 import re

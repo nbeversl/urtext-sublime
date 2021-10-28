@@ -1,5 +1,5 @@
 import re
-from urtext_sublime.urtext.directives.export import UrtextExport
+from Urtext.urtext.directives.export import UrtextExport
 
 escaped_text = r'\`.*?\`';
 

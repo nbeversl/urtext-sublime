@@ -24,9 +24,9 @@ import time
 import concurrent.futures
 import subprocess
 import webbrowser
-from urtext_sublime.urtext.project_list import ProjectList
+from Urtext.urtext.project_list import ProjectList
 from sublime_plugin import EventListener
-from urtext_sublime.urtext.project import soft_match_compact_node
+from Urtext.urtext.project import soft_match_compact_node
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None

@@ -19,7 +19,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
 import datetime
-import urtext_sublime.pytz
+import Urtext.pytz
 import time
 from .utils import force_list
 from .dynamic import UrtextDynamicDefinition
