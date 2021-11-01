@@ -12,31 +12,27 @@ Urtext does not have a user interface and requires implementation using a text e
 
 ## Installation
 
-1. Download Sublime Text. (https://www.sublimetext.com/).
-
-2. Install the Urtext package for Sublime Text. 
-
 **Either with package control:**
 
-(If you do not have Package Control installed, follow the instructions at https://packagecontrol.io/installation.) Once Package Control is installed, Press ⌘/Ctrl + ⇧ + P to open the command palette. Type Install Package and press Enter. Then search for Urtext. 
+(If you do not have Package Control installed, follow the instructions at https://packagecontrol.io/installation.) 
+
+When Package Control is installed, Press ⌘/Ctrl + ⇧ + P to open the command palette. Type Install Package and press Enter. Then search for Urtext.
 
 **Or install manually:**
 
 Clone or download `https://github.com/nbeversl/urtext_sublime`. Place it in your Packages folder (Sublime Text 3/Packages) 
 
-3. Urtext itself (a standalone Python module) and its dependencies are not included in the package. The current recommended setup path is to install dependencies manually into Sublime's Python 3.3 environment following the steps in the README at https://github.com/nbeversl/urtext-docs.
-
-Once these are all installed, Urtext will look for any files with the .txt extension in Sublime's open folders and attempt to compile them into a project. 
+Once installed, Urtext will look for any files with the .txt extension in Sublime's open folders and attempt to compile them into a project. 
 
 The documentation of Urtext is itself an Urtext project at https://github.com/nbeversl/urtext-docs. You can read it in directly on Github or download it as a navigable project.
 
 ## Issues
 
-Please post issues at https://github.com/nbeversl/urtext-sublime/issues
+https://github.com/nbeversl/urtext-sublime/issues
 
 ## Versioning
 
-[SemVer](http://semver.org/) for versioning.
+[SemVer](http://semver.org/).
 
 ## Contributors
 

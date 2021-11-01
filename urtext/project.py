@@ -41,7 +41,6 @@ from .directive import UrtextDirective
 from .action import UrtextAction
 from .extension import UrtextExtension
 
-
 from importlib import import_module
 
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'
@@ -59,21 +58,35 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
-for i in os.listdir(os.path.join(os.path.dirname(__file__),'extensions')):
-    if '.py' in i:
-        i = os.path.basename(os.path.splitext(i)[0])
-        import_module('Urtext.urtext.extensions.'+i)
+# manual import
+from Urtext.urtext.actions.history import *
+from Urtext.urtext.actions.ics import *
+from Urtext.urtext.actions.pull_pop import *
+from Urtext.urtext.actions.reindex import *
 
-for i in os.listdir(os.path.join(os.path.dirname(__file__),'directives')):
-    if '.py' in i:
-        i = os.path.basename(os.path.splitext(i)[0])
-        import_module('Urtext.urtext.directives.'+i)
+from Urtext.urtext.directives.access_history import *
+from Urtext.urtext.directives.collect import *
+from Urtext.urtext.directives.export import *
+from Urtext.urtext.directives.files import *
+from Urtext.urtext.directives.header_footer import *
+from Urtext.urtext.directives.html import *
+from Urtext.urtext.directives.include import *
+from Urtext.urtext.directives.interlinks import *
+from Urtext.urtext.directives.limit import *
+from Urtext.urtext.directives.list import *
+from Urtext.urtext.directives.log import *
+from Urtext.urtext.directives.markdown import *
+from Urtext.urtext.directives.request import *
+from Urtext.urtext.directives.sort import *
+from Urtext.urtext.directives.tree import *
 
-for i in os.listdir(os.path.join(os.path.dirname(__file__),'actions')):
-    if '.py' in i:
-        i = os.path.basename(os.path.splitext(i)[0])
-        import_module('Urtext.urtext.actions.'+i)
+from Urtext.urtext.extensions.history import *
+from Urtext.urtext.extensions.rake import *
+from Urtext.urtext.extensions.tree import *
 
+all_extensions = all_subclasses(UrtextExtension)
+all_directives = all_subclasses(UrtextDirective)
+all_actions = all_subclasses(UrtextAction)
 
 def add_functions_as_methods(functions):
     def decorator(Class):
@@ -81,10 +94,6 @@ def add_functions_as_methods(functions):
             setattr(Class, function.__name__, function)
         return Class
     return decorator
-    
-all_extensions = all_subclasses(UrtextExtension)
-all_directives = all_subclasses(UrtextDirective)
-all_actions = all_subclasses(UrtextAction)
 
 single_values = [
     'home',

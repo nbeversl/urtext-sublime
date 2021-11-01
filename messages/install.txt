@@ -1,8 +1,16 @@
 
 Thanks for trying out Urtext.
 
+How Do I Use This?
+==================
+
+To initialize a new project, select "Urtext: Initialize Project" from the command palette (press ⌘/Ctrl + ⇧ + P to open the command palette), and select a folder for the project. The newly created project will contain a keymap cheatsheet and some example nodes to get you started.
+
+The full Urtext documentation is an Urtext project at https://github.com/nbeversl/urtext-docs. To read it, clone or download this file, open the folder (or any of the files) in Sublime Text and press Ctrl-Shift-H (Home).
+
+What is Urtext? 
+==============
+
 Urtext is a syntax and interpreter for writing, connecting and organizing text. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. 
 
-Urtext itself (a standalone Python module) does not have a user interface and must be wrapped in a text editor. This package is an implementation for desktop (PC/Mac/Linux) using Sublime Text. 
-
-The documentation of Urtext is itself an Urtext project at https://github.com/nbeversl/urtext-docs. You can read it in directly on Github or download it as a navigable project.
+Urtext itself (a standalone Python module) does not have a user interface and must be wrapped in a text editor. This package is an implementation for desktop (PC/Mac/Linux) using Sublime Text.
