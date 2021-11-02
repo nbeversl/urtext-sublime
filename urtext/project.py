@@ -46,7 +46,7 @@ from importlib import import_module
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'
 title_marker_regex = r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)'
 node_id_regex = r'\b[0-9,a-z]{3}\b'
-node_link_regex = re.compile(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?')
+titled_node_link_regex = re.compile(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?')
 action_regex = re.compile(r'>>>([A-Z_]+)\((.*?)\)', re.DOTALL)
 editor_file_link_regex = re.compile('(f>{1,2})([^;]+)')
 url_scheme = re.compile(r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -964,7 +964,7 @@ class UrtextProject:
                         col_pos=col_pos,
                         file_pos=file_pos)
 
-        result = re.search(node_link_regex, string)
+        result = re.search(titled_node_link_regex, string)
         link_location = None
         
         if result:
