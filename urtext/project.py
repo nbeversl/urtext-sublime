@@ -200,8 +200,11 @@ class UrtextProject:
         for file in os.listdir(self.path):
             self._parse_file(file)
         
-        self.default_timezone = timezone(self.settings['timezone'])
-        
+        try:
+            self.default_timezone = timezone(self.settings['timezone'])
+        except:
+            print(self.settings['timezone'] + ' invalid timezone')
+
         if self.nodes == {}:
             if new_project:
 
@@ -1060,7 +1063,10 @@ class UrtextProject:
             self.settings[str(key)].append(value)
             self.settings[str(key)] = list(set(self.settings[key]))
 
-        self.default_timezone = timezone(self.settings['timezone'])
+        try:
+            self.default_timezone = timezone(self.settings['timezone'])
+        except:
+            print(self.settings['timezone'] + ' invalid timezone')
 
         for k in replacements.keys():
             if k in single_values:
