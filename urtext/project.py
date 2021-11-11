@@ -40,6 +40,7 @@ from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
 from .directive import UrtextDirective
 from .action import UrtextAction
 from .extension import UrtextExtension
+from .templates.templates import templates
 
 from importlib import import_module
 
@@ -207,22 +208,10 @@ class UrtextProject:
 
         if self.nodes == {}:
             if new_project:
-
-                for u_file in os.listdir(os.path.join(
-                        os.path.dirname(os.path.realpath(__file__)), 
-                        'templates')):
-                    
-                    with open(os.path.join(
-                        os.path.dirname(os.path.realpath(__file__)), 
-                        'templates', u_file),
-                        'r', 
-                        encoding="utf-8") as f:
-                       contents = f.read()
-
-                    with open(os.path.join(self.path, u_file ), 'w', encoding='utf-8') as f:
-                        f.write(contents) 
-                    self._parse_file(os.path.basename(u_file))
-
+                for filename in templates:
+                    with open(os.path.join(self.path, filename ), 'w', encoding='utf-8') as f:
+                        f.write(templates[filename]) 
+                    self._parse_file(os.path.basename(filename))
             else:
                 raise NoProject('No Urtext nodes in this folder.')
 

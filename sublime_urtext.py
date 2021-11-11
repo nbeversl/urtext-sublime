@@ -65,7 +65,7 @@ def refresh_project_text_command(import_project=False, change_project=True):
                 
             window = sublime.active_window()
             if not window:
-                print('NO WINDOW')
+                print('NO ACTIVE WINDOW')
                 return
 
             view = window.active_view()
@@ -740,12 +740,14 @@ class NewProjectCommand(UrtextTextCommand):
             _UrtextProjectList.init_new_project(path)
         _UrtextProjectList.set_current_project(path)    
     
-        def open_home_node():   
-            if _UrtextProjectList.current_project.compiled:
+        def open_home_node():
+            window = sublime.active_window()
+            if _UrtextProjectList.current_project.compiled and window:
                 node_id = _UrtextProjectList.current_project.get_home()
                 _UrtextProjectList.nav_new(node_id)
                 filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-                sublime.active_window().open_file(filename)
+                window = sublime.active_window()
+                open_urtext_node(self.view, node_id)
             else:
                 sublime.set_timeout(lambda: open_home_node(), 50) 
         open_home_node()
