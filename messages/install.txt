@@ -4,13 +4,64 @@ Thanks for trying out Urtext.
 How Do I Use This?
 ==================
 
-To initialize a new project, select "Urtext: Initialize Project" from the command palette (press ⌘/Ctrl + ⇧ + P to open the command palette), and select a folder for the project. The newly created project will contain a keymap cheatsheet and some example nodes to get you started.
+To initialize a new project, select "Urtext: Initialize Project" from the command palette (press ⌘/Ctrl + ⇧ + P to open the command palette), and select a folder for the project. The newly created project will contain a keymap cheatsheet and some example nodes to get you started. Be sure to read "Sublime Text Setup, Options and Suggestions" below to set up syntax highlighting and for suggestions on configuring Sublime Text for using Urtext.
 
 The full Urtext documentation is an Urtext project at https://github.com/nbeversl/urtext-docs. To read it, clone or download this file, open the folder (or any of the files) in Sublime Text and press Ctrl-Shift-H (Home).
 
 What is Urtext? 
-==============
+===============
 
 Urtext is a syntax and interpreter for writing, connecting and organizing text. It is for prose writing, research, documentation, journaling, project organization, notetaking, and any other writing or information management that can be done in text form. 
 
 Urtext itself (a standalone Python module) does not have a user interface and must be wrapped in a text editor. This package is an implementation for desktop (PC/Mac/Linux) using Sublime Text.
+
+Sublime Text Setup, Options and Suggestions
+===========================================
+
+Here are some tips for best leveraging Sublime's great UI features while using Urtext.
+
+Syntax Highlighting:
+
+	Currently syntax highlighting for Urtext is only available in the Monokai and Sixteen themes. Select the Sixteen (for light) or Monokai (for dark) color schemes in Preferences -> Color Scheme ...
+
+	Change to the Urtext syntax by selecting it in View -> Syntax -> Urtext. To avoid having to do this for every file, select View -> Syntax -> Open All with Current Extension As ... -> Urtext. (This can be undone by repeating the same but selecting Plain Text.)
+
+Hiding Tabs
+
+	If you prefer a spare, terminal-like view, hide tabs: View -> Hide Tabs. This preference can also be set on a per-(Sublime)-project basis. See the Sublime documentation.
+
+Hiding Line Numbers
+
+	For an extra-clean look, hide line numbers by adding:
+
+	"settings" : { "line_numbers": false, },
+
+	... to your Sublime project settings file.
+
+Full Screen / Distraction Free Mode
+
+	Since you can navigate entirely from within files, Urtext works great in Sublime's Distraction Free Mode. View -> Enter Distraction Free Mode.
+
+Disable Prompts for File Reload
+
+	Urtext does a lot of writing to files on the fly, often when they are already open. To avoid seeing a dialog every time, add add the following to your Sublime project settings or User Preferences file: 
+
+		"settings" : { "always_prompt_for_file_reload": false, },
+
+Remove Indent Guides
+
+	Formatting plaintext using tab indentions can look messy if indent guides are on. To turn them off, add to your Sublime project settings file:
+
+	"settings" : { "draw_indent _guides": false, }
+
+Save on Focus Lost
+
+	Urtext recompiles your project every time a file changes. To make this more automatic, and to reduce the need to manually press save after every edit, add to your Sublime settings file:
+
+	"settings" : { "save_on_focus_lost": true }
+
+Using a Sublime Project for an Urtext Project
+
+	( see https://www.sublimetext.com/docs/3/projects.html )
+
+	You don't need to define a Sublime Project for the Urtext Project, but if you intend to do more than one thing at a time in Sublime, it's convenient to have one; you can then use Select Project -> Quick Switch Project (Ctrl-Super-P) to switch among them.

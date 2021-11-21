@@ -34,7 +34,7 @@ dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
 subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
 default_date = Urtext.pytz.timezone('UTC').localize(datetime.datetime(1970,2,1))
-node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
+simple_node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
 timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]+?)(?:>)', flags=re.DOTALL)
 inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
 embedded_syntax = re.compile('%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
@@ -78,7 +78,7 @@ class UrtextNode:
         self.errors = False
         self.display_meta = ''
         self.parent = None
-
+        
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
         contents = strip_wrappers(contents, compact=compact)
@@ -86,6 +86,7 @@ class UrtextNode:
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
         contents = strip_dynamic_def_ref(contents)
+            
         
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
@@ -140,16 +141,6 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
-    def strip_syntax_elements(self, contents=None):
-        if contents == None:
-            contents=self.contents()
-        stripped_contents = re.sub(node_link_regex, '', contents)
-        tree_elements = ['├──','└──','│']
-        for el in tree_elements:
-            stripped_contents= stripped_contents.replace(el,'')
-        return stripped_contents
-        
-
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
         if contents == '':
@@ -161,9 +152,10 @@ class UrtextNode:
         return stripped_contents
 
     def get_links(self, contents=None):
+ 
         if contents == None:
             contents = self.content_only()
-        nodes = re.findall(node_link_regex, contents)  # link RegEx
+        nodes = re.findall(simple_node_link_regex, contents)  # link RegEx
         for node in nodes:
             self.links.append(node[-3:])
 
@@ -298,13 +290,6 @@ def strip_contents(contents,
     contents = contents.strip().strip('{').strip()
     return contents
 
-def strip_syntax_elements(contents):
-    stripped_contents = re.sub(node_link_regex, '', contents)
-    
-    for el in tree_elements:
-        stripped_contents= stripped_contents.replace(el,'')
-    return stripped_contents
-
 def strip_wrappers(contents, compact=False, outside_only=False):
         wrappers = ['{','}']
         if contents and contents[0] in wrappers:
@@ -381,5 +366,5 @@ def sanitize_escape(string):
     return string
 
 def strip_dynamic_def_ref(contents):
-    return re.sub(r'(\(\()?([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?(\)\))?', '', contents)
+    return re.sub(r'(\(\()([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?(\)\))', '', contents)
 

@@ -22,7 +22,6 @@
 			 "datestamp" : "var(blue-brighter)",
 			 "link-prefix" : "var(reg-text-white)",
 
-
 		 // wrappers
 		 "wrapper1" : "var(dark1)",
 		 "wrapper2" : "var(dark2)",
@@ -301,7 +300,6 @@
 	  		},
 	  		{
 	  			"scope" : "hash_meta.urtext",
-	  			"foreground": "var(hash_meta)",
 	  			"font_style" : "bold",
 	  		},
 
