@@ -17,11 +17,13 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
                         '\n',
                         self.project.timestamp(self.project.default_timezone.localize(datetime.datetime.now())), 
                         ' | ', 
-                        self.project.nodes[node_id].title, 
+                        self.project.nodes[node_id].get_title(), 
                         ' >', 
                         node_id,
                         contents
                     ])
+                access_history_file = self.project.get_file_name(self.dynamic_definition.target_id)
+                self.project._parse_file(access_history_file)
                 self.project._set_node_contents(self.dynamic_definition.target_id, contents)
         else:
             print('(DEBUGGING) -- node not found for access history')

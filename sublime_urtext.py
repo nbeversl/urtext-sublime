@@ -254,7 +254,9 @@ class UrtextCompletions(EventListener):
                     view.file_name(), 
                     file_pos)
             for n in list(set(related_nodes)):
-                subl_completions.append([_UrtextProjectList.current_project.nodes[n].title, _UrtextProjectList.current_project.nodes[n].title])
+                subl_completions.append([
+                    _UrtextProjectList.current_project.nodes[n].get_title(), 
+                    _UrtextProjectList.current_project.nodes[n].get_title()])
 
             completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
@@ -306,7 +308,9 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
+        print(_UrtextProjectList.current_project.title)
         node_id = _UrtextProjectList.current_project.get_home()
+        print(node_id)
         _UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
@@ -580,13 +584,12 @@ class NodeInfo():
     def __init__(self, node_id, project_list, project=None):    
         if not project:
             project = project_list.current_project
-        self.title =project.nodes[node_id].title
+        self.title = project.nodes[node_id].get_title()
         if self.title.strip() == '':
             self.title = '(no title)'
         self.date =project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
         self.position = project.nodes[node_id].ranges[0][0]
-        self.title = project.nodes[node_id].title
         self.node_id = project.nodes[node_id].id
         self.project_title = project.title
         self.display_meta = project.nodes[node_id].display_meta
@@ -986,6 +989,10 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+    print('DEBGGIN')
+    print(filename)
+    print(node_position)
+    print(_UrtextProjectList.current_project.path)
     if filename and view.window():
         
         file_view = view.window().open_file(filename)
@@ -1005,6 +1012,8 @@ def open_urtext_node(
         focus_position(file_view, position)
 
         return file_view
+
+        
  
     return None
     """

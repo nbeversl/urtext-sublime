@@ -193,7 +193,7 @@ class Collect (UrtextDirectiveWithParamsFlags):
                         t = Node(v) 
                     for node in nodes:
                         for n in node.metadata.get_matching_entries(k,value):
-                            f = Node(node.title + ' >' + node.id)
+                            f = Node(node.get_title() + ' >' + node.id)
                             f.parent = t
                         if f:                        
                             t.parent = root

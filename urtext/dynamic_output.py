@@ -107,7 +107,7 @@ class DynamicOutput():
                 self.needs_other_format_keys.append(meta_key)
 
     def output(self):
-      
+
         self.item_format = self.item_format.replace(self.shah + '$title', self.title)
         self.item_format = self.item_format.replace(self.shah + '$link', self.link)
         self.item_format = self.item_format.replace(self.shah + '$date', self.date)

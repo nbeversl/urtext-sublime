@@ -109,8 +109,8 @@ single_values = [
     'new_bracket_node_format',
     'hash_key',
     'filename_datestamp_format',
-    'timezone',
     'new_file_line_pos',
+    'title_length',
     'filename_title_length' ]
 
 single_boolean_values = [
@@ -135,6 +135,9 @@ replace = [
     'exclude_files' ]
 
 integers = [
+    'new_file_line_pos',
+    'title_length',
+    'filename_title_length',
     'new_file_line_pos'
 ]
 
@@ -170,7 +173,8 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-        self.default_timezone = timezone('UTC')
+        self.default_timezone = timezone(time.strftime("%Z", time.localtime()))
+
         self.title = self.path # default
         self.excluded_files = []
         self.error_files = []
@@ -179,9 +183,6 @@ class UrtextProject:
                     new_project=new_project)
         else:    
             self._initialize_project(new_project=new_project)
-
-        # TODO -- node date timezones have to be localized
-        # do this from UrtextNode.date() method
 
     def _initialize_project(self, 
         new_project=False):
@@ -200,11 +201,6 @@ class UrtextProject:
 
         for file in os.listdir(self.path):
             self._parse_file(file)
-        
-        try:
-            self.default_timezone = timezone(self.settings['timezone'])
-        except:
-            print(self.settings['timezone'] + ' invalid timezone')
 
         if self.nodes == {}:
             if new_project:
@@ -238,18 +234,18 @@ class UrtextProject:
         self.settings = {  
             'home': None,
             'import': False,
-            'timestamp_format':'%a., %b. %d, %Y, %I:%M %p', 
+            'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 
             'use_timestamp': [ 'updated','timestamp', 'inline_timestamp', '_oldest_timestamp', '_newest_timestamp'],
             'filenames': ['PREFIX', 'title'],
             'filename_datestamp_format':'%m-%d-%Y',
             'console_log': True,
-            'timezone' : 'UTC',
             'always_oneline_meta' : False,
             'strict':False,
             'node_date_keyname' : 'timestamp',
-            'numerical_keys': ['_index' ,'index'],
+            'numerical_keys': ['_index' ,'index','title_length'],
             'atomic_rename' : False,
             'tag_other': [],
+            'title_length':255,
             'device_keyname' : '',
             'filename_title_length': 100,
             'exclude_files': [],
@@ -276,7 +272,6 @@ class UrtextProject:
                 'notes',
                 'comments',
                 'project_title',
-                'timezone',
                 'timestamp_format',
                 'filenames',
                 'weblink',
@@ -408,7 +403,7 @@ class UrtextProject:
             match_contents = new_contents[start:end]
             node_id = match_contents[-3:]
             if node_id in project.nodes:
-                title = project.nodes[node_id].title
+                title = project.nodes[node_id].get_title()
             else:
                 title = ' ? '
             bracket = '>'
@@ -1039,7 +1034,13 @@ class UrtextProject:
                 continue
 
             if key in single_values:
-                self.settings[key] = value
+                if key in integers:
+                    try:
+                        self.settings[key] = int(value)
+                    except:
+                        print(value + ' not an integer')
+                else:
+                    self.settings[key] = value
                 continue
 
             if key in single_boolean_values:
@@ -1048,14 +1049,9 @@ class UrtextProject:
 
             if key not in self.settings:
                 self.settings[str(key)] = []
-   
+
             self.settings[str(key)].append(value)
             self.settings[str(key)] = list(set(self.settings[key]))
-
-        try:
-            self.default_timezone = timezone(self.settings['timezone'])
-        except:
-            print(self.settings['timezone'] + ' invalid timezone')
 
         for k in replacements.keys():
             if k in single_values:
@@ -1093,7 +1089,7 @@ class UrtextProject:
     def titles(self):
         title_list = {}
         for node_id in self.nodes:
-            title_list[self.nodes[node_id].title] = (self.title, node_id)
+            title_list[self.nodes[node_id].get_title()] = (self.title, node_id)
         return title_list
 
     def get_all_meta_pairs(self):
@@ -1263,7 +1259,7 @@ class UrtextProject:
         return filename
 
     def title_completions(self):
-        return [(self.nodes[n].title, ''.join(['| ',self.nodes[n].title,' >',self.nodes[n].id])) for n in list(self.nodes)]
+        return [(self.nodes[n].get_title(), ''.join(['| ',self.nodes[n].get_title(),' >',self.nodes[n].id])) for n in list(self.nodes)]
 
     def get_first_value(self, node, keyname):
         value = node.metadata.get_first_value(keyname)

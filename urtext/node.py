@@ -74,7 +74,7 @@ class UrtextNode:
         self.dynamic_definitions = []
         self.target_nodes = []
         self.blank = False
-        self.title = None
+        self.title = ''
         self.errors = False
         self.display_meta = ''
         self.parent = None
@@ -102,7 +102,8 @@ class UrtextNode:
         if not contents:
             self.blank = True 
     
-        self.title = self.set_title(contents)    
+        self.title = self.set_title(contents)  
+
         if self.title == 'project_settings':
             self.contains_project_settings = True
 
@@ -141,6 +142,13 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
+    def get_title(self):
+        if not self.title:
+            return '(untitled)'
+        if self.project:
+            return self.title[:self.project.settings['title_length']]
+        return 'untitled from line 150 - DEBUGGING'
+
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
         if contents == '':
@@ -172,7 +180,7 @@ class UrtextNode:
         t = self.metadata.get_first_value('title')
         if t: 
             return t
-  
+        
         stripped_contents_lines = strip_metadata(contents).strip().split('\n')
        
         line = None
@@ -196,6 +204,8 @@ class UrtextNode:
             first_line = re.sub(r'^[\s]*\•','',first_line)           
         
         first_line=first_line.strip().strip('\n').strip()
+        if len(first_line) > 255:
+            first_line = first_line[:255]
 
         first_line = sanitize_escape(first_line)
         self.metadata.add_entry('title', first_line)

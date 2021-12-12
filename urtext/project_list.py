@@ -162,7 +162,7 @@ class ProjectList():
                 project = self.get_project(project_title)
             node_title = ''
             if node_id in project.nodes:
-                node_title = project.nodes[node_id].title
+                node_title = project.nodes[node_id].get_title()
             link = '| '+ node_title +' >'
             if pointer:
                 link += '>'
@@ -292,7 +292,7 @@ class ProjectList():
         title_list = {}
         for project in self.projects:
             for node_id in project.nodes:
-                title_list[project.nodes[node_id].title] = (project.title, node_id)
+                title_list[project.nodes[node_id].get_title()] = (project.title, node_id)
         return title_list
 
     def is_in_export(self, filename, position):

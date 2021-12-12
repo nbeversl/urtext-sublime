@@ -60,7 +60,7 @@ class PopNode(UrtextAction):
         remaining_node_contents = ''.join([
             file_contents[0:start - 1],
             '\n| ',
-            self.project.nodes[popped_node_id].title,
+            self.project.nodes[popped_node_id].get_title(),
              ' >>',
             popped_node_id,
             file_contents[end + 1:]])

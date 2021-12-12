@@ -35,7 +35,7 @@ class ICS(UrtextAction):
             'PRODID:-//hacksw/handcal//NONSGML v1.0//EN',
             'BEGIN:VEVENT',
             'METHOD:PUBLISH',
-            'SUMMARY:'+urtext_node.title,
+            'SUMMARY:'+urtext_node.get_title(),
             'DTSTART;TZID='+self.project.settings['timezone']+':'+ics_start_time,
             'DTEND;TZID='+self.project.settings['timezone']+':'+ics_end_time,
             'ORGANIZER;CN=Test User:MAILTO:test.user@tstdomain.com',
