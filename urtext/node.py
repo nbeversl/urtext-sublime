@@ -26,14 +26,13 @@ from .utils import strip_backtick_escape
 import re
 import datetime
 import logging
-import Urtext.pytz
 from Urtext.anytree import Node, PreOrderIter
 from .metadata import MetadataEntry
 
 dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
 subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-default_date = Urtext.pytz.timezone('UTC').localize(datetime.datetime(1970,2,1))
+default_date = datetime.datetime(1970,2,1)
 simple_node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
 timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]+?)(?:>)', flags=re.DOTALL)
 inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
@@ -67,7 +66,6 @@ class UrtextNode:
         self.id = None
         self.links = []
         self.root_node = root
-        self.tz = Urtext.pytz.timezone('UTC')
         self.contains_project_settings = False
         self.compact = compact
         self.parent_project = None

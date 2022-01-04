@@ -15,7 +15,7 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
                 contents = self.project._rewrite_titles(contents=contents)
                 contents = ''.join([ 
                         '\n',
-                        self.project.timestamp(self.project.default_timezone.localize(datetime.datetime.now())), 
+                        self.project.timestamp(datetime.datetime.now()), 
                         ' | ', 
                         self.project.nodes[node_id].get_title(), 
                         ' >', 

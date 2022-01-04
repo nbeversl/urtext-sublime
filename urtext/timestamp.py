@@ -1,8 +1,7 @@
 import datetime
-from Urtext.pytz import timezone
 from Urtext.dateutil.parser import *
 
-default_date = timezone('UTC').localize(datetime.datetime(1970,1,1))
+default_date = datetime.datetime(1970,1,1)
 
 class UrtextTimestamp:
     def __init__(self, dt_string):
@@ -20,8 +19,8 @@ def date_from_timestamp(datestamp_string):
     d = None
     try:
         d = parse(datestamp_string)
+        if d.tzinfo == None:
+            d = d.replace(tzinfo=datetime.timezone.utc)    
     except:
         pass
-    if d and d.tzinfo == None:
-         d = timezone('UTC').localize(d) 
     return d

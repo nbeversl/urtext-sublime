@@ -27,7 +27,6 @@ import time
 import sys
 from time import strftime
 import concurrent.futures
-from Urtext.pytz import timezone
 from ..anytree import Node, PreOrderIter, RenderTree
 
 from .file import UrtextFile, UrtextBuffer
@@ -173,7 +172,6 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-        self.default_timezone = timezone(time.strftime("%Z", time.localtime()))
 
         self.title = self.path # default
         self.excluded_files = []
@@ -1005,7 +1003,7 @@ class UrtextProject:
         in the format set in project_settings, or the default 
         """
         if date.tzinfo == None:
-            date = self.default_timezone.localize(date)    
+            date = date.replace(tzinfo=datetime.timezone.utc)    
         timestamp_format = '<' + self.settings['timestamp_format'] + '>'
         return date.strftime(timestamp_format)
 
