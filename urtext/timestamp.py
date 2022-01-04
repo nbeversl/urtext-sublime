@@ -1,7 +1,7 @@
 import datetime
 from Urtext.dateutil.parser import *
 
-default_date = datetime.datetime(1970,1,1)
+default_date = datetime.datetime(1970,1,1, tzinfo=datetime.timezone.utc)
 
 class UrtextTimestamp:
     def __init__(self, dt_string):
@@ -19,8 +19,13 @@ def date_from_timestamp(datestamp_string):
     d = None
     try:
         d = parse(datestamp_string)
-        if d.tzinfo == None:
-            d = d.replace(tzinfo=datetime.timezone.utc)    
     except:
-        pass
+        return None
+    if d.tzinfo == None:
+        try:
+            d = d.replace(tzinfo=datetime.timezone.utc)    
+        except:
+            print('cannot add timezone info to')
+            print(datestamp_string)
+            print(d)
     return d
