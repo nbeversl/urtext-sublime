@@ -1,9 +1,17 @@
-from Urtext.anytree import Node, RenderTree, PreOrderIter
-from Urtext.anytree.render import ContStyle
-from ..dynamic_output import DynamicOutput
-from ..timestamp import UrtextTimestamp
 import datetime
-from ..directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
+import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.anytree import Node, RenderTree, PreOrderIter
+    from Urtext.anytree.render import ContStyle
+    from ..dynamic_output import DynamicOutput
+    from ..timestamp import UrtextTimestamp
+    from ..directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
+else:
+    from anytree import Node, RenderTree, PreOrderIter
+    from anytree.render import ContStyle
+    from urtext.dynamic_output import DynamicOutput
+    from urtext.timestamp import UrtextTimestamp
+    from urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
 
 """
 Tree

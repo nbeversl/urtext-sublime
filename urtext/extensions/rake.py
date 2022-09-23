@@ -7,9 +7,16 @@
 
 import re
 import operator
-from Urtext.urtext.extension import UrtextExtension
 import concurrent.futures
-from Urtext.urtext.node import strip_contents
+import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.node import strip_contents
+    from Urtext.urtext.extension import UrtextExtension
+else:
+    from urtext.node import strip_contents
+    from urtext.extension import UrtextExtension
+
+
 class AddRakeKeywords(UrtextExtension):
 
     name = ['RAKE_KEYWORDS']

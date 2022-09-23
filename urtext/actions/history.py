@@ -1,9 +1,12 @@
-
-from Urtext.urtext.action import UrtextAction
-import Urtext.diff_match_patch as dmp_module
 import os
 import json
 import time
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.action import UrtextAction
+    import Urtext.diff_match_patch as dmp_module
+else:
+    from urtext.action import UrtextAction
+    import diff_match_patch as dmp_module
 
 class HistorySnapshot(UrtextAction): 
 

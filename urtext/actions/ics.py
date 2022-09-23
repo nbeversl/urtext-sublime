@@ -1,6 +1,9 @@
-from Urtext.urtext.action import UrtextAction
 import os
 import datetime
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.action import UrtextAction
+else:    
+    from urtext.action import UrtextAction
 
 class ICS(UrtextAction):
 

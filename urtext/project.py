@@ -27,21 +27,77 @@ import time
 import sys
 from time import strftime
 import concurrent.futures
-from ..anytree import Node, PreOrderIter, RenderTree
-
-from .file import UrtextFile, UrtextBuffer
-from .node import UrtextNode
-from .compile import compile_functions
-from .meta_handling import metadata_functions
-
-from .dynamic import UrtextDynamicDefinition
-from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
-from .directive import UrtextDirective
-from .action import UrtextAction
-from .extension import UrtextExtension
-from .templates.templates import templates
-
 from importlib import import_module
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from ..anytree import Node, PreOrderIter, RenderTree
+    from .file import UrtextFile, UrtextBuffer
+    from .node import UrtextNode
+    from .compile import compile_functions
+    from .meta_handling import metadata_functions
+    from .dynamic import UrtextDynamicDefinition
+    from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
+    from .directive import UrtextDirective
+    from .action import UrtextAction
+    from .extension import UrtextExtension
+    from .templates.templates import templates
+    from Urtext.urtext.actions.history import *
+    from Urtext.urtext.actions.ics import *
+    from Urtext.urtext.actions.pull_pop import *
+    from Urtext.urtext.actions.reindex import *
+    from Urtext.urtext.directives.access_history import *
+    from Urtext.urtext.directives.collect import *
+    from Urtext.urtext.directives.export import *
+    from Urtext.urtext.directives.files import *
+    from Urtext.urtext.directives.header_footer import *
+    from Urtext.urtext.directives.html import *
+    from Urtext.urtext.directives.include import *
+    from Urtext.urtext.directives.interlinks import *
+    from Urtext.urtext.directives.limit import *
+    from Urtext.urtext.directives.list import *
+    from Urtext.urtext.directives.log import *
+    from Urtext.urtext.directives.markdown import *
+    from Urtext.urtext.directives.request import *
+    from Urtext.urtext.directives.sort import *
+    from Urtext.urtext.directives.tree import *
+    from Urtext.urtext.extensions.history import *
+    from Urtext.urtext.extensions.rake import *
+    from Urtext.urtext.extensions.tree import *
+
+else:
+    from urtext.anytree import Node, PreOrderIter, RenderTree
+    from urtext.file import UrtextFile, UrtextBuffer
+    from urtext.node import UrtextNode
+    from urtext.compile import compile_functions
+    from urtext.meta_handling import metadata_functions
+    from urtext.dynamic import UrtextDynamicDefinition
+    from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
+    from urtext.directive import UrtextDirective
+    from urtext.action import UrtextAction
+    from urtext.extension import UrtextExtension
+    from urtext.templates.templates import templates
+    from urtext.actions.history import *
+    from urtext.actions.ics import *
+    from urtext.actions.pull_pop import *
+    from urtext.actions.reindex import *
+    from urtext.directives.access_history import *
+    from urtext.directives.collect import *
+    from urtext.directives.export import *
+    from urtext.directives.files import *
+    from urtext.directives.header_footer import *
+    from urtext.directives.html import *
+    from urtext.directives.include import *
+    from urtext.directives.interlinks import *
+    from urtext.directives.limit import *
+    from urtext.directives.list import *
+    from urtext.directives.log import *
+    from urtext.directives.markdown import *
+    from urtext.directives.request import *
+    from urtext.directives.sort import *
+    from urtext.directives.tree import *
+    from urtext.extensions.history import *
+    from urtext.extensions.rake import *
+    from urtext.extensions.tree import *
 
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'
 title_marker_regex = r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)'
@@ -58,31 +114,7 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
-# manual import
-from Urtext.urtext.actions.history import *
-from Urtext.urtext.actions.ics import *
-from Urtext.urtext.actions.pull_pop import *
-from Urtext.urtext.actions.reindex import *
 
-from Urtext.urtext.directives.access_history import *
-from Urtext.urtext.directives.collect import *
-from Urtext.urtext.directives.export import *
-from Urtext.urtext.directives.files import *
-from Urtext.urtext.directives.header_footer import *
-from Urtext.urtext.directives.html import *
-from Urtext.urtext.directives.include import *
-from Urtext.urtext.directives.interlinks import *
-from Urtext.urtext.directives.limit import *
-from Urtext.urtext.directives.list import *
-from Urtext.urtext.directives.log import *
-from Urtext.urtext.directives.markdown import *
-from Urtext.urtext.directives.request import *
-from Urtext.urtext.directives.sort import *
-from Urtext.urtext.directives.tree import *
-
-from Urtext.urtext.extensions.history import *
-from Urtext.urtext.extensions.rake import *
-from Urtext.urtext.extensions.tree import *
 
 all_extensions = all_subclasses(UrtextExtension)
 all_directives = all_subclasses(UrtextDirective)

@@ -20,9 +20,16 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import re
 import datetime
 import time
-from .utils import force_list
-from .dynamic import UrtextDynamicDefinition
-from .timestamp import UrtextTimestamp, default_date
+import os
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .utils import force_list
+    from .dynamic import UrtextDynamicDefinition
+    from .timestamp import UrtextTimestamp, default_date
+else:
+    from urtext.utils import force_list
+    from urtext.dynamic import UrtextDynamicDefinition
+    from urtext.timestamp import UrtextTimestamp, default_date
 
 timestamp_match = re.compile('<([^-/<\s][^=<]+?)>')
 meta_entry = re.compile('\+?\*{0,2}\w+\:\:[^\n@};]+;?(?=>:})?')

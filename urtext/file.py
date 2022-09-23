@@ -18,9 +18,13 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 import re
-from .node import UrtextNode
 import concurrent.futures
-from .utils import strip_backtick_escape
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .node import UrtextNode
+    from .utils import strip_backtick_escape
+else:
+    from urtext.node import UrtextNode
+    from urtext.utils import strip_backtick_escape
 
 node_id_regex =         r'\b[0-9,a-z]{3}\b'
 node_link_regex =       r'>[0-9,a-z]{3}\b'
@@ -75,10 +79,8 @@ class UrtextBuffer:
         self.could_import = False        
         self.file_length = len(contents)        
         self.parse(self.lex(contents))
-        
-     
-        #self.write_errors(project.settings)
-        
+        self.obj = {}
+            
     def lex(self, contents):
 
         self.symbols = {}
@@ -146,7 +148,8 @@ class UrtextBuffer:
 
         unstripped_contents = contents
         contents = strip_backtick_escape(contents)
-        
+        obj = {}
+
         for index in range(0, len(self.positions)):
 
             position = self.positions[index]

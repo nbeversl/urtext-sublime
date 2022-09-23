@@ -17,9 +17,13 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-from .node import UrtextNode
 import os
 import re
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .node import UrtextNode
+else:
+    from urtext.node import UrtextNode
 
 def _compile(self):
     

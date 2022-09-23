@@ -1,5 +1,9 @@
-from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
+import os
 import datetime
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
+else:
+    from urtext.directive import UrtextDirectiveWithKeysFlags
 
 # This class should be abstracted as an accumulator (prepend/append)
 class AccessHistory(UrtextDirectiveWithKeysFlags):

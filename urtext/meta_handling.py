@@ -22,9 +22,13 @@ Metadata
 """
 import datetime
 import re 
-from .node import UrtextNode
-from .metadata import MetadataEntry
 import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .node import UrtextNode
+    from .metadata import MetadataEntry
+else:
+    from urtext.node import UrtextNode
+    from urtext.metadata import MetadataEntry
 
 entry_regex = re.compile('\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
 

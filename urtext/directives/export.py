@@ -19,8 +19,12 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import re
-from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
-import Urtext.urtext.node
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+    import Urtext.urtext.node
+else:
+    from urtext.directive import UrtextDirectiveWithParamsFlags
+    import urtext.node
 
 node_link_regex = r'[^>]>[0-9,a-z]{3}\b'
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'

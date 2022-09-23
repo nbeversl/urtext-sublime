@@ -1,6 +1,11 @@
-from ..directive import  UrtextDirectiveWithKeysFlags
-from ..timestamp import UrtextTimestamp
 import datetime
+import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+	from ..directive import  UrtextDirectiveWithKeysFlags
+	from ..timestamp import UrtextTimestamp
+else:
+	from urtext.directive import  UrtextDirectiveWithKeysFlags
+	from urtext.timestamp import UrtextTimestamp
 
 class Sort(UrtextDirectiveWithKeysFlags):
 

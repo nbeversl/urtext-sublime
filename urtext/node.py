@@ -19,15 +19,24 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import json
-from .metadata import NodeMetadata
-from Urtext.anytree.exporter import JsonExporter
-from .dynamic import UrtextDynamicDefinition
-from .utils import strip_backtick_escape
 import re
 import datetime
 import logging
-from Urtext.anytree import Node, PreOrderIter
-from .metadata import MetadataEntry
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from Urtext.anytree import Node, PreOrderIter
+    from .metadata import MetadataEntry
+    from .metadata import NodeMetadata
+    from Urtext.anytree.exporter import JsonExporter
+    from .dynamic import UrtextDynamicDefinition
+    from .utils import strip_backtick_escape
+else:
+    from anytree import Node, PreOrderIter
+    from metadata import MetadataEntry
+    from metadata import NodeMetadata
+    from anytree.exporter import JsonExporter
+    from dynamic import UrtextDynamicDefinition
+    from utils import strip_backtick_escape
 
 dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
@@ -106,7 +115,7 @@ class UrtextNode:
             self.contains_project_settings = True
 
         self.get_links(contents=contents)
-    
+
     def start_position(self):
         return self.ranges[0][0]
     

@@ -16,10 +16,19 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-from Urtext.urtext.dynamic_output import DynamicOutput
-from Urtext.anytree import Node, PreOrderIter, RenderTree
-from Urtext.urtext.timestamp import UrtextTimestamp, default_date
-from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
+    from Urtext.urtext.dynamic_output import DynamicOutput
+    from Urtext.anytree import Node, PreOrderIter, RenderTree
+    from Urtext.urtext.timestamp import UrtextTimestamp, default_date
+    from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+else:
+    from urtext.directive import UrtextDirectiveWithKeysFlags
+    from urtext.dynamic_output import DynamicOutput
+    from anytree import Node, PreOrderIter, RenderTree
+    from urtext.timestamp import UrtextTimestamp, default_date
+    from urtext.directive import UrtextDirectiveWithParamsFlags
 
 class Collect (UrtextDirectiveWithParamsFlags):
 

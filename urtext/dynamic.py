@@ -21,9 +21,15 @@ import os
 
 node_id_regex = r'>[0-9,a-z]{3}\b'
 function_regex = re.compile('([A-Z_\-\+]+)\((.*?)\)', re.DOTALL)
-from .directive import UrtextDirective
-from .utils import force_list
-from .directives.list import NodeList
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+	from .directive import UrtextDirective
+	from .utils import force_list
+	from .directives.list import NodeList
+else:
+	from urtext.directive import UrtextDirective
+	from urtext.utils import force_list
+	from urtext.directives.list import NodeList
 
 class UrtextDynamicDefinition:
 

@@ -17,9 +17,15 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 import re
-from Urtext.anytree import Node
-from Urtext.anytree import RenderTree
-from Urtext.urtext.directive  import UrtextDirectiveWithParamsFlags
+import os
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+    from Urtext.anytree import Node
+    from Urtext.anytree import RenderTree
+    from Urtext.urtext.directive  import UrtextDirectiveWithParamsFlags
+else:
+    from anytree import Node
+    from anytree import RenderTree
+    from urtext.directive  import UrtextDirectiveWithParamsFlags
 
 node_id_regex = '[0-9,a-z]{3}'
 node_link_regex =       r'>[0-9,a-z]{3}\b'
