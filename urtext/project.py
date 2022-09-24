@@ -1432,7 +1432,7 @@ class UrtextProject:
                 if '>>' in full_link:
                     pointer_syntax = '>>'
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(full_link, pointer_syntax+new_node_id+position)
+                new_contents = new_contents.replace(full_link, pointer_syntax+new_node_id+position + '\n')
 
             for pointer in node_pointers:
                 node_id = pointer[2:]
@@ -1440,7 +1440,7 @@ class UrtextProject:
                     print(node_id, ' not in self nodes. Skipping')
                     continue
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(pointer, '>>'+new_node_id)
+                new_contents = new_contents.replace(pointer, '>>'+new_node_id +'\n')
 
             for link in node_links:
                 node_id = link[1:]
@@ -1448,7 +1448,7 @@ class UrtextProject:
                     print(node_id, ' not in self nodes. Skipping')
                     continue
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(link, '>'+new_node_id)
+                new_contents = new_contents.replace(link, '>'+new_node_id + '\n')
 
             for node_id in node_ids:
                 new_contents = new_contents.replace(node_id, '')
