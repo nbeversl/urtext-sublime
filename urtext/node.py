@@ -52,6 +52,7 @@ embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
 shorthand_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
 preformat_syntax = re.compile('\`.*?\`', flags=re.DOTALL)
 tree_elements = ['├──','└──','│','┌──',]
+title_regex=re.compile('[\w ]+')
 
 class UrtextNode:
 
@@ -181,7 +182,7 @@ class UrtextNode:
     def set_title(self, contents):
 
         t = self.metadata.get_first_value('title')
-        if t: 
+        if t:
             return t
         
         stripped_contents_lines = strip_metadata(contents).strip().split('\n')
@@ -196,23 +197,21 @@ class UrtextNode:
             return '(untitled)'
 
         first_line = line
-        first_line = re.sub('>{1,2}[0-9,-z]{3}', '', first_line, re.DOTALL)    
-        first_line = first_line.replace('┌──','')
-        first_line = first_line.replace('|','') # pipe character cannot be in node names
 
         # TODO : WHY DOES THIS HAPPEN?
-        first_line = first_line.strip().strip('{').strip()
+        first_line = first_line.strip().strip('{').strip()        
+        first_line = first_line.strip().strip('\n').strip()
 
-        if '•' in first_line:
-            first_line = re.sub(r'^[\s]*\•','',first_line)           
-        
-        first_line=first_line.strip().strip('\n').strip()
-        if len(first_line) > 255:
-            first_line = first_line[:255]
+        title = re.search(title_regex, first_line).group()
+        if not title:
+            title = '(untitled)'
+        title = title.strip()
+        if len(title) > 255:
+            title = title[:255]
 
-        first_line = sanitize_escape(first_line)
-        self.metadata.add_entry('title', first_line)
-        return first_line
+        title = sanitize_escape(title)
+        self.metadata.add_entry('title', title)
+        return title
    
     def log(self):
         logging.info(self.id)

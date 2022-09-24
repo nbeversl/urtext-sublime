@@ -100,7 +100,6 @@ class ProjectList():
         """ Otherwise, set the project, search the link for a link in the current project """
         
         self.set_current_project(os.path.basename(filename))
-
         link = self.current_project.get_link( 
             string, 
             filename, 
@@ -165,10 +164,9 @@ class ProjectList():
             node_title = ''
             if node_id in project.nodes:
                 node_title = project.nodes[node_id].get_title()
-            link = '| '+ node_title +' >'
+            link = '>'+node_title
             if pointer:
-                link += '>'
-            link += node_id
+                link = '>'+link
             if include_project or project != self.current_project:
                 link = '=>"' + project.title +'"'+link
             return link

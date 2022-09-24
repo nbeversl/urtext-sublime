@@ -40,8 +40,6 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-
-
 def refresh_project_text_command(import_project=False, change_project=True):
     """ 
     Determine which project we are in based on the Sublime window.
@@ -198,7 +196,6 @@ class ListProjectsCommand(UrtextTextCommand):
             self.set_window_project)
 
     def set_window_project(self, title):
-        # if self.view.window():
         self._UrtextProjectList.set_current_project(title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
@@ -307,9 +304,16 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-        node_id = _UrtextProjectList.current_project.get_home()
-        _UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id)
+        link = _UrtextProjectList.current_project.get_home()
+        home = _UrtextProjectList.get_link_and_set_project(
+            '>'+link,
+            self.view.file_name())
+        if home:
+            print(home)   
+            home_id = home['node_id']
+
+            _UrtextProjectList.nav_new(home_id)
+            open_urtext_node(self.view, home_id)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
@@ -334,7 +338,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         file_pos = self.view.sel()[0].a
         col_pos = self.view.rowcol(file_pos)[1]
         full_line_region = self.view.line(self.view.sel()[0])
-        full_line =  self.view.substr(full_line_region)
+        full_line = self.view.substr(full_line_region)
 
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
@@ -705,7 +709,7 @@ class NewNodeCommand(UrtextTextCommand):
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
-        self._UrtextProjectList.nav_new(new_node['id'])        
+        self._UrtextProjectList.nav_new(new_node['id'])
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
         def set_cursor(new_view):
@@ -984,7 +988,7 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    print('DEBGGIN')
+    print('DEBGGING - SublimeText')
     print(node_id)
     print(filename)
     print(node_position)

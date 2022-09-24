@@ -271,8 +271,8 @@ class UrtextProject:
             'filename_title_length': 100,
             'exclude_files': [],
             'breadcrumb_key' : '',
-            'new_file_node_format' : '$timestamp $id \n$cursor',
-            'new_bracket_node_format' : '$timestamp $id $cursor',
+            'new_file_node_format' : 'New File Created $timestamp\n$cursor',
+            'new_bracket_node_format' : '$timestamp $cursor',
             'new_file_line_pos' : 2,
             'keyless_timestamp' : True,
             'file_node_timestamp' : True,
@@ -639,7 +639,6 @@ class UrtextProject:
         date=None, 
         contents=None,
         metadata = {}, 
-        node_id=None,
         one_line=None
         ):
 
@@ -647,28 +646,27 @@ class UrtextProject:
         if contents == None:
             contents_format = bytes(self.settings['new_file_node_format'], "utf-8").decode("unicode_escape")
 
-        contents, node_id, cursor_pos = self._new_node(
+        filename = datetime.datetime.now().strftime('%Y-%m-%d')
+        contents, cursor_pos = self._new_node(
             date=date,
             contents=contents,
             contents_format=contents_format,
             metadata=metadata,
-            node_id=node_id,
             include_timestamp=self.settings['file_node_timestamp'])
         
-        filename = node_id + '.txt'
+        filename = filename + '.txt'
         with open(os.path.join(self.path, filename), "w") as f:
             f.write(contents)  
         self._parse_file(filename)
         return { 
-                'filename':filename, 
-                'id':node_id,
+                'filename' : filename, 
+                'id' : filename,
                 'cursor_pos' : cursor_pos
                 }
 
     def new_inline_node(self, 
         date=None, 
         metadata = {}, 
-        node_id=None,
         contents='',
         one_line=None,
         ):
@@ -677,16 +675,14 @@ class UrtextProject:
         if contents == '':
             contents_format = bytes(self.settings['new_bracket_node_format'], "utf-8").decode("unicode_escape")
 
-        contents, node_id, cursor_pos = self._new_node(
+        contents, cursor_pos = self._new_node(
             date=date,
             contents=contents,
             contents_format=contents_format,
-            metadata=metadata,
-            node_id=node_id)
+            metadata=metadata)
 
         return {
             'contents' : ''.join(['{', contents, '}']),
-            'id':node_id,
             'cursor_pos' : cursor_pos
         }
     
@@ -694,10 +690,8 @@ class UrtextProject:
             date=None, 
             contents='',
             contents_format=None,
-            node_id=None,
             metadata=None,
             one_line=None,
-
             include_timestamp=False):
 
         cursor_pos = 0
@@ -705,12 +699,11 @@ class UrtextProject:
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
             new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )
-                    
+
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0])
                 new_node_contents = ''.join(new_node_contents)
-
         else:
 
             if one_line == None:
@@ -721,8 +714,6 @@ class UrtextProject:
 
             if  self.settings['device_keyname']:
                 metadata[self.settings['device_keyname']] = platform.node()
-
-            metadata['id']=node_id
 
             new_node_contents = contents
 
@@ -736,7 +727,7 @@ class UrtextProject:
 
             new_node_contents += self.urtext_node.build_metadata(metadata, one_line=one_line)
 
-        return new_node_contents, node_id, cursor_pos
+        return new_node_contents, cursor_pos
 
     def add_compact_node(self,  
             contents='', 
@@ -774,7 +765,7 @@ class UrtextProject:
         self.nav_index += 1
         next_node = self.navigation[self.nav_index]
         self.visit_node(next_node)
-        return next_node 
+        return next_node
 
     def nav_new(self, node_id):
         if node_id in self.nodes:
@@ -956,14 +947,14 @@ class UrtextProject:
         link = re.search(link_regex, string)
         if link:
             link = link.group(2)
-            for node in self.nodes:
-                if node.startswith(link):
-                    result = node
+            for node_id in self.nodes:
+                if node_id.startswith(link):
+                    result = node_id
                     break
 
         if result:
             kind = 'NODE'
-            link_match = result
+            node_id = result
             link_location = file_pos + len(result)
             link = result # node id
             # if len(result.groups()) > 2:
@@ -988,7 +979,7 @@ class UrtextProject:
         return {
             'kind' : kind, 
             'link' : link, 
-            'link_match' : link_match,
+            'node_id' : node_id,
             'file_pos': file_pos, 
             'link_location' : link_location, 
             'dest_position' : dest_position 
