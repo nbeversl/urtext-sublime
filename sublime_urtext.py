@@ -890,6 +890,12 @@ class UrtextReloadProjectCommand(UrtextTextCommand):
             print('No Urtext Project')
             return None
 
+class ConvertToNoNodeIdsCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        self._UrtextProjectList.current_project.convert_project_to_no_node_ids()
+
 class CompactNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()

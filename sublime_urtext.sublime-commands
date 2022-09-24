@@ -39,5 +39,6 @@
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
     { "caption": "Urtext: Turn Off Async (debugginh)", "command" :"no_async"},
+    { "caption": "Urtext: Convert Project to No Node IDs", "command" :"convert_to_no_node_ids"},
   
 ] 
