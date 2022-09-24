@@ -188,7 +188,7 @@ class UrtextProject:
                  new_project=False):
         
         self.is_async = True 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -1405,6 +1405,25 @@ class UrtextProject:
             position = self.nodes[node_id].start_position()
             return filename, position
         return None, None
+
+    def convert_project_to_no_node_ids(self):
+        # replace all links and pointers with new style
+        for file in self.files:
+
+            contents = self.files[file]._get_file_contents()
+
+            node_pointers = re.findall(r'>>[0-9,a-z]{3}\b', contents)
+            node_links = re.findall(r'>[0-9,a-z]{3}\b', contents)
+            titled_node_links = re.findall(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?', contents)
+            title_markers = re.findall(r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)', contents)
+            node_ids = re.findall(r'\b[0-9,a-z]{3}\b', contents)
+
+            new_contents = contents
+
+            for pointer in node_pointers:
+                print(pointer)
+
+        # delete node IDs
 
 
 class NoProject(Exception):
