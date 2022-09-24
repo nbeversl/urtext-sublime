@@ -36,8 +36,8 @@ def _compile(self):
 
 def _compile_file(self, filename): 
     modified = False
+    filename = os.path.basename(filename)
     if filename in self.files:
-        filename = os.path.basename(filename)
         for node_id in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node_id):
                 if self._process_dynamic_def(dd) and not modified:
@@ -89,9 +89,6 @@ def _build_final_output(self, dynamic_definition, contents):
 
     metadata_values = {}
     
-    if dynamic_definition.target_id:
-        metadata_values['ID'] = dynamic_definition.target_id
-
     built_metadata = UrtextNode.build_metadata(
         metadata_values, 
         one_line = not dynamic_definition.multiline_meta)

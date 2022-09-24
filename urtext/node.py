@@ -98,14 +98,6 @@ class UrtextNode:
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
 
-        r = re.search(r'(^|\s)@[0-9,a-z]{3}\b', contents)
-        if r:
-            self.id = r.group(0).strip()[1:]
-            self.tree_node = Node(self.id)
-            contents = contents.replace(r.group(0),'',1)
-            for d in self.dynamic_definitions:
-                d.source_id = self.id
-
         if not contents:
             self.blank = True 
     
@@ -113,6 +105,11 @@ class UrtextNode:
 
         if self.title == 'project_settings':
             self.contains_project_settings = True
+
+        self.id = self.title
+        self.tree_node = Node(self.id)
+        for d in self.dynamic_definitions:
+            d.source_id = self.id
 
         self.get_links(contents=contents)
 
@@ -153,8 +150,7 @@ class UrtextNode:
         if not self.title:
             return '(untitled)'
         if self.project:
-            return self.title[:self.project.settings['title_length']]
-        return 'untitled from line 150 - DEBUGGING'
+            return self.title #[:self.project.settings['title_length']]
 
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
@@ -172,7 +168,7 @@ class UrtextNode:
             contents = self.content_only()
         nodes = re.findall(simple_node_link_regex, contents)  # link RegEx
         for node in nodes:
-            self.links.append(node[-3:])
+            self.links.append(node)
 
     def content_only(self, 
         contents=None, 
@@ -259,19 +255,13 @@ class UrtextNode:
             line_separator = '; '
         new_metadata = ''
 
-        nid = ''
         for keyname in metadata:
-            if keyname.lower() == 'id':
-                nid = metadata[keyname]
-                continue
             new_metadata += keyname + separator
             if isinstance(metadata[keyname], list):
                 new_metadata += ' - '.join(metadata[keyname])
             else:
                 new_metadata += str(metadata[keyname])
             new_metadata += line_separator
-        if nid:
-            new_metadata += '@'+nid
         return new_metadata.strip()
 
     def set_content(self, contents, preserve_metadata=False, bypass_check=False):

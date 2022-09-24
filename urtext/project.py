@@ -101,7 +101,6 @@ else:
 
 node_pointer_regex = r'>>[0-9,a-z]{3}\b'
 title_marker_regex = r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)'
-node_id_regex = r'\b[0-9,a-z]{3}\b'
 titled_node_link_regex = re.compile(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?')
 action_regex = re.compile(r'>>>([A-Z_]+)\((.*?)\)', re.DOTALL)
 editor_file_link_regex = re.compile('(f>{1,2})([^;]+)')
@@ -113,8 +112,6 @@ functions.extend(metadata_functions)
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
-
-
 
 all_extensions = all_subclasses(UrtextExtension)
 all_directives = all_subclasses(UrtextDirective)
@@ -179,7 +176,6 @@ class UrtextProject:
 
     urtext_file = UrtextFile
     urtext_node = UrtextNode
-    
 
     def __init__(self,
                  path,
@@ -187,8 +183,8 @@ class UrtextProject:
                  recursive=False,
                  new_project=False):
         
-        self.is_async = True 
-        #self.is_async = False # development
+        # self.is_async = True 
+        self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -213,14 +209,12 @@ class UrtextProject:
                     new_project=new_project)
         else:    
             self._initialize_project(new_project=new_project)
-
     def _initialize_project(self, 
         new_project=False):
 
         for c in all_extensions:
             for n in c.name:
                 self.extensions[n] = c(self)
-
         for c in all_actions:
             for n in c.name:
                 self.actions[n] = c
@@ -254,7 +248,6 @@ class UrtextProject:
                     self.nodes[node_id].tree_node, 
                     self.nodes[node_id].tree_node, 
                     e)
-    
         self._compile()
         self.compiled = True
         print('"'+self.title+'" compiled from '+self.path )
@@ -308,15 +301,6 @@ class UrtextProject:
                 'timestamp',],
         }
 
-    def _node_id_generator(self):
-        chars = [
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
-            'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-        ]
-        return itertools.product(chars, repeat=3)
-
-
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
             node_length = 0
@@ -348,6 +332,10 @@ class UrtextProject:
             self.to_import.append(filename)
             return
 
+        old_node_ids = []
+        if filename in self.files:
+            old_node_ids = self.files[filename].get_ordered_nodes()
+
         self._remove_file(filename)
  
         duplicate_nodes = self._check_file_for_duplicates(new_file)
@@ -357,7 +345,40 @@ class UrtextProject:
         
         if new_file.filename in self.error_files:
             self.error_files.remove(new_file.filename)
-    
+
+        if old_node_ids: # (if the file was already in the project)
+            new_node_ids = new_file.get_ordered_nodes()
+
+            added_ids = []
+            for node_id in new_node_ids:
+                if node_id not in old_node_ids:
+                    added_ids.append(node_id)
+
+            removed_ids = []
+            for node_id in old_node_ids:
+                if node_id not in new_node_ids:
+                    removed_ids.append(node_id)
+
+            changed_ids = {}
+            for index in range(0, len(old_node_ids)): # existing links are all we care about
+                if old_node_ids[index] == new_node_ids[index]:
+                    # the id stayed the same
+                    continue
+                else:
+                    if new_node_ids[index] in old_node_ids:
+                        # proably only the order changed.
+                        # don't have to do anything
+                        continue
+                    else:
+                        # check each new id for similarity to the old one
+                        if len(added_ids) == 1:
+                            # only one node id changed. simple.
+                            changed_ids[old_node_ids[index]] = added_ids[0]
+                        else:
+                            # try to map old to new. This is the hard part
+                            pass
+            print(changed_ids)
+
         self.files[new_file.basename] = new_file  
         for node_id in new_file.nodes:
             self._add_node(new_file.nodes[node_id])
@@ -407,55 +428,6 @@ class UrtextProject:
             file_obj.write_errors(self.settings, messages=messages)
             return duplicate_nodes
 
-        return False
-
-    def _rewrite_titles(self, filename=None, contents=""):
-        
-        if contents:
-            original_contents = contents
-        elif filename:
-            original_contents = self.files[filename]._get_file_contents()
-        else:
-            return
-        new_contents = original_contents
-        offset = 0
-        for match in re.finditer(title_marker_regex, new_contents):
-
-            # cross-project link
-            if match.group(1):
-                project_title = match.group(1)[3:-1]
-                project = self.project_list.get_project(project_title)
-                if project == None: return False
-            else: project = self
-
-            start = match.start() + offset
-            end = match.end() + offset   
-            match_contents = new_contents[start:end]
-            node_id = match_contents[-3:]
-            if node_id in project.nodes:
-                title = project.nodes[node_id].get_title()
-            else:
-                title = ' ? '
-            bracket = '>'
-            if re.search(node_pointer_regex, match_contents):
-                bracket += '>'
-            if project == self:
-                project_prefix = ''
-            else:
-                project_prefix = '=>"'+project.title+'"'
-            replaced_contents = ''.join([                
-                new_contents[:start],
-                project_prefix,
-                '| ', title, ' ', bracket, node_id,
-                new_contents[end:]
-                ])
-            offset += len(replaced_contents) - len(new_contents)
-            new_contents = replaced_contents
-        if contents:
-            return new_contents
-        if "\n".join(new_contents.splitlines()) != "\n".join(original_contents.splitlines()):   
-            self.files[filename]._set_file_contents(new_contents)
-            return True
         return False
 
     def _target_id_defined(self, check_id):
@@ -560,7 +532,6 @@ class UrtextProject:
         date = creation_date(os.path.join(self.path, filename))
         now = datetime.datetime.now()
         full_file_contents += '\n\n'
-        full_file_contents += "@" + self.next_index() + '\n'
         full_file_contents += 'file_date::'+self.timestamp(date) + '\n'
         full_file_contents += 'imported::' + self.timestamp(now) + '\n'
         with open(os.path.join(self.path, filename),'w',encoding='utf-8') as theFile:
@@ -710,19 +681,11 @@ class UrtextProject:
             include_timestamp=False):
 
         cursor_pos = 0
-        if not node_id:
-            node_id = self.next_index()
 
-        node_id = self.next_index()
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
             new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )
-            
-            if '$id' in new_node_contents:
-                new_node_contents = new_node_contents.replace('$id', '@'+node_id )
-            else:
-                new_node_contents += ' @'+ self.next_index()
-        
+                    
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0])
@@ -759,7 +722,6 @@ class UrtextProject:
             contents='', 
             metadata={},
         ):
-            metadata['id']=self.next_index()
             metadata_block = self.urtext_node.build_metadata(metadata, one_line=True)
             return '•  '+contents + ' ' + metadata_block
 
@@ -929,17 +891,6 @@ class UrtextProject:
         if not link:
             return
         
-        # work backwards along the line
-        # if not link['kind']:
-        #     while col_pos > -1:
-        #         link = self.find_link(
-        #             string[col_pos:], 
-        #             filename, 
-        #             col_pos=col_pos,
-        #             file_pos=file_pos)
-        #         if link['kind']:
-        #             break
-        #         col_pos -= 1
         link = self.find_link(
             string, 
             filename, 
@@ -968,8 +919,9 @@ class UrtextProject:
         link = ''
         dest_position = None
         link_match = None
-        result = action_regex.search(string)
+        link_location = None
 
+        result = action_regex.search(string)
         if result:
             action = result.group(1)
             for name in self.actions:
@@ -980,23 +932,29 @@ class UrtextProject:
                         filename, 
                         col_pos=col_pos,
                         file_pos=file_pos)
+        print(string)
+        first_link_marker = string.split(' >')
+        if len(first_link_marker) > 1:
+            possible_link = first_link_marker[1]
+            print(possible_link)
+            for node_id in self.nodes:
+                if node_id.startswith(possible_link):
+                    result = node_id
+                    break
 
-        result = re.search(titled_node_link_regex, string)
-        link_location = None
-        
         if result:
 
             kind = 'NODE'
-            link_match = result.group()
-            link_location = file_pos + result.span()[1] - 3
-            link = result.group(2) # node id
-            if len(result.groups()) > 2:
-                dest_position = result.group(3) 
-                if dest_position:
-                    dest_position = int(dest_position[1:])
-                else:
-                    dest_position = 0
-                dest_position = self.get_file_position(link, dest_position)
+            link_match = result
+            link_location = file_pos + len(result)
+            link = result # node id
+            # if len(result.groups()) > 2:
+            #     dest_position = result.group(3) 
+            #     if dest_position:
+            #         dest_position = int(dest_position[1:])
+            #     else:
+            #         dest_position = 0
+            dest_position = self.get_file_position(link, 0)
         else:
             result = re.search(editor_file_link_regex, string)            
             if result:
@@ -1015,7 +973,8 @@ class UrtextProject:
             'link_match' : link_match,
             'file_pos': file_pos, 
             'link_location' : link_location, 
-            'dest_position' : dest_position }
+            'dest_position' : dest_position 
+            }
 
     def _is_duplicate_id(self, node_id, filename):
         """ private method to check if a node id is already in the project """
@@ -1110,12 +1069,6 @@ class UrtextProject:
     def get_home(self):
         return self.settings['home']
 
-    def next_index(self):
-        index = random.choice(list(self._node_id_generator()))
-        while ''.join(index) in self.nodes:
-            index = random.choice(list(self._node_id_generator()))
-        return ''.join(index)
-
     def titles(self):
         title_list = {}
         for node_id in self.nodes:
@@ -1174,19 +1127,17 @@ class UrtextProject:
         filenames = [f for f in filenames if f not in self.excluded_files]
         if self.is_async:
             return self.executor.submit(self._file_update, filenames)
-        return self._file_update(filenames)
+        return self._file_update(filenames)       
     
     def _file_update(self, filenames):
+
         if self.compiled:
             modified_files = []
-            for f in filenames:  
-                if f in self.error_files:
-                    self._parse_file(f)
+            for f in filenames:
                 if f not in self.files:
                     continue
-                self._rewrite_titles(filename=f)
                 self._parse_file(f)
-                modified_file = self._compile_file(f)   
+                modified_file = self._compile_file(f)
                 if modified_file:
                     modified_files.append(modified_file)
             self._sync_file_list()
@@ -1195,7 +1146,6 @@ class UrtextProject:
                     self.import_file(f)
                     self.to_import.remove(f)
             return modified_files
-
 
     def visit_node(self, node_id):
         if self.is_async:
@@ -1223,8 +1173,6 @@ class UrtextProject:
             self._process_dynamic_def(self.exports[filename])
         
         if filename in self.files and self.compiled:
-            if self._rewrite_titles(filename=filename):
-                self._parse_file(filename)
             return self._compile_file(filename)
     
     def _sync_file_list(self):

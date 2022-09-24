@@ -19,7 +19,6 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import re
 import os
 
-node_id_regex = r'>[0-9,a-z]{3}\b'
 function_regex = re.compile('([A-Z_\-\+]+)\((.*?)\)', re.DOTALL)
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
@@ -52,7 +51,7 @@ class UrtextDynamicDefinition:
 		self.init_self(contents)
 		
 		if not self.show:
-			self.show = '$title $link\n'
+			self.show = '$link\n'
 			
 	def init_self(self, contents):
 
@@ -66,10 +65,9 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func =='ID':
-				node_id_match = re.search(node_id_regex, argument_string)
-				if node_id_match:
-					self.target_id = node_id_match.group(0)[1:]
-					continue
+				node_id_match = argument_string.strip('>').strip()
+				self.target_id = node_id_match
+				continue
 
 			if func == 'FILE':
 				# currently works for files in the project path only

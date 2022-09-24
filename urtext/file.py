@@ -19,6 +19,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import re
 import concurrent.futures
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
@@ -26,10 +27,7 @@ else:
     from urtext.node import UrtextNode
     from urtext.utils import strip_backtick_escape
 
-node_id_regex =         r'\b[0-9,a-z]{3}\b'
-node_link_regex =       r'>[0-9,a-z]{3}\b'
-node_pointer_regex =    r'>>[0-9,a-z]{3}\b'
-error_messages =        '<!{1,2}.*?!{1,2}>\n?'
+error_messages = '<!{1,2}.*?!{1,2}>\n?'
 
 compiled_symbols = [re.compile(symbol) for symbol in  [
     r'(?<!\\){',  # inline node opening wrapper
@@ -66,7 +64,6 @@ class UrtextBuffer:
         self.root_nodes = []
         self.alias_nodes = []           
         self.parsed_items = {}
-        self.anonymous_nodes = []
         self.strict = False
         self.messages = []        
         self.errors = False
@@ -74,8 +71,6 @@ class UrtextBuffer:
         self.filename = 'yyyyyyyyyyy'
         self.basename = 'yyyyyyyyyyy'
         self.project = project
-        
-        
         self.could_import = False        
         self.file_length = len(contents)        
         self.parse(self.lex(contents))
@@ -175,10 +170,8 @@ class UrtextBuffer:
             """
             if self.symbols[position] == '>>':
                 
-                node_pointer = contents[position:position + 5]
-                
-                if re.match(node_pointer_regex, node_pointer):
-                    self.parsed_items[position] = node_pointer
+                node_pointer = contents[position:].split('\n')[0].strip()
+                self.parsed_items[position] = node_pointer
 
                 continue
 
@@ -229,7 +222,7 @@ class UrtextBuffer:
 
                         root = True
 
-                success = self.add_node(
+                self.add_node(
                     nested_levels[nested], 
                     unstripped_contents, 
                     position, 
@@ -238,7 +231,7 @@ class UrtextBuffer:
 
                 del nested_levels[nested]
 
-                if compact and not success and self.symbols[position] != 'EOF' :
+                if compact and self.symbols[position] != 'EOF' :
                     nested -=1
                     nested_levels[nested].append([last_position, position])
                     last_position = position + symbol_length[self.symbols[position]]
@@ -303,24 +296,12 @@ class UrtextBuffer:
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
-        
-        if new_node.id != None: # and re.match(node_id_regex, new_node.id):
-            self.nodes[new_node.id] = new_node
-            self.nodes[new_node.id].ranges = ranges
-            if new_node.root_node:
-                self.root_nodes.append(new_node.id) 
-            self.parsed_items[ranges[0][0]] = new_node.id
-            return True
-        else:
-            if root:
-                self.anonymous_nodes.append(new_node) 
-                self.messages.append('Warning : root Node has no ID.')
-            elif compact:
-                pass
-            else:
-                self.anonymous_nodes.append(new_node) 
-                self.messages.append('Warning: Node missing ID at position '+str(position))
-            return False
+                
+        self.nodes[new_node.id] = new_node
+        self.nodes[new_node.id].ranges = ranges
+        if new_node.root_node:
+            self.root_nodes.append(new_node.id) 
+        self.parsed_items[ranges[0][0]] = new_node.id
             
     def _get_file_contents(self):
           return self.contents 
@@ -329,11 +310,11 @@ class UrtextBuffer:
           return
           
     def get_node_id_from_position(self, position):
-            for node_id in self.nodes:
-                for r in self.nodes[node_id].ranges:
-                    if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                        return node_id
-            return None
+        for node_id in self.nodes:
+            for r in self.nodes[node_id].ranges:
+                if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
+                    return node_id
+        return None
 
     def clear_errors(self, contents):
         cleared_contents = re.sub(error_messages, '', contents, flags=re.DOTALL)
@@ -378,13 +359,17 @@ class UrtextBuffer:
         self._set_file_contents(new_contents, compare=False)
         self.nodes = {}
         self.root_nodes = []
-        self.anonymous_nodes = []
         self.parsed_items = {}
         self.messages = []
         self.parse(new_contents)
         self.errors = True
         for n in self.nodes:
             self.nodes[n].errors = True
+
+    def get_ordered_nodes(self):
+        return sorted( 
+            list(self.nodes.keys()),
+            key=lambda node_id :  self.nodes[node_id].ranges[0][0])
 
     def log_error(self, message, position):
 
@@ -397,7 +382,6 @@ class UrtextBuffer:
         print(''.join([ 
                 message, ' in >f', self.filename, ' at position ',
             str(position)]))
-            
 
 class UrtextFile(UrtextBuffer):
    
@@ -411,7 +395,6 @@ class UrtextFile(UrtextBuffer):
         self.messages = []        
         self.errors = False
         self.project = project
-        self.anonymous_nodes = []
         
         self.filename = os.path.join(project.path, os.path.basename(filename))
         contents = self._get_file_contents()

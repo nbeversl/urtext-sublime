@@ -31,7 +31,6 @@ class ProjectList():
         base_path, 
         initial_project=None,
         first_project=False):
-
         self.projects = []
         self.base_path = base_path
         self.current_project = None
@@ -75,9 +74,9 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling procedure.
         """
-        string=string.strip()
+        string = string.strip()
         node_id = None
-        project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z]{3})\b)?')
+        project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
         link = project_link_r.search(string)
         project_name = link.group(2)
         node_id = link.group(4)

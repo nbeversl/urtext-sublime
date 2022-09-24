@@ -16,7 +16,6 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
         if node_id in self.dynamic_definition.included_nodes:
             if self.dynamic_definition.target_id in self.project.nodes:
                 contents = self.project.nodes[self.dynamic_definition.target_id].contents()
-                contents = self.project._rewrite_titles(contents=contents)
                 contents = ''.join([ 
                         '\n',
                         self.project.timestamp(datetime.datetime.now()), 

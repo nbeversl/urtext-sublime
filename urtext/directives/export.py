@@ -265,7 +265,7 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
         for location in locations:
 
             match = node_pointer_locations[location]
-            node_id = match[-3:]
+            node_id = match
 
             pointer_length = len(match)
 

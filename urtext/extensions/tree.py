@@ -18,12 +18,12 @@ class UrtextAnyTree(UrtextExtension):
 
         for index, position in enumerate(positions):
 
-            node = parsed_items[position]
+            node = parsed_items[position].strip()
            
             # parse each marker, positioning it within its parent node
             if node[:2] == '>>':
                 inserted_node_id = node[2:]
-                parent_node = self.project.get_node_id_from_position(filename, position)     
+                parent_node = self.project.get_node_id_from_position(filename, position)  
                 if not parent_node:
                     continue 
                 alias_node = Node('ALIAS'+inserted_node_id)
@@ -34,7 +34,7 @@ class UrtextAnyTree(UrtextExtension):
             if position == 0 and parsed_items[0] == '{':
                 self.project.nodes[node].tree_node.parent = self.project.nodes[root_node_id].tree_node
                 continue
-            
+
             start_of_node = self.project.nodes[node].ranges[0][0]
             
             parent = self.project.get_node_id_from_position(filename, start_of_node - 1)

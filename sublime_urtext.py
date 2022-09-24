@@ -153,7 +153,7 @@ def initialize_project_list(view,
         _UrtextProjectList = None        
 
     folders = view.window().folders()       
-
+    
     #TODO Refactor
     if not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
@@ -167,7 +167,6 @@ def initialize_project_list(view,
             _UrtextProjectList._add_folder(current_path)
         else:
             _UrtextProjectList = ProjectList(current_path)    
-
     return _UrtextProjectList
 
 def get_path(view):
@@ -308,9 +307,7 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-        print(_UrtextProjectList.current_project.title)
         node_id = _UrtextProjectList.current_project.get_home()
-        print(node_id)
         _UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
@@ -416,7 +413,6 @@ class NodeBrowserCommand(UrtextTextCommand):
         self.menu = NodeBrowserMenu(
             _UrtextProjectList, 
             project=_UrtextProjectList.current_project)
-
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
@@ -878,9 +874,8 @@ class AddNodeIdCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
-                              {"contents": "@" + new_id})
+                              {"contents": ""})
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -990,6 +985,7 @@ def open_urtext_node(
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     print('DEBGGIN')
+    print(node_id)
     print(filename)
     print(node_position)
     print(_UrtextProjectList.current_project.path)
