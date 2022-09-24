@@ -52,7 +52,7 @@ embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
 shorthand_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
 preformat_syntax = re.compile('\`.*?\`', flags=re.DOTALL)
 tree_elements = ['├──','└──','│','┌──',]
-title_regex=re.compile('[\w ]+')
+title_regex=re.compile('[\w \)\()]+')
 
 class UrtextNode:
 
@@ -201,7 +201,6 @@ class UrtextNode:
         # TODO : WHY DOES THIS HAPPEN?
         first_line = first_line.strip().strip('{').strip()        
         first_line = first_line.strip().strip('\n').strip()
-
         title = re.search(title_regex, first_line).group()
         if not title:
             title = '(untitled)'

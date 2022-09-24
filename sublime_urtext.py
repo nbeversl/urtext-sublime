@@ -309,9 +309,7 @@ class UrtextHomeCommand(UrtextTextCommand):
             '>'+link,
             self.view.file_name())
         if home:
-            print(home)   
             home_id = home['node_id']
-
             _UrtextProjectList.nav_new(home_id)
             open_urtext_node(self.view, home_id)
 
@@ -373,7 +371,6 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
     def run(self, edit, **kwargs):
         if not _UrtextProjectList:
             return
-
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
         full_line = self.view.substr(region)
@@ -509,19 +506,6 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
         if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 
-class InsertNodeCommand(sublime_plugin.TextCommand):
-    """ inline only, does not make a new file """
-    @refresh_project_text_command()
-    def run(self):
-        add_inline_node(self.view, contents =' ')
-
-class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
-    """ inline only, does not make a new file """
-    @refresh_project_text_command()
-    def run(self):
-        add_inline_node(self.view, include_timestamp=False)    
-
-
 class WrapLineCommand(sublime_plugin.TextCommand):
     @refresh_project_text_command()
     def run(self):
@@ -557,8 +541,6 @@ def add_inline_node(view,
         view.sel().clear()
         new_cursor_position = sublime.Region(region.a + 1, region.a + 1 ) 
         view.sel().add(new_cursor_position) 
-    
-    return new_node['id'] # id
 
 class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """
@@ -703,7 +685,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
             node_id, 
             include_project=True)
 
-class NewNodeCommand(UrtextTextCommand):
+class NewFileNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
@@ -727,12 +709,11 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
-        self.view.run_command("insert", {"characters":'| >' + new_node['id']})
+        self.view.run_command("insert", {"characters":'>' + new_node['id']})
 
 class NewProjectCommand(UrtextTextCommand):
 
     def run(self, edit):
-
         sublime.select_folder_dialog(self.init_new_project)
 
     def init_new_project(self, path):
@@ -828,7 +809,6 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         open_files = [f.file_name() for f in self.view.window().views()]
         _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
         
-
 class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -856,7 +836,8 @@ class RenameFileCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        
+        self.view.run_command('save')
+        urtext_on_modified(self.view)
         filename = self.view.file_name()
         renamed_files = self._UrtextProjectList.current_project.run_action(
             "RENAME_SINGLE_FILE",

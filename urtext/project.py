@@ -260,8 +260,8 @@ class UrtextProject:
             'filenames': ['PREFIX', 'title'],
             'filename_datestamp_format':'%m-%d-%Y',
             'console_log': True,
-            'always_oneline_meta' : False,
-            'strict':False,
+            'always_oneline_meta': False,
+            'strict': False,
             'node_date_keyname' : 'timestamp',
             'numerical_keys': ['_index' ,'index','title_length'],
             'atomic_rename' : False,
@@ -271,8 +271,7 @@ class UrtextProject:
             'filename_title_length': 100,
             'exclude_files': [],
             'breadcrumb_key' : '',
-            'new_file_node_format' : 'New File Created $timestamp\n$cursor',
-            'new_bracket_node_format' : '$timestamp $cursor',
+            'new_file_node_format' : '$timestamp\n$cursor',
             'new_file_line_pos' : 2,
             'keyless_timestamp' : True,
             'file_node_timestamp' : True,
@@ -358,23 +357,25 @@ class UrtextProject:
                     removed_ids.append(node_id)
 
             changed_ids = {}
-            for index in range(0, len(old_node_ids)): # existing links are all we care about
-                if old_node_ids[index] == new_node_ids[index]:
-                    # the id stayed the same
-                    continue
-                else:
-                    if new_node_ids[index] in old_node_ids:
-                        # proably only the order changed.
-                        # don't have to do anything
+            
+            if len(old_node_ids) == len(new_node_ids):
+                for index in range(0, len(old_node_ids)): # existing links are all we care about
+                    if old_node_ids[index] == new_node_ids[index]:
+                        # the id stayed the same
                         continue
                     else:
-                        # check each new id for similarity to the old one
-                        if len(added_ids) == 1:
-                            # only one node id changed. simple.
-                            changed_ids[old_node_ids[index]] = added_ids[0]
+                        if new_node_ids[index] in old_node_ids:
+                            # proably only the order changed.
+                            # don't have to do anything
+                            continue
                         else:
-                            # try to map old to new. This is the hard part
-                            pass
+                            # check each new id for similarity to the old one
+                            if len(added_ids) == 1:
+                                # only one node id changed. simple.
+                                changed_ids[old_node_ids[index]] = added_ids[0]
+                            else:
+                                # try to map old to new. This is the hard part
+                                pass
             self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.basename] = new_file  
@@ -646,9 +647,11 @@ class UrtextProject:
         if contents == None:
             contents_format = bytes(self.settings['new_file_node_format'], "utf-8").decode("unicode_escape")
 
-        filename = datetime.datetime.now().strftime('%Y-%m-%d')
-        contents, cursor_pos = self._new_node(
+        filename = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        contents, title, cursor_pos = self._new_node(
             date=date,
+            title='New File Created',
             contents=contents,
             contents_format=contents_format,
             metadata=metadata,
@@ -658,9 +661,10 @@ class UrtextProject:
         with open(os.path.join(self.path, filename), "w") as f:
             f.write(contents)  
         self._parse_file(filename)
+
         return { 
                 'filename' : filename, 
-                'id' : filename,
+                'id' : title,
                 'cursor_pos' : cursor_pos
                 }
 
@@ -672,9 +676,6 @@ class UrtextProject:
         ):
 
         contents_format = None
-        if contents == '':
-            contents_format = bytes(self.settings['new_bracket_node_format'], "utf-8").decode("unicode_escape")
-
         contents, cursor_pos = self._new_node(
             date=date,
             contents=contents,
@@ -689,12 +690,21 @@ class UrtextProject:
     def _new_node(self, 
             date=None, 
             contents='',
+            title='',
             contents_format=None,
             metadata=None,
             one_line=None,
             include_timestamp=False):
 
         cursor_pos = 0
+
+        duplication_index = 2
+        test_title = title
+        while test_title in self.nodes:
+            test_title = title + ' (' + str(duplication_index) + ')'
+            duplication_index += 1
+
+        title = test_title
 
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
@@ -703,7 +713,7 @@ class UrtextProject:
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0])
-                new_node_contents = ''.join(new_node_contents)
+                new_node_contents = title + '\n' + ''.join(new_node_contents)
         else:
 
             if one_line == None:
@@ -715,7 +725,7 @@ class UrtextProject:
             if  self.settings['device_keyname']:
                 metadata[self.settings['device_keyname']] = platform.node()
 
-            new_node_contents = contents
+            new_node_contents = title + '\n' + contents
 
             if include_timestamp:
                 if date == None:
@@ -727,7 +737,7 @@ class UrtextProject:
 
             new_node_contents += self.urtext_node.build_metadata(metadata, one_line=one_line)
 
-        return new_node_contents, cursor_pos
+        return new_node_contents, title, cursor_pos
 
     def add_compact_node(self,  
             contents='', 

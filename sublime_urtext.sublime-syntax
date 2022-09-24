@@ -34,8 +34,6 @@ contexts:
     - match: '`'
       push: raw 
 
-    - include: ending_node_id
-
     - match: '\|\s'
       push: link_title
     
@@ -126,10 +124,6 @@ contexts:
     - match: ;|\n|(?=\})
       pop: true
 
-  minimal-node-id:
-    - match: '(^|\s)@[0-9,a-z]{3}\b'
-      scope: minimal_node_id.urtext
-
   shorthand_meta:
     - match: '(?:^|\s)#[A-Z,a-z].*?\b'
       scope: hash_meta.urtext
@@ -192,7 +186,6 @@ contexts:
       scope: meta_key.urtext
     
     - include: other-project-link
-    - include: ending_node_id
  
     - match: \)
       scope: dynamic-definition-parens
@@ -273,7 +266,6 @@ contexts:
   node-id-in-dynamic-definition:
     - match: '\b[0-9,a-z]{3}\b'
       scope: dynamic-def-node_id.urtext
-
 
   function-with-optional-parameters:
     - match: \(
@@ -391,14 +383,6 @@ contexts:
   tagvalue-separator:
     - match: '\s-\s'
       scope: entity.name.value_separator.urtext
-
-  node_id:
-    - match: '\b[0-9,a-z]{3}\b(?:\{)'
-      scope: entity.name.struct.node_id.urtext
-
-  ending_node_id:
-    - match: '\b[0-9,a-z]{3}(?=})'
-      scope: entity.name.struct.node_id.urtext
 
   other-project-link:
     - match: '=>\"(.*?)\"'

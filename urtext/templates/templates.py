@@ -5,20 +5,15 @@ New File Node _
 
 This is a file node. 
 
-Make new bracket nodes with `Ctrl-Shift-{` (Ctrl-Shift-leftSquigglyBracket)
+Make new nodes using squiggly brackets. Example:  
 
-Example:  
+  { Example text } 
 
-  { Example text 
-  
-   @232} 
-
- @sdw
 """,
 
 
 'new_project_home.txt' : """
-Home Node _ @8mw
+Home Node _
 
 Welcome to Urtext. This is a new, blank Urtext project.
 
@@ -28,25 +23,19 @@ For full documentation, see https://github.com/nbeversl/urtext-docs,
 To follow the links below, use `ctrl+shift+/` or `ctrl-shift-MouseClick` (from cursor/pointer position)
 
 
-To view project settings, visit | project_settings >2bl
+To view project settings, visit >project_settings
 
 NOTE: Add Created date
-
-
 
 {  Making New Nodes _
 
     `ctrl+shift+;` Create New File Node
 
-    `ctrl+shift+{`  New Bracket Node; Will wrap any existing contents if selected.
-
     `ctrl+shift+]`  New Bracket Node with Dynamic Definition 
-
-    `ctrl+shift+1` Insert Single-Line Bracket Node
 
     `ctrl+shift+^` Bullet Node 
 
-    `ctrl+shift+f` Random node  @5pd}
+    `ctrl+shift+f` Go To Random node }
 
 {  Project Navigation _
     
@@ -66,14 +55,9 @@ NOTE: Add Created date
 
     (Command Palette) "Urtext: Metadata Browser" : Browse Project by Metadata
 
-    @off}
-
-
-{ Content _
-
     `ctrl+shift+t` Insert Timestamp
 
-    `ctrl+shift+i`  Add Node ID (rarely needed)  @rsj}
+    }
 
 
 { File Management _
@@ -86,12 +70,12 @@ NOTE: Add Created date
 
     (Command Palette) "Urtext: Delete This Node" : Deletes the current file node.
 
-    @dbr}
+    }
 
 
 { Global _
 
-    `ctrl+shift+o` List All Projects @08d}
+    `ctrl+shift+o` List All Projects }
 
 
 { Links _
@@ -111,7 +95,7 @@ NOTE: Add Created date
 
     (Command Palette) "Urtext: Link to ..." (same as `ctrl+shift+l`)
 
-@pv8}
+}
 
 { Other Features _
     
@@ -127,20 +111,16 @@ NOTE: Add Created date
 
     (Command Palette) "Urtext: Consolidate Metadata" : Consolidates all metadata in the node to a single block.
 
-
-    @rym}
+}
 
 
 { Utility Commands _
-
 
     (Command Palette) "Urtext: New Project" : Creates a new Urtext project in a chosen folder.
 
     (Command Palette) "Urtext: Reload Project" : Reloads the current project.
 
-
-@m45}
-
+}
 
 <Tue., Oct. 05, 2021, 02:12 PM>
 """,
@@ -184,7 +164,7 @@ project_settings
         Sets a maximum title length (in characters) when using | Reindex Files >qd2
 
     filenames::INDEX - title
-        Specifies format for filenames when using | Reindex Files >qd2 and 
+        Specifies format for filenames when using >Reindex Files< and 
         Any metadata key used in the project is valid, in addition to the PREFIX placeholder, which will apply a numerical prefix to the outputted filename.
 
     filename_datestamp_format::%m-%d-%Y
@@ -194,14 +174,14 @@ project_settings
         When using Reindex Files with an index prefix, specifies the order in which the files should be indexed. For more information | Reindex Files >qd2
 
     hash_key::test
-        The keyname to use for the hash mark metadata shortcut. See | Hash Key >4ry
+        The keyname to use for the hash mark metadata shortcut. See >Hash Key
 
     history_interval::10
         Sets the interval (in seconds) at which history snapshots should be taken of your views. Increase the interval to have smaller .diff files in your /history folder. Decrease it to have more granular edit history.
 
-    home::a5m
+    home::Home Node
         Identifies the home node for the project, connected to the "Home" key
-        For example, Press Ctrl-Shift-H to go to the Home node of this documentation, whose ID is 013
+        For example, Press Ctrl-Shift-H to go to the Home node of this documentation
 
     import::False
         If set to true, all new text files added to the project folder get imported automatically on the fly by adding an Urtext Node ID.
@@ -209,16 +189,12 @@ project_settings
     open_with_system::pdf 
         File extensions to always open using the default system application.
 
-    new_file_node_format::$cursor $id
+    new_file_node_format::New File Created $timestamp\n$cursor
         Specifies the default format for new file nodes. The following values can be string together in any way:
             $timestamp
-            $id (required)
             $device_keyname
             $cursor - where to position the cursor
             any other Unicode characters are valid — arbitrary text, newlines (\r), etc.
-
-    new_bracket_node_format::$cursor $id $timestamp
-        As for `new_file_node_format`, only applies to new bracket nodes.
 
     node_browser_sort::index - oldest_timestamp
         Specifies the key order by which nodes will sort in the Node Browser dropdown
@@ -234,11 +210,11 @@ project_settings
 
     tag_other::
         Accepts two values which will be interpreted as key/value.
-        When quick-tagging a node from another (see | - Quick Tag from Other: ctrl + shift + 0 >zep), this metadata entry will be the 
+        When quick-tagging a node from another (see >Quick Tag from Other: ctrl + shift + 0<), this metadata entry will be the 
         one added.
 
     timestamp_format::%a., %b. %d, %Y, %I:%M %p
-        Set the format of the timestamp when using | - Insert Timestamp: ctrl + shift + t >7b8
+        Set the format of the timestamp when using > Insert Timestamp: ctrl + shift + t <
         This accepts a Python `strftime` directive. For possible format strings, see https://strftime.org/
 
     timezone::US/Eastern
@@ -250,7 +226,6 @@ project_settings
     use_timestamp::updated - timestamp - inline-timestamp - _oldest_timestamp - _newest_timestamp
         Specifies keys for which the timestamp component should be used instead of the text value.
  
-@2bl
 """
 }
 

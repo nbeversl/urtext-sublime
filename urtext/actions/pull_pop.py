@@ -61,10 +61,8 @@ class PopNode(UrtextAction):
 
         remaining_node_contents = ''.join([
             file_contents[0:start - 1],
-            '\n| ',
+            '\n>>',
             self.project.nodes[popped_node_id].get_title(),
-             ' >>',
-            popped_node_id,
             file_contents[end + 1:]])
        
         with open (os.path.join(self.project.path, filename), 'w', encoding='utf-8') as f:
@@ -152,12 +150,12 @@ class PullNode(UrtextAction):
         pulled_contents = source_file_contents[start:end]
         destination_file_contents = self.project.files[destination_filename]._get_file_contents()
     
-        wrapped_contents = ''.join(['{',pulled_contents,'}'])
+        wrapped_contents = ''.join(['{ ',pulled_contents,' }'])
 
-        for m in re.finditer(re.escape(link['link_match']), destination_file_contents):
+        for m in re.finditer(re.escape(link['node_id']), destination_file_contents):
                 
             replacement_contents = ''.join([
-                destination_file_contents[:m.start()],
+                destination_file_contents[:m.start()-2],
                 wrapped_contents,
                 destination_file_contents[m.end():]]
                 )
