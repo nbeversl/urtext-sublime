@@ -1412,20 +1412,50 @@ class UrtextProject:
 
             contents = self.files[file]._get_file_contents()
 
+            titled_node_links = re.findall(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?', contents)
             node_pointers = re.findall(r'>>[0-9,a-z]{3}\b', contents)
             node_links = re.findall(r'>[0-9,a-z]{3}\b', contents)
-            titled_node_links = re.findall(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?', contents)
-            title_markers = re.findall(r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)', contents)
-            node_ids = re.findall(r'\b[0-9,a-z]{3}\b', contents)
+            node_ids = re.findall(r'@[0-9,a-z]{3}\b', contents)
 
             new_contents = contents
 
+            for link in titled_node_links:
+                node_id = link[1][-3:]
+                position = ''
+                if len(link) > 2 and link[2]:
+                    position = '/'+link[2]
+                if node_id not in self.nodes:
+                    print(node_id, ' not in self nodes. Skipping')
+                    continue
+                full_link = ''.join(link)
+                pointer_syntax = '>'
+                if '>>' in full_link:
+                    pointer_syntax = '>>'
+                new_node_id = self.nodes[node_id].get_title()
+                new_contents = new_contents.replace(full_link, pointer_syntax+new_node_id+position)
+
             for pointer in node_pointers:
-                print(pointer)
+                node_id = pointer[2:]
+                if node_id not in self.nodes:
+                    print(node_id, ' not in self nodes. Skipping')
+                    continue
+                new_node_id = self.nodes[node_id].get_title()
+                new_contents = new_contents.replace(pointer, '>>'+new_node_id)
 
-        # delete node IDs
+            for link in node_links:
+                node_id = link[1:]
+                if node_id not in self.nodes:
+                    print(node_id, ' not in self nodes. Skipping')
+                    continue
+                new_node_id = self.nodes[node_id].get_title()
+                new_contents = new_contents.replace(link, '>'+new_node_id)
 
+            for node_id in node_ids:
+                new_contents = new_contents.replace(node_id, '')
 
+            #comment out for dry run...
+            self.files[file]._set_file_contents(new_contents)
+                
 class NoProject(Exception):
     """ no Urtext nodes are in the folder """
     pass
