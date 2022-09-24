@@ -78,10 +78,7 @@ def _build_group_and(project, params, include_dynamic=False):
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			print(value)
 			value = value.split('/')[1]
-			print('ID IS ')
-			print(value)
 			new_group = set([value])
 		else:
 			new_group = set(project.get_by_meta(key, value, operator))

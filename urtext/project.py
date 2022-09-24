@@ -99,10 +99,8 @@ else:
     from urtext.extensions.rake import *
     from urtext.extensions.tree import *
 
-node_pointer_regex = r'>>[0-9,a-z]{3}\b'
-title_marker_regex = r'(=>"[^"]*?")?(\|.*?\s>{1,2}[0-9,a-z]{3}\b)'
-titled_node_link_regex = re.compile(r'(\|?[^\|]*?>{1,2})(\w{3})(\:\d{1,10})?')
 action_regex = re.compile(r'>>>([A-Z_]+)\((.*?)\)', re.DOTALL)
+link_regex = re.compile('(>)([A-Z,a-z,1-9,\',\s]+)')
 editor_file_link_regex = re.compile('(f>{1,2})([^;]+)')
 url_scheme = re.compile(r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
 
@@ -377,7 +375,7 @@ class UrtextProject:
                         else:
                             # try to map old to new. This is the hard part
                             pass
-            print(changed_ids)
+            self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.basename] = new_file  
         for node_id in new_file.nodes:
@@ -401,7 +399,29 @@ class UrtextProject:
                     self.nodes[node_id].tree_node, 
                     self.nodes[node_id].tree_node, 
                     e)
-                
+
+    def _rewrite_changed_links(self, changed_ids):
+        old_ids = list(changed_ids.keys())
+        for file in self.files:
+            for node_id in self.files[file].nodes:
+                changed_links = {}
+                for link in self.nodes[node_id].links:
+                    for old_id in old_ids:
+                        if old_id.startswith(link):
+                            changed_links[link] = changed_ids[old_id]
+
+            if changed_links:
+                contents = self.files[file]._get_file_contents()
+                replaced_contents = contents
+                for node_id in list(changed_ids.keys()):
+                    if '>'+node_id in contents:
+                         replaced_contents = replaced_contents.replace(
+                            '>'+node_id, 
+                            '>'+changed_ids[node_id])
+                if replaced_contents != contents:
+                    self.files[file]._set_file_contents(replaced_contents)
+                    self._parse_file(file)
+
     def _check_file_for_duplicates(self, file_obj):
 
         duplicate_nodes = {}
@@ -932,18 +952,16 @@ class UrtextProject:
                         filename, 
                         col_pos=col_pos,
                         file_pos=file_pos)
-        print(string)
-        first_link_marker = string.split(' >')
-        if len(first_link_marker) > 1:
-            possible_link = first_link_marker[1]
-            print(possible_link)
-            for node_id in self.nodes:
-                if node_id.startswith(possible_link):
-                    result = node_id
+        
+        link = re.search(link_regex, string)
+        if link:
+            link = link.group(2)
+            for node in self.nodes:
+                if node.startswith(link):
+                    result = node
                     break
 
         if result:
-
             kind = 'NODE'
             link_match = result
             link_location = file_pos + len(result)

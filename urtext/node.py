@@ -42,13 +42,13 @@ dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
 subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
 default_date = datetime.datetime(1970,2,1)
-simple_node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
+link_regex = re.compile('(>)([\w ]+)')
+pointer_regex = re.compile('(>>)([A-Z,a-z,1-9,\',\s]+)')
 timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]+?)(?:>)', flags=re.DOTALL)
 inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
 embedded_syntax = re.compile('%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
 embedded_syntax_open = re.compile('%%-[A-Z-]+', flags=re.DOTALL)
 embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
-short_id = re.compile(r'(?:\s?)@[0-9,a-z]{3}\b')
 shorthand_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
 preformat_syntax = re.compile('\`.*?\`', flags=re.DOTALL)
 tree_elements = ['├──','└──','│','┌──',]
@@ -166,9 +166,9 @@ class UrtextNode:
  
         if contents == None:
             contents = self.content_only()
-        nodes = re.findall(simple_node_link_regex, contents)  # link RegEx
+        nodes = re.findall(link_regex, contents)  # link RegEx
         for node in nodes:
-            self.links.append(node)
+            self.links.append(node[1].strip())
 
     def content_only(self, 
         contents=None, 
@@ -317,7 +317,6 @@ def strip_metadata(contents, preserve_length=False):
         replacements = re.compile("|".join([
             '(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
             '\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', # inline_meta
-            r'(?:\s?)@[0-9,a-z]{3}(\b|$)', # short_id
             r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
             ]))
 

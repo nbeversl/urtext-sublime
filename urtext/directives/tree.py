@@ -65,15 +65,16 @@ class Tree(UrtextDirectiveWithParamsFlags):
                 continue
 
             if not this_node.name in self.project.nodes:
-                tree_render += "%s%s" % (pre, this_node.name + ' NOT IN PROJECT (DEBUGGING)\n')    
-                continue
+                if this_node.name[:5] == 'ALIAS' and this_node.name[5:] not in self.project.nodes:
+                    tree_render += "%s%s" % (pre, this_node.name + ' NOT IN PROJECT (DEBUGGING)\n')    
+                    continue
 
             if this_node.name[:11] == '! RECURSION':
                 tree_render += "%s%s" % (pre, this_node.name + '\n')    
                 continue
 
             if this_node.name[:5] == 'ALIAS':
-                urtext_node = self.project.nodes[this_node.name[:5]]
+                urtext_node = self.project.nodes[this_node.name[5:]]
             else:
                 urtext_node = self.project.nodes[this_node.name]
             
