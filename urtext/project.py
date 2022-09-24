@@ -387,7 +387,10 @@ class UrtextProject:
               
         for node_id in new_file.nodes:
             for dd in self.dynamic_defs(target=node_id):
-                self.nodes[dd.target_id].dynamic = True
+                if dd.target_id in self.nodes:
+                    self.nodes[dd.target_id].dynamic = True
+                else:
+                    print('cannot find', dd.target_id)
             for e in self.nodes[node_id].metadata.dynamic_entries:
                 self._add_sub_tags( self.nodes[node_id].tree_node, 
                     self.nodes[node_id].tree_node, 
