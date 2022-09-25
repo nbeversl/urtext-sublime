@@ -4,7 +4,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
 	from .tree import Tree
 else:
 	from urtext.directive import UrtextDirective
-	from urtext.directive.tree import Tree
+	from urtext.directives.tree import Tree
 
 class NodeList(UrtextDirective):
 
