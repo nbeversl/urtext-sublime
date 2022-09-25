@@ -35,13 +35,11 @@ class UrtextDynamicDefinition:
 	def __init__(self, match, project):
 
 		contents = match.group(0)[2:-2]
-
 		self.location = match.start()
 		self.target_id = None
 		self.target_file = None
 		self.included_nodes = []
 		self.excluded_nodes = []
-		self.used_functions = []
 		self.operations = []
 		self.spaces = 0
 		self.project = project
@@ -49,6 +47,8 @@ class UrtextDynamicDefinition:
 		self.show = None
 		self.multiline_meta = False
 		self.init_self(contents)
+		self.all_ops = []
+		self.source_id = None # set by node once compiled
 		
 		if not self.show:
 			self.show = '$link\n'
@@ -77,15 +77,15 @@ class UrtextDynamicDefinition:
 			if func == "SHOW":
 				self.show = argument_string
 		
-		all_ops = [t for op in self.operations for t in op.name]
+		self.all_ops = [t for op in self.operations for t in op.name]
 		
-		if 'ACCESS_HISTORY' not in all_ops  and 'TREE' not in all_ops and 'COLLECT' not in all_ops:
+		if 'ACCESS_HISTORY' not in self.all_ops  and 'TREE' not in self.all_ops and 'COLLECT' not in self.all_ops:
 			op = self.project.directives['TREE'](self.project)
 			op.parse_argument_string('1')		
 			op.set_dynamic_definition(self)
 			self.operations.append(op)
 		
-		if 'SORT' not in all_ops:
+		if 'SORT' not in self.all_ops:
 			op = self.project.directives['SORT'](self.project)
 			op.set_dynamic_definition(self)
 			op.parse_argument_string('')		

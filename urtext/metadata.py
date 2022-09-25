@@ -33,7 +33,12 @@ else:
 
 timestamp_match = re.compile('<([^-/<\s][^=<]+?)>')
 meta_entry = re.compile('\+?\*{0,2}\w+\:\:[^\n@};]+;?(?=>:})?')
-node_title_regex = re.compile('^[^\n_]*?(?= _)', re.MULTILINE)
+
+#testing
+node_title_regex = re.compile('^[^\n_]*?(?= _)[\s|\r]', re.MULTILINE)
+#node_title_regex=re.compile(r"[\w \^\.\,\?\-\/\:’'\"\)\()]+")
+
+
 hash_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
 meta_separator = re.compile(r'\s-\s|$')
 

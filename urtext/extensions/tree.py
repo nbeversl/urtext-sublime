@@ -19,6 +19,9 @@ class UrtextAnyTree(UrtextExtension):
         for index, position in enumerate(positions):
 
             node = parsed_items[position].strip()
+
+            if node not in self.project.nodes:
+                continue
            
             # parse each marker, positioning it within its parent node
             if node[:2] == '>>':

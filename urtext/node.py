@@ -41,18 +41,17 @@ else:
 dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
 subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-default_date = datetime.datetime(1970,2,1)
 link_regex = re.compile('(>)([\w ]+)')
-pointer_regex = re.compile('(>>)([A-Z,a-z,1-9,\',\s]+)')
-timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]+?)(?:>)', flags=re.DOTALL)
-inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
+metadata_replacements = re.compile("|".join([
+            '(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
+            '\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', # inline_meta
+            r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
+            ]))
 embedded_syntax = re.compile('%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
 embedded_syntax_open = re.compile('%%-[A-Z-]+', flags=re.DOTALL)
 embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
-shorthand_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
-preformat_syntax = re.compile('\`.*?\`', flags=re.DOTALL)
-tree_elements = ['├──','└──','│','┌──',]
-title_regex=re.compile('[\w \)\()]+')
+title_regex=re.compile(r"[\w \^\.\,\?\-\/\:’'\"\)\()]+")
+
 
 class UrtextNode:
 
@@ -95,7 +94,6 @@ class UrtextNode:
         contents = strip_backtick_escape(contents)
         contents = strip_dynamic_def_ref(contents)
             
-        
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
 
@@ -240,6 +238,51 @@ class UrtextNode:
 
         return self.build_metadata(keynames, one_line=one_line, separator=separator)
 
+    def rewrite_title(self, title_suffix):
+
+        # check for metadata
+        t = self.metadata.get_first_value('title')
+        new_title = t + title_suffix
+        print('TRYING TO FIND', t)
+
+        file_contents = self.get_file_contents()
+        
+        if t:
+            for r in self.ranges:
+                print(r)
+                print(file_contents[r[0]:r[1]+1])
+                tag = file_contents[r[0]:r[1]+1].find('title::'+t)
+                if tag > -1:
+                    print('FOUND TITLE TAG')
+                    new_file_contents = file_contents[:r[0]+tag + len('title::'+t)]
+                    new_file_contents += new_title
+                    new_file_contents += file_contents[r[0]+tag + len('title::'+t):]
+                    self.set_file_contents(new_file_contents)
+                    self.project._adjust_ranges(
+                        self.filename, 
+                        r[0]+tag + len('title::'+t),
+                        len(new_title) -len(t) * -1)
+                    self.title = new_title
+                    return
+                else:
+                    title_location = file_contents[r[0]:r[1]+1].find(t + ' _')
+                    if title_location < 0:
+                        title_location = file_contents[r[0]:r[1]+1].find(t)
+                    if title_location < 0:
+                        continue
+                    print('FOUND TITLE AT', title_location)
+                    new_title = new_title + ' _'
+                    new_file_contents = file_contents[:r[0]+title_location + len(new_title)]
+                    new_file_contents += new_title
+                    new_file_contents += file_contents[r[0]+title_location + len(new_title):]
+                    self.set_file_contents(new_file_contents)
+                    self.project._adjust_ranges(
+                        self.filename, 
+                        r[0] + title_location + len(t),
+                        len(new_title) - len(t) * -1)
+                    self.title = new_title
+                    return   
+
     @classmethod
     def build_metadata(self, 
         metadata, 
@@ -313,14 +356,8 @@ def strip_wrappers(contents, compact=False, outside_only=False):
 def strip_metadata(contents, preserve_length=False):
 
         r = ' ' if preserve_length else ''
-        
-        replacements = re.compile("|".join([
-            '(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
-            '\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', # inline_meta
-            r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
-            ]))
 
-        for e in replacements.finditer(contents):
+        for e in metadata_replacements.finditer(contents):
             contents = contents.replace(e.group(), r*len(e.group()))       
         contents = contents.replace('• ',r*2)
         return contents.strip()

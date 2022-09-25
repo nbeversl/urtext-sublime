@@ -140,6 +140,7 @@ single_values = [
     'filename_title_length' ]
 
 single_boolean_values = [
+    'allow_untitled_nodes',
     'always_oneline_meta',
     'preformat',
     'console_log',
@@ -148,6 +149,7 @@ single_boolean_values = [
     'atomic_rename',
     'autoindex',
     'keyless_timestamp',
+    'resolve_duplicate_ids',
     'file_node_timestamp',
     'contents_strip_outer_whitespace',
     'contents_strip_internal_whitespace',]
@@ -192,8 +194,10 @@ class UrtextProject:
         self.navigation = []  # Stores, in order, the path of navigation
         self.nav_index = -1  # pointer to the CURRENT position in the navigation list
         self.to_import = []
+        self.untitled_node_index = 0
         self.extensions = {}
         self.actions = {}
+        self.duplicate_ids = {}
         self.directives = {}
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
@@ -207,6 +211,7 @@ class UrtextProject:
                     new_project=new_project)
         else:    
             self._initialize_project(new_project=new_project)
+    
     def _initialize_project(self, 
         new_project=False):
 
@@ -265,6 +270,7 @@ class UrtextProject:
             'node_date_keyname' : 'timestamp',
             'numerical_keys': ['_index' ,'index','title_length'],
             'atomic_rename' : False,
+            'allow_untitled_nodes':True,
             'tag_other': [],
             'title_length':255,
             'device_keyname' : '',
@@ -275,6 +281,7 @@ class UrtextProject:
             'new_file_line_pos' : 2,
             'keyless_timestamp' : True,
             'file_node_timestamp' : True,
+            'resolve_duplicate_ids':True,
             'hash_key': '#',
             'contents_strip_outer_whitespace' : True,
             'contents_strip_internal_whitespace' : True,
@@ -335,11 +342,15 @@ class UrtextProject:
 
         self._remove_file(filename)
  
-        duplicate_nodes = self._check_file_for_duplicates(new_file)
-        if duplicate_nodes:
+        file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
+        if file_should_be_dropped:
             self._add_to_error_files(filename)
-            return duplicate_nodes
+            return file_should_be_dropped
         
+        if should_re_parse:
+            print('REPARSE')
+            return self._parse_file(filename)
+
         if new_file.filename in self.error_files:
             self.error_files.remove(new_file.filename)
 
@@ -376,6 +387,7 @@ class UrtextProject:
                             else:
                                 # try to map old to new. This is the hard part
                                 pass
+
             self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.basename] = new_file  
@@ -409,6 +421,11 @@ class UrtextProject:
         for file in self.files:
             for node_id in self.files[file].nodes:
                 changed_links = {}
+                if node_id == '(untitled)':
+                    continue
+                if node_id not in self.nodes:
+                    print(node_id,'NOT IN NODE (DEBUGGING LINK REWRITNG, project.py 423)')
+                    continue
                 for link in self.nodes[node_id].links:
                     for old_id in old_ids:
                         if old_id.startswith(link):
@@ -434,25 +451,32 @@ class UrtextProject:
             if duplicate_filename:
                 duplicate_nodes[node_id] = duplicate_filename
 
+        file_should_be_dropped = False
+        should_re_parse = False
+
         if duplicate_nodes:
             basename = os.path.basename(file_obj.filename)
-            message = []
-            for n in duplicate_nodes:
-                message.append('>'+n + ' exists in f>'+duplicate_nodes[n]+'\n')
-            self._log_item(basename, 'Duplicate node ID(s) found: '+ ', '.join(duplicate_nodes))
-
             messages = []
-            for node_id in duplicate_nodes:
-                messages.append(''.join([
-                    'node ID >',
-                    node_id,
-                    ' exists in f>',
-                    duplicate_nodes[node_id]]) )
+            
+            for n in duplicate_nodes:
+                if n == '(untitled)':
+                    if self.settings['allow_untitled_nodes'] == False:
+                        messages.append('untitled node in f>'+duplicate_nodes[n]+'\n')
+                        self._log_item(basename, 'Untitled node: '+ duplicate_nodes[n])
+                else:
+                    # if self.settings['resolve_duplicate_ids']:
+                    #     self.duplicate_ids.setdefault(n, 1)
+                    #     self.duplicate_ids[n] += 1
+                    #     self.nodes[n].rewrite_title(' ('+str(self.duplicate_ids[n]) + ')')
+                    #     should_re_parse = True
+                    # else:
+                    messages.append('>'+n + ' exists in f>'+duplicate_nodes[n]+'\n')
+                    self._log_item(basename, 'Duplicate node ID(s) found: '+ ', '.join(duplicate_nodes))
+                    file_should_be_dropped = True
 
-            file_obj.write_errors(self.settings, messages=messages)
-            return duplicate_nodes
-
-        return False
+            # file_obj.write_errors(self.settings, messages=messages)
+            
+        return file_should_be_dropped, should_re_parse
 
     def _target_id_defined(self, check_id):
         for nid in list(self.nodes):
@@ -964,7 +988,7 @@ class UrtextProject:
                 if node_id.startswith(link):
                     result = node_id
                     break
-
+        node_id = ''
         if result:
             kind = 'NODE'
             node_id = result
@@ -1055,7 +1079,7 @@ class UrtextProject:
                 continue
 
             if key in single_boolean_values:
-                self.settings[key] = True if value.lower() == 'true' else False
+                self.settings[key] = True if value.lower() in ['true','yes'] else False
                 continue            
 
             if key not in self.settings:
@@ -1375,6 +1399,10 @@ class UrtextProject:
             position = self.nodes[node_id].start_position()
             return filename, position
         return None, None
+
+    def next_untitled_index(self):
+        self.untitled_node_index += 1
+        return str(self.untitled_node_index)
 
 
 class NoProject(Exception):

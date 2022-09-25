@@ -36,7 +36,6 @@ compiled_symbols = [re.compile(symbol) for symbol in  [
     r'\n', # line ending (closes compact node)
     r'%%-[A-Z]*', # push syntax 
     r'%%-[A-Z]*-END', # pop syntax
- 
     ]]
 
 # additional symbols using MULTILINE flag
@@ -296,7 +295,9 @@ class UrtextBuffer:
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
-                
+        
+        if new_node.id == "Title Test":
+            print('FOUND IT')
         self.nodes[new_node.id] = new_node
         self.nodes[new_node.id].ranges = ranges
         if new_node.root_node:
