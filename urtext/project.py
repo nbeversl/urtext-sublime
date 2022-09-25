@@ -984,10 +984,13 @@ class UrtextProject:
         link = re.search(link_regex, string)
         if link:
             link = link.group(2)
-            for node_id in self.nodes:
-                if node_id.startswith(link):
-                    result = node_id
-                    break
+            if node_id in self.nodes:
+                result = node_id
+            else:
+                for node_id in self.nodes:
+                    if node_id.startswith(link):
+                        result = node_id
+                        break
         node_id = ''
         if result:
             kind = 'NODE'
