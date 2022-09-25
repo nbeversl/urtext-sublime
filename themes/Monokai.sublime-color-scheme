@@ -12,10 +12,9 @@
 			 "value-separator" : "var(grey)",
 			 "meta-value" : "var(blue-brighter)",
 			 "meta-separator" : "var(grey)",
-	 		 "node-id" :"var(unobtrusive)",
 
 			 // Links
-			 "link": "var(unobtrusive)",
+			 "link": "var(bright-green)",
 			 "other-project-link" : "var(reg-text-white)",
 			 "file-link" : "",
 			 "link-title" : "var(reg-text-white)",
@@ -141,7 +140,7 @@
 	  		/* Links */
 
 	  		{	"scope":"link_id.urtext",
-	  			"foreground": "var(unobtrusive)",
+	  			"foreground": "var(link)",
 	  		},
 
 	  		
@@ -152,6 +151,7 @@
 	  		
 	  		{	"scope":"link_prefix.urtext",
 	  			"foreground": "var(link-prefix)",
+	  			"font_style":"bold",
 	  		},
 	  		
 	  		{
