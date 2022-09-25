@@ -65,7 +65,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.extensions.tree import *
 
 else:
-    from urtext.anytree import Node, PreOrderIter, RenderTree
+    from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
     from urtext.node import UrtextNode
     from urtext.compile import compile_functions
