@@ -1417,7 +1417,7 @@ class UrtextProject:
                 node_id = link[1][-3:]
                 position = ''
                 if len(link) > 2 and link[2]:
-                    position = '/'+link[2]
+                    position = ':'+link[2]
                 if node_id not in self.nodes:
                     print(node_id, ' not in self nodes. Skipping')
                     continue
@@ -1426,7 +1426,13 @@ class UrtextProject:
                 if '>>' in full_link:
                     pointer_syntax = '>>'
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(full_link, pointer_syntax+new_node_id+position + '\n')
+                new_contents = new_contents.replace(full_link, ''.join([
+                    '| ',
+                    new_node_id,
+                    position,
+                    ' ',
+                    pointer_syntax
+                    ]))
 
             node_pointers = re.findall(r'>>[0-9,a-z]{3}\b', new_contents)
             for pointer in node_pointers:
@@ -1435,8 +1441,12 @@ class UrtextProject:
                     print(node_id, ' not in self nodes. Skipping')
                     continue
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(pointer, '>>'+new_node_id +'\n')
-
+                new_contents = new_contents.replace(pointer, ''.join([
+                    '| ',
+                    new_node_id,
+                    ' ',
+                    '>>',
+                    ]))
 
             node_links = re.findall(r'>[0-9,a-z]{3}\b', new_contents)
             for link in node_links:
@@ -1446,7 +1456,11 @@ class UrtextProject:
                     print(node_id, ' not in self nodes. Skipping')
                     continue
                 new_node_id = self.nodes[node_id].get_title()
-                new_contents = new_contents.replace(link, '>'+new_node_id + '\n')
+                new_contents = new_contents.replace(link, ''.join([
+                    '| ',
+                    new_node_id,
+                    ' >'
+                    ]))
 
             node_ids = re.findall(r'@[0-9,a-z]{3}\b', new_contents)
             for node_id in node_ids:
@@ -1454,7 +1468,6 @@ class UrtextProject:
 
             #comment out for dry run...
             self.files[file]._set_file_contents(new_contents, compare=False)
-            #print(new_contents)
                 
 class NoProject(Exception):
     """ no Urtext nodes are in the folder """
