@@ -59,7 +59,7 @@ class Tree(UrtextDirectiveWithParamsFlags):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
-            indented_pre = '  '+pre
+            indented_pre = '  ' + pre
 
             if self._tree_node_is_excluded(this_node, exclude):
                 this_node.children = []
