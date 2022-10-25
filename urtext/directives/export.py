@@ -22,17 +22,13 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
     import Urtext.urtext.node
+    from Urtext.urtext.syntax import node_link_regex, node_pointer_regex, titled_link_regex, titled_node_pointer_regex, file_link_regex
+
 else:
     from urtext.directive import UrtextDirectiveWithParamsFlags
     import urtext.node
+    from urtext.syntax import node_link_regex, node_pointer_regex, titled_link_regex, titled_node_pointer_regex, file_link_regex
 
-node_link_regex = r'[^>]>[0-9,a-z]{3}\b'
-node_pointer_regex = r'>>[0-9,a-z]{3}\b'
-titled_link_regex = r'\|.*?[^>]>[0-9,a-z]{3}\b'
-titled_node_pointer_regex =r'\|.*?>>[0-9,a-z]{3}\b'
-file_link_regex = re.compile('f>.*')
-embedded_syntax_open = re.compile('(%%-[A-Z-]+?)', flags=re.DOTALL)
-embedded_syntax_close = re.compile('|(%%-[A-Z-]*-END)', flags=re.DOTALL)
 
 class UrtextExport(UrtextDirectiveWithParamsFlags):
 

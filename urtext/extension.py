@@ -17,4 +17,3 @@ class UrtextExtension:
 
     def on_file_renamed(self, old_filename, new_filename):
         return
-

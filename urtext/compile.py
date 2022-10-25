@@ -22,8 +22,12 @@ import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
+    from .utils import force_list
+    from .syntax import source_info
 else:
     from urtext.node import UrtextNode
+    from urtext.utils import force_list
+    from urtext.syntax import source_info
 
 def _compile(self):
     
@@ -48,9 +52,13 @@ def _compile_file(self, filename):
 
 def _process_dynamic_def(self, dynamic_definition):
             
+    if dynamic_definition.target_id == None:
+        print('Found NoneType target in '+dynamic_definition.source_id)
+        return
+
     # points = {} # Future
     new_node_contents = []
-    if not dynamic_definition.target_id and not dynamic_definition.target_file:
+    if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
         
     if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
@@ -120,7 +128,7 @@ def indent(contents, spaces=4):
     return '\n'+'\n'.join(content_lines)
 
 def strip_source_information(string):
-    source_info = re.compile(r'\(\(>[0-9,a-z]{3}\:\d+\)\)')
+    
     for s in source_info.findall(string):
         string = string.replace(s,'')
     return string

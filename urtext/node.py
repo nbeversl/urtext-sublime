@@ -30,6 +30,8 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape
+    from .syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
+
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
@@ -37,21 +39,7 @@ else:
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape
-
-dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
-dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
-subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-link_regex = re.compile('(>)([\w ]+)')
-metadata_replacements = re.compile("|".join([
-            '(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
-            '\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', # inline_meta
-            r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
-            ]))
-embedded_syntax = re.compile('%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
-embedded_syntax_open = re.compile('%%-[A-Z-]+', flags=re.DOTALL)
-embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
-title_regex=re.compile(r"[\w \^\.\,\?\-\/\:’'\"\)\()]+")
-
+    from urtext.syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
 
 class UrtextNode:
 
@@ -165,7 +153,7 @@ class UrtextNode:
  
         if contents == None:
             contents = self.content_only()
-        nodes = re.findall(link_regex, contents)  # link RegEx
+        nodes = re.findall(node_link_regex, contents)  # link RegEx
         for node in nodes:
             self.links.append(node[1].strip())
 

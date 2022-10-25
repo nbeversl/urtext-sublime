@@ -1,22 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
 import os
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
 else:
@@ -78,7 +61,10 @@ def _build_group_and(project, params, include_dynamic=False):
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			value = value.split('/')[1]
+			if '"' not in value:
+				print('NO READABLE VALUE in ', value)
+				continue
+			value = value.split('"')[1]
 			new_group = set([value])
 		else:
 			new_group = set(project.get_by_meta(key, value, operator))

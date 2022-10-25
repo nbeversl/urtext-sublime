@@ -27,7 +27,6 @@ import time
 import sys
 from time import strftime
 import concurrent.futures
-from importlib import import_module
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -63,6 +62,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.extensions.history import *
     from Urtext.urtext.extensions.rake import *
     from Urtext.urtext.extensions.tree import *
+    from Urtext.urtext.syntax import action_regex, node_link_regex, editor_file_link_regex, url_scheme
 
 else:
     from anytree import Node, PreOrderIter, RenderTree
@@ -98,11 +98,7 @@ else:
     from urtext.extensions.history import *
     from urtext.extensions.rake import *
     from urtext.extensions.tree import *
-
-action_regex = re.compile(r'>>>([A-Z_]+)\((.*?)\)', re.DOTALL)
-link_regex = re.compile('(>)([A-Z,a-z,1-9,\',\s]+)')
-editor_file_link_regex = re.compile('(f>{1,2})([^;]+)')
-url_scheme = re.compile(r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    from .syntax import action_regex, node_link_regex, editor_file_link_regex, url_scheme
 
 functions = compile_functions
 functions.extend(metadata_functions)
@@ -980,10 +976,9 @@ class UrtextProject:
                         filename, 
                         col_pos=col_pos,
                         file_pos=file_pos)
-        
-        link = re.search(link_regex, string)
+        link = re.search(node_link_regex, string)
         if link:
-            link = link.group(2)
+            link = link.group(2).strip()
             if link in self.nodes:
                 result = link
             else:

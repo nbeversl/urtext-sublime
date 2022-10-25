@@ -1,5 +1,6 @@
 import datetime
 import os
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
@@ -89,8 +90,8 @@ class Tree(UrtextDirectiveWithParamsFlags):
                 if urtext_node.parent_project not in [self.project.title, self.project.path]:
                     link.extend(['=>"',urtext_node.parent_project,'"'])
                 else:
-                    link.append('>')
-                link.append(str(urtext_node.id))
+                    link.append('| ')
+                link.append(str(urtext_node.id + ' >'))
                 next_content.link = ''.join(link)
 
             if next_content.needs_date:

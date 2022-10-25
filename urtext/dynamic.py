@@ -19,16 +19,16 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import re
 import os
 
-function_regex = re.compile('([A-Z_\-\+]+)\((.*?)\)', re.DOTALL)
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	from .directive import UrtextDirective
 	from .utils import force_list
 	from .directives.list import NodeList
+	from .syntax import function_regex
 else:
 	from urtext.directive import UrtextDirective
 	from urtext.utils import force_list
 	from urtext.directives.list import NodeList
+	from urtext.syntax import function_regex
 
 class UrtextDynamicDefinition:
 
@@ -65,7 +65,8 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func =='ID':
-				node_id_match = argument_string.strip('>').strip()
+				## TODO: improve this prse
+				node_id_match = argument_string.strip('>').strip('|').strip()
 				self.target_id = node_id_match
 				continue
 

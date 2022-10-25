@@ -15,6 +15,7 @@ class UrtextAnyTree(UrtextExtension):
 
         parsed_items = self.project.files[filename].parsed_items
         positions = sorted(parsed_items)
+        print(parsed_items)
 
         for index, position in enumerate(positions):
 
@@ -24,8 +25,9 @@ class UrtextAnyTree(UrtextExtension):
                 continue
            
             # parse each marker, positioning it within its parent node
-            if node[:2] == '>>':
-                inserted_node_id = node[2:]
+            if node[-2:] == '>>':
+                inserted_node_id = node[:-2]
+                print(inserted_node_id)
                 parent_node = self.project.get_node_id_from_position(filename, position)  
                 if not parent_node:
                     continue 

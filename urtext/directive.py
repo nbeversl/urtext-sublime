@@ -1,12 +1,13 @@
 import re
 import os
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .syntax import flag_regx
     from .utils import force_list
+
 else:
+    from urtext.syntax import flag_regx
     from urtext.utils import force_list
-
-flag_regx = re.compile(r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)')
-
 
 class UrtextDirective():
 

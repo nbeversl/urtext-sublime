@@ -23,35 +23,11 @@ import concurrent.futures
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
+    from .syntax import compiled_symbols, symbol_length, error_messages 
 else:
     from urtext.node import UrtextNode
     from urtext.utils import strip_backtick_escape
-
-error_messages = '<!{1,2}.*?!{1,2}>\n?'
-
-compiled_symbols = [re.compile(symbol) for symbol in  [
-    r'(?<!\\){',  # inline node opening wrapper
-    r'(?<!\\)}',  # inline node closing wrapper
-    '>>', # node pointer
-    r'\n', # line ending (closes compact node)
-    r'%%-[A-Z]*', # push syntax 
-    r'%%-[A-Z]*-END', # pop syntax
-    ]]
-
-# additional symbols using MULTILINE flag
-compiled_symbols.extend( [re.compile(symbol, re.M) for symbol in [
-    '^[^\S\n]*•',  # compact node opening wrapper
-    ] ])
-
-# number of positions to advance parsing for of each possible symbol
-symbol_length = {   
-    '^[^\S\n]*•': 0, # compact node opening wrapper
-    r'(?<!\\){' : 1, # inline opening wrapper
-    r'(?<!\\)}' : 1, # inline closing wrapper
-    '>>' : 2, # node pointer
-    r'\n' : 0, # compact node closing
-    'EOF': 0,
-}
+    from urtext.syntax import compiled_symbols, symbol_length, error_messages 
 
 class UrtextBuffer:
 
@@ -171,6 +147,7 @@ class UrtextBuffer:
                 
                 node_pointer = contents[position:].split('\n')[0].strip()
                 self.parsed_items[position] = node_pointer
+                print(node_pointer)
 
                 continue
 

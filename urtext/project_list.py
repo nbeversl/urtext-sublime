@@ -21,9 +21,11 @@ import re
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .project import UrtextProject, node_id_regex, NoProject
+    from .project import UrtextProject, NoProject
+
 else:
-    from urtext.project import UrtextProject, node_id_regex, NoProject
+    from urtext.project import UrtextProject, NoProject
+
 
 class ProjectList():
 
