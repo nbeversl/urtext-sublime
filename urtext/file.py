@@ -48,36 +48,38 @@ class UrtextBuffer:
         self.project = project
         self.could_import = False        
         self.file_length = len(contents)
-        self.lex(contents)
-        self.parse(contents)
-        # self.obj = {}
+        positions, symbols = self.lex(contents)
+        self.parse(contents, positions, symbols)
             
-    def lex(self, contents):
+    def lex(self, contents, start_position=0):
        
-        self.symbols = {}
+        symbols = {}
 
         contents = strip_backtick_escape(contents)
         for symbol, symbol_type in compiled_symbols.items():
             for match in symbol.finditer(contents):
-                self.symbols[match.span()[0]] = {}
-                self.symbols[match.span()[0]]['type'] = symbol_type
-                self.symbols[match.span()[0]]['length'] = len(match.group())                
-                if symbol_type in ['pointer', 'compact_node']:
-                    self.symbols[match.span()[0]]['contents'] = match.group(2)
+                symbols[match.span()[0] + start_position] = {}
+                symbols[match.span()[0] + start_position]['type'] = symbol_type
+                symbols[match.span()[0] + start_position]['length'] = len(match.group())                
+                if symbol_type  == 'pointer':
+                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
+                if symbol_type  == 'compact_node':
+                    symbols[match.span()[0] + start_position]['full_match'] = match.group()
+                    symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
 
-        self.positions = sorted([position for position in self.symbols if position != -1])
+        positions = sorted([position for position in symbols if position != -1])
         
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0
         to_remove = []
-        for p in self.positions:
+        for p in positions:
             
-            if self.symbols[p]['type'] == 'push_syntax' :
+            if symbols[p]['type'] == 'push_syntax' :
                 to_remove.append(p)
                 push_syntax += 1
                 continue
             
-            if self.symbols[p]['type'] == 'pop_syntax':
+            if symbols[p]['type'] == 'pop_syntax':
                 to_remove.append(p)
                 push_syntax -= 1
                 continue
@@ -86,76 +88,59 @@ class UrtextBuffer:
                 to_remove.append(p)
 
         for s in to_remove:
-            del self.symbols[s]
-            self.positions.remove(s)
+            del symbols[s]
+            positions.remove(s)
 
-        self.positions.append(len(contents))
-        self.symbols[len(contents)] = { 'type': 'EOF', 'length' : 0}
+        positions.append(len(contents))
+        symbols[len(contents)] = { 'type': 'EOF', 'length' : 0}
 
-    def parse(self, contents):
+        return positions, symbols
+
+    def parse(self, 
+        contents,
+        positions,
+        symbols,
+        start_position=0):
  
         nested_levels = {}  # store node nesting into layers
         nested = 0          # node nesting depth
+        unstripped_contents = strip_backtick_escape(contents)
+        last_position = start_position
 
-        first_wrapper = 0
-        while first_wrapper < len(self.positions) - 1 and self.symbols[self.positions[first_wrapper]]['type'] == 'pointer':
-            first_wrapper += 1
-
-        nested_levels[0] = [ 
-            [0, self.positions[first_wrapper] + self.symbols[self.positions[first_wrapper]]['length'] ] 
-            ]
-
-        unstripped_contents = contents
-        contents = strip_backtick_escape(contents)
-        last_position = 0
-
-        for index, position in enumerate(self.positions):
+        for index, position in enumerate(positions):
 
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
 
-            if self.symbols[position]['type'] == 'pointer':
-                self.parsed_items[position] = self.symbols[position]['contents'] +' >>'
-                
-            if self.symbols[position]['type'] == 'opening_wrapper':                
-                nested_levels[nested].append([last_position, position - 1])
+            if symbols[position]['type'] == 'pointer':
+                self.parsed_items[position] = symbols[position]['contents'] +' >>'
+                continue
+
+            if symbols[position]['type'] == 'opening_wrapper':                
+                nested_levels[nested].append([last_position, position])
                 nested += 1
 
-            if self.symbols[position]['type'] == 'compact_node': 
-                self.add_node( 
-                    [[ position, position + len(self.symbols[position]['contents']) ]], 
-                    unstripped_contents, 
-                    position, 
-                    root=False,
-                    compact=True)
+            if symbols[position]['type'] == 'compact_node':
+
+                compact_positions, compact_symbols = self.lex(
+                    symbols[position]['node_contents'], start_position=position)
+
+                self.parse(symbols[position]['node_contents'], compact_positions, compact_symbols, start_position=position)
+                # self.add_node( 
+                #     [[ position, position + len(self.symbols[position]['contents']) ]], 
+                #     unstripped_contents,
+                #     position, 
+                #     root=False,
+                #     compact=True)
+                last_position = position + len(symbols[position]['full_match'])
+                continue
  
-            if self.symbols[position]['type'] == 'closing_wrapper':  # pop
-                nested_levels[nested].append([last_position, position])
+            if symbols[position]['type'] == 'closing_wrapper':
+                nested_levels[nested].append([last_position + 1, position])
                 
                 if nested == 0 and self.strict:
                     self.log_error('Missing closing wrapper', position)
                     return None
-                self.add_node(
-                    nested_levels[nested], 
-                    unstripped_contents, 
-                    position, 
-                    root=True)
-
-                del nested_levels[nested]
-                nested -= 1 
-
-            if self.symbols[position]['type'] == 'EOF':
-                # handle closing of file
-                root=True
-                success = self.add_node(
-                    nested_levels[nested], 
-                    unstripped_contents,
-                    position,
-                    root=root)
-
-                # reduce the nesting level only for inline nodes
-                if not root:
-                    nested -= 1                       
 
                 if nested < 0:
                     message = 'Stray closing wrapper at %s' % str(position)
@@ -163,6 +148,25 @@ class UrtextBuffer:
                         return self.log_error(message, position)  
                     else:
                         self.messages.append(message) 
+
+                self.add_node(
+                    nested_levels[nested], 
+                    unstripped_contents, 
+                    position,
+                    root=True)
+
+                del nested_levels[nested]
+                nested -= 1
+
+            if symbols[position]['type'] == 'EOF':
+                # handle closing of file
+                nested_levels[nested].append([last_position, position])
+                self.add_node(
+                    nested_levels[nested], 
+                    unstripped_contents,
+                    position,
+                    root=True,
+                    compact=False)
 
             last_position = position
 
@@ -189,7 +193,7 @@ class UrtextBuffer:
 
         # Build the node contents and construct the node
         
-        node_contents = ''.join([contents[r[0]:r[1]]  for r in ranges])
+        node_contents = ''.join([contents[r[0]:r[1]] for r in ranges])
 
         new_node = self.urtext_node(
             self.filename, 
@@ -205,7 +209,7 @@ class UrtextBuffer:
         if new_node.root_node:
             self.root_nodes.append(new_node.id) 
         self.parsed_items[ranges[0][0]] = new_node.id
-            
+
     def _get_file_contents(self):
           return self.contents 
           
@@ -264,7 +268,8 @@ class UrtextBuffer:
         self.root_nodes = []
         self.parsed_items = {}
         self.messages = []
-        self.parse(new_contents)
+        positions, symbols = self.lex(new_contents)
+        self.parse(new_contents, positions, symbols)
         self.errors = True
         for n in self.nodes:
             self.nodes[n].errors = True
@@ -304,8 +309,8 @@ class UrtextFile(UrtextBuffer):
         self.could_import = False        
         self.file_length = len(contents)        
         self.clear_errors(contents)
-        self.lex(contents)
-        self.parse(contents)
+        positions, symbols = self.lex(contents)
+        self.parse(contents, positions, symbols)
         self.write_errors(project.settings)
       
     def _get_file_contents(self):
