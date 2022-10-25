@@ -894,7 +894,7 @@ class UrtextProject:
         filename = os.path.basename(filename)
         if filename in self.files:
             for node_id in self.files[filename].nodes:
-                for r in self.files[filename].nodes[node_id].ranges:
+                for r in self.files[filename].nodes[node_id].ranges:                   
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                         return node_id
         return None

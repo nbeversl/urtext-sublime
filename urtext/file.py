@@ -62,9 +62,7 @@ class UrtextBuffer:
                 self.symbols[match.span()[0]] = {}
                 self.symbols[match.span()[0]]['type'] = symbol_type
                 self.symbols[match.span()[0]]['length'] = len(match.group())                
-                if symbol_type == 'pointer':
-                    self.symbols[match.span()[0]]['contents'] = match.group(1)
-                if symbol_type == 'compact_node':
+                if symbol_type in ['pointer', 'compact_node']:
                     self.symbols[match.span()[0]]['contents'] = match.group(2)
 
         self.positions = sorted([position for position in self.symbols if position != -1])
@@ -96,10 +94,8 @@ class UrtextBuffer:
 
     def parse(self, contents):
  
-        nested = 0  #  depth of node nesting
-        nested_levels = {} # store node nesting into layers
-        last_position = 0  # most recently parsed position in file
-        compact_node_open = False
+        nested_levels = {}  # store node nesting into layers
+        nested = 0          # node nesting depth
 
         first_wrapper = 0
         while first_wrapper < len(self.positions) - 1 and self.symbols[self.positions[first_wrapper]]['type'] == 'pointer':
@@ -111,21 +107,19 @@ class UrtextBuffer:
 
         unstripped_contents = contents
         contents = strip_backtick_escape(contents)
+        last_position = 0
 
-        for position in self.positions:
-
-            last_position = position + self.symbols[position]['length']
+        for index, position in enumerate(self.positions):
 
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
-            
-            if self.symbols[position]['type'] == 'opening_wrapper':
 
-                if [last_position, position + 1] not in nested_levels[nested]:
-                    nested_levels[nested].append([last_position, position + 1])
-
-                nested += 1 
-                continue
+            if self.symbols[position]['type'] == 'pointer':
+                self.parsed_items[position] = self.symbols[position]['contents'] +' >>'
+                
+            if self.symbols[position]['type'] == 'opening_wrapper':                
+                nested_levels[nested].append([last_position, position - 1])
+                nested += 1
 
             if self.symbols[position]['type'] == 'compact_node': 
                 self.add_node( 
@@ -134,45 +128,32 @@ class UrtextBuffer:
                     position, 
                     root=False,
                     compact=True)
-                continue    
-
-            if self.symbols[position]['type'] in ['closing_wrapper', 'EOF']:  # pop
+ 
+            if self.symbols[position]['type'] == 'closing_wrapper':  # pop
+                nested_levels[nested].append([last_position, position])
                 
-                root = False
-                
-                if [last_position, position] not in nested_levels[nested]: # avoid duplicates
-                    nested_levels[nested].append([last_position, position ])
-                
-                if nested == 0 or self.symbols[position]['type'] == 'EOF':
-                    if self.strict and nested != 0:
-                        #TODO -- if a compact node closes the file, this error will be thrown.
-                        self.log_error('Missing closing wrapper', position)
-                        return None
-
-                    root = True
-
+                if nested == 0 and self.strict:
+                    self.log_error('Missing closing wrapper', position)
+                    return None
                 self.add_node(
                     nested_levels[nested], 
                     unstripped_contents, 
                     position, 
-                    root=root)
+                    root=True)
 
                 del nested_levels[nested]
+                nested -= 1 
 
-                if self.symbols[position] == 'EOF' and compact:
-                    # handle closing of file
-                    nested -=1
-                    root=True
+            if self.symbols[position]['type'] == 'EOF':
+                # handle closing of file
+                root=True
+                success = self.add_node(
+                    nested_levels[nested], 
+                    unstripped_contents,
+                    position,
+                    root=root)
 
-                    success = self.add_node(
-                        nested_levels[nested], 
-                        unstripped_contents,
-                        position,
-                        root=root)
-
-                # last_position = position + symbol_length[self.symbols[position]]
-
-                # reduce the nesting level only for compact, inline nodes
+                # reduce the nesting level only for inline nodes
                 if not root:
                     nested -= 1                       
 
@@ -182,6 +163,8 @@ class UrtextBuffer:
                         return self.log_error(message, position)  
                     else:
                         self.messages.append(message) 
+
+            last_position = position
 
         if nested > 0:
             message = 'Un-closed node at %s' % str(position) + ' in ' + self.filename
