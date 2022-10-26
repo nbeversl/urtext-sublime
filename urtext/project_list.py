@@ -166,9 +166,9 @@ class ProjectList():
             node_title = ''
             if node_id in project.nodes:
                 node_title = project.nodes[node_id].get_title()
-            link = '>'+node_title
+            link = '| ' + node_title + ' >'
             if pointer:
-                link = '>'+link
+                link +='>'
             if include_project or project != self.current_project:
                 link = '=>"' + project.title +'"'+link
             return link

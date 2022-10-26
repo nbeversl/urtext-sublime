@@ -48,7 +48,7 @@ class UrtextBuffer:
         self.could_import = False        
         self.file_length = len(contents)
         symbols = self.lex(contents)
-        self.parse(contents, positions, symbols)
+        self.parse(contents, symbols)
             
     def lex(self, contents, start_position=0):
        

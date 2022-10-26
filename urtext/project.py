@@ -339,12 +339,12 @@ class UrtextProject:
         self._remove_file(filename)
  
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
+        
         if file_should_be_dropped:
             self._add_to_error_files(filename)
             return file_should_be_dropped
         
         if should_re_parse:
-            print('REPARSE')
             return self._parse_file(filename)
 
         if new_file.filename in self.error_files:
@@ -383,7 +383,6 @@ class UrtextProject:
                             else:
                                 # try to map old to new. This is the hard part
                                 pass
-
             self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.basename] = new_file  
@@ -413,28 +412,29 @@ class UrtextProject:
                     e)
 
     def _rewrite_changed_links(self, changed_ids):
+
         old_ids = list(changed_ids.keys())
+
         for file in self.files:
+
             for node_id in self.files[file].nodes:
                 changed_links = {}
-                if node_id == '(untitled)':
+
+                if node_id == '(untitled)' or node_id not in self.nodes:
                     continue
-                if node_id not in self.nodes:
-                    print(node_id,'NOT IN NODE (DEBUGGING LINK REWRITNG, project.py 423)')
-                    continue
+
                 for link in self.nodes[node_id].links:
                     for old_id in old_ids:
                         if old_id.startswith(link):
                             changed_links[link] = changed_ids[old_id]
-
             if changed_links:
                 contents = self.files[file]._get_file_contents()
                 replaced_contents = contents
                 for node_id in list(changed_ids.keys()):
-                    if '>'+node_id in contents:
+                    if '| ' + node_id + ' >' in contents:
                          replaced_contents = replaced_contents.replace(
-                            '>'+node_id, 
-                            '>'+changed_ids[node_id])
+                            '| '+ node_id + ' >', 
+                            '| '+ changed_ids[node_id] + ' >')
                 if replaced_contents != contents:
                     self.files[file]._set_file_contents(replaced_contents)
                     self._parse_file(file)
