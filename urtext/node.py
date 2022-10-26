@@ -49,7 +49,7 @@ class UrtextNode:
         filename, 
         contents,
         project,
-        root=False, 
+        root=False,
         compact=False):
 
         self.filename = os.path.basename(filename)
@@ -63,8 +63,8 @@ class UrtextNode:
         self.id = None
         self.links = []
         self.root_node = root
-        self.contains_project_settings = False
         self.compact = compact
+        self.contains_project_settings = False
         self.parent_project = None
         self.dynamic_definitions = []
         self.target_nodes = []
@@ -76,7 +76,7 @@ class UrtextNode:
         
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
-        contents = strip_wrappers(contents, compact=compact)
+        contents = strip_wrappers(contents)
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
@@ -146,7 +146,7 @@ class UrtextNode:
         
         stripped_contents = contents
         for inline_node in subnode_regexp.finditer(stripped_contents):
-            stripped_contents = stripped_contents.replace(inline_node.group(), r*len(inline_node.group()))
+            stripped_contents = stripped_contents.replace(inline_node.group(), r * len(inline_node.group()))
         return stripped_contents
 
     def get_links(self, contents=None):
@@ -328,17 +328,15 @@ def strip_contents(contents,
     contents = contents.strip().strip('{').strip()
     return contents
 
-def strip_wrappers(contents, compact=False, outside_only=False):
+def strip_wrappers(contents):
         wrappers = ['{','}']
         if contents and contents[0] in wrappers:
             contents = contents[1:]
         if contents and contents[-1] in wrappers:
             contents = contents[:-1]
-        if not outside_only:
-            contents = contents.replace('{','')
-            contents = contents.replace('}','')
-        if compact: # don't include the compact marker
-             contents = contents.lstrip().replace('•','',1)        
+        
+        contents = contents.replace('{','')
+        contents = contents.replace('}','')
         return contents
 
 def strip_metadata(contents, preserve_length=False):

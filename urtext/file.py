@@ -18,7 +18,6 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 import re
-import concurrent.futures
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
@@ -48,7 +47,7 @@ class UrtextBuffer:
         self.project = project
         self.could_import = False        
         self.file_length = len(contents)
-        positions, symbols = self.lex(contents)
+        symbols = self.lex(contents)
         self.parse(contents, positions, symbols)
             
     def lex(self, contents, start_position=0):
@@ -66,13 +65,11 @@ class UrtextBuffer:
                 if symbol_type  == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
                     symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
-
-        positions = sorted([position for position in symbols if position != -1])
         
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0
         to_remove = []
-        for p in positions:
+        for p in sorted(symbols.keys()):
             
             if symbols[p]['type'] == 'push_syntax' :
                 to_remove.append(p)
@@ -89,25 +86,27 @@ class UrtextBuffer:
 
         for s in to_remove:
             del symbols[s]
-            positions.remove(s)
 
-        positions.append(len(contents))
-        symbols[len(contents)] = { 'type': 'EOF', 'length' : 0}
+        symbols[len(contents) + start_position] = { 'type': 'EOB' }
 
-        return positions, symbols
+        return symbols
 
     def parse(self, 
         contents,
-        positions,
         symbols,
-        start_position=0):
+        start_position=0,
+        from_compact=False):
  
         nested_levels = {}  # store node nesting into layers
         nested = 0          # node nesting depth
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
 
-        for index, position in enumerate(positions):
+        for position in sorted(symbols.keys()):
+
+            if position <  last_position: 
+                # avoid processing wrapped nodes twice if inside compact
+                continue
 
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
@@ -120,24 +119,23 @@ class UrtextBuffer:
                 nested_levels[nested].append([last_position, position])
                 nested += 1
 
-            if symbols[position]['type'] == 'compact_node':
+            if not from_compact and symbols[position]['type'] == 'compact_node':
+                nested_levels[nested].append([last_position, position])
+                
+                compact_symbols = self.lex(
+                    symbols[position]['full_match'], start_position=position)
 
-                compact_positions, compact_symbols = self.lex(
-                    symbols[position]['node_contents'], start_position=position)
+                self.parse(symbols[position]['full_match'], 
+                    compact_symbols,
+                    start_position=position,
+                    from_compact=True)
 
-                self.parse(symbols[position]['node_contents'], compact_positions, compact_symbols, start_position=position)
-                # self.add_node( 
-                #     [[ position, position + len(self.symbols[position]['contents']) ]], 
-                #     unstripped_contents,
-                #     position, 
-                #     root=False,
-                #     compact=True)
                 last_position = position + len(symbols[position]['full_match'])
                 continue
  
             if symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position + 1, position])
-                
+    
                 if nested == 0 and self.strict:
                     self.log_error('Missing closing wrapper', position)
                     return None
@@ -151,25 +149,27 @@ class UrtextBuffer:
 
                 self.add_node(
                     nested_levels[nested], 
-                    unstripped_contents, 
+                    unstripped_contents,
                     position,
-                    root=True)
+                    start_position=start_position)
 
                 del nested_levels[nested]
                 nested -= 1
 
-            if symbols[position]['type'] == 'EOF':
+            if symbols[position]['type'] == 'EOB':
                 # handle closing of file
                 nested_levels[nested].append([last_position, position])
                 self.add_node(
                     nested_levels[nested], 
                     unstripped_contents,
                     position,
-                    root=True,
-                    compact=False)
+                    root=True if not from_compact else False,
+                    compact=from_compact,
+                    start_position=start_position)
+                continue
 
             last_position = position
-
+        
         if nested > 0:
             message = 'Un-closed node at %s' % str(position) + ' in ' + self.filename
             if self.strict:
@@ -177,7 +177,7 @@ class UrtextBuffer:
             else:
                 self.messages.append(message) 
 
-        if len(self.root_nodes) == 0:
+        if not from_compact and len(self.root_nodes) == 0:
             message = 'No root nodes found'
             if self.strict: 
                 return self.log_error(message, 0)
@@ -189,12 +189,17 @@ class UrtextBuffer:
         contents,
         position,
         root=None,
-        compact=None):
+        compact=False,
+        start_position=0):
 
         # Build the node contents and construct the node
+        node_contents = ''.join([
+            contents[
+                r[0] - start_position
+                :
+                r[1] - start_position ]
+            for r in ranges])
         
-        node_contents = ''.join([contents[r[0]:r[1]] for r in ranges])
-
         new_node = self.urtext_node(
             self.filename, 
             node_contents,
@@ -204,7 +209,8 @@ class UrtextBuffer:
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
-        self.nodes[new_node.id] = new_node
+
+        self.nodes[new_node.id] = new_node   
         self.nodes[new_node.id].ranges = ranges
         if new_node.root_node:
             self.root_nodes.append(new_node.id) 
@@ -268,8 +274,8 @@ class UrtextBuffer:
         self.root_nodes = []
         self.parsed_items = {}
         self.messages = []
-        positions, symbols = self.lex(new_contents)
-        self.parse(new_contents, positions, symbols)
+        symbols = self.lex(new_contents)
+        self.parse(new_contents, symbols)
         self.errors = True
         for n in self.nodes:
             self.nodes[n].errors = True
@@ -309,8 +315,8 @@ class UrtextFile(UrtextBuffer):
         self.could_import = False        
         self.file_length = len(contents)        
         self.clear_errors(contents)
-        positions, symbols = self.lex(contents)
-        self.parse(contents, positions, symbols)
+        symbols = self.lex(contents)
+        self.parse(contents, symbols)
         self.write_errors(project.settings)
       
     def _get_file_contents(self):
