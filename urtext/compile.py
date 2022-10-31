@@ -109,8 +109,6 @@ def _build_final_output(self, dynamic_definition, contents):
     final_contents = ''.join([
         ' ', ## TODO: Make leading space an option.
         contents,
-        '((>'+dynamic_definition.source_id +':'+str(dynamic_definition.location),
-        ')) ',
         built_metadata,
         ])
     if dynamic_definition.spaces:

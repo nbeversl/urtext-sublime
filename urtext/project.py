@@ -165,7 +165,6 @@ integers = [
     'new_file_line_pos'
 ]
 
-
 @add_functions_as_methods(functions)
 class UrtextProject:
     """ Urtext project object """
@@ -179,7 +178,7 @@ class UrtextProject:
                  recursive=False,
                  new_project=False):
         
-        # self.is_async = True 
+        #self.is_async = True 
         self.is_async = False # development
         self.path = path
         self.reset_settings()
@@ -257,7 +256,12 @@ class UrtextProject:
             'home': None,
             'import': False,
             'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 
-            'use_timestamp': [ 'updated','timestamp', 'inline_timestamp', '_oldest_timestamp', '_newest_timestamp'],
+            'use_timestamp': [ 
+                'updated', 
+                'timestamp', 
+                'inline_timestamp', 
+                '_oldest_timestamp', 
+                '_newest_timestamp'],
             'filenames': ['PREFIX', 'title'],
             'filename_datestamp_format':'%m-%d-%Y',
             'console_log': True,
@@ -674,7 +678,6 @@ class UrtextProject:
 
         contents, title, cursor_pos = self._new_node(
             date=date,
-            title='New File Created',
             contents=contents,
             contents_format=contents_format,
             metadata=metadata,
@@ -976,6 +979,7 @@ class UrtextProject:
                         filename, 
                         col_pos=col_pos,
                         file_pos=file_pos)
+        
         link = re.search(node_link_regex, string)
         if link:
             link = link.group(2).strip()

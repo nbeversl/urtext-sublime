@@ -124,8 +124,7 @@ class UrtextBuffer:
                 
                 compact_symbols = self.lex(
                     symbols[position]['full_match'], start_position=position)
-
-                self.parse(symbols[position]['full_match'], 
+                self.parse(symbols[position]['node_contents'], 
                     compact_symbols,
                     start_position=position,
                     from_compact=True)

@@ -332,7 +332,7 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(>)(.+\b)'
+    - match: '(\|\s)([^>]+)>{1,2}'
       captures: 
         1: link_prefix.urtext
         2: link_id.urtext
