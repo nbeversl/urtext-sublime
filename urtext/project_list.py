@@ -270,21 +270,6 @@ class ProjectList():
                     meta_values.append(pair)
         return meta_values
 
-    def get_node_link(self, string):
-
-        node_string = re.compile(node_id_regex + '(\:\d{0,20})?')
-        if re.search(node_string, string):
-            node_and_position = re.search(node_string, string).group(0)
-            node_id = node_and_position.split(':')[0].strip()
-            for project in self.projects:
-                for node in project.nodes:
-                    if node == node_id:
-                        return {
-                            'project_path': project.path,
-                            'filename': project.nodes[node].filename
-                        }
-        return None
-
     def replace_links(self, old_project_path_or_title, new_project_path_or_title, node_id):
         old_project = self.get_project(old_project_path_or_title)
         new_project = self.get_project(new_project_path_or_title)

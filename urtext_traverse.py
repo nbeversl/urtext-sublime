@@ -2,7 +2,7 @@ from .sublime_urtext import refresh_project_event_listener, refresh_project_text
 from .sublime_urtext import size_to_groups, size_to_thirds
 from .sublime_urtext import UrtextTextCommand
 from sublime_plugin import EventListener
-from Urtext.urtext.project import node_id_regex
+from Urtext.urtext.syntax import node_link_or_pointer_regex
 import sublime
 from .sublime_urtext import refresh_project_text_command, refresh_project_event_listener
 import re
@@ -39,7 +39,7 @@ class ToggleTraverse(UrtextTextCommand):
 		active_group = self.view.window().active_group()  # 0-indexed
 		if active_group + 1 == groups:
 			groups += 1
-		#size_to_groups(groups, self.view)
+
 		size_to_thirds(groups,self.view)
 		self.view.settings().set("word_wrap", False)
 
@@ -150,8 +150,7 @@ class TraverseFileTree(EventListener):
 
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
-			links = re.findall('>' + node_id_regex, full_line)
-
+			links = re.findall(node_link_or_pointer_regex, full_line)
 			# if there are no links on this line:
 			if len(links) == 0:  
 				return
@@ -159,13 +158,14 @@ class TraverseFileTree(EventListener):
 			# get all the filenames corresponding to the links
 			filenames = []
 			for link in links:
-				filename = self._UrtextProjectList.current_project.get_file_name(link[1:])
+				node_title = link[1]
+				filename = self._UrtextProjectList.current_project.get_file_name(node_title)
 				if filename:
 					filenames.append(filename)
 
-			if len(filenames) > 0 and link[1:] in self._UrtextProjectList.current_project.nodes:
+			if len(filenames) > 0 and node_title in self._UrtextProjectList.current_project.nodes:
 				filename = filenames[0]
-				position = self._UrtextProjectList.current_project.nodes[link[1:]].ranges[0][0]
+				position = self._UrtextProjectList.current_project.nodes[node_title].ranges[0][0]
 				
 				""" If the tree is linking to another part of its own file """
 				if filename == os.path.basename(this_file):

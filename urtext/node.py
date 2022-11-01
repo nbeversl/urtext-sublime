@@ -184,15 +184,11 @@ class UrtextNode:
 
         first_line = line
 
-        # TODO : WHY DOES THIS HAPPEN?
-        first_line = first_line.strip().strip('{').strip()        
-        first_line = first_line.strip().strip('\n').strip()
         title = re.search(title_regex, first_line)
         if not title:
             title = '(untitled)'
         else:
-            title = title.group()
-        title = title.strip()
+            title = title.group().strip()
         if len(title) > 255:
             title = title[:255]
 

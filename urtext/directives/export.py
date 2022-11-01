@@ -22,12 +22,12 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
     import Urtext.urtext.node
-    from Urtext.urtext.syntax import node_link_regex, node_pointer_regex, titled_link_regex, titled_node_pointer_regex, file_link_regex
+    from Urtext.urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
 
 else:
     from urtext.directive import UrtextDirectiveWithParamsFlags
     import urtext.node
-    from urtext.syntax import node_link_regex, node_pointer_regex, titled_link_regex, titled_node_pointer_regex, file_link_regex
+    from urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
 
 
 class UrtextExport(UrtextDirectiveWithParamsFlags):
@@ -230,14 +230,11 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
         
     def get_node_pointers_with_locations(self, text, escaped_regions=[]):
 
-        patterns = [titled_node_pointer_regex, node_pointer_regex]
         matches = []
         locations = []
-        for pattern in patterns:
-            matches = re.finditer(pattern, text)
-            for m in matches:
-                if not self.is_escaped(escaped_regions, (m.start(), m.end())):
-                   locations.append((text.find(m.group()), m.group()))
+        for m in re.finditer(node_pointer_regex, text):
+            if not self.is_escaped(escaped_regions, (m.start(), m.end())):
+               locations.append((text.find(m.group()), m.group()))
         return locations
 
     def replace_node_pointers(self,     
@@ -330,21 +327,19 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
     def replace_node_links(self, contents):
         """ replace node links, including titled ones, with exported versions """
 
-        for pattern in [titled_link_regex,  node_link_regex]:
+        node_links = re.findall(node_link_regex, contents)
 
-            node_links = re.findall(pattern, contents)
+        for match in node_links:
 
-            for match in node_links:
+            node_link = re.search(node_link_regex, match)           
+            node_id = node_link.group(0)[-3:]
 
-                node_link = re.search(node_link_regex, match)           
-                node_id = node_link.group(0)[-3:]
+            if node_id not in self.project.nodes:                    
+                contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
+                continue
 
-                if node_id not in self.project.nodes:                    
-                    contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
-                    continue
-
-                title = self.project.nodes[node_id].get_title()
-                contents = self.replace_link(contents, title)                                    
+            title = self.project.nodes[node_id].get_title()
+            contents = self.replace_link(contents, title)                                    
         
         return contents
 
