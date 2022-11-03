@@ -304,14 +304,10 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-        link = _UrtextProjectList.current_project.get_home()
-        home = _UrtextProjectList.get_link_and_set_project(
-            '>'+link,
-            self.view.file_name())
+        home = _UrtextProjectList.current_project.get_home()
         if home:
-            home_id = home['node_id']
-            _UrtextProjectList.nav_new(home_id)
-            open_urtext_node(self.view, home_id)
+            _UrtextProjectList.nav_new(home)
+            open_urtext_node(self.view, home)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
