@@ -62,7 +62,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.extensions.history import *
     from Urtext.urtext.extensions.rake import *
     from Urtext.urtext.extensions.tree import *
-    from Urtext.urtext.syntax import action_regex, node_link_regex, editor_file_link_regex, url_scheme
+    from Urtext.urtext.syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme
 
 else:
     from anytree import Node, PreOrderIter, RenderTree
@@ -98,7 +98,7 @@ else:
     from urtext.extensions.history import *
     from urtext.extensions.rake import *
     from urtext.extensions.tree import *
-    from .syntax import action_regex, node_link_regex, editor_file_link_regex, url_scheme
+    from .syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme
 
 functions = compile_functions
 functions.extend(metadata_functions)
@@ -980,7 +980,7 @@ class UrtextProject:
                         col_pos=col_pos,
                         file_pos=file_pos)
         
-        link = re.search(node_link_regex, string)
+        link = re.search(node_link_or_pointer_regex, string)
         if link:
             link = link.group(2).strip()
             if link in self.nodes:
