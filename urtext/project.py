@@ -667,8 +667,7 @@ class UrtextProject:
         date=None, 
         contents=None,
         metadata = {}, 
-        one_line=None
-        ):
+        one_line=None):
 
         contents_format = None
         if contents == None:
@@ -725,12 +724,13 @@ class UrtextProject:
         cursor_pos = 0
 
         duplication_index = 2
-        test_title = title
-        while test_title in self.nodes:
-            test_title = title + ' (' + str(duplication_index) + ')'
-            duplication_index += 1
+        if title != '':
+            while test_title in self.nodes:
+                test_title = title + ' (' + str(duplication_index) + ')'
+                duplication_index += 1
 
-        title = test_title
+            title = test_title
+            title += '\n'
 
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
@@ -739,9 +739,8 @@ class UrtextProject:
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0])
-                new_node_contents = title + '\n' + ''.join(new_node_contents)
+                new_node_contents = title + ''.join(new_node_contents)
         else:
-
             if one_line == None:
                 one_line = self.settings['always_oneline_meta']
             
@@ -751,7 +750,7 @@ class UrtextProject:
             if  self.settings['device_keyname']:
                 metadata[self.settings['device_keyname']] = platform.node()
 
-            new_node_contents = title + '\n' + contents
+            new_node_contents = contents
 
             if include_timestamp:
                 if date == None:

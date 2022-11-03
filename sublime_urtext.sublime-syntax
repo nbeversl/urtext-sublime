@@ -17,7 +17,6 @@ contexts:
       scope: invalid.illegal.stray-bracket-end
   
   syntax-main:    
-    - include: minimal-node-id
     - include: node_pointer
     - include: dynamic-definition-reference
     - include: node_link
@@ -34,8 +33,8 @@ contexts:
     - match: '`'
       push: raw 
 
-    - match: '\|\s'
-      push: link_title
+    - match: '(\|\s)[^_>\n\\|r]+\s>{1,2}'
+      scope: link_title
     
     - match: '(?<=::)'
       push: metadata-value
@@ -151,8 +150,8 @@ contexts:
     - match: '`'
       push: raw 
     
-    - match: '\|[^<][^\s]{2}'
-      push: link_title
+    - match: '(\|\s)[^_>\n\\|r]+\s>{1,2}'
+      scope: link_title
       
     - include: node_link
     - include: file_link
@@ -244,7 +243,7 @@ contexts:
       scope: dynamic-definition-parens
       pop: true
 
-  # Functions with node ID
+  # Functions with node title
   # ID, TREE
 
   function-with-node-id:
@@ -332,13 +331,13 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(\|\s)([^>]+)>{1,2}'
+    - match: '(\|\s)([^>]+)>'
       captures: 
         1: link_prefix.urtext
         2: link_id.urtext
 
   node_pointer:
-    - match: '([>]{2})(.+\b)'
+    - match: '(\|\s)([^>]+)>>{1,2}'
       captures:
         1: pointer_prefix.urtext
         2: pointer_id.urtext
@@ -357,13 +356,7 @@ contexts:
       scope: node_title.urtext
     - match: '`'
       push: raw 
-  
-  link_title:
-    - meta_scope: link_title.urtext
-    - match: '`'
-      push: raw 
-    - match: '(?=>[0-9,a-z]{3}\b)|\n'
-      pop: true
+
 
   url:
     - match: '(http(s)?://)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
@@ -402,8 +395,3 @@ contexts:
   dynamic-definition-reference:
     - match: '\(\(>[0-9,a-z]{3}:\d+\)\)'
       scope: dynamic-definition-reference.urtext
-  
- 
-
- 
-

@@ -687,7 +687,7 @@ class NewFileNodeCommand(UrtextTextCommand):
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
-        self._UrtextProjectList.nav_new(new_node['id'])
+        # self._UrtextProjectList.nav_new(new_node['id'])
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
         def set_cursor(new_view):
