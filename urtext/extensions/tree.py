@@ -15,7 +15,6 @@ class UrtextAnyTree(UrtextExtension):
 
         parsed_items = self.project.files[filename].parsed_items
         positions = sorted(parsed_items.keys())
-    
         for position in positions:
 
             # parse each marker, positioning it within its parent node
@@ -23,7 +22,7 @@ class UrtextAnyTree(UrtextExtension):
                 inserted_node_id = parsed_items[position][:-2].strip()
                 parent_node = self.project.get_node_id_from_position(filename, position)
                 if not parent_node:
-                    continue 
+                    continue
                 alias_node = Node('ALIAS'+inserted_node_id)
                 alias_node.parent = self.project.nodes[parent_node].tree_node
                 self.project.files[filename].alias_nodes.append(alias_node)
