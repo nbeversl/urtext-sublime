@@ -25,7 +25,7 @@ timestamp_match = re.compile(           '<([^-/<\s][^=<]+?)>')
 pattern_break =                         '($|(?=[\\s|\r|]))'
 
 # Titles and links
-title_pattern =                         "[^_>\n\r]+"
+title_pattern =                         "[^_>\n\\|r]+"
 title_regex = re.compile(               title_pattern)
 node_link_regex =                       r'(\|\s)(' + title_pattern + ')\s>' + pattern_break
 node_link_or_pointer_regex =            r'(\|\s)(' + title_pattern + ')\s>{1,2}' + pattern_break
