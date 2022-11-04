@@ -63,8 +63,9 @@ class PopNode(UrtextAction):
             file_contents[0:start - 1],
             '\n| ',
             self.project.nodes[popped_node_id].get_title(),
-            file_contents[end + 1:],
-            ' >>'])
+            ' >>',
+            file_contents[end + 1:]
+            ])
        
         with open (os.path.join(self.project.path, filename), 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
