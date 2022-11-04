@@ -14,18 +14,14 @@
 			 "value-separator" : "var(foreground)",
 			 "meta-value" : "var(foreground)",
 			 "meta-separator" : "var(foreground)",
-			 "node-id" :"var(unobtrusive)",
-			 "minimal-node-id" : "var(unobtrusive)",
 			 "hash_meta" : "var(grey5)",
 			 "meta-value-issue" : "var(red)",
 
 			 // links
-			 "link": "var(unobtrusive)",
-			 "pointer_id": "var(unobtrusive)",
+			 "link": "var(blue)",
 			 "file-link" : "var(foreground)",
 			 "link-prefix" : "var(foreground)",
 			 "other-project-link" : "var(blue)",		
-			 "link-title" : "var(blue)",
 			 "datestamp" : "var(grey3)",
 			 "file-link" : "var(foreground)",
 		 	
@@ -118,12 +114,6 @@
 	  			"foreground": "var(datestamp)",
 	  		},
 
-	  		/* Node IDs */
-	  		
-	  		{
-	  			"scope":"entity.name.struct.node_id.urtext",
-	  			"foreground": "var(node-id)",
-	  		},
 	  		
 	  		/* Links */
 	  		
@@ -137,6 +127,7 @@
 	  		
 	  		{	"scope":"link_prefix.urtext",
 	  			"foreground": "var(link-prefix)",
+	  			"font_style":"bold",
 	  		},
 	  		
 	  		{
@@ -280,10 +271,7 @@
 	  			"scope" : "pointer_id.urtext",
 	  			"foreground": "var(link)",
 	  		},
-	  		{
-	  			"scope" : "minimal_node_id.urtext",
-	  			"foreground": "var(unobtrusive)",
-	  		},
+
 	  		{
 	  			"scope" : "hash_meta.urtext",
 	  			"foreground": "var(hash_meta)",

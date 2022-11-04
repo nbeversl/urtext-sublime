@@ -30,6 +30,8 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape
+    from .syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
+
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
@@ -37,21 +39,7 @@ else:
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape
-
-dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
-dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
-subnode_regexp = re.compile(r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-default_date = datetime.datetime(1970,2,1)
-simple_node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
-timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]+?)(?:>)', flags=re.DOTALL)
-inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
-embedded_syntax = re.compile('%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
-embedded_syntax_open = re.compile('%%-[A-Z-]+', flags=re.DOTALL)
-embedded_syntax_close = re.compile('%%-[A-Z-]+?-END', flags=re.DOTALL)
-short_id = re.compile(r'(?:\s?)@[0-9,a-z]{3}\b')
-shorthand_meta = re.compile(r'(?:^|\s)#[A-Z,a-z].*?\b')
-preformat_syntax = re.compile('\`.*?\`', flags=re.DOTALL)
-tree_elements = ['├──','└──','│','┌──',]
+    from urtext.syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
 
 class UrtextNode:
 
@@ -61,7 +49,7 @@ class UrtextNode:
         filename, 
         contents,
         project,
-        root=False, 
+        root=False,
         compact=False):
 
         self.filename = os.path.basename(filename)
@@ -75,8 +63,8 @@ class UrtextNode:
         self.id = None
         self.links = []
         self.root_node = root
-        self.contains_project_settings = False
         self.compact = compact
+        self.contains_project_settings = False
         self.parent_project = None
         self.dynamic_definitions = []
         self.target_nodes = []
@@ -88,23 +76,14 @@ class UrtextNode:
         
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
-        contents = strip_wrappers(contents, compact=compact)
+        contents = strip_wrappers(contents)
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
         contents = strip_dynamic_def_ref(contents)
             
-        
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
-
-        r = re.search(r'(^|\s)@[0-9,a-z]{3}\b', contents)
-        if r:
-            self.id = r.group(0).strip()[1:]
-            self.tree_node = Node(self.id)
-            contents = contents.replace(r.group(0),'',1)
-            for d in self.dynamic_definitions:
-                d.source_id = self.id
 
         if not contents:
             self.blank = True 
@@ -113,6 +92,11 @@ class UrtextNode:
 
         if self.title == 'project_settings':
             self.contains_project_settings = True
+
+        self.id = self.title
+        self.tree_node = Node(self.id)
+        for d in self.dynamic_definitions:
+            d.source_id = self.id
 
         self.get_links(contents=contents)
 
@@ -153,8 +137,7 @@ class UrtextNode:
         if not self.title:
             return '(untitled)'
         if self.project:
-            return self.title[:self.project.settings['title_length']]
-        return 'untitled from line 150 - DEBUGGING'
+            return self.title #[:self.project.settings['title_length']]
 
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
@@ -163,16 +146,16 @@ class UrtextNode:
         
         stripped_contents = contents
         for inline_node in subnode_regexp.finditer(stripped_contents):
-            stripped_contents = stripped_contents.replace(inline_node.group(), r*len(inline_node.group()))
+            stripped_contents = stripped_contents.replace(inline_node.group(), r * len(inline_node.group()))
         return stripped_contents
 
     def get_links(self, contents=None):
  
         if contents == None:
             contents = self.content_only()
-        nodes = re.findall(simple_node_link_regex, contents)  # link RegEx
+        nodes = re.findall(node_link_regex, contents)  # link RegEx
         for node in nodes:
-            self.links.append(node[-3:])
+            self.links.append(node[1].strip())
 
     def content_only(self, 
         contents=None, 
@@ -185,7 +168,7 @@ class UrtextNode:
     def set_title(self, contents):
 
         t = self.metadata.get_first_value('title')
-        if t: 
+        if t:
             return t
         
         stripped_contents_lines = strip_metadata(contents).strip().split('\n')
@@ -200,23 +183,18 @@ class UrtextNode:
             return '(untitled)'
 
         first_line = line
-        first_line = re.sub('>{1,2}[0-9,-z]{3}', '', first_line, re.DOTALL)    
-        first_line = first_line.replace('┌──','')
-        first_line = first_line.replace('|','') # pipe character cannot be in node names
 
-        # TODO : WHY DOES THIS HAPPEN?
-        first_line = first_line.strip().strip('{').strip()
+        title = re.search(title_regex, first_line)
+        if not title:
+            title = '(untitled)'
+        else:
+            title = title.group().strip()
+        if len(title) > 255:
+            title = title[:255]
 
-        if '•' in first_line:
-            first_line = re.sub(r'^[\s]*\•','',first_line)           
-        
-        first_line=first_line.strip().strip('\n').strip()
-        if len(first_line) > 255:
-            first_line = first_line[:255]
-
-        first_line = sanitize_escape(first_line)
-        self.metadata.add_entry('title', first_line)
-        return first_line
+        title = sanitize_escape(title)
+        self.metadata.add_entry('title', title)
+        return title
    
     def log(self):
         logging.info(self.id)
@@ -244,6 +222,51 @@ class UrtextNode:
 
         return self.build_metadata(keynames, one_line=one_line, separator=separator)
 
+    def rewrite_title(self, title_suffix):
+
+        # check for metadata
+        t = self.metadata.get_first_value('title')
+        new_title = t + title_suffix
+        print('TRYING TO FIND', t)
+
+        file_contents = self.get_file_contents()
+        
+        if t:
+            for r in self.ranges:
+                print(r)
+                print(file_contents[r[0]:r[1]+1])
+                tag = file_contents[r[0]:r[1]+1].find('title::'+t)
+                if tag > -1:
+                    print('FOUND TITLE TAG')
+                    new_file_contents = file_contents[:r[0]+tag + len('title::'+t)]
+                    new_file_contents += new_title
+                    new_file_contents += file_contents[r[0]+tag + len('title::'+t):]
+                    self.set_file_contents(new_file_contents)
+                    self.project._adjust_ranges(
+                        self.filename, 
+                        r[0]+tag + len('title::'+t),
+                        len(new_title) -len(t) * -1)
+                    self.title = new_title
+                    return
+                else:
+                    title_location = file_contents[r[0]:r[1]+1].find(t + ' _')
+                    if title_location < 0:
+                        title_location = file_contents[r[0]:r[1]+1].find(t)
+                    if title_location < 0:
+                        continue
+                    print('FOUND TITLE AT', title_location)
+                    new_title = new_title + ' _'
+                    new_file_contents = file_contents[:r[0]+title_location + len(new_title)]
+                    new_file_contents += new_title
+                    new_file_contents += file_contents[r[0]+title_location + len(new_title):]
+                    self.set_file_contents(new_file_contents)
+                    self.project._adjust_ranges(
+                        self.filename, 
+                        r[0] + title_location + len(t),
+                        len(new_title) - len(t) * -1)
+                    self.title = new_title
+                    return   
+
     @classmethod
     def build_metadata(self, 
         metadata, 
@@ -259,19 +282,13 @@ class UrtextNode:
             line_separator = '; '
         new_metadata = ''
 
-        nid = ''
         for keyname in metadata:
-            if keyname.lower() == 'id':
-                nid = metadata[keyname]
-                continue
             new_metadata += keyname + separator
             if isinstance(metadata[keyname], list):
                 new_metadata += ' - '.join(metadata[keyname])
             else:
                 new_metadata += str(metadata[keyname])
             new_metadata += line_separator
-        if nid:
-            new_metadata += '@'+nid
         return new_metadata.strip()
 
     def set_content(self, contents, preserve_metadata=False, bypass_check=False):
@@ -307,31 +324,22 @@ def strip_contents(contents,
     contents = contents.strip().strip('{').strip()
     return contents
 
-def strip_wrappers(contents, compact=False, outside_only=False):
+def strip_wrappers(contents):
         wrappers = ['{','}']
         if contents and contents[0] in wrappers:
             contents = contents[1:]
         if contents and contents[-1] in wrappers:
             contents = contents[:-1]
-        if not outside_only:
-            contents = contents.replace('{','')
-            contents = contents.replace('}','')
-        if compact: # don't include the compact marker
-             contents = contents.lstrip().replace('•','',1)        
+        
+        contents = contents.replace('{','')
+        contents = contents.replace('}','')
         return contents
 
 def strip_metadata(contents, preserve_length=False):
 
         r = ' ' if preserve_length else ''
-        
-        replacements = re.compile("|".join([
-            '(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
-            '\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', # inline_meta
-            r'(?:\s?)@[0-9,a-z]{3}(\b|$)', # short_id
-            r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
-            ]))
 
-        for e in replacements.finditer(contents):
+        for e in metadata_replacements.finditer(contents):
             contents = contents.replace(e.group(), r*len(e.group()))       
         contents = contents.replace('• ',r*2)
         return contents.strip()

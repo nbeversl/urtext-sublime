@@ -40,8 +40,6 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-
-
 def refresh_project_text_command(import_project=False, change_project=True):
     """ 
     Determine which project we are in based on the Sublime window.
@@ -153,7 +151,7 @@ def initialize_project_list(view,
         _UrtextProjectList = None        
 
     folders = view.window().folders()       
-
+    
     #TODO Refactor
     if not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
@@ -167,7 +165,6 @@ def initialize_project_list(view,
             _UrtextProjectList._add_folder(current_path)
         else:
             _UrtextProjectList = ProjectList(current_path)    
-
     return _UrtextProjectList
 
 def get_path(view):
@@ -199,7 +196,6 @@ class ListProjectsCommand(UrtextTextCommand):
             self.set_window_project)
 
     def set_window_project(self, title):
-        # if self.view.window():
         self._UrtextProjectList.set_current_project(title)
         _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
         node_id = self._UrtextProjectList.nav_current()
@@ -308,11 +304,10 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-        print(_UrtextProjectList.current_project.title)
-        node_id = _UrtextProjectList.current_project.get_home()
-        print(node_id)
-        _UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id)
+        home = _UrtextProjectList.current_project.get_home()
+        if home:
+            _UrtextProjectList.nav_new(home)
+            open_urtext_node(self.view, home)
 
 class NavigateBackwardCommand(UrtextTextCommand):
 
@@ -337,7 +332,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         file_pos = self.view.sel()[0].a
         col_pos = self.view.rowcol(file_pos)[1]
         full_line_region = self.view.line(self.view.sel()[0])
-        full_line =  self.view.substr(full_line_region)
+        full_line = self.view.substr(full_line_region)
 
         link = _UrtextProjectList.get_link_and_set_project(
             full_line, 
@@ -372,7 +367,6 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
     def run(self, edit, **kwargs):
         if not _UrtextProjectList:
             return
-
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
         full_line = self.view.substr(region)
@@ -416,7 +410,6 @@ class NodeBrowserCommand(UrtextTextCommand):
         self.menu = NodeBrowserMenu(
             _UrtextProjectList, 
             project=_UrtextProjectList.current_project)
-
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
@@ -509,19 +502,6 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
         if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 
-class InsertNodeCommand(sublime_plugin.TextCommand):
-    """ inline only, does not make a new file """
-    @refresh_project_text_command()
-    def run(self):
-        add_inline_node(self.view, contents =' ')
-
-class InsertNodeSingleLineCommand(sublime_plugin.TextCommand):
-    """ inline only, does not make a new file """
-    @refresh_project_text_command()
-    def run(self):
-        add_inline_node(self.view, include_timestamp=False)    
-
-
 class WrapLineCommand(sublime_plugin.TextCommand):
     @refresh_project_text_command()
     def run(self):
@@ -557,8 +537,6 @@ def add_inline_node(view,
         view.sel().clear()
         new_cursor_position = sublime.Region(region.a + 1, region.a + 1 ) 
         view.sel().add(new_cursor_position) 
-    
-    return new_node['id'] # id
 
 class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """
@@ -703,13 +681,13 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
             node_id, 
             include_project=True)
 
-class NewNodeCommand(UrtextTextCommand):
+class NewFileNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
-        self._UrtextProjectList.nav_new(new_node['id'])        
+        # self._UrtextProjectList.nav_new(new_node['id'])
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
         def set_cursor(new_view):
@@ -727,12 +705,11 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
-        self.view.run_command("insert", {"characters":'| >' + new_node['id']})
+        self.view.run_command("insert", {"characters":'>' + new_node['id']})
 
 class NewProjectCommand(UrtextTextCommand):
 
     def run(self, edit):
-
         sublime.select_folder_dialog(self.init_new_project)
 
     def init_new_project(self, path):
@@ -828,7 +805,6 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         open_files = [f.file_name() for f in self.view.window().views()]
         _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
         
-
 class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
@@ -856,7 +832,8 @@ class RenameFileCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        
+        self.view.run_command('save')
+        urtext_on_modified(self.view)
         filename = self.view.file_name()
         renamed_files = self._UrtextProjectList.current_project.run_action(
             "RENAME_SINGLE_FILE",
@@ -878,9 +855,8 @@ class AddNodeIdCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        new_id = self._UrtextProjectList.current_project.next_index()
         self.view.run_command("insert_snippet",
-                              {"contents": "@" + new_id})
+                              {"contents": ""})
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -995,7 +971,8 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    print('DEBGGIN')
+    print('DEBGGING - SublimeText')
+    print(node_id)
     print(filename)
     print(node_position)
     print(_UrtextProjectList.current_project.path)

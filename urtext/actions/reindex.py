@@ -35,7 +35,6 @@ class ReindexFiles(UrtextAction):
         prefix = 0
         prefix_length = len(str(len(self.project.files)))
         for filename in filenames:
-
             old_filename = os.path.basename(filename)
             if old_filename not in self.project.files:
                 return {}
@@ -47,7 +46,6 @@ class ReindexFiles(UrtextAction):
             ## Name each file from the first root_node
             root_node_id = self.project.files[old_filename].root_nodes[0]
             root_node = self.project.nodes[root_node_id]
-           
             filename_template = list(self.project.settings['filenames'])
             if keep_prefix and 'PREFIX' in filename_template:
                 filename_template.pop(filename_template.index('PREFIX')) 
@@ -69,7 +67,8 @@ class ReindexFiles(UrtextAction):
                     filename_length = int(self.project.settings['filename_title_length'])
                     if filename_length > 255:
                         filename_length = 255
-                    filename_template[i] = root_node.get_title()[:filename_length]
+                    title = root_node.get_title()
+                    filename_template[i] = title[:filename_length]
                 
                 elif filename_template[i].lower() in self.project.settings['use_timestamp']:
                     timestamp = root_node.metadata.get_first_value(filename_template[i], use_timestamp=True)
@@ -115,8 +114,6 @@ class ReindexFiles(UrtextAction):
             self.project._handle_renamed(old_filename, new_filename)
 
         return renamed_files
-
-
 
 class RenameSingleFile(ReindexFiles):
 

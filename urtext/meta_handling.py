@@ -26,11 +26,11 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .metadata import MetadataEntry
+    from .syntax import metadata_entry
 else:
     from urtext.node import UrtextNode
     from urtext.metadata import MetadataEntry
-
-entry_regex = re.compile('\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
+    from urtext.syntax import metadata_entry
 
 def tag_other_node(self, node_id, open_files=[], metadata={}):
     if self.is_async:
@@ -85,7 +85,7 @@ def consolidate_metadata(self, node_id, one_line=False):
 
     for single_range in ranges:
 
-        for section in entry_regex.finditer(file_contents[single_range[0]:single_range[1]]):
+        for section in metadata_entry.finditer(file_contents[single_range[0]:single_range[1]]):
             start = section.start() + single_range[0]
             end = start + len(section.group())
             first_splice = file_contents[:start]

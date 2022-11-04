@@ -27,9 +27,6 @@ else:
     from anytree import RenderTree
     from urtext.directive  import UrtextDirectiveWithParamsFlags
 
-node_id_regex = '[0-9,a-z]{3}'
-node_link_regex =       r'>[0-9,a-z]{3}\b'
-
 class Interlinks(UrtextDirectiveWithParamsFlags):
 
     name = ["INTERLINKS"]

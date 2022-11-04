@@ -22,8 +22,12 @@ import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
+    from .utils import force_list
+    from .syntax import source_info
 else:
     from urtext.node import UrtextNode
+    from urtext.utils import force_list
+    from urtext.syntax import source_info
 
 def _compile(self):
     
@@ -34,31 +38,40 @@ def _compile(self):
     for dynamic_definition in self.dynamic_defs(): 
         self._process_dynamic_def(dynamic_definition)
 
-def _compile_file(self, filename): 
+def _compile_file(self, filename):
     modified = False
+    filename = os.path.basename(filename)
     if filename in self.files:
-        filename = os.path.basename(filename)
         for node_id in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node_id):
                 if self._process_dynamic_def(dd) and not modified:
                     modified = filename
-        if modified:
-            print('DEBUGGING: '+modified + ' was modified.')
     else:
         print('DEBUGGING: '+filename +' not found in project')
     return modified
 
 def _process_dynamic_def(self, dynamic_definition):
+            
+    if dynamic_definition.target_id == None:
+        print('Found NoneType target in '+dynamic_definition.source_id)
+        return
 
     # points = {} # Future
     new_node_contents = []
-    if not dynamic_definition.target_id and not dynamic_definition.target_file:
+    if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
         
     if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
         return self._log_item(None, 'Dynamic node definition in >' + dynamic_definition.source_id +
                       ' points to nonexistent node >' + dynamic_definition.target_id)
 
+    if 'HEADER' not in dynamic_definition.all_ops:
+        op = self.directives['HEADER'](self)
+        op.set_dynamic_definition(dynamic_definition)
+        op.parse_argument_string(self.nodes[dynamic_definition.target_id].get_title() + ' _')      
+        dynamic_definition.operations.append(op)
+        dynamic_definition.all_ops.append('HEADER')
+        
     output = dynamic_definition.process_output()    
 
     #TODO this should not be necessary, but:
@@ -71,10 +84,11 @@ def _process_dynamic_def(self, dynamic_definition):
         changed_file = self._set_node_contents(dynamic_definition.target_id, final_output)  
         if changed_file:
             self.nodes[dynamic_definition.target_id].dynamic = True
-        
+
             # Dynamic nodes have blank title by default. Title can be set by header or title key.
             if not self.nodes[dynamic_definition.target_id].metadata.get_first_value('title'):
                 self.nodes[dynamic_definition.target_id].title = ''
+    
     if dynamic_definition.target_file:
         final_output = strip_source_information(final_output)
         self.exports[dynamic_definition.target_file] = dynamic_definition
@@ -84,14 +98,10 @@ def _process_dynamic_def(self, dynamic_definition):
 
     return changed_file
 
-
 def _build_final_output(self, dynamic_definition, contents):
 
     metadata_values = {}
     
-    if dynamic_definition.target_id:
-        metadata_values['ID'] = dynamic_definition.target_id
-
     built_metadata = UrtextNode.build_metadata(
         metadata_values, 
         one_line = not dynamic_definition.multiline_meta)
@@ -99,8 +109,6 @@ def _build_final_output(self, dynamic_definition, contents):
     final_contents = ''.join([
         ' ', ## TODO: Make leading space an option.
         contents,
-        '((>'+dynamic_definition.source_id +':'+str(dynamic_definition.location),
-        ')) ',
         built_metadata,
         ])
     if dynamic_definition.spaces:
@@ -118,7 +126,7 @@ def indent(contents, spaces=4):
     return '\n'+'\n'.join(content_lines)
 
 def strip_source_information(string):
-    source_info = re.compile(r'\(\(>[0-9,a-z]{3}\:\d+\)\)')
+    
     for s in source_info.findall(string):
         string = string.replace(s,'')
     return string

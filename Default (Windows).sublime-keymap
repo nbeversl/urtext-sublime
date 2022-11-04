@@ -1,18 +1,15 @@
 [
-  { "keys": ["ctrl+shift+;"], "command": "new_node" },
+  { "keys": ["ctrl+shift+;"], "command": "new_file_node" },
   { "keys": ["ctrl+shift+e"], "command": "node_browser"},
   { "keys": ["ctrl+shift+r"], "command": "toggle_traverse"},
   { "keys": ["ctrl+shift+s"], "command": "rename_file"},
   { "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
   { "keys": ["ctrl+shift+t"], "command": "insert_timestamp"},
-  { "keys": ["ctrl+shift+["], "command": "insert_node"},
   { "keys": ["ctrl+shift+]"], "command": "insert_dynamic_node_definition"},
   { "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
   { "keys": ["ctrl+shift+,"], "command": "navigate_backward"},
   { "keys": ["ctrl+shift+."], "command": "navigate_forward"},
-  { "keys": ["ctrl+shift+i"], "command": "add_node_id"},
   { "keys": ["ctrl+shift+h"], "command": "urtext_home"},
-  { "keys": ["ctrl+shift+1"], "command": "insert_node_single_line"},
   { "keys": ["ctrl+shift+6"], "command": "compact_node"},
   { "keys": ["ctrl+shift+f"], "command": "random_node"},
   { "keys": ["ctrl+shift+o"], "command": "list_projects"},
@@ -29,7 +26,7 @@
   { "keys": ["ctrl+shift+space"], "command":"rake_associate"},
   { "keys": ["ctrl+shift+alt+right"], "command":"pop_node"},
   { "keys": ["ctrl+shift+alt+left"], "command":"pull_node"},
-  { "keys": ["ctrl+shift+2"], "command":"wrap_line"},
+  { "keys": ["ctrl+shift+["], "command":"wrap_line"},
   { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
 
 

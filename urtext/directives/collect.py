@@ -160,7 +160,7 @@ class Collect (UrtextDirectiveWithParamsFlags):
                     next_content.values = item['value']
 
                  if next_content.needs_link:            
-                     next_content.link = '>'+item['node_id']+':'+item['position']
+                     next_content.link = '| '+item['node_id']+':'+item['position'] + '> '
 
                  if next_content.needs_date:
                      next_content.date = item['dt_string']

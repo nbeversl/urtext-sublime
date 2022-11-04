@@ -10,6 +10,7 @@ class DebugCommand(sublime_plugin.TextCommand):
         filename = self.view.file_name()
         position = self.view.sel()[0].a
         node_id = self._UrtextProjectList.current_project.get_node_id_from_position(filename, position)
+
         if not node_id:
             print('No Node found here')
             return

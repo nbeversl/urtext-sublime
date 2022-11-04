@@ -21,9 +21,11 @@ import re
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .project import UrtextProject, node_id_regex, NoProject
+    from .project import UrtextProject, NoProject
+
 else:
-    from urtext.project import UrtextProject, node_id_regex, NoProject
+    from urtext.project import UrtextProject, NoProject
+
 
 class ProjectList():
 
@@ -31,7 +33,6 @@ class ProjectList():
         base_path, 
         initial_project=None,
         first_project=False):
-
         self.projects = []
         self.base_path = base_path
         self.current_project = None
@@ -75,9 +76,9 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling procedure.
         """
-        string=string.strip()
+        string = string.strip()
         node_id = None
-        project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z]{3})\b)?')
+        project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
         link = project_link_r.search(string)
         project_name = link.group(2)
         node_id = link.group(4)
@@ -101,7 +102,6 @@ class ProjectList():
         """ Otherwise, set the project, search the link for a link in the current project """
         
         self.set_current_project(os.path.basename(filename))
-
         link = self.current_project.get_link( 
             string, 
             filename, 
@@ -166,10 +166,9 @@ class ProjectList():
             node_title = ''
             if node_id in project.nodes:
                 node_title = project.nodes[node_id].get_title()
-            link = '| '+ node_title +' >'
+            link = '| ' + node_title + ' >'
             if pointer:
-                link += '>'
-            link += node_id
+                link +='>'
             if include_project or project != self.current_project:
                 link = '=>"' + project.title +'"'+link
             return link
@@ -270,21 +269,6 @@ class ProjectList():
                 if pair not in meta_values:
                     meta_values.append(pair)
         return meta_values
-
-    def get_node_link(self, string):
-
-        node_string = re.compile(node_id_regex + '(\:\d{0,20})?')
-        if re.search(node_string, string):
-            node_and_position = re.search(node_string, string).group(0)
-            node_id = node_and_position.split(':')[0].strip()
-            for project in self.projects:
-                for node in project.nodes:
-                    if node == node_id:
-                        return {
-                            'project_path': project.path,
-                            'filename': project.nodes[node].filename
-                        }
-        return None
 
     def replace_links(self, old_project_path_or_title, new_project_path_or_title, node_id):
         old_project = self.get_project(old_project_path_or_title)

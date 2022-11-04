@@ -18,43 +18,15 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 import re
-import concurrent.futures
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
+    from .syntax import compiled_symbols, error_messages, node_pointer_regex
 else:
     from urtext.node import UrtextNode
     from urtext.utils import strip_backtick_escape
-
-node_id_regex =         r'\b[0-9,a-z]{3}\b'
-node_link_regex =       r'>[0-9,a-z]{3}\b'
-node_pointer_regex =    r'>>[0-9,a-z]{3}\b'
-error_messages =        '<!{1,2}.*?!{1,2}>\n?'
-
-compiled_symbols = [re.compile(symbol) for symbol in  [
-    r'(?<!\\){',  # inline node opening wrapper
-    r'(?<!\\)}',  # inline node closing wrapper
-    '>>', # node pointer
-    r'\n', # line ending (closes compact node)
-    r'%%-[A-Z]*', # push syntax 
-    r'%%-[A-Z]*-END', # pop syntax
- 
-    ]]
-
-# additional symbols using MULTILINE flag
-compiled_symbols.extend( [re.compile(symbol, re.M) for symbol in [
-    '^[^\S\n]*•',  # compact node opening wrapper
-    ] ])
-
-# number of positions to advance parsing for of each possible symbol
-symbol_length = {   
-    '^[^\S\n]*•': 0, # compact node opening wrapper
-    r'(?<!\\){' : 1, # inline opening wrapper
-    r'(?<!\\)}' : 1, # inline closing wrapper
-    '>>' : 2, # node pointer
-    r'\n' : 0, # compact node closing
-    'EOF': 0,
-}
+    from urtext.syntax import compiled_symbols, error_messages, node_pointer_regex
 
 class UrtextBuffer:
 
@@ -66,7 +38,6 @@ class UrtextBuffer:
         self.root_nodes = []
         self.alias_nodes = []           
         self.parsed_items = {}
-        self.anonymous_nodes = []
         self.strict = False
         self.messages = []        
         self.errors = False
@@ -74,40 +45,38 @@ class UrtextBuffer:
         self.filename = 'yyyyyyyyyyy'
         self.basename = 'yyyyyyyyyyy'
         self.project = project
-        
-        
         self.could_import = False        
-        self.file_length = len(contents)        
-        self.parse(self.lex(contents))
-        self.obj = {}
+        self.file_length = len(contents)
+        symbols = self.lex(contents)
+        self.parse(contents, symbols)
             
-    def lex(self, contents):
+    def lex(self, contents, start_position=0):
+       
+        symbols = {}
 
-        self.symbols = {}
-
-        unstripped_contents = contents
         contents = strip_backtick_escape(contents)
-              
-        for compiled_symbol in compiled_symbols:
-            locations = compiled_symbol.finditer(contents)
-            for loc in locations:
-                start = loc.span()[0]
-                self.symbols[start] = compiled_symbol.pattern
-
-        self.positions = sorted([key for key in self.symbols if key != -1])
+        for symbol, symbol_type in compiled_symbols.items():
+            for match in symbol.finditer(contents):
+                symbols[match.span()[0] + start_position] = {}
+                symbols[match.span()[0] + start_position]['type'] = symbol_type
+                symbols[match.span()[0] + start_position]['length'] = len(match.group())                
+                if symbol_type  == 'pointer':
+                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
+                if symbol_type  == 'compact_node':
+                    symbols[match.span()[0] + start_position]['full_match'] = match.group()
+                    symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
         
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0
-        escaped = False
         to_remove = []
-        for p in self.positions:
+        for p in sorted(symbols.keys()):
             
-            if self.symbols[p] == '%%-[A-Z]*' :
+            if symbols[p]['type'] == 'push_syntax' :
                 to_remove.append(p)
                 push_syntax += 1
                 continue
             
-            if self.symbols[p] == '%%-[A-Z]*-END':
+            if symbols[p]['type'] == 'pop_syntax':
                 to_remove.append(p)
                 push_syntax -= 1
                 continue
@@ -116,152 +85,59 @@ class UrtextBuffer:
                 to_remove.append(p)
 
         for s in to_remove:
-            del self.symbols[s]
-            self.positions.remove(s)
+            del symbols[s]
 
-        return unstripped_contents
+        symbols[len(contents) + start_position] = { 'type': 'EOB' }
 
-    def parse(self, contents):
+        return symbols
 
-        nested = 0  #  depth of node nesting
-        nested_levels = {} # store node nesting into layers
-        last_position = 0  # most recently parsed position in file
-        compact_node_open = False
+    def parse(self, 
+        contents,
+        symbols,
+        start_position=0,
+        from_compact=False):
+ 
+        nested_levels = {}  # store node nesting into layers
+        nested = 0          # node nesting depth
+        unstripped_contents = strip_backtick_escape(contents)
+        last_position = start_position
 
-        """
-        Trim leading symbols that are newlines
-        """
+        for position in sorted(symbols.keys()):
 
-        if self.positions:
-            while self.positions and self.symbols[self.positions[0]] == r'\n' :
-                self.positions.pop(0)
-        
-        first_wrapper = 0
-        while first_wrapper < len(self.positions) - 1 and self.symbols[self.positions[first_wrapper]] == '>>' :
-             first_wrapper += 1
-        
-        if self.positions and self.symbols[self.positions[first_wrapper]] != r'\n':
-            nested_levels[0] = [ [0, self.positions[first_wrapper] + symbol_length[self.symbols[self.positions[first_wrapper]]] ] ]
-
-        self.positions.append(len(contents))
-        self.symbols[len(contents)] = 'EOF'
-
-        unstripped_contents = contents
-        contents = strip_backtick_escape(contents)
-        obj = {}
-
-        for index in range(0, len(self.positions)):
-
-            position = self.positions[index]
+            if position <  last_position: 
+                # avoid processing wrapped nodes twice if inside compact
+                continue
 
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
-            
-            """
-            If this opens a new node
-            """
-                  
-            if self.symbols[position] == r'(?<!\\){':
 
-                if [last_position, position + 1] not in nested_levels[nested]:
-                    nested_levels[nested].append([last_position, position + 1])
-
-                nested += 1 
-                last_position = position + 1
+            if symbols[position]['type'] == 'pointer':
+                self.parsed_items[position] = symbols[position]['contents'] +' >>'
                 continue
 
-            """
-            If this points to an outside node, find which node
-            """
-            if self.symbols[position] == '>>':
-                
-                node_pointer = contents[position:position + 5]
-                
-                if re.match(node_pointer_regex, node_pointer):
-                    self.parsed_items[position] = node_pointer
+            if symbols[position]['type'] == 'opening_wrapper':                
+                nested_levels[nested].append([last_position, position])
+                nested += 1
 
+            if not from_compact and symbols[position]['type'] == 'compact_node':
+                nested_levels[nested].append([last_position, position])
+                
+                compact_symbols = self.lex(
+                    symbols[position]['full_match'], start_position=position)
+                self.parse(symbols[position]['node_contents'], 
+                    compact_symbols,
+                    start_position=position,
+                    from_compact=True)
+
+                last_position = position + len(symbols[position]['full_match'])
                 continue
-
-            """
-            If the symbol opens a compact node
-            """
-            if self.symbols[position] == '^[^\S\n]*•': 
-                # TODO - FIGURE OUT WHY ADDING + 1 to these positions to correct the 
-                # parsing causes exporting to skip entire regions
-                if [last_position, position  ] not in nested_levels[nested] and position  > last_position:
-                    nested_levels[nested].append([last_position, position ])
-                nested += 1 
-                last_position = position + 1
-                compact_node_open = True
-                continue    
-
-            """
-            Node closing symbols :  }, newline, EOF
-            """
-            if self.symbols[position] in [r'(?<!\\)}', r'\n', 'EOF']:  # pop
-                
-                compact, root = False, False
-
-                if self.symbols[position] == r'\n':
-                    if compact_node_open:
-                        compact = True
-                        compact_node_open = False   
-                    else:
-                        # newlines are irrelevant if compact node is not open
-                        continue
-
-                if self.symbols[position] == 'EOF' and compact_node_open:
-                    compact = True
-                    compact_node_open = False   
-
-                
-                if [last_position, position] not in nested_levels[nested]: # avoid duplicates
-                    nested_levels[nested].append([last_position, position ])
-                
-                # file level nodes are root nodes, with multiples permitted  
-                if not compact:
-
-                    if nested == 0 or self.symbols[position] == 'EOF':
-                        if self.strict and nested != 0:
-                            #TODO -- if a compact node closes the file, this error will be thrown.
-                            self.log_error('Missing closing wrapper', position)
-                            return None
-
-                        root = True
-
-                success = self.add_node(
-                    nested_levels[nested], 
-                    unstripped_contents, 
-                    position, 
-                    root=root, 
-                    compact=compact)
-
-                del nested_levels[nested]
-
-                if compact and not success and self.symbols[position] != 'EOF' :
-                    nested -=1
-                    nested_levels[nested].append([last_position, position])
-                    last_position = position + symbol_length[self.symbols[position]]
-                    continue
-                    
-                if self.symbols[position] == 'EOF' and compact:
-                    # handle closing of both compact node and file
-                    nested -=1
-                    root=True
-                    compact=False
-
-                    success = self.add_node(
-                        nested_levels[nested], 
-                        unstripped_contents,
-                        position,
-                        root=root,
-                        compact=compact)
-
-                last_position = position + symbol_length[self.symbols[position]]
-
-                # reduce the nesting level only for compact, inline nodes
-                if not root:
-                    nested -= 1                       
+ 
+            if symbols[position]['type'] == 'closing_wrapper':
+                nested_levels[nested].append([last_position + 1, position])
+    
+                if nested == 0 and self.strict:
+                    self.log_error('Missing closing wrapper', position)
+                    return None
 
                 if nested < 0:
                     message = 'Stray closing wrapper at %s' % str(position)
@@ -270,6 +146,29 @@ class UrtextBuffer:
                     else:
                         self.messages.append(message) 
 
+                self.add_node(
+                    nested_levels[nested], 
+                    unstripped_contents,
+                    position,
+                    start_position=start_position)
+
+                del nested_levels[nested]
+                nested -= 1
+
+            if symbols[position]['type'] == 'EOB':
+                # handle closing of file
+                nested_levels[nested].append([last_position, position])
+                self.add_node(
+                    nested_levels[nested], 
+                    unstripped_contents,
+                    position,
+                    root=True if not from_compact else False,
+                    compact=from_compact,
+                    start_position=start_position)
+                continue
+
+            last_position = position
+        
         if nested > 0:
             message = 'Un-closed node at %s' % str(position) + ' in ' + self.filename
             if self.strict:
@@ -277,7 +176,7 @@ class UrtextBuffer:
             else:
                 self.messages.append(message) 
 
-        if len(self.root_nodes) == 0:
+        if not from_compact and len(self.root_nodes) == 0:
             message = 'No root nodes found'
             if self.strict: 
                 return self.log_error(message, 0)
@@ -289,11 +188,17 @@ class UrtextBuffer:
         contents,
         position,
         root=None,
-        compact=None):
+        compact=False,
+        start_position=0):
 
         # Build the node contents and construct the node
-        node_contents = ''.join([contents[r[0]:r[1]]  for r in ranges])
-
+        node_contents = ''.join([
+            contents[
+                r[0] - start_position
+                :
+                r[1] - start_position ]
+            for r in ranges])
+        
         new_node = self.urtext_node(
             self.filename, 
             node_contents,
@@ -303,25 +208,13 @@ class UrtextBuffer:
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
-        
-        if new_node.id != None: # and re.match(node_id_regex, new_node.id):
-            self.nodes[new_node.id] = new_node
-            self.nodes[new_node.id].ranges = ranges
-            if new_node.root_node:
-                self.root_nodes.append(new_node.id) 
-            self.parsed_items[ranges[0][0]] = new_node.id
-            return True
-        else:
-            if root:
-                self.anonymous_nodes.append(new_node) 
-                self.messages.append('Warning : root Node has no ID.')
-            elif compact:
-                pass
-            else:
-                self.anonymous_nodes.append(new_node) 
-                self.messages.append('Warning: Node missing ID at position '+str(position))
-            return False
-            
+
+        self.nodes[new_node.id] = new_node   
+        self.nodes[new_node.id].ranges = ranges
+        if new_node.root_node:
+            self.root_nodes.append(new_node.id) 
+        self.parsed_items[ranges[0][0]] = new_node.id
+
     def _get_file_contents(self):
           return self.contents 
           
@@ -329,11 +222,11 @@ class UrtextBuffer:
           return
           
     def get_node_id_from_position(self, position):
-            for node_id in self.nodes:
-                for r in self.nodes[node_id].ranges:
-                    if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                        return node_id
-            return None
+        for node_id in self.nodes:
+            for r in self.nodes[node_id].ranges:
+                if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
+                    return node_id
+        return None
 
     def clear_errors(self, contents):
         cleared_contents = re.sub(error_messages, '', contents, flags=re.DOTALL)
@@ -378,13 +271,18 @@ class UrtextBuffer:
         self._set_file_contents(new_contents, compare=False)
         self.nodes = {}
         self.root_nodes = []
-        self.anonymous_nodes = []
         self.parsed_items = {}
         self.messages = []
-        self.parse(new_contents)
+        symbols = self.lex(new_contents)
+        self.parse(new_contents, symbols)
         self.errors = True
         for n in self.nodes:
             self.nodes[n].errors = True
+
+    def get_ordered_nodes(self):
+        return sorted( 
+            list(self.nodes.keys()),
+            key=lambda node_id :  self.nodes[node_id].ranges[0][0])
 
     def log_error(self, message, position):
 
@@ -397,7 +295,6 @@ class UrtextBuffer:
         print(''.join([ 
                 message, ' in >f', self.filename, ' at position ',
             str(position)]))
-            
 
 class UrtextFile(UrtextBuffer):
    
@@ -411,14 +308,14 @@ class UrtextFile(UrtextBuffer):
         self.messages = []        
         self.errors = False
         self.project = project
-        self.anonymous_nodes = []
         
         self.filename = os.path.join(project.path, os.path.basename(filename))
         contents = self._get_file_contents()
         self.could_import = False        
         self.file_length = len(contents)        
         self.clear_errors(contents)
-        self.parse(self.lex(contents))
+        symbols = self.lex(contents)
+        self.parse(contents, symbols)
         self.write_errors(project.settings)
       
     def _get_file_contents(self):

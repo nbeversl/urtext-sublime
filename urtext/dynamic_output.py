@@ -17,9 +17,13 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-
+import os
 import re
-format_key_regex = re.compile('\$_?[\.A-Za-z0-9_-]*', re.DOTALL)
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    from .syntax import format_key_regex
+else:
+    from urtext.syntax import format_key_regex
 
 class DynamicOutput():
 

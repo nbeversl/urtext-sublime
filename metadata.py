@@ -4,7 +4,6 @@ import os
 
 from .sublime_urtext import show_panel,UrtextTextCommand,refresh_project_text_command, NodeBrowserMenu, open_urtext_node
 
-
 class FindByMetaCommand(UrtextTextCommand):
     
     @refresh_project_text_command

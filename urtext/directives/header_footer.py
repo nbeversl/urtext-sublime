@@ -7,7 +7,7 @@ else:
 class UrtextHeader(UrtextDirective):
 
     name = ["HEADER"]
-    phase = 500
+    phase = 510
     
     def dynamic_output(self, contents):
         if not self.argument_string:
@@ -20,9 +20,8 @@ class UrtextHeader(UrtextDirective):
 class UrtextFooter(UrtextDirective):
 
     name = ["FOOTER"]
-    phase = 500
+    phase = 520
 
     def dynamic_output(self, contents):
         footer = bytes(self.argument_string, "utf-8").decode("unicode_escape") + '\n'
-        
         return ''.join([contents, footer])

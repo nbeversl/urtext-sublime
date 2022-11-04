@@ -22,17 +22,13 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
     import Urtext.urtext.node
+    from Urtext.urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
+
 else:
     from urtext.directive import UrtextDirectiveWithParamsFlags
     import urtext.node
+    from urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
 
-node_link_regex = r'[^>]>[0-9,a-z]{3}\b'
-node_pointer_regex = r'>>[0-9,a-z]{3}\b'
-titled_link_regex = r'\|.*?[^>]>[0-9,a-z]{3}\b'
-titled_node_pointer_regex =r'\|.*?>>[0-9,a-z]{3}\b'
-file_link_regex = re.compile('f>.*')
-embedded_syntax_open = re.compile('(%%-[A-Z-]+?)', flags=re.DOTALL)
-embedded_syntax_close = re.compile('|(%%-[A-Z-]*-END)', flags=re.DOTALL)
 
 class UrtextExport(UrtextDirectiveWithParamsFlags):
 
@@ -234,14 +230,11 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
         
     def get_node_pointers_with_locations(self, text, escaped_regions=[]):
 
-        patterns = [titled_node_pointer_regex, node_pointer_regex]
         matches = []
         locations = []
-        for pattern in patterns:
-            matches = re.finditer(pattern, text)
-            for m in matches:
-                if not self.is_escaped(escaped_regions, (m.start(), m.end())):
-                   locations.append((text.find(m.group()), m.group()))
+        for m in re.finditer(node_pointer_regex, text):
+            if not self.is_escaped(escaped_regions, (m.start(), m.end())):
+               locations.append((text.find(m.group()), m.group()))
         return locations
 
     def replace_node_pointers(self,     
@@ -265,7 +258,7 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
         for location in locations:
 
             match = node_pointer_locations[location]
-            node_id = match[-3:]
+            node_id = match
 
             pointer_length = len(match)
 
@@ -334,21 +327,19 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
     def replace_node_links(self, contents):
         """ replace node links, including titled ones, with exported versions """
 
-        for pattern in [titled_link_regex,  node_link_regex]:
+        node_links = re.findall(node_link_regex, contents)
 
-            node_links = re.findall(pattern, contents)
+        for match in node_links:
 
-            for match in node_links:
+            node_link = re.search(node_link_regex, match)           
+            node_id = node_link.group(0)[-3:]
 
-                node_link = re.search(node_link_regex, match)           
-                node_id = node_link.group(0)[-3:]
+            if node_id not in self.project.nodes:                    
+                contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
+                continue
 
-                if node_id not in self.project.nodes:                    
-                    contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
-                    continue
-
-                title = self.project.nodes[node_id].get_title()
-                contents = self.replace_link(contents, title)                                    
+            title = self.project.nodes[node_id].get_title()
+            contents = self.replace_link(contents, title)                                    
         
         return contents
 
