@@ -49,10 +49,7 @@ class Tree(UrtextDirectiveWithParamsFlags):
             alias_nodes = self._has_aliases(start_point)
      
         tree_render = ''
-        
-        ## TODO : fix
-        self.depth = 99999 
-        
+                
         level = 0
         for pre, _, this_node in RenderTree(
                 start_point, 
