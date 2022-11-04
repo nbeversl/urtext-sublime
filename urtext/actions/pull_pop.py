@@ -61,9 +61,10 @@ class PopNode(UrtextAction):
 
         remaining_node_contents = ''.join([
             file_contents[0:start - 1],
-            '\n>>',
+            '\n| ',
             self.project.nodes[popped_node_id].get_title(),
-            file_contents[end + 1:]])
+            file_contents[end + 1:],
+            ' >>'])
        
         with open (os.path.join(self.project.path, filename), 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
@@ -84,7 +85,6 @@ class PullNode(UrtextAction):
         file_pos=0, 
         col_pos=0):
     
-
         """ File must be saved in the editor """
         return self._pull_node(
             string, 
@@ -152,16 +152,17 @@ class PullNode(UrtextAction):
     
         wrapped_contents = ''.join(['{ ',pulled_contents,' }'])
 
-        for m in re.finditer(re.escape(link['node_id']), destination_file_contents):
+        for m in re.finditer(re.escape(link['full_match']), destination_file_contents):
                 
             replacement_contents = ''.join([
-                destination_file_contents[:m.start()-2],
+                destination_file_contents[:m.start()],
                 wrapped_contents,
                 destination_file_contents[m.end():]]
                 )
 
-        self.project.files[destination_filename]._set_file_contents(replacement_contents)
-        self.project._parse_file(destination_filename)
+        if replacement_contents:
+            self.project.files[destination_filename]._set_file_contents(replacement_contents)
+            self.project._parse_file(destination_filename)
 
         if root:
             return os.path.join(self.project.path, source_filename)

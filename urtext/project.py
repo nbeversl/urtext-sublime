@@ -981,6 +981,7 @@ class UrtextProject:
         
         link = re.search(node_link_or_pointer_regex, string)
         if link:
+            full_match = link.group().strip()
             link = link.group(2).strip()
             if link in self.nodes:
                 result = link
@@ -995,16 +996,11 @@ class UrtextProject:
             node_id = result
             link_location = file_pos + len(result)
             link = result # node id
-            # if len(result.groups()) > 2:
-            #     dest_position = result.group(3) 
-            #     if dest_position:
-            #         dest_position = int(dest_position[1:])
-            #     else:
-            #         dest_position = 0
             dest_position = self.get_file_position(link, 0)
         else:
             result = re.search(editor_file_link_regex, string)            
             if result:
+                full_match = result.group().strip()
                 link = os.path.join(self.path, result.group(2)).strip()
                 kind = 'EDITOR_LINK'              
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
@@ -1014,9 +1010,12 @@ class UrtextProject:
                 if result:
                     kind ='HTTP'
                     link = result.group().strip()
+                    full_match = link
+        
         return {
             'kind' : kind, 
             'link' : link, 
+            'full_match' : full_match,
             'node_id' : node_id,
             'file_pos': file_pos, 
             'link_location' : link_location, 
