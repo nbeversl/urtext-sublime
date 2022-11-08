@@ -18,7 +18,6 @@ contexts:
   
   syntax-main:    
     - include: node_pointer
-    - include: dynamic-definition-reference
     - include: node_link
     - include: other-project-link
     - include: file_link
@@ -256,7 +255,6 @@ contexts:
     - include: node_link
     - include: output-flags
     - include: file_link
-    - include: node-id-in-dynamic-definition
     - match: \)
       scope: dynamic-definition-parens
       pop: true
