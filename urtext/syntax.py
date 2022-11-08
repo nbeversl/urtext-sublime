@@ -11,7 +11,7 @@ embedded_syntax_open = re.compile(      '(%%-[A-Z-]+?)', flags=re.DOTALL)
 embedded_syntax = re.compile(           '%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
 embedded_syntax_close = re.compile(     '%%-[A-Z-]+?-END', flags=re.DOTALL)
 error_messages =                        '<!{1,2}.*?!{1,2}>\n?'
-metadata_entry = re.compile(            '\*{0,2}\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
+metadata_entry = re.compile(            '[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
 file_link_regex = re.compile(           'f>.*?')
 flag_regx = re.compile(                 r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)')
 format_key_regex = re.compile(          '\$_?[\.A-Za-z0-9_-]*', re.DOTALL)
