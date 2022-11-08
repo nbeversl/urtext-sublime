@@ -104,7 +104,6 @@ contexts:
       scope: trigger_name.urtext
       push: trigger-with-args
 
-
   trigger-with-args:    
     - match: \(
       scope: dynamic-definition-parens
@@ -262,10 +261,6 @@ contexts:
       scope: dynamic-definition-parens
       pop: true
 
-  node-id-in-dynamic-definition:
-    - match: '\b[0-9,a-z]{3}\b'
-      scope: dynamic-def-node_id.urtext
-
   function-with-optional-parameters:
     - match: \(
       scope: dynamic-definition-parens
@@ -352,11 +347,12 @@ contexts:
       pop: true
 
   node_title:
-    - match: '(?<={)([^\n{_]*?(?= _\b))|(^[^\n_{]*?(?= _\b))'
-      scope: node_title.urtext
+    - match: '((([^>\n\r_])|(?<!\s)_)+)(\s_)'
+      captures:
+        1: node_title.urtext
+        4: title_marker.urtext
     - match: '`'
       push: raw 
-
 
   url:
     - match: '(http(s)?://)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
@@ -391,7 +387,3 @@ contexts:
     - meta_scope: compact_node.urtext 
     - match: $
       pop: true
-
-  dynamic-definition-reference:
-    - match: '\(\(>[0-9,a-z]{3}:\d+\)\)'
-      scope: dynamic-definition-reference.urtext

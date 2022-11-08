@@ -156,4 +156,10 @@ def _reassign_sub_tags(self, target_id):
             for e in self.nodes[source_id].metadata.dynamic_entries:               
                 self._add_sub_tags( self.nodes[source_id].tree_node, self.nodes[target_id].tree_node, e)    
 
-metadata_functions = [ _add_sub_tags,  _reassign_sub_tags, _tag_other_node, _remove_sub_tags, consolidate_metadata, tag_other_node]
+metadata_functions = [ 
+    _add_sub_tags,  
+    _reassign_sub_tags, 
+    _tag_other_node, 
+    _remove_sub_tags, 
+    consolidate_metadata, 
+    tag_other_node]

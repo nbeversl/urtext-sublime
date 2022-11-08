@@ -298,6 +298,11 @@
 	  			"foreground" : "var(blue)"
 	  		},
 
+	  		{ 	"scope" : "title_marker.urtext",
+	  			"foreground" : "var(unobtrusive)"
+
+	  		},
+
 
 	/* system message */
 
