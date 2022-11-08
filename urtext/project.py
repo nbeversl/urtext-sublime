@@ -606,7 +606,7 @@ class UrtextProject:
             del self.messages[filename]
 
     def delete_file(self, filename, open_files=[]):
-        self.execute(self._delete_file, filename, open_files=open_files)
+        return self.execute(self._delete_file, filename, open_files=open_files)
 
     def _delete_file(self, filename, open_files=[]):
         """
@@ -1091,7 +1091,7 @@ class UrtextProject:
         instance = self.actions[action](self)
         if not filename:
             return None
-        self.execute(instance.execute,            
+        return self.execute(instance.execute,            
             string, 
             filename=filename, 
             col_pos=col_pos,
@@ -1146,7 +1146,7 @@ class UrtextProject:
                     new_contents = new_contents.replace(link, replacement, 1)
             if contents != new_contents:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
-                self.execute(self._file_update, filename)
+                return self.execute(self._file_update, filename)
 
     def on_modified(self, filenames):
         
@@ -1175,7 +1175,7 @@ class UrtextProject:
             return modified_files
 
     def visit_node(self, node_id):
-        self.execute(self._visit_node, node_id)
+        return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
         self.nodes[node_id].metadata.access() # ?
@@ -1186,7 +1186,7 @@ class UrtextProject:
                 op.on_node_visited(node_id)
 
     def visit_file(self, filename):
-        self.execute(self._visit_file, filename)
+        return self.execute(self._visit_file, filename)
 
     def _visit_file(self, filename):        
         filename = os.path.basename(filename)
