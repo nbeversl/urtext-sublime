@@ -33,10 +33,11 @@ else:
     from urtext.syntax import metadata_entry
 
 def tag_other_node(self, node_id, open_files=[], metadata={}):
-    if self.is_async:
-        return self.executor.submit(self._tag_other_node, node_id, metadata=metadata, open_files=open_files)
-    else:
-        self._tag_other_node(node_id, metadata=metadata, open_files=open_files)
+    return self.execute(
+        self._tag_other_node, 
+        node_id, 
+        metadata=metadata, 
+        open_files=open_files)
         
 def _tag_other_node(self, node_id, metadata={}, open_files=[]):
     """adds a metadata tag to a node programmatically"""

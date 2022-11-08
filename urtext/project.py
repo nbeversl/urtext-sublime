@@ -178,8 +178,8 @@ class UrtextProject:
                  recursive=False,
                  new_project=False):
         
-        #self.is_async = True 
-        self.is_async = False # development
+        self.is_async = True 
+        #self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -201,11 +201,7 @@ class UrtextProject:
         self.title = self.path # default
         self.excluded_files = []
         self.error_files = []
-        if self.is_async:
-            future = self.executor.submit(self._initialize_project,
-                    new_project=new_project)
-        else:    
-            self._initialize_project(new_project=new_project)
+        self.execute(self._initialize_project, new_project=new_project)
     
     def _initialize_project(self, 
         new_project=False):
@@ -610,10 +606,7 @@ class UrtextProject:
             del self.messages[filename]
 
     def delete_file(self, filename, open_files=[]):
-        if self.is_async:
-            return self.executor.submit(self._delete_file, filename, open_files=open_files)
-        else:
-            return self._delete_file(filename, open_files=open_files)
+        self.execute(self._delete_file, filename, open_files=open_files)
 
     def _delete_file(self, filename, open_files=[]):
         """
@@ -1098,20 +1091,12 @@ class UrtextProject:
         instance = self.actions[action](self)
         if not filename:
             return None
-        if self.is_async:
-            return self.executor.submit(
-                instance.execute,            
-                string, 
-                filename=filename, 
-                col_pos=col_pos,
-                file_pos=file_pos)
-        else:
-            return instance.execute(
-                string, 
-                filename=filename, 
-                col_pos=col_pos,
-                file_pos=file_pos)
-
+        self.execute(instance.execute,            
+            string, 
+            filename=filename, 
+            col_pos=col_pos,
+            file_pos=file_pos)
+            
     def get_home(self):
         return self.settings['home']
 
@@ -1161,19 +1146,15 @@ class UrtextProject:
                     new_contents = new_contents.replace(link, replacement, 1)
             if contents != new_contents:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
-                if self.is_async:
-                    self.executor.submit(self._file_update, filename)
-                else:
-                    self._file_update(filename)
-                    
+                self.execute(self._file_update, filename)
+
     def on_modified(self, filenames):
         
         if not isinstance(filenames, list):
             filenames = [filenames]
         filenames = [f for f in filenames if f not in self.excluded_files]
-        if self.is_async:
-            return self.executor.submit(self._file_update, filenames)
-        return self._file_update(filenames)       
+
+        return self.execute(self._file_update, filenames)
     
     def _file_update(self, filenames):
 
@@ -1194,10 +1175,7 @@ class UrtextProject:
             return modified_files
 
     def visit_node(self, node_id):
-        if self.is_async:
-            self.executor.submit(self._visit_node, node_id)
-        else:
-            self._visit_node(node_id)
+        self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
         self.nodes[node_id].metadata.access() # ?
@@ -1208,10 +1186,7 @@ class UrtextProject:
                 op.on_node_visited(node_id)
 
     def visit_file(self, filename):
-        if self.is_async:
-            return self.executor.submit(self._visit_file, filename)
-        else:
-            return self._visit_file(filename)
+        self.execute(self._visit_file, filename)
 
     def _visit_file(self, filename):        
         filename = os.path.basename(filename)
@@ -1260,11 +1235,7 @@ class UrtextProject:
         if any_duplicate_ids:
             self._log_item(filename, 'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
             raise DuplicateIDs()
-        else:
-            if self.is_async:
-                return self.executor.submit(self._compile)
-            else:
-                self._compile()
+        return self.execute(self._compile)
 
     def remove_file(self, filename, is_async=True):
         if self.is_async and is_async:
@@ -1400,9 +1371,13 @@ class UrtextProject:
             return filename, position
         return None, None
 
-    def next_untitled_index(self):
-        self.untitled_node_index += 1
-        return str(self.untitled_node_index)
+    def execute(self, function, *args, **kwargs):
+        if self.is_async:
+            future = self.executor.submit(function, *args, **kwargs)
+            return future
+        else:    
+            return function(*args, **kwargs)
+
                 
 class NoProject(Exception):
     """ no Urtext nodes are in the folder """
