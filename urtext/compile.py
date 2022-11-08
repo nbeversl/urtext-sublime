@@ -61,7 +61,7 @@ def _process_dynamic_def(self, dynamic_definition):
     if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
         
-    if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
+    if dynamic_definition.target_id not in self.nodes:
         return self._log_item(None, 'Dynamic node definition in >' + dynamic_definition.source_id +
                       ' points to nonexistent node >' + dynamic_definition.target_id)
 
