@@ -978,7 +978,7 @@ class UrtextProject:
                         filename, 
                         col_pos=col_pos,
                         file_pos=file_pos)
-        
+
         link = re.search(node_link_or_pointer_regex, string)
         if link:
             full_match = link.group().strip()
@@ -1011,16 +1011,16 @@ class UrtextProject:
                     kind ='HTTP'
                     link = result.group().strip()
                     full_match = link
-        
-        return {
-            'kind' : kind, 
-            'link' : link, 
-            'full_match' : full_match,
-            'node_id' : node_id,
-            'file_pos': file_pos, 
-            'link_location' : link_location, 
-            'dest_position' : dest_position 
-            }
+        if result:
+            return {
+                'kind' : kind, 
+                'link' : link, 
+                'full_match' : full_match,
+                'node_id' : node_id,
+                'file_pos': file_pos, 
+                'link_location' : link_location, 
+                'dest_position' : dest_position 
+                }
 
     def _is_duplicate_id(self, node_id, filename):
         """ private method to check if a node id is already in the project """

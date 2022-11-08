@@ -25,11 +25,11 @@ timestamp_match = re.compile(           '<([^-/<\s][^=<]+?)>')
 pattern_break =                         '($|(?=[\\s|\r|]))'
 
 # Titles and links
-title_pattern =                         "[^_>\n\r]+"
+title_pattern =                         r"(([^>\n\r_])|(?<!\s)_)+"
 title_regex = re.compile(               title_pattern)
-node_link_regex =                       r'(\|\s)(' + title_pattern + ')\s>' + pattern_break
-node_link_or_pointer_regex =            r'(\|\s)(' + title_pattern + ')\s>{1,2}' + pattern_break
-node_pointer_regex =                    r'(\|\s)(' + title_pattern + ')\s>>' + pattern_break
+node_link_regex =                       r'(\|\s)(' + title_pattern + ')\s>(?!>)'
+node_link_or_pointer_regex =            r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
+node_pointer_regex =                    r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
 node_title_regex = re.compile(          '^'+ title_pattern +'(?= _)' + pattern_break, re.MULTILINE)
 url_scheme = re.compile(                r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
 
