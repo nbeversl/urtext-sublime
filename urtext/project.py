@@ -44,6 +44,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.actions.ics import *
     from Urtext.urtext.actions.pull_pop import *
     from Urtext.urtext.actions.reindex import *
+    from Urtext.urtext.actions.scrape import *
     from Urtext.urtext.directives.access_history import *
     from Urtext.urtext.directives.collect import *
     from Urtext.urtext.directives.export import *
@@ -110,7 +111,7 @@ def all_subclasses(cls):
 all_extensions = all_subclasses(UrtextExtension)
 all_directives = all_subclasses(UrtextDirective)
 all_actions = all_subclasses(UrtextAction)
-
+print(all_actions)
 def add_functions_as_methods(functions):
     def decorator(Class):
         for function in functions:
@@ -179,7 +180,7 @@ class UrtextProject:
                  new_project=False):
         
         self.is_async = True 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -1101,10 +1102,7 @@ class UrtextProject:
         return self.settings['home']
 
     def titles(self):
-        title_list = {}
-        for node_id in self.nodes:
-            title_list[self.nodes[node_id].get_title()] = (self.title, node_id)
-        return title_list
+        return self.nodes.keys()
 
     def get_all_meta_pairs(self):
         pairs = []

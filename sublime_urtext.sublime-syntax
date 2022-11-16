@@ -103,7 +103,7 @@ contexts:
       scope: trigger_name.urtext
       push: trigger-with-args
 
-  trigger-with-args:    
+  trigger-with-args:
     - match: \(
       scope: dynamic-definition-parens
       push: function-key-value-keyword-parameters
@@ -162,7 +162,7 @@ contexts:
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
    
-  function-with-key-values:    
+  function-with-key-values: 
     - match: \(
       scope: dynamic-definition-parens
       push: function-key-value-keyword-parameters
@@ -194,8 +194,7 @@ contexts:
       pop: true
 
   function-key-value-keyword-parameters:
-    - include: dynamic-keyword
-    - include: key-value 
+    - include: syntax-main
     - include: asterisk
     - match: <[^!\s-]
       push: datestamp

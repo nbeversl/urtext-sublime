@@ -7,6 +7,7 @@
 		 "background" : "var(paper)",
 		 "foreground": "var(grey5)",
 		 "raw": "var(white2)",
+		 
 		 // main syntax 
 
 		 	// metadata
@@ -28,7 +29,7 @@
 		 // pass marker:
 		 "pass-marker" : "var(foreground)",
 
-		// pass marker:
+		// action trigger:
 		 "trigger" : "var(red)",
 
 
@@ -68,8 +69,7 @@
 
 	},	
 
-	  "globals":
-	    {
+	  "globals": {
 	        "foreground": "var(grey5)",
 	        "background": "var(paper)",
 	        "line_highlight": "var(white4)",
@@ -92,21 +92,20 @@
 	  			"font_style":"bold",
 	  			"foreground": "var(meta-key)",
 	  		},
-	  		
+
 	  		{   "scope": "meta_value.urtext",
 	  			"foreground": "var(meta-value)",
 	  		},
+
 	  		{   "scope": "meta_value_issue.urtext",
 	  			"foreground": "var(meta-value-issue)",
 	  		},
-		
-		
+
 	        { 
 		        "scope" : "entity.name.value_separator.urtext",
 	  			"foreground": "var(value-separator)",
 		        "font_style":"bold",
 	        },
-
 
 			/* Datestamps */
 	  		{
@@ -120,6 +119,7 @@
 	  		{	"scope":"link_id.urtext",
 	  			"foreground": "var(link)",
 	  		},
+
 	  		{
 	  			"scope":"link_char.urtext",
 	  			"foreground": "var(link)",
@@ -128,12 +128,6 @@
 	  		{	"scope":"link_prefix.urtext",
 	  			"foreground": "var(link-prefix)",
 	  			"font_style":"bold",
-	  		},
-	  		
-	  		{
-				"scope": "link_title.urtext",
-	  			"foreground": "var(link-title)",
-
 	  		},
 	  		
 	  		{   "scope": "link.other-project.urtext",

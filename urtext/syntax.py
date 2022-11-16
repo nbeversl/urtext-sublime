@@ -3,7 +3,9 @@ import re
 #
 # Main Patterns
 
-action_regex = re.compile(              r'>>>([A-Z_]+)\((.*?)\)', re.DOTALL)
+action_regex = re.compile(              ''.join([r'>>>([A-Z_]+)\(',
+                                            '(?:\[\[)([^\]]*?)(?:\]\])',
+                                            r'(.*?)\)']), re.DOTALL)
 dynamic_definition_regex = re.compile(  '(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(        r'\[\[[^\]]*?\]\]', re.DOTALL)
 editor_file_link_regex = re.compile(    '(f>{1,2})([^;]+)')
