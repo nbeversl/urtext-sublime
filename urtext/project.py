@@ -111,7 +111,7 @@ def all_subclasses(cls):
 all_extensions = all_subclasses(UrtextExtension)
 all_directives = all_subclasses(UrtextDirective)
 all_actions = all_subclasses(UrtextAction)
-print(all_actions)
+
 def add_functions_as_methods(functions):
     def decorator(Class):
         for function in functions:
@@ -175,8 +175,8 @@ class UrtextProject:
 
     def __init__(self,
                  path,
+                 file_extensions=['.txt'],
                  rename=False,
-                 recursive=False,
                  new_project=False):
         
         self.is_async = True 
@@ -198,7 +198,7 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-
+        self.file_extensions = file_extensions
         self.title = self.path # default
         self.excluded_files = []
         self.error_files = []
@@ -217,8 +217,9 @@ class UrtextProject:
         for c in all_directives:
             for n in c.name:
                 self.directives[n] = c
-
-        for file in os.listdir(self.path):
+        all_files = os.listdir(self.path)
+        urtext_files = [f for f in all_files if os.path.splitext(os.path.basename(f))[1] in self.file_extensions]
+        for file in urtext_files:
             self._parse_file(file)
 
         if self.nodes == {}:
