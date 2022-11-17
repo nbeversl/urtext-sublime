@@ -46,9 +46,11 @@ class UrtextDynamicDefinition:
 		self.preformat = False
 		self.show = None
 		self.multiline_meta = False
+		self.returns_text = True
 		self.init_self(contents)
 		self.all_ops = []
 		self.source_id = None # set by node once compiled
+		
 		
 		if not self.show:
 			self.show = '$link\n'
@@ -80,25 +82,34 @@ class UrtextDynamicDefinition:
 		
 		self.all_ops = [t for op in self.operations for t in op.name]
 		
-		if 'ACCESS_HISTORY' not in self.all_ops  and 'TREE' not in self.all_ops and 'COLLECT' not in self.all_ops:
-			op = self.project.directives['TREE'](self.project)
-			op.parse_argument_string('1')		
-			op.set_dynamic_definition(self)
-			self.operations.append(op)
+		phases = [op.phase for op in self.operations]
+		if all(i < 200 or i > 600 for i in phases):
+			self.returns_text = False
 		
+		#needed?
 		if 'SORT' not in self.all_ops:
 			op = self.project.directives['SORT'](self.project)
 			op.set_dynamic_definition(self)
 			op.parse_argument_string('')		
 			self.operations.append(op)
 
-	def process_output(self, max_phase=600):
+	def preserve_title_if_present(self):
+		first_line_title = self.project.nodes[self.target_id].first_line_title
+		if first_line_title:
+			return first_line_title + ' _\n'
+		return ''
+
+	def process_output(self, 
+		phase=None, 
+		max_phase=700):
+		
 		outcome = []
 		
 		for operation in sorted(self.operations, key = lambda op: op.phase) :		
-		
 			if operation.phase < max_phase:
 				new_outcome = operation.dynamic_output(outcome)
 				if new_outcome != False:
 					outcome = new_outcome
+		
 		return outcome
+

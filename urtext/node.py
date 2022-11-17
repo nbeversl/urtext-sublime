@@ -73,6 +73,7 @@ class UrtextNode:
         self.errors = False
         self.display_meta = ''
         self.parent = None
+        self.first_line_title = None
         
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
@@ -137,7 +138,7 @@ class UrtextNode:
         if not self.title:
             return '(untitled)'
         if self.project:
-            return self.title #[:self.project.settings['title_length']]
+            return self.title
 
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
@@ -170,7 +171,7 @@ class UrtextNode:
         t = self.metadata.get_first_value('title')
         if t:
             return t
-        
+
         stripped_contents_lines = strip_metadata(contents).strip().split('\n')
        
         line = None
@@ -178,7 +179,7 @@ class UrtextNode:
             line = line.strip()
             if line:
                 break
-            
+
         if not line:
             return '(untitled)'
 
@@ -191,8 +192,8 @@ class UrtextNode:
             title = title.group().strip()
         if len(title) > 255:
             title = title[:255]
-
         title = sanitize_escape(title)
+        self.first_line_title = title
         self.metadata.add_entry('title', title)
         return title
    

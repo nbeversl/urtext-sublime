@@ -56,7 +56,6 @@ def _process_dynamic_def(self, dynamic_definition):
         print('Found NoneType target in '+dynamic_definition.source_id)
         return
 
-    # points = {} # Future
     new_node_contents = []
     if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
@@ -64,18 +63,9 @@ def _process_dynamic_def(self, dynamic_definition):
     if dynamic_definition.target_id not in self.nodes:
         return self._log_item(None, 'Dynamic node definition in >' + dynamic_definition.source_id +
                       ' points to nonexistent node >' + dynamic_definition.target_id)
-
-    if 'HEADER' not in dynamic_definition.all_ops:
-        op = self.directives['HEADER'](self)
-        op.set_dynamic_definition(dynamic_definition)
-        op.parse_argument_string(self.nodes[dynamic_definition.target_id].get_title() + ' _')      
-        dynamic_definition.operations.append(op)
-        dynamic_definition.all_ops.append('HEADER')
         
     output = dynamic_definition.process_output()    
-
-    #TODO this should not be necessary, but:
-    if not isinstance(output, str):
+    if not dynamic_definition.returns_text:
         return
 
     final_output = self._build_final_output(dynamic_definition, output) 
@@ -108,9 +98,11 @@ def _build_final_output(self, dynamic_definition, contents):
 
     final_contents = ''.join([
         ' ', ## TODO: Make leading space an option.
+        dynamic_definition.preserve_title_if_present(),
         contents,
         built_metadata,
         ])
+    
     if dynamic_definition.spaces:
         final_contents = indent(final_contents, dynamic_definition.spaces)
 

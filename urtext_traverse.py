@@ -1,5 +1,4 @@
 from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command
-from .sublime_urtext import size_to_groups, size_to_thirds
 from .sublime_urtext import UrtextTextCommand
 from sublime_plugin import EventListener
 from Urtext.urtext.syntax import node_link_or_pointer_regex
@@ -262,3 +261,19 @@ class TraverseFileTree(EventListener):
 		
 		else:
 			sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 10)
+
+def size_to_groups(groups, view):
+    panel_size = 1 / groups
+    cols = [0]
+    cells = [[0, 0, 1, 1]]
+    for index in range(1, groups):
+        cols.append(cols[index - 1] + panel_size)
+        cells.append([index, 0, index + 1, 1])
+    cols.append(1)
+    view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
+
+def size_to_thirds(groups,view):
+    # https://forum.sublimetext.com/t/set-layout-reference/5713
+    # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
+    view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+

@@ -462,17 +462,9 @@ class UrtextProject:
                         messages.append('untitled node in f>'+duplicate_nodes[n]+'\n')
                         self._log_item(basename, 'Untitled node: '+ duplicate_nodes[n])
                 else:
-                    # if self.settings['resolve_duplicate_ids']:
-                    #     self.duplicate_ids.setdefault(n, 1)
-                    #     self.duplicate_ids[n] += 1
-                    #     self.nodes[n].rewrite_title(' ('+str(self.duplicate_ids[n]) + ')')
-                    #     should_re_parse = True
-                    # else:
                     messages.append('>'+n + ' exists in f>'+duplicate_nodes[n]+'\n')
                     self._log_item(basename, 'Duplicate node ID(s) found: '+ ', '.join(duplicate_nodes))
                     file_should_be_dropped = True
-
-            # file_obj.write_errors(self.settings, messages=messages)
             
         return file_should_be_dropped, should_re_parse
 
@@ -761,10 +753,9 @@ class UrtextProject:
 
     def add_compact_node(self,  
             contents='', 
-            metadata={},
-        ):
+            metadata={}):
             metadata_block = self.urtext_node.build_metadata(metadata, one_line=True)
-            return '•  '+contents + ' ' + metadata_block
+            return '•  ' + contents + ' ' + metadata_block
 
     def dynamic_defs(self, 
         target=None, 
@@ -1029,11 +1020,12 @@ class UrtextProject:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         
-    def timestamp(self, date):
+    def timestamp(self, date=None):
         """ 
-        Given a datetime object, returns a timestamp 
-        in the format set in project_settings, or the default 
+        Returns a timestamp in the format set in project_settings, or the default 
         """
+        if date == None:
+            date = datetime.datetime.now()
         if date.tzinfo == None:
             date = date.replace(tzinfo=datetime.timezone.utc)    
         timestamp_format = '<' + self.settings['timestamp_format'] + '>'
@@ -1391,18 +1383,9 @@ class DuplicateIDs(Exception):
 Helpers 
 """
 
-
 def soft_match_compact_node(selection):
-    if re.match(r'^[^\S\n]*•.*?@\b[0-9,a-z]{3}\b.*', selection):
-        return True
-    return False
-
-def convert_dict_values_to_int(old_dict):
-    new_dict = {}
-    for key, value in old_dict.items():
-        new_dict[key] = int(value)
-    return new_dict
-
+    return True if re.match(r'^[^\S\n]*•.*?(\n|$)', selection) else False
+        
 def creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was

@@ -9,7 +9,6 @@
 	{ "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
 	{ "keys": ["ctrl+shift+,"], "command": "navigate_backward"},
 	{ "keys": ["ctrl+shift+."], "command": "navigate_forward"},
-	{ "keys": ["ctrl+shift+i"], "command": "add_node_id"},
 	{ "keys": ["ctrl+shift+h"], "command": "urtext_home"},
 	{ "keys": ["ctrl+shift+1"], "command": "insert_node_single_line"},
 	{ "keys": ["ctrl+shift+6"], "command": "compact_node"},

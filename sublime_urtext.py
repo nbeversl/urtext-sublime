@@ -19,7 +19,6 @@ import sublime
 import sublime_plugin
 import os
 import re
-import datetime
 import time
 import concurrent.futures
 import subprocess
@@ -519,7 +518,6 @@ class WrapLineCommand(sublime_plugin.TextCommand):
         self.view.sel().add(region) 
 
 def add_inline_node(view, 
-    include_timestamp=True, 
     locate_inside=True,
     contents=''):
 
@@ -748,7 +746,7 @@ class InsertTimestampCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        datestamp = self._UrtextProjectList.current_project.timestamp(datetime.datetime.now())
+        datestamp = self._UrtextProjectList.current_project.timestamp()
         for s in self.view.sel():
             if s.empty():
                 self.view.insert(self.edit, s.a, datestamp)
@@ -771,10 +769,8 @@ class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        now = datetime.datetime.now()
         node_id = add_inline_node(
             self.view, 
-            include_timestamp=False,
             locate_inside=False)
         # This should possibly be moved into Urtext as a utility method.
         position = self.view.sel()[0].a
@@ -851,13 +847,6 @@ class RenameFileCommand(UrtextTextCommand):
                     renamed_files[filename])
                 )
 
-class AddNodeIdCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.view.run_command("insert_snippet",
-                              {"contents": ""})
-
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -895,7 +884,7 @@ class CompactNodeCommand(UrtextTextCommand):
             column = self.view.rowcol(self.view.sel()[0].b)[1]
             spacing = ' ' * column
             self.view.erase(self.edit, line_region)
-            self.view.run_command("insert_snippet",{"contents": spacing+contents})
+            self.view.run_command("insert_snippet",{"contents": spacing + contents})
             region = self.view.sel()[0]
             self.view.sel().clear()
             self.view.sel().add(sublime.Region(region.a-5, region.b-5))
@@ -971,11 +960,6 @@ def open_urtext_node(
         _UrtextProjectList.set_current_project(project.path)
 
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    print('DEBGGING - SublimeText')
-    print(node_id)
-    print(filename)
-    print(node_position)
-    print(_UrtextProjectList.current_project.path)
     if filename and view.window():
         
         file_view = view.window().open_file(filename)
@@ -1004,21 +988,6 @@ def open_urtext_node(
     use for purposes including forward/backward navigation and shouldn't
     duplicate/override any of the operations of the methods that call it.
     """
-
-def size_to_groups(groups, view):
-    panel_size = 1 / groups
-    cols = [0]
-    cells = [[0, 0, 1, 1]]
-    for index in range(1, groups):
-        cols.append(cols[index - 1] + panel_size)
-        cells.append([index, 0, index + 1, 1])
-    cols.append(1)
-    view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
-  
-def size_to_thirds(groups,view):
-    # https://forum.sublimetext.com/t/set-layout-reference/5713
-    # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
-    view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
 
 def position_node(new_view, position): 
     new_view.sel().clear()

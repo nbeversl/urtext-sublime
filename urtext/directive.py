@@ -1,3 +1,14 @@
+"""
+Phases:
+
+100s: Queries, building and sorting list of nodes included/excluded
+200s: convert selected nodes to text output
+300s:
+500s: Adding header/footer
+
+600s: do some customized action outside of this order
+"""
+
 import re
 import os
 
