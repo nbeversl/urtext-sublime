@@ -26,7 +26,7 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
                         self.project.timestamp(), 
                         ' | ', 
                         self.project.nodes[node_id].get_title(), 
-                        ' >\n', 
+                        ' >', 
                         contents
                     ])
                 access_history_file = self.project.get_file_name(self.dynamic_definition.target_id)
