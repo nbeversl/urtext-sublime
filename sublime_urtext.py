@@ -565,7 +565,7 @@ class NodeInfo():
             self.title = '(no title)'
         self.date =project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
-        self.position = project.nodes[node_id].ranges[0][0]
+        self.position = project.nodes[node_id].start_position()
         self.node_id = project.nodes[node_id].id
         self.project_title = project.title
         self.display_meta = project.nodes[node_id].display_meta
