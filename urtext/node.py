@@ -174,7 +174,6 @@ class UrtextNode:
         """
         t = self.metadata.get_first_value('title')
         if t:
-            print('SETTGING TITLE FROM META', t)
             return t
 
         # Get first non-blank line.
@@ -190,7 +189,6 @@ class UrtextNode:
         title = re.search(flexible_node_title_regex, first_non_blank_line)
         if title:
             self.first_line_title = True
-            print('SETTING FIRST LINE TITLE', title.group())
         else:
             title = node_title_regex.search(contents)
 
@@ -237,14 +235,11 @@ class UrtextNode:
         # check for metadata
         t = self.metadata.get_first_value('title')
         new_title = t + title_suffix
-        print('TRYING TO FIND', t)
 
         file_contents = self.get_file_contents()
         
         if t:
             for r in self.ranges:
-                print(r)
-                print(file_contents[r[0]:r[1]+1])
                 tag = file_contents[r[0]:r[1]+1].find('title::'+t)
                 if tag > -1:
                     print('FOUND TITLE TAG')
