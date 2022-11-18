@@ -18,13 +18,10 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import re
 import datetime
-import itertools
 import platform
-import json
 import os
 import random
 import time
-import sys
 from time import strftime
 import concurrent.futures
 

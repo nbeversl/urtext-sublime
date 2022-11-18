@@ -20,9 +20,8 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 Metadata
 """
-import datetime
-import re 
 import os
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .metadata import MetadataEntry
@@ -45,7 +44,7 @@ def _tag_other_node(self, node_id, metadata={}, open_files=[]):
     if metadata == {}:
         if len(self.settings['tag_other']) < 2:
             return None
-        timestamp = self.timestamp(datetime.datetime.now())
+        timestamp = self.timestamp()
         metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + timestamp}
     
     territory = self.nodes[node_id].ranges

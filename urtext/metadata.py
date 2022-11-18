@@ -18,7 +18,6 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import re
-import datetime
 import time
 import os
 

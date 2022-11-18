@@ -18,9 +18,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
-import json
 import re
-import datetime
 import logging
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):

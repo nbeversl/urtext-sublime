@@ -29,5 +29,4 @@
   { "keys": ["ctrl+shift+["], "command":"wrap_line"},
   { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
 
-
 ]
