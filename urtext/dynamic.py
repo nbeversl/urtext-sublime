@@ -96,7 +96,7 @@ class UrtextDynamicDefinition:
 	def preserve_title_if_present(self):
 		first_line_title = self.project.nodes[self.target_id].first_line_title
 		if first_line_title:
-			return first_line_title + ' _\n'
+			return ' ' + first_line_title + ' _\n'
 		return ''
 
 	def process_output(self, 

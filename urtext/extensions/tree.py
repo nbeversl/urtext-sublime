@@ -36,12 +36,12 @@ class UrtextAnyTree(UrtextExtension):
                 self.project.nodes[node_title].tree_node.parent = self.project.nodes[root_node_id].tree_node
                 continue
 
-            start_of_node = self.project.nodes[node_title].ranges[0][0]
+            start_of_node = self.project.nodes[node_title].start_position()
             
             parent = self.project.get_node_id_from_position(filename, start_of_node - 1)
             if parent:
                 while self.project.nodes[parent].compact:
-                    start_of_node = self.project.nodes[parent].ranges[0][0]                    
+                    start_of_node = self.project.nodes[parent].start_position()                    
                     if start_of_node == 0:
                         parent = self.project.nodes[self.project.files[filename].root_nodes[0]].title
                         break

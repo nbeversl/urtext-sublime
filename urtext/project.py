@@ -522,7 +522,7 @@ class UrtextProject:
         points = self.nodes[exported_node_id].export_points
         if not points:
             return None, None
-        node_start_point = self.nodes[exported_node_id].ranges[0][0]
+        node_start_point = self.nodes[exported_node_id].start_position()
 
         indexes = sorted(points)
         for index in range(0, len(indexes)):

@@ -164,7 +164,7 @@ class TraverseFileTree(EventListener):
 
 			if len(filenames) > 0 and node_title in self._UrtextProjectList.current_project.nodes:
 				filename = filenames[0]
-				position = self._UrtextProjectList.current_project.nodes[node_title].ranges[0][0]
+				position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
 				
 				""" If the tree is linking to another part of its own file """
 				if filename == os.path.basename(this_file):

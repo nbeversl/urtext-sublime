@@ -295,7 +295,7 @@ class UrtextNode:
     def set_content(self, contents, preserve_metadata=False, bypass_check=False):
         
         file_contents = self.get_file_contents()
-        start_range = self.ranges[0][0]
+        start_range = self.start_position()
         end_range = self.ranges[-1][1]
 
         new_file_contents = ''.join([

@@ -282,7 +282,7 @@ class UrtextBuffer:
     def get_ordered_nodes(self):
         return sorted( 
             list(self.nodes.keys()),
-            key=lambda node_id :  self.nodes[node_id].ranges[0][0])
+            key=lambda node_id :  self.nodes[node_id].start_position())
 
     def log_error(self, message, position):
 
