@@ -28,7 +28,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape
-    from .syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
+    from .syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, flexible_node_title_regex, node_title_regex
 
 else:
     from anytree import Node, PreOrderIter
@@ -37,7 +37,7 @@ else:
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape
-    from urtext.syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, title_regex
+    from urtext.syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, flexible_node_title_regex, node_title_regex
 
 class UrtextNode:
 
@@ -71,7 +71,7 @@ class UrtextNode:
         self.errors = False
         self.display_meta = ''
         self.parent = None
-        self.first_line_title = None
+        self.first_line_title = False
         
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
@@ -166,32 +166,43 @@ class UrtextNode:
 
     def set_title(self, contents):
 
+        """
+        - title metadata key overrides any _ marker.
+        - Then the first _ marker overrides any subsequent one.
+            - If it is on the first line, we need to remember this for dynamic nodes.
+       
+        """
         t = self.metadata.get_first_value('title')
         if t:
+            print('SETTGING TITLE FROM META', t)
             return t
 
-        stripped_contents_lines = strip_metadata(contents).strip().split('\n')
-       
-        line = None
-        for line in stripped_contents_lines:
-            line = line.strip()
-            if line:
+        # Get first non-blank line.
+        first_non_blank_line = None
+        contents_lines = strip_metadata(contents).strip().split('\n')       
+        for line in contents_lines:
+            first_non_blank_line = line.strip()
+            if first_non_blank_line:
                 break
 
-        if not line:
-            return '(untitled)'
+        position = 0 
 
-        first_line = line
-
-        title = re.search(title_regex, first_line)
-        if not title:
-            title = '(untitled)'
+        title = re.search(flexible_node_title_regex, first_non_blank_line)
+        if title:
+            self.first_line_title = True
+            print('SETTING FIRST LINE TITLE', title.group())
         else:
-            title = title.group().strip()
+            title = node_title_regex.search(contents)
+
+        if title:
+            title = title.group().strip('_').strip()
+        else:
+            title = '(untitled)'
+
         if len(title) > 255:
             title = title[:255]
         title = sanitize_escape(title)
-        self.first_line_title = title
+
         self.metadata.add_entry('title', title)
         return title
    

@@ -33,7 +33,7 @@ else:
 class UrtextExport(UrtextDirectiveWithParamsFlags):
 
     name = ["EXPORT"]
-    phase = 500
+    phase = 600
 
     def dynamic_output(self, input):
         if 'root' in self.params_dict:

@@ -1,4 +1,3 @@
-import datetime
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from ..directive import  UrtextDirectiveWithKeysFlags
@@ -13,10 +12,7 @@ class Sort(UrtextDirectiveWithKeysFlags):
 	phase = 120
 		
 	def dynamic_output(self, nodes):
-
-		self.dynamic_definition.included_nodes = nodes
-		nodes = [self.project.nodes[nid] for nid in nodes]
-
+		
 		if self.keys:
 			return sorted(
 				nodes,

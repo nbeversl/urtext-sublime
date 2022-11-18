@@ -10,6 +10,7 @@ escaped_text = r'\`.*?\`';
 class MarkdownExport(UrtextExport):
 
     name = ["MARKDOWN"]
+    phase = 700
 
     def replace_link(self, contents, title):
         link = '#' + title.lower().replace(' ','-');

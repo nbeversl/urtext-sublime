@@ -95,7 +95,7 @@ def _build_final_output(self, dynamic_definition, contents):
     built_metadata = UrtextNode.build_metadata(
         metadata_values, 
         one_line = not dynamic_definition.multiline_meta)
-
+    print(dynamic_definition.preserve_title_if_present())
     final_contents = ''.join([
         ' ', ## TODO: Make leading space an option.
         dynamic_definition.preserve_title_if_present(),

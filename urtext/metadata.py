@@ -25,13 +25,13 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .utils import force_list
     from .dynamic import UrtextDynamicDefinition
     from .timestamp import UrtextTimestamp, default_date
-    from .syntax import timestamp_match, metadata_entry, node_title_regex, hash_meta, meta_separator
+    from .syntax import timestamp_match, metadata_entry, hash_meta, meta_separator
 
 else:
     from urtext.utils import force_list
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import UrtextTimestamp, default_date
-    from urtext.syntax import timestamp_match, metadata_entry, node_title_regex, hash_meta, meta_separator
+    from urtext.syntax import timestamp_match, metadata_entry, hash_meta, meta_separator
 
 class NodeMetadata:
 
@@ -116,17 +116,6 @@ class NodeMetadata:
             parsed_contents = parsed_contents.replace(m.group(),' '*len(m.group()), 1)
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
      
-        # title
-        s = node_title_regex.search(parsed_contents)
-        if s:
-           title = s.group(0).strip()
-           self.add_entry(
-                'title', 
-                title,
-                position=s.start(),
-                end_position=s.end())
-           parsed_contents = parsed_contents.replace(s.group(),' '*len(s.group()), 1)
-           remaining_contents = remaining_contents.replace(s.group(),'', 1 )
 
         self.add_system_keys()
         return remaining_contents

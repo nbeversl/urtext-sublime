@@ -27,6 +27,8 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
         print('CHILDREN')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
+        print('Firrst line title')
+        print(self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
  
 class NoAsync(sublime_plugin.TextCommand):
 

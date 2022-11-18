@@ -15,8 +15,6 @@ class UrtextHeader(UrtextDirective):
         header = bytes(self.argument_string, "utf-8").decode("unicode_escape")
         if header and header[-1] != '\n':
             header += '\n'
-        print(self.dynamic_definition.operations)
-        print(header, contents)
         return ''.join([header, contents])
 
 class UrtextFooter(UrtextDirective):

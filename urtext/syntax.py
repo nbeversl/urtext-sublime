@@ -32,7 +32,8 @@ title_regex = re.compile(               title_pattern)
 node_link_regex =                       r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer_regex =            r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
 node_pointer_regex =                    r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
-node_title_regex = re.compile(          '^'+ title_pattern +'(?= _)' + pattern_break, re.MULTILINE)
+node_title_regex = re.compile(          r'^'+ title_pattern +r'(?= _)', re.MULTILINE)
+flexible_node_title_regex = re.compile(r'^'+ title_pattern +r'(?= _)?', re.MULTILINE)
 url_scheme = re.compile(                r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
 
 #

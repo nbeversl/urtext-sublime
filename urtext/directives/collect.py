@@ -33,7 +33,7 @@ else:
 class Collect (UrtextDirectiveWithParamsFlags):
 
     name = ["COLLECT"]
-    phase = 400
+    phase = 200
 
     """ 
     generates a collection of context-aware metadata anchors in list or tree format """

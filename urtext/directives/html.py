@@ -7,6 +7,7 @@ else:
 class HTMLExport(UrtextExport):
 
     name = ["HTML"]
+    phase = 600
 
     def replace_link(self, link, contents, title):
 

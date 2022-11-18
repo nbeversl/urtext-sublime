@@ -30,6 +30,17 @@ else:
 	from urtext.directives.list import NodeList
 	from urtext.syntax import function_regex
 
+
+phases = [
+	100, # Queries, building and sorting list of nodes included/excluded
+	200, # Expects list of node objects. Convert selected nodes to text output
+	300, # unused
+	400, # unused
+	500, # Adding header/footer, preserving other elements as
+	600, # Transform built text further (exports, etc.)
+	700, # custom operations
+]
+
 class UrtextDynamicDefinition:
 
 	def __init__(self, match, project):
@@ -85,31 +96,42 @@ class UrtextDynamicDefinition:
 		phases = [op.phase for op in self.operations]
 		if all(i < 200 or i > 600 for i in phases):
 			self.returns_text = False
-		
-		#needed?
-		if 'SORT' not in self.all_ops:
-			op = self.project.directives['SORT'](self.project)
-			op.set_dynamic_definition(self)
-			op.parse_argument_string('')		
-			self.operations.append(op)
 
 	def preserve_title_if_present(self):
-		first_line_title = self.project.nodes[self.target_id].first_line_title
-		if first_line_title:
-			return ' ' + first_line_title + ' _\n'
+		if self.project.nodes[self.target_id].first_line_title:
+			return self.project.nodes[self.target_id].title + ' _\n'
 		return ''
 
-	def process_output(self, 
-		phase=None, 
-		max_phase=700):
+	def process_output(self, max_phase=800):
 		
-		outcome = []
-		
-		for operation in sorted(self.operations, key = lambda op: op.phase) :		
-			if operation.phase < max_phase:
+		outcome = [] # initially
+		phases_to_process = [p for p in phases if p <= max_phase]
+		operations = list(self.operations)
+		existing_phases = [op.phase for op in operations]
+		is_custom_output = max(existing_phases) >= 700
+		if not is_custom_output and not has_text_output(operations):
+			# add simple list output if none supplied
+			op = self.project.directives['TREE'](self.project)
+			op.parse_argument_string('1')	
+			op.set_dynamic_definition(self)
+			operations.append(op)
+
+		all_operations = sorted(operations, key = lambda op: op.phase)
+		for p in phases_to_process:
+			if p == 200:
+				# convert node_id list to node objects for processing
+				self.included_nodes = outcome
+				outcome = [self.project.nodes[nid] for nid in outcome]
+			next_phase = p + 100
+			for operation in [op for op in all_operations if p <= op.phase < next_phase]:
 				new_outcome = operation.dynamic_output(outcome)
 				if new_outcome != False:
 					outcome = new_outcome
-		
 		return outcome
 
+
+def has_text_output(operations):
+	for op in operations:
+		if 200 <= op.phase < 300:
+			return True
+	return False 
