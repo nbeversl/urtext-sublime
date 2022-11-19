@@ -89,9 +89,18 @@ class UrtextDynamicDefinition:
 			if func == "SHOW":
 				self.show = argument_string
 		
-		self.all_ops = [t for op in self.operations for t in op.name]
-		
 		self.phases = [op.phase for op in self.operations]
+		is_custom_output = max(self.phases) >= 700 if self.phases else False
+		if not is_custom_output and not has_text_output(self.operations):
+			# add simple list output if none supplied
+			op = self.project.directives['TREE'](self.project)
+			op.parse_argument_string('1')	
+			op.set_dynamic_definition(self)
+			self.operations.append(op)
+			self.phases.append(300)
+
+		self.all_ops = [t for op in self.operations for t in op.name]
+
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
@@ -105,13 +114,7 @@ class UrtextDynamicDefinition:
 		outcome = [] # initially
 		phases_to_process = [p for p in phases if p <= max_phase]
 		operations = list(self.operations)
-		is_custom_output = max(self.phases) >= 700
-		if not is_custom_output and not has_text_output(operations):
-			# add simple list output if none supplied
-			op = self.project.directives['TREE'](self.project)
-			op.parse_argument_string('1')	
-			op.set_dynamic_definition(self)
-			operations.append(op)
+		
 
 		all_operations = sorted(operations, key = lambda op: op.phase)
 		for p in phases_to_process:
