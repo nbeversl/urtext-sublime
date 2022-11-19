@@ -55,6 +55,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.directives.log import *
     from Urtext.urtext.directives.markdown import *
     from Urtext.urtext.directives.request import *
+    from Urtext.urtext.directives.stats import *
     from Urtext.urtext.directives.sort import *
     from Urtext.urtext.directives.tree import *
     from Urtext.urtext.extensions.history import *
@@ -90,6 +91,7 @@ else:
     from urtext.directives.list import *
     from urtext.directives.log import *
     from urtext.directives.markdown import *
+    from urtext.directives.stats import *
     from urtext.directives.request import *
     from urtext.directives.sort import *
     from urtext.directives.tree import *
@@ -1087,8 +1089,8 @@ class UrtextProject:
     def get_home(self):
         return self.settings['home']
 
-    def titles(self):
-        return self.nodes.keys()
+    def titles(self, sort=None):
+        return self.nodes
 
     def get_all_meta_pairs(self):
         pairs = []

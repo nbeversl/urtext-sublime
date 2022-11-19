@@ -30,7 +30,6 @@ else:
 	from urtext.directives.list import NodeList
 	from urtext.syntax import function_regex
 
-
 phases = [
 	100, # Queries, building and sorting list of nodes included/excluded
 	200, # Expects list of node objects. Sorting, limiting, transforming 
@@ -115,7 +114,6 @@ class UrtextDynamicDefinition:
 		phases_to_process = [p for p in phases if p <= max_phase]
 		operations = list(self.operations)
 		
-
 		all_operations = sorted(operations, key = lambda op: op.phase)
 		for p in phases_to_process:
 			if p == 200:
