@@ -177,7 +177,7 @@ class UrtextProject:
                  new_project=False):
         
         self.is_async = True 
-        self.is_async = False # development
+        #self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -187,6 +187,7 @@ class UrtextProject:
         self.navigation = []  # Stores, in order, the path of navigation
         self.nav_index = -1  # pointer to the CURRENT position in the navigation list
         self.to_import = []
+        self.dynamic_definitions = []
         self.untitled_node_index = 0
         self.extensions = {}
         self.actions = {}
@@ -235,12 +236,6 @@ class UrtextProject:
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()
 
-        for node_id in self.nodes:
-            for e in self.nodes[node_id].metadata.dynamic_entries:                
-                self._add_sub_tags( 
-                    self.nodes[node_id].tree_node, 
-                    self.nodes[node_id].tree_node, 
-                    e)
         self._compile()
         self.compiled = True
         print('"'+self.title+'" compiled from '+self.path )
@@ -390,26 +385,25 @@ class UrtextProject:
     
         for ext in self.extensions:
              self.extensions[ext].on_file_modified(filename)
-              
+
         for node_id in new_file.nodes:
+            self.dynamic_definitions.extend([dd for dd in new_file.nodes[node_id].dynamic_definitions])
+
             for dd in self.dynamic_defs(target=node_id):
                 if dd.target_id in self.nodes:
                     self.nodes[dd.target_id].dynamic = True
                 else:
                     print('cannot find', dd.target_id)
+
+
+    def _add_all_sub_tags(self):
+        for node_id in [n for n in self.nodes if self.nodes[n].metadata.dynamic_entries]:
             for e in self.nodes[node_id].metadata.dynamic_entries:
-                self._add_sub_tags( self.nodes[node_id].tree_node, 
-                    self.nodes[node_id].tree_node, 
-                    e)
-        
-        # TODO: Needs optimization
-        for node_id in list(self.nodes):
-            for e in self.nodes[node_id].metadata.dynamic_entries:                
                 self._add_sub_tags( 
                     self.nodes[node_id].tree_node, 
                     self.nodes[node_id].tree_node, 
                     e)
-
+        
     def _rewrite_changed_links(self, changed_ids):
 
         old_ids = list(changed_ids.keys())
@@ -580,7 +574,6 @@ class UrtextProject:
     def _remove_file(self, filename):
        
         if filename in self.files:
-            
             for dd in self.dynamic_defs():
                 for op in dd.operations:
                     op.on_file_removed(filename)
@@ -588,8 +581,10 @@ class UrtextProject:
             for node_id in self.files[filename].nodes:    
                 if node_id not in self.nodes:
                     continue             
-                self._remove_sub_tags(node_id)                
+                self._remove_sub_tags(node_id)
+
                 del self.nodes[node_id]
+                self.remove_dynamic_defs(node_id)
 
             del self.files[filename]
 
@@ -754,18 +749,15 @@ class UrtextProject:
             metadata_block = self.urtext_node.build_metadata(metadata, one_line=True)
             return '•  ' + contents + ' ' + metadata_block
 
-    def dynamic_defs(self, 
-        target=None, 
-        filename=None):
+    def dynamic_defs(self, target=None, source=None):
+        if target:
+            return [dd for dd in self.dynamic_definitions if dd.target_id == target]
+        return self.dynamic_definitions
 
-        dd = []
-        for nid in list(self.nodes):
-            if nid in self.nodes:
-                if not target:
-                    dd.extend([d for d in self.nodes[nid].dynamic_definitions if d])
-                else:
-                    dd.extend([d for d in self.nodes[nid].dynamic_definitions if d and d.target_id == target])
-        return dd
+    def remove_dynamic_defs(self, node_id):
+        for dd in list(self.dynamic_definitions):
+            if dd.source_id == node_id or dd.target_id == node_id:
+                self.dynamic_definitions.remove(dd)
 
     """
     Project Navigation

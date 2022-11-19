@@ -31,6 +31,7 @@ else:
 
 def _compile(self):
     
+    self._add_all_sub_tags()
     for dynamic_definition in self.dynamic_defs():
         if dynamic_definition.target_id in self.nodes:
             self.nodes[dynamic_definition.target_id].dynamic = True
