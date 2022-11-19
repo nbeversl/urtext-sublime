@@ -170,7 +170,6 @@ class UrtextNode:
         - title metadata key overrides any _ marker.
         - Then the first _ marker overrides any subsequent one.
             - If it is on the first line, we need to remember this for dynamic nodes.
-       
         """
         t = self.metadata.get_first_value('title')
         if t:

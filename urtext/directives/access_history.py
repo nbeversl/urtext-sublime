@@ -18,10 +18,10 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
         if node_id in self.dynamic_definition.included_nodes:
             if self.dynamic_definition.target_id in self.project.nodes:
                 contents = self.project.nodes[self.dynamic_definition.target_id].contents()
-                title = self.get_existing_title(contents)
-                contents = contents.strip(title)
+                if self.project.nodes[self.dynamic_definition.target_id].first_line_title:
+                    contents = contents.strip_first_line_title(title)
                 contents = ''.join([ 
-                        title,
+                        self.dynamic_definition.preserve_title_if_present(),
                         '\n',
                         self.project.timestamp(), 
                         ' | ', 
@@ -33,11 +33,9 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
                 self.project._parse_file(access_history_file)
                 self.project._set_node_contents(self.dynamic_definition.target_id, contents)
 
-    def get_existing_title(self, contents):
+    def strip_first_line_title(self, contents):
         title = re.search(title_regex, contents)
-        if title:
-            return title.group().strip() + ' _'
-        return ''
+        return title.group().strip() + ' _'
 
     def dynamic_output(self, input_contents):
         return False # do not change existing output.
