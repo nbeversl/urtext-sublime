@@ -39,7 +39,10 @@ def _compile(self):
     for dynamic_definition in self.dynamic_defs(): 
         self._process_dynamic_def(dynamic_definition)
 
+    self._add_all_sub_tags()
+
 def _compile_file(self, filename):
+    self._add_all_sub_tags() # TODO optimize this per file
     modified = False
     filename = os.path.basename(filename)
     if filename in self.files:

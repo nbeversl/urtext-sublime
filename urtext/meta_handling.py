@@ -102,25 +102,25 @@ def consolidate_metadata(self, node_id, one_line=False):
 
             
 def _add_sub_tags(self, 
-    source_tree_node, # ID containing the metadata
-    target_tree_node,
     entry,
+    next_node=None,
     visited_nodes=None):
     
     if visited_nodes == None:
         visited_nodes = []
-    
-    if target_tree_node.name.strip('ALIAS') not in self.nodes:
+    if next_node:
+        source_tree_node = next_node
+    else:
+        source_tree_node = self.nodes[entry.from_node].tree_node
+    if source_tree_node.name.replace('ALIAS','') not in self.nodes:
         return
 
-    source_id = source_tree_node.name
-
-    for child in self.nodes[target_tree_node.name.strip('ALIAS')].tree_node.children:
+    for child in self.nodes[source_tree_node.name.replace('ALIAS','')].tree_node.children:
         
-        uid = target_tree_node.name + child.name
+        uid = source_tree_node.name + child.name
         if uid in visited_nodes:
             continue
-        node_to_tag = child.name.strip('ALIAS')
+        node_to_tag = child.name.replace('ALIAS','')
         if node_to_tag not in self.nodes:
             visited_nodes.append(uid)
             continue
@@ -128,18 +128,17 @@ def _add_sub_tags(self,
             self.nodes[node_to_tag].metadata.add_entry(
                 entry.keyname, 
                 entry.value, 
-                from_node=source_id, 
+                from_node=entry.from_node, 
                 recursive=entry.recursive)
-            if node_to_tag not in self.nodes[source_id].target_nodes:
-                self.nodes[source_id].target_nodes.append(node_to_tag)
+            if node_to_tag not in self.nodes[entry.from_node].target_nodes:
+                self.nodes[entry.from_node].target_nodes.append(node_to_tag)
         
         visited_nodes.append(uid)        
         
         if entry.recursive:
             self._add_sub_tags(
-                source_tree_node, 
-                self.nodes[node_to_tag].tree_node, 
-                entry, 
+                entry,
+                next_node=self.nodes[node_to_tag].tree_node, 
                 visited_nodes=visited_nodes)
 
 def _remove_sub_tags(self, source_id):

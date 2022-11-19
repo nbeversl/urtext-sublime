@@ -80,11 +80,11 @@ class NodeMetadata:
             for value in value_list:
                 value = value.strip()
                 entry = MetadataEntry(
-                        keyname, 
+                        keyname,
                         value, 
                         recursive=tag_descendants,
                         position=m.start(), 
-                        end_position=m.start() + len(m.group()))    
+                        end_position=m.start() + len(m.group()))
                 if tag_children or tag_descendants:
                     self.dynamic_entries.append(entry)
                 if tag_self and value not in self.get_values(keyname):
@@ -318,6 +318,3 @@ def strings_to_lower(list):
         if isinstance(list[i], str):
             list[i] = list[i].lower()
     return list 
-
-
-

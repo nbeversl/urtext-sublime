@@ -177,7 +177,7 @@ class UrtextProject:
                  new_project=False):
         
         self.is_async = True 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -188,6 +188,7 @@ class UrtextProject:
         self.nav_index = -1  # pointer to the CURRENT position in the navigation list
         self.to_import = []
         self.dynamic_definitions = []
+        self.dynamic_metadata_entries = []
         self.untitled_node_index = 0
         self.extensions = {}
         self.actions = {}
@@ -387,22 +388,21 @@ class UrtextProject:
              self.extensions[ext].on_file_modified(filename)
 
         for node_id in new_file.nodes:
-            self.dynamic_definitions.extend([dd for dd in new_file.nodes[node_id].dynamic_definitions])
-
-            for dd in self.dynamic_defs(target=node_id):
+            for dd in new_file.nodes[node_id].dynamic_definitions:
+                dd.source_id = node_id
                 if dd.target_id in self.nodes:
                     self.nodes[dd.target_id].dynamic = True
                 else:
                     print('cannot find', dd.target_id)
+                self.dynamic_definitions.append(dd)
 
+            for entry in new_file.nodes[node_id].metadata.dynamic_entries:
+                entry.from_node = node_id
+                self.dynamic_metadata_entries.append(entry)
 
     def _add_all_sub_tags(self):
-        for node_id in [n for n in self.nodes if self.nodes[n].metadata.dynamic_entries]:
-            for e in self.nodes[node_id].metadata.dynamic_entries:
-                self._add_sub_tags( 
-                    self.nodes[node_id].tree_node, 
-                    self.nodes[node_id].tree_node, 
-                    e)
+        for entry in self.dynamic_metadata_entries:
+            self._add_sub_tags(entry)
         
     def _rewrite_changed_links(self, changed_ids):
 
@@ -550,7 +550,6 @@ class UrtextProject:
                     self.nodes[node_id].ranges[index][0] -= amount
                     self.nodes[node_id].ranges[index][1] -= amount
 
-
     def import_file(self, filename):
         self._log_item(filename, 'Importing %s for %s' % (filename, self.title) )    
 
@@ -585,7 +584,7 @@ class UrtextProject:
 
                 del self.nodes[node_id]
                 self.remove_dynamic_defs(node_id)
-
+                self.remove_dynamic_metadata_entries(node_id)
             del self.files[filename]
 
         if filename in self.messages:
@@ -758,6 +757,11 @@ class UrtextProject:
         for dd in list(self.dynamic_definitions):
             if dd.source_id == node_id or dd.target_id == node_id:
                 self.dynamic_definitions.remove(dd)
+
+    def remove_dynamic_metadata_entries(self, node_id):
+        for entry in list(self.dynamic_metadata_entries):
+            if entry.from_node == node_id:
+                self.dynamic_metadata_entries.remove(entry)
 
     """
     Project Navigation
