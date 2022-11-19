@@ -62,7 +62,6 @@ class UrtextDynamicDefinition:
 		self.all_ops = []
 		self.source_id = None # set by node once compiled
 		
-		
 		if not self.show:
 			self.show = '$link\n'
 			
@@ -93,7 +92,7 @@ class UrtextDynamicDefinition:
 		self.all_ops = [t for op in self.operations for t in op.name]
 		
 		self.phases = [op.phase for op in self.operations]
-		if all(i < 200 or i > 600 for i in phases):
+		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
 	def preserve_title_if_present(self):
