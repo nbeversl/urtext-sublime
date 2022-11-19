@@ -7,7 +7,7 @@ else:
 class Limit(UrtextDirectiveWithInteger):
 
 	name = ["LIMIT"]
-	phase = 150
+	phase = 250
 
 	def dynamic_output(self,nodes):
 		if self.number:

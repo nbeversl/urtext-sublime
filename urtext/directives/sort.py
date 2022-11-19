@@ -9,7 +9,7 @@ else:
 class Sort(UrtextDirectiveWithKeysFlags):
 
 	name = ["SORT","S"]
-	phase = 120
+	phase = 220
 		
 	def dynamic_output(self, nodes):
 		

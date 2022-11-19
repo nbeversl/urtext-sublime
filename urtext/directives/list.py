@@ -9,7 +9,7 @@ else:
 class NodeList(UrtextDirective):
 
 	name = ["TREE"]    
-	phase = 200
+	phase = 300
 	
 	def __init__(self, project):
 		super().__init__(project)

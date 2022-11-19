@@ -30,7 +30,7 @@ else:
 class Interlinks(UrtextDirectiveWithParamsFlags):
 
     name = ["INTERLINKS"]
-    phase = 250
+    phase = 350
     
     def dynamic_output(self, nodes):
 

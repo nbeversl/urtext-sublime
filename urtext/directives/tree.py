@@ -20,7 +20,7 @@ Tree
 
 class Tree(UrtextDirectiveWithParamsFlags):
 
-    phase = 210
+    phase = 310
     
     def __init__(self, project):
         super().__init__(project)

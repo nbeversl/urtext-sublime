@@ -69,7 +69,7 @@ def _process_dynamic_def(self, dynamic_definition):
         return
 
     final_output = self._build_final_output(dynamic_definition, output) 
-
+    changed_file = None
     if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
         changed_file = self._set_node_contents(dynamic_definition.target_id, final_output)  
         if changed_file:

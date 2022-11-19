@@ -33,10 +33,10 @@ else:
 
 phases = [
 	100, # Queries, building and sorting list of nodes included/excluded
-	200, # Expects list of node objects. Convert selected nodes to text output
-	300, # unused
-	400, # unused
-	500, # Adding header/footer, preserving other elements as
+	200, # Expects list of node objects. Sorting, limiting, transforming 
+	300, # Expects list of node objects. Convert selected nodes to text output
+	400, # currently unused, left for future.
+	500, # Adding header/footer, preserving other elements as needed
 	600, # Transform built text further (exports, etc.)
 	700, # custom operations
 ]
@@ -68,7 +68,7 @@ class UrtextDynamicDefinition:
 			
 	def init_self(self, contents):
 
-		for match in re.findall(function_regex,contents):
+		for match in re.findall(function_regex, contents):
 
 			func, argument_string = match[0], match[1]
 			if func and func in self.project.directives:
@@ -79,8 +79,7 @@ class UrtextDynamicDefinition:
 
 			if func =='ID':
 				## TODO: improve this prse
-				node_id_match = argument_string.strip('>').strip('|').strip()
-				self.target_id = node_id_match
+				self.target_id = argument_string.strip('>').strip('|').strip()
 				continue
 
 			if func == 'FILE':
@@ -93,7 +92,7 @@ class UrtextDynamicDefinition:
 		
 		self.all_ops = [t for op in self.operations for t in op.name]
 		
-		phases = [op.phase for op in self.operations]
+		self.phases = [op.phase for op in self.operations]
 		if all(i < 200 or i > 600 for i in phases):
 			self.returns_text = False
 
@@ -107,8 +106,7 @@ class UrtextDynamicDefinition:
 		outcome = [] # initially
 		phases_to_process = [p for p in phases if p <= max_phase]
 		operations = list(self.operations)
-		existing_phases = [op.phase for op in operations]
-		is_custom_output = max(existing_phases) >= 700
+		is_custom_output = max(self.phases) >= 700
 		if not is_custom_output and not has_text_output(operations):
 			# add simple list output if none supplied
 			op = self.project.directives['TREE'](self.project)
@@ -119,7 +117,7 @@ class UrtextDynamicDefinition:
 		all_operations = sorted(operations, key = lambda op: op.phase)
 		for p in phases_to_process:
 			if p == 200:
-				# convert node_id list to node objects for processing
+				# convert node_id list to node objects for remaining processing
 				self.included_nodes = outcome
 				outcome = [self.project.nodes[nid] for nid in outcome]
 			next_phase = p + 100
@@ -129,9 +127,8 @@ class UrtextDynamicDefinition:
 					outcome = new_outcome
 		return outcome
 
-
 def has_text_output(operations):
 	for op in operations:
-		if 200 <= op.phase < 300:
+		if 300 <= op.phase < 400:
 			return True
 	return False 
