@@ -18,6 +18,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 import re
+import io
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
@@ -305,20 +306,23 @@ class UrtextFile(UrtextBuffer):
         self.alias_nodes = []           
         self.parsed_items = {}
         self.strict = False
-        self.messages = []        
+        self.messages = []    
+        self.filename = filename    
         self.errors = False
         self.project = project
-        
+        self.file_contents = self._read_file_contents()
+        self.contents = self._get_file_contents()        
         self.filename = os.path.join(project.path, os.path.basename(filename))
-        contents = self._get_file_contents()
         self.could_import = False        
-        self.file_length = len(contents)        
-        self.clear_errors(contents)
-        symbols = self.lex(contents)
-        self.parse(contents, symbols)
+        self.clear_errors(self.contents)
+        symbols = self.lex(self.contents)
+        self.parse(self.contents, symbols)
         self.write_errors(project.settings)
-      
+
     def _get_file_contents(self):
+        return self.file_contents.getvalue()
+
+    def _read_file_contents(self):
         
         """ returns the file contents, filtering out Unicode Errors, directories, other errors """
         try:
@@ -329,7 +333,9 @@ class UrtextFile(UrtextBuffer):
         except UnicodeDecodeError:
             self.log_error('UnicodeDecode Error: f>' + self.filename)
             return None
-        return full_file_contents.encode('utf-8').decode('utf-8')
+        contents = io.StringIO(
+            initial_value=full_file_contents.encode('utf-8').decode('utf-8'))
+        return contents
 
     def _set_file_contents(self, new_contents, compare=True): 
 
@@ -343,5 +349,7 @@ class UrtextFile(UrtextBuffer):
                 return False
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
+        self.file_contents = io.StringIO(
+            initial_value=new_contents)
         return True
 
