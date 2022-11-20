@@ -167,12 +167,12 @@ class UrtextNode:
         - title metadata key overrides any _ marker.
         - Then the first _ marker overrides any subsequent one.
             - If it is on the first line, we need to remember this for dynamic nodes.
+        - it nothing else found, it is the first non-blank line
         """
         t = self.metadata.get_first_value('title')
         if t:
             return t
 
-        # Get first non-blank line.
         first_non_blank_line = None
         contents_lines = strip_metadata(contents).strip().split('\n')       
         for line in contents_lines:
@@ -180,23 +180,21 @@ class UrtextNode:
             if first_non_blank_line:
                 break
 
-        position = 0 
-
-        title = re.search(flexible_node_title_regex, first_non_blank_line)
+        title = node_title_regex.search(contents)
         if title:
-            self.first_line_title = True
+            title = title.group()
+            if title in first_non_blank_line:
+                self.first_line_title = True 
+            title = title.strip('_').strip()           
         else:
-            title = node_title_regex.search(contents)
-
-        if title:
-            title = title.group().strip('_').strip()
-        else:
-            title = '(untitled)'
+            if first_non_blank_line:
+                title = first_non_blank_line.strip()
+            else:
+                title = '(untitled)'
 
         if len(title) > 255:
             title = title[:255]
         title = sanitize_escape(title)
-
         self.metadata.add_entry('title', title)
         return title
    

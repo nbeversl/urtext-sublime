@@ -181,6 +181,7 @@ class UrtextProject:
         self.is_async = True 
         self.is_async = False # development
         self.time = time.time()
+        self.last_compile_time = 0
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -1091,9 +1092,6 @@ class UrtextProject:
             
     def get_home(self):
         return self.settings['home']
-
-    def titles(self, sort=None):
-        return self.nodes
 
     def get_all_meta_pairs(self):
         pairs = []

@@ -304,6 +304,7 @@ class UrtextHomeCommand(UrtextTextCommand):
     @refresh_project_text_command(change_project=False)
     def run(self):
         home = _UrtextProjectList.current_project.get_home()
+        print(home)
         if home:
             _UrtextProjectList.nav_new(home)
             open_urtext_node(self.view, home)
