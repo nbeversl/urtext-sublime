@@ -761,7 +761,7 @@ class UrtextProject:
 
     def remove_dynamic_defs(self, node_id):
         for dd in list(self.dynamic_definitions):
-            if dd.source_id == node_id or dd.target_id == node_id:
+            if dd.source_id == node_id:
                 self.dynamic_definitions.remove(dd)
 
     def remove_dynamic_metadata_entries(self, node_id):

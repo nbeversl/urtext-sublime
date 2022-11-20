@@ -48,7 +48,7 @@ def _compile_file(self, filename):
     if filename in self.files:
         for node_id in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node_id):
-                if self._process_dynamic_def(dd) and not modified:
+                if self._process_dynamic_def(dd):
                     modified = filename
     else:
         print('DEBUGGING: '+filename +' not found in project')
