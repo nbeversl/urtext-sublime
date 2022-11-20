@@ -18,7 +18,6 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 import re
-import io
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
@@ -320,7 +319,7 @@ class UrtextFile(UrtextBuffer):
         self.write_errors(project.settings)
 
     def _get_file_contents(self):
-        return self.file_contents.getvalue()
+        return self.file_contents
 
     def _read_file_contents(self):
         
@@ -332,24 +331,18 @@ class UrtextFile(UrtextBuffer):
             return None
         except UnicodeDecodeError:
             self.log_error('UnicodeDecode Error: f>' + self.filename)
-            return None
-        contents = io.StringIO(
-            initial_value=full_file_contents.encode('utf-8').decode('utf-8'))
-        return contents
+            return None            
+        return full_file_contents
 
     def _set_file_contents(self, new_contents, compare=True): 
 
         new_contents = "\n".join(new_contents.splitlines())
         if compare:
             existing_contents = self._get_file_contents()
-            existing_contents = "\n".join(existing_contents.splitlines())
-            if not existing_contents:
-                return False
             if existing_contents == new_contents:
                 return False
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
-        self.file_contents = io.StringIO(
-            initial_value=new_contents)
+        self.file_contents = new_contents
         return True
 

@@ -180,6 +180,7 @@ class UrtextProject:
         
         self.is_async = True 
         self.is_async = False # development
+        self.time = time.time()
         self.path = path
         self.reset_settings()
         self.nodes = {}
@@ -241,6 +242,8 @@ class UrtextProject:
 
         self._compile()
         self.compiled = True
+        self.last_compile_time = time.time() - self.time
+        self.time = time.time()
         print('"'+self.title+'" compiled from '+self.path )
     
     def reset_settings(self):

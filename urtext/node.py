@@ -109,10 +109,7 @@ class UrtextNode:
         preserve_length=False,
         do_strip_embedded_syntaxes=True):
    
-        with open(os.path.join(self.project.path, self.filename),
-                  'r',
-                  encoding='utf-8') as theFile:
-            file_contents = theFile.read()
+        file_contents = self.get_file_contents()
         node_contents = []
         for segment in self.ranges:
             this_range = file_contents[segment[0]:segment[1]]

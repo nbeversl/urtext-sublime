@@ -21,8 +21,8 @@ class UrtextStats(UrtextDirective):
 		for node_id in self.project.nodes:
 			n_memory += sys.getsizeof(self.project.nodes[node_id])
 		contents.append('nodes size in memory (kB): '+ str(n_memory / 1000))
-
 		contents.append('# files : '+ str(len(self.project.files)))
 		contents.append('# nodes : '+ str(len(self.project.nodes)))
 		contents.append('# dynamic defs : '+ str(len(self.project.dynamic_definitions)))
+		contents.append('compile time :' + str(self.project.last_compile_time))
 		return '\n'.join(contents)
