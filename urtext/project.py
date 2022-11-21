@@ -329,10 +329,6 @@ class UrtextProject:
             self._add_to_error_files(filename)
             return -1
  
-        if new_file.could_import and new_file.filename not in self.to_import:
-            self.to_import.append(filename)
-            return
-
         old_node_ids = []
         if filename in self.files:
             old_node_ids = self.files[filename].get_ordered_nodes()
@@ -396,10 +392,6 @@ class UrtextProject:
         for node_id in new_file.nodes:
             for dd in new_file.nodes[node_id].dynamic_definitions:
                 dd.source_id = node_id
-                if dd.target_id in self.nodes:
-                    self.nodes[dd.target_id].dynamic = True
-                else:
-                    print('cannot find', dd.target_id)
                 self.dynamic_definitions.append(dd)
 
             for entry in new_file.nodes[node_id].metadata.dynamic_entries:
@@ -555,23 +547,6 @@ class UrtextProject:
                 if from_position >= this_range[0]:
                     self.nodes[node_id].ranges[index][0] -= amount
                     self.nodes[node_id].ranges[index][1] -= amount
-
-    def import_file(self, filename):
-        self._log_item(filename, 'Importing %s for %s' % (filename, self.title) )    
-
-        with open(os.path.join(self.path, filename),'r',encoding='utf-8') as theFile:
-            full_file_contents = theFile.read()
-            theFile.close()
-
-        date = creation_date(os.path.join(self.path, filename))
-        now = datetime.datetime.now()
-        full_file_contents += '\n\n'
-        full_file_contents += 'file_date::'+self.timestamp(date) + '\n'
-        full_file_contents += 'imported::' + self.timestamp(now) + '\n'
-        with open(os.path.join(self.path, filename),'w',encoding='utf-8') as theFile:
-            theFile.write(full_file_contents)
-
-        return self._parse_file(filename)
 
     """
     Removing and renaming files
@@ -1155,10 +1130,6 @@ class UrtextProject:
                 if modified_file:
                     modified_files.append(modified_file)
             self._sync_file_list()
-            if self.settings['import'] == True:
-                for f in self.to_import:
-                    self.import_file(f)
-                    self.to_import.remove(f)
             return modified_files
 
     def visit_node(self, node_id):

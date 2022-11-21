@@ -83,12 +83,11 @@ class UrtextNode:
             
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
-
         if not contents:
             self.blank = True 
     
         self.title = self.set_title(contents)  
-
+        self.content_only_text = contents
         if self.title == 'project_settings':
             self.contains_project_settings = True
 
@@ -156,6 +155,8 @@ class UrtextNode:
     def content_only(self, 
         contents=None, 
         preserve_length=False):
+        return self.content_only_text
+
 
         if contents == None:
             contents = self.contents(preserve_length=preserve_length)
@@ -174,7 +175,7 @@ class UrtextNode:
             return t
 
         first_non_blank_line = None
-        contents_lines = strip_metadata(contents).strip().split('\n')       
+        contents_lines = contents.strip().split('\n')       
         for line in contents_lines:
             first_non_blank_line = line.strip()
             if first_non_blank_line:

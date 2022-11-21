@@ -45,7 +45,6 @@ class UrtextBuffer:
         self.filename = 'yyyyyyyyyyy'
         self.basename = 'yyyyyyyyyyy'
         self.project = project
-        self.could_import = False        
         self.file_length = len(contents)
         symbols = self.lex(contents)
         self.parse(contents, symbols)
@@ -220,13 +219,6 @@ class UrtextBuffer:
           
     def _set_file_contents(self, contents):
           return
-          
-    def get_node_id_from_position(self, position):
-        for node_id in self.nodes:
-            for r in self.nodes[node_id].ranges:
-                if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                    return node_id
-        return None
 
     def clear_errors(self, contents):
         cleared_contents = re.sub(error_messages, '', contents, flags=re.DOTALL)
@@ -240,10 +232,6 @@ class UrtextBuffer:
             return False
         if messages:
             self.messages = messages
-        
-        if self.nodes == {}:
-            self.could_import = True
-            return
 
         contents = self._get_file_contents()
 
