@@ -1244,9 +1244,10 @@ class UrtextProject:
     def get_dynamic_definition(self, target_id):
         for dd in self.dynamic_definitions:
             if dd.target_id == target_id:
+                position = self.get_file_position(dd.source_id, dd.location)
                 return { 
                     'id' : dd.source_id,
-                    'location' : dd.location}
+                    'location' : position}
 
 
     def get_by_meta(self, key, values, operator):

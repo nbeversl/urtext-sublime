@@ -771,7 +771,6 @@ class GoToDynamicDefinitionCommand(UrtextTextCommand):
     def run(self):
         target_id = get_node_id(self.view)
         source = _UrtextProjectList.current_project.get_dynamic_definition(target_id)
-        print(source)
         if source:
             open_urtext_node(self.view, source['id'], position = source['location'])
              
