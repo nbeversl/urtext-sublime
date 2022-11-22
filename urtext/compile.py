@@ -56,7 +56,8 @@ def _compile_file(self, filename):
 
 def _process_dynamic_def(self, dynamic_definition):
             
-    if dynamic_definition.target_id == None:
+    if dynamic_definition.target_id == None: 
+        # (export temporarily disabled)
         print('Found NoneType target in '+dynamic_definition.source_id)
         return
 

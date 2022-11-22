@@ -25,7 +25,7 @@ import subprocess
 import webbrowser
 from Urtext.urtext.project_list import ProjectList
 from sublime_plugin import EventListener
-from Urtext.urtext.project import soft_match_compact_node
+from Urtext.urtext.project import match_compact_node
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
@@ -867,37 +867,30 @@ class CompactNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         region = self.view.sel()[0]
-        selection = self.view.substr(region)
-        line_region = self.view.line(region) # get full line region
+        line_region = self.view.line(region) # full line region
         line_contents = self.view.substr(line_region)
 
-        if soft_match_compact_node(line_contents):
-        # If it is already a compact node, make a new one on the next line down.
+        if match_compact_node(line_contents):
             replace = False
             contents = self._UrtextProjectList.current_project.add_compact_node()
-
         else:
-            # If it is not a compact node, make it one and add an ID
             replace = True
             contents = self._UrtextProjectList.current_project.add_compact_node(contents=line_contents)
-
         if replace:
-            column = self.view.rowcol(self.view.sel()[0].b)[1]
-            spacing = ' ' * column
-            self.view.erase(self.edit, line_region)
-            self.view.run_command("insert_snippet",{"contents": spacing + contents})
             region = self.view.sel()[0]
+            self.view.erase(self.edit, line_region)
+            self.view.run_command("insert_snippet",{"contents": contents})
             self.view.sel().clear()
-            self.view.sel().add(sublime.Region(region.a-5, region.b-5))
+            cursor_offset = len(line_contents) - len(line_contents.strip())
+            self.view.sel().add(sublime.Region(region.a + 2 - cursor_offset, region.a  +2 - cursor_offset))
         else:
-            next_line_down = line_region.b    
+            next_line_down = line_region.b + 1
             self.view.sel().clear()
             self.view.sel().add(next_line_down) 
             self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
-            new_cursor_position = sublime.Region(next_line_down + 3, next_line_down + 3) 
+            new_cursor_position = sublime.Region(next_line_down+4, next_line_down+4) 
             self.view.sel().clear()
             self.view.sel().add(new_cursor_position) 
-
 
 class PopNodeCommand(UrtextTextCommand):
 

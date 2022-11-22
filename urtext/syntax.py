@@ -48,12 +48,13 @@ metadata_replacements = re.compile("|".join([
 #
 # Compilation
 
+compact_node =                           r'^([^\S\n]*?)•([^\r\n]*)(\n|$)'
 compiled_symbols = {
     re.compile(r'(?<!\\){') :           'opening_wrapper',
     re.compile(r'(?<!\\)}')  :          'closing_wrapper',
     re.compile(node_pointer_regex) :    'pointer',
     re.compile(r'%%-[A-Z]*')       :    'push_syntax', 
     re.compile(r'%%-[A-Z]*-END')   :    'pop_syntax',
-    re.compile(r'^([^\S\n]*?)•([^\r\n]*)\n', re.MULTILINE) : 'compact_node'
+    re.compile(compact_node, re.MULTILINE) : 'compact_node'
     }
 

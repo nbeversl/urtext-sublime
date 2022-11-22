@@ -330,9 +330,9 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
         node_links = re.findall(node_link_regex, contents)
 
         for match in node_links:
-
+            print(match)
             node_link = re.search(node_link_regex, match)           
-            node_id = node_link.group(0)[-3:]
+            node_id = node_link.group(0)
 
             if node_id not in self.project.nodes:                    
                 contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')

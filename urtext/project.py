@@ -61,8 +61,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.extensions.history import *
     from Urtext.urtext.extensions.rake import *
     from Urtext.urtext.extensions.tree import *
-    from Urtext.urtext.syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme
-
+    from Urtext.urtext.syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -98,7 +97,7 @@ else:
     from urtext.extensions.history import *
     from urtext.extensions.rake import *
     from urtext.extensions.tree import *
-    from .syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme
+    from .syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
 
 functions = compile_functions
 functions.extend(metadata_functions)
@@ -727,7 +726,9 @@ class UrtextProject:
             contents='', 
             metadata={}):
             metadata_block = self.urtext_node.build_metadata(metadata, one_line=True)
-            return '•  ' + contents + ' ' + metadata_block
+            if metadata_block:
+                metadata_block = ' ' + metadata_block
+            return '• ' + contents.strip() + metadata_block
 
     def dynamic_defs(self, target=None, source=None):
         if target:
@@ -1350,8 +1351,8 @@ class DuplicateIDs(Exception):
 Helpers 
 """
 
-def soft_match_compact_node(selection):
-    return True if re.match(r'^[^\S\n]*•.*?(\n|$)', selection) else False
+def match_compact_node(selection):
+    return True if re.match(compact_node, selection) else False
         
 def creation_date(path_to_file):
     """
