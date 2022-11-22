@@ -1243,8 +1243,10 @@ class UrtextProject:
 
     def get_dynamic_definition(self, target_id):
         for dd in self.dynamic_definitions:
-            if dd.target_id == node_id:
-                return dd.source_id
+            if dd.target_id == target_id:
+                return { 
+                    'id' : dd.source_id,
+                    'location' : dd.location}
 
 
     def get_by_meta(self, key, values, operator):

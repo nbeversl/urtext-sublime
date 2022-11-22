@@ -769,9 +769,12 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
 class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
-        node_id = get_node_id(self.view)
-        
-        
+        target_id = get_node_id(self.view)
+        source = _UrtextProjectList.current_project.get_dynamic_definition(target_id)
+        print(source)
+        if source:
+            open_urtext_node(self.view, source['id'], position = source['location'])
+             
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
@@ -958,8 +961,6 @@ def open_urtext_node(
         focus_position(file_view, position)
 
         return file_view
-
-        
  
     return None
     """
