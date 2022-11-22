@@ -306,6 +306,7 @@ class UrtextNode:
 
     def parse_dynamic_definitions(self, contents, dynamic_definitions): 
         for d in dynamic_def_regexp.finditer(contents):
+            #print(d.span()[0])
             dynamic_definitions.append(UrtextDynamicDefinition(d, self.project))
         return contents
 

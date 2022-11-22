@@ -1241,6 +1241,12 @@ class UrtextProject:
             return list(set([v.lower() for v in values]))
         return list(set(values))
 
+    def get_dynamic_definition(self, target_id):
+        for dd in self.dynamic_definitions:
+            if dd.target_id == node_id:
+                return dd.source_id
+
+
     def get_by_meta(self, key, values, operator):
         
         if isinstance(values,str):

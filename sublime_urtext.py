@@ -766,26 +766,11 @@ class ConsolidateMetadataCommand(UrtextTextCommand):
         print('No Urtext node or no Urtext node with ID found here.')
         return False
 
-class InsertDynamicNodeDefinitionCommand(UrtextTextCommand):
-
+class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
-        node_id = add_inline_node(
-            self.view, 
-            locate_inside=False)
-        # This should possibly be moved into Urtext as a utility method.
-        position = self.view.sel()[0].a
-        content = '\n\n[[ ID(>' + node_id + ')\n\n ]]'
+        node_id = get_node_id(self.view)
         
-        for s in self.view.sel():
-            if s.empty():
-                self.view.insert(self.edit, s.a, content)
-            else:
-                view.replace(self.edit, s, content)
-
-        self.view.sel().clear()
-        new_cursor_position = sublime.Region(position + 12, position + 12) 
-        self.view.sel().add(new_cursor_position) 
         
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
