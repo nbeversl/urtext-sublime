@@ -295,6 +295,8 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
     def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
             modified = _UrtextProjectList.visit_file(self.view.file_name())
+            node_id=get_node_id(self.view)
+            _UrtextProjectList.nav_new(node_id)
             if _UrtextProjectList.current_project:
                 self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
 
@@ -401,15 +403,18 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
     def want_event(self):
         return True
 
-
 class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-            
+        
+        #rough estimate of how many characters wide the viewport is
+        characters_wide = int(self.view.viewport_extent()[0] / self.view.em_width())
+
         self.menu = NodeBrowserMenu(
             _UrtextProjectList, 
-            project=_UrtextProjectList.current_project)
+            project=_UrtextProjectList.current_project,
+            characters=characters_wide)
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
@@ -543,14 +548,24 @@ class NodeBrowserMenu:
     def __init__(self, 
         project_list, 
         project=None, 
-        nodes=None):
+        nodes=None,
+        characters=255):
 
         self.full_menu = make_node_menu(
             project_list,
             project=project,
             nodes=nodes)
 
-        self.display_menu = sort_menu(self.full_menu)
+        self.display_menu = display_menu = []
+        for item in self.full_menu:  # there is probably a better way to copy this list.
+            display_meta = item.display_meta
+            if display_meta:
+                display_meta = ' - '+display_meta
+            new_item = [
+                item.title[:characters],
+                item.project_title + display_meta,            
+            ]
+            self.display_menu.append(new_item)
 
     def get_selection_from_index(self, selected_option):
         index = self.display_menu.index(selected_option)
@@ -566,7 +581,6 @@ class NodeInfo():
             self.title = '(no title)'
         self.date =project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
-        self.position = project.nodes[node_id].start_position()
         self.node_id = project.nodes[node_id].id
         self.project_title = project.title
         self.display_meta = project.nodes[node_id].display_meta
@@ -587,7 +601,7 @@ def make_node_menu(
         for node_id in nodes:
             menu.append(
                   NodeInfo(
-                    node_id, 
+                    node_id,
                     project_list))
         return menu
     
@@ -600,20 +614,6 @@ def make_node_menu(
                     project=single_project))
     
     return menu
-
-def sort_menu(menu):
-    display_menu = []
-    for item in menu:  # there is probably a better way to copy this list.
-        item.position = str(item.position)
-        display_meta = item.display_meta
-        if display_meta:
-            display_meta = ' - '+display_meta
-        new_item = [
-            item.title,
-            item.project_title + display_meta,            
-        ]
-        display_menu.append(new_item)
-    return display_menu
 
 def show_panel(window, menu, main_callback, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """

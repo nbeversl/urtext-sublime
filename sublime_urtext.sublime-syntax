@@ -35,7 +35,7 @@ contexts:
     - match: '(\|\s)[^_>\n\\|r]+\s>{1,2}'
       scope: link_title
     
-    - match: '(?<=::)'
+    - match: '(?<=::)[^\s]'
       push: metadata-value
 
     - match: '(?<=::)<'
@@ -118,7 +118,7 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link    
-    - match: ;|\n|(?=\})
+    - match: ;|\r|(?=\})|$
       pop: true
 
   shorthand_meta:
@@ -194,13 +194,13 @@ contexts:
       pop: true
 
   function-key-value-keyword-parameters:
-    - include: syntax-main
     - include: asterisk
     - match: <[^!\s-]
       push: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
+    
 
   key-value:
     - match: '(\w+)\s?[=|~|?]\s?([^\n;\-)]+)([\n;]?)'
