@@ -59,6 +59,7 @@ class UrtextBuffer:
                 symbols[match.span()[0] + start_position] = {}
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
                 symbols[match.span()[0] + start_position]['length'] = len(match.group())                
+
                 if symbol_type  == 'pointer':
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
                 if symbol_type  == 'compact_node':
@@ -79,7 +80,7 @@ class UrtextBuffer:
                 to_remove.append(p)
                 push_syntax -= 1
                 continue
-
+            
             if push_syntax > 0:
                 to_remove.append(p)
 
@@ -87,7 +88,7 @@ class UrtextBuffer:
             del symbols[s]
 
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
-
+        
         return symbols
 
     def parse(self, 
@@ -321,6 +322,20 @@ class UrtextFile(UrtextBuffer):
             self.log_error('UnicodeDecode Error: f>' + self.filename)
             return None            
         return full_file_contents
+
+    def _insert_contents(self, inserted_contents, position):
+        self._set_file_contents(''.join([
+            self.file_contents[:position],
+            inserted_contents,
+            self.file_contents[position:],
+            ]))
+
+    def _replace_contents(self, inserted_contents, range):
+        self._set_file_contents(''.join([
+            self.file_contents[:range[0]],
+            inserted_contents,
+            self.file_contents[range[1]:],
+            ]))
 
     def _set_file_contents(self, new_contents, compare=True): 
 

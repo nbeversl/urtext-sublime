@@ -190,6 +190,7 @@ class UrtextNode:
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
+                self.first_line_title = True
             else:
                 title = '(untitled)'
 
@@ -306,8 +307,8 @@ class UrtextNode:
 
     def parse_dynamic_definitions(self, contents, dynamic_definitions): 
         for d in dynamic_def_regexp.finditer(contents):
-            #print(d.span()[0])
-            dynamic_definitions.append(UrtextDynamicDefinition(d, self.project))
+            param_string = d.group(0)[2:-2]
+            dynamic_definitions.append(UrtextDynamicDefinition(param_string, self.project, d.start()))
         return contents
 
 

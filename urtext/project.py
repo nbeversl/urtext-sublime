@@ -51,6 +51,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.urtext.directives.include import *
     from Urtext.urtext.directives.interlinks import *
     from Urtext.urtext.directives.limit import *
+    from Urtext.urtext.directives.eval import *
     from Urtext.urtext.directives.list import *
     from Urtext.urtext.directives.log import *
     from Urtext.urtext.directives.markdown import *
@@ -88,6 +89,7 @@ else:
     from urtext.directives.interlinks import *
     from urtext.directives.limit import *
     from urtext.directives.list import *
+    from urtext.directives.eval import *
     from urtext.directives.log import *
     from urtext.directives.markdown import *
     from urtext.directives.stats import *
@@ -897,13 +899,7 @@ class UrtextProject:
 
         if not link:
             return
-        
-        link = self.find_link(
-            string, 
-            filename, 
-            col_pos=col_pos,
-            file_pos=file_pos)
-        
+                
         if not link['kind']:
             if not self.compiled:
                return print('Project is still compiling')
@@ -927,6 +923,7 @@ class UrtextProject:
         dest_position = None
         link_match = None
         link_location = None
+        filename = os.path.basename(filename)
 
         result = action_regex.search(string)
         if result:
@@ -936,10 +933,13 @@ class UrtextProject:
                     r = self.actions[name](self)
                     return r.execute(
                         result.group(2),
-                        filename, 
+                        filename,
+                        action_span=result.span(),
                         col_pos=col_pos,
                         file_pos=file_pos)
 
+        string = string.split('\n')[0]
+        print(string)
         link = re.search(node_link_or_pointer_regex, string)
         if link:
             full_match = link.group().strip()

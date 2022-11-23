@@ -42,10 +42,10 @@ phases = [
 
 class UrtextDynamicDefinition:
 
-	def __init__(self, match, project):
+	def __init__(self, param_string, project, location):
 
-		contents = match.group(0)[2:-2]
-		self.location = match.start()
+		
+		self.location = location
 		self.target_id = None
 		self.target_file = None
 		self.included_nodes = []
@@ -57,7 +57,7 @@ class UrtextDynamicDefinition:
 		self.show = None
 		self.multiline_meta = False
 		self.returns_text = True
-		self.init_self(contents)
+		self.init_self(param_string)
 		self.all_ops = []
 		self.source_id = None # set by node once compiled
 		

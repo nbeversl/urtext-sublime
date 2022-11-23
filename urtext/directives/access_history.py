@@ -19,7 +19,7 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
             if self.dynamic_definition.target_id in self.project.nodes:
                 contents = self.project.nodes[self.dynamic_definition.target_id].contents()
                 if self.project.nodes[self.dynamic_definition.target_id].first_line_title:
-                    contents = contents.strip_first_line_title(title)
+                    contents = self.strip_first_line_title(contents)
                 contents = ''.join([ 
                         self.dynamic_definition.preserve_title_if_present(),
                         '\n',

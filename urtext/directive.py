@@ -70,6 +70,14 @@ class UrtextDirective():
         self.argument_string = argument_string
         return
 
+
+class UrtextDirectiveWithText(UrtextDirective):
+    name = ['EXT_WITH_TEXT']
+    phase = 0
+
+    def parse_argument_string(self, argument_string):
+        self.text = argument_string
+
 class UrtextDirectiveWithKeysFlags(UrtextDirective):
     
     name = ["EXT_WITH_KEYS_FLAGS"]

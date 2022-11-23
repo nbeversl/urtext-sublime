@@ -8,6 +8,7 @@ class UrtextAction:
     def execute(self, 
         param_string, 
         filename=None,
+        action_span=None,
         file_pos=0,
         col_pos=0, 
         node_id=None):

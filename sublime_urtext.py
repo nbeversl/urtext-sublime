@@ -334,10 +334,11 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         file_pos = self.view.sel()[0].a
         col_pos = self.view.rowcol(file_pos)[1]
         full_line_region = self.view.line(self.view.sel()[0])
+        contents = self.view.substr(sublime.Region(full_line_region.a -1, self.view.size()))
         full_line = self.view.substr(full_line_region)
 
         link = _UrtextProjectList.get_link_and_set_project(
-            full_line, 
+            contents, 
             self.view.file_name(), 
             col_pos=col_pos,
             file_pos=file_pos)

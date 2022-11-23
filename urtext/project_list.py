@@ -76,7 +76,6 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling procedure.
         """
-        string = string.strip()
         node_id = None
         project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
         link = project_link_r.search(string)

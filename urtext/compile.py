@@ -48,7 +48,8 @@ def _compile_file(self, filename):
     if filename in self.files:
         for node_id in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node_id):
-                if self._process_dynamic_def(dd):
+                output = self._process_dynamic_def(dd)
+                if self._write_dynamic_def_output(dd, output):
                     modified = filename
     else:
         print('DEBUGGING: '+filename +' not found in project')
@@ -61,7 +62,6 @@ def _process_dynamic_def(self, dynamic_definition):
         print('Found NoneType target in '+dynamic_definition.source_id)
         return
 
-    new_node_contents = []
     if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
         
@@ -73,8 +73,11 @@ def _process_dynamic_def(self, dynamic_definition):
     if not dynamic_definition.returns_text:
         return
 
-    final_output = self._build_final_output(dynamic_definition, output) 
-    changed_file = None
+    return self._build_final_output(dynamic_definition, output) 
+
+def _write_dynamic_def_output(self, dynamic_definition, final_output):
+
+    changed_file = None    
     if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
         changed_file = self._set_node_contents(dynamic_definition.target_id, final_output)  
         if changed_file:
@@ -127,4 +130,9 @@ def strip_source_information(string):
         string = string.replace(s,'')
     return string
 
-compile_functions = [_compile, _build_final_output, _process_dynamic_def, _compile_file ]
+compile_functions = [
+    _compile, 
+    _build_final_output, 
+    _process_dynamic_def, 
+    _write_dynamic_def_output,
+    _compile_file ]
