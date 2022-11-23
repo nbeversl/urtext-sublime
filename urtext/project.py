@@ -36,33 +36,10 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .directive import UrtextDirective
     from .action import UrtextAction
     from .extension import UrtextExtension
-    from .templates.templates import templates
-    from Urtext.urtext.actions.history import *
-    from Urtext.urtext.actions.ics import *
-    from Urtext.urtext.actions.pull_pop import *
-    from Urtext.urtext.actions.reindex import *
-    from Urtext.urtext.actions.scrape import *
-    from Urtext.urtext.directives.access_history import *
-    from Urtext.urtext.directives.collect import *
-    from Urtext.urtext.directives.export import *
-    from Urtext.urtext.directives.files import *
-    from Urtext.urtext.directives.header_footer import *
-    from Urtext.urtext.directives.html import *
-    from Urtext.urtext.directives.include import *
-    from Urtext.urtext.directives.interlinks import *
-    from Urtext.urtext.directives.limit import *
-    from Urtext.urtext.directives.eval import *
-    from Urtext.urtext.directives.list import *
-    from Urtext.urtext.directives.log import *
-    from Urtext.urtext.directives.markdown import *
-    from Urtext.urtext.directives.request import *
-    from Urtext.urtext.directives.stats import *
-    from Urtext.urtext.directives.sort import *
-    from Urtext.urtext.directives.tree import *
-    from Urtext.urtext.extensions.history import *
-    from Urtext.urtext.extensions.rake import *
-    from Urtext.urtext.extensions.tree import *
     from Urtext.urtext.syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
+    import Urtext.urtext.directives     
+    import Urtext.urtext.actions
+    import Urtext.urtext.extensions
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -75,31 +52,10 @@ else:
     from urtext.action import UrtextAction
     from urtext.extension import UrtextExtension
     from urtext.templates.templates import templates
-    from urtext.actions.history import *
-    from urtext.actions.ics import *
-    from urtext.actions.pull_pop import *
-    from urtext.actions.reindex import *
-    from urtext.directives.access_history import *
-    from urtext.directives.collect import *
-    from urtext.directives.export import *
-    from urtext.directives.files import *
-    from urtext.directives.header_footer import *
-    from urtext.directives.html import *
-    from urtext.directives.include import *
-    from urtext.directives.interlinks import *
-    from urtext.directives.limit import *
-    from urtext.directives.list import *
-    from urtext.directives.eval import *
-    from urtext.directives.log import *
-    from urtext.directives.markdown import *
-    from urtext.directives.stats import *
-    from urtext.directives.request import *
-    from urtext.directives.sort import *
-    from urtext.directives.tree import *
-    from urtext.extensions.history import *
-    from urtext.extensions.rake import *
-    from urtext.extensions.tree import *
     from .syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
+    import urtext.directives     
+    import urtext.actions
+    import urtext.extensions
 
 functions = compile_functions
 functions.extend(metadata_functions)
