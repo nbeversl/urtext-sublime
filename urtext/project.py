@@ -938,8 +938,6 @@ class UrtextProject:
                         col_pos=col_pos,
                         file_pos=file_pos)
 
-        string = string.split('\n')[0]
-        print(string)
         link = re.search(node_link_or_pointer_regex, string)
         if link:
             full_match = link.group().strip()
