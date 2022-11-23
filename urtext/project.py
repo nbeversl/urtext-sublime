@@ -102,10 +102,8 @@ class UrtextProject:
         self.messages = {}
         self.navigation = []  # Stores, in order, the path of navigation
         self.nav_index = -1  # pointer to the CURRENT position in the navigation list
-        self.to_import = []
         self.dynamic_definitions = []
         self.dynamic_metadata_entries = []
-        self.untitled_node_index = 0
         self.extensions = {}
         self.actions = {}
         self.duplicate_ids = {}
