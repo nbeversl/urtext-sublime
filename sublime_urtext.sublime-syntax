@@ -9,7 +9,6 @@ contexts:
   main: 
     - include: syntax-main
     - include: bold-text
-    - include: url
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
@@ -22,6 +21,7 @@ contexts:
     - include: other-project-link
     - include: file_link
     - include: shorthand_meta
+    - include: url
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
