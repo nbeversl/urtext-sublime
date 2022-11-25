@@ -88,10 +88,11 @@ class UrtextProject:
                  path,
                  file_extensions=['.txt'],
                  rename=False,
-                 new_project=False):
+                 new_project=False,
+                 async=True):
         
-        self.is_async = True 
-        self.is_async = False # development
+        self.is_async = async 
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
@@ -796,6 +797,8 @@ class UrtextProject:
                         col_pos=col_pos,
                         file_pos=file_pos)
 
+        string = string.split('\n')[1]
+        print(string)
         link = re.search(node_link_or_pointer_regex, string)
         if link:
             full_match = link.group().strip()

@@ -4,7 +4,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
     from Urtext.urtext.dynamic import UrtextDynamicDefinition
 else:
     from urtext.action import UrtextAction
-    from .dynamic import UrtextDynamicDefinition
+    from urtext.dynamic import UrtextDynamicDefinition
 
 class Scrape(UrtextAction):
 

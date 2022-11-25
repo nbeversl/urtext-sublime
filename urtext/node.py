@@ -72,7 +72,7 @@ class UrtextNode:
         self.display_meta = ''
         self.parent = None
         self.first_line_title = False
-        
+    
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
         contents = strip_wrappers(contents)

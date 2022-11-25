@@ -335,7 +335,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         col_pos = self.view.rowcol(file_pos)[1]
         full_line_region = self.view.line(self.view.sel()[0])
         contents = self.view.substr(sublime.Region(full_line_region.a -1, self.view.size()))
-        full_line = self.view.substr(full_line_region)
 
         link = _UrtextProjectList.get_link_and_set_project(
             contents, 
@@ -372,12 +371,13 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
             return
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
-        full_line = self.view.substr(region)
+        file_pos = region.a
+        full_line_region = self.view.full_line(region)
         row, col_pos = self.view.rowcol(click_position)
-        file_pos = self.view.sel()[0].a
+        contents = self.view.substr(sublime.Region(full_line_region.a -1, self.view.size()))
 
         link = _UrtextProjectList.get_link_and_set_project(
-            full_line, 
+            contents, 
             self.view.file_name(), 
             col_pos=col_pos,
             file_pos=file_pos)

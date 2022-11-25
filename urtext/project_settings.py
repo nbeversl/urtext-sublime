@@ -59,7 +59,6 @@ default_project_settings = {
     'filename_datestamp_format':'%m-%d-%Y',
     'console_log': True,
     'always_oneline_meta': False,
-    'strict': False,
     'node_date_keyname' : 'timestamp',
     'numerical_keys': ['_index' ,'index','title_length'],
     'atomic_rename' : False,

@@ -1,5 +1,4 @@
 # plaintext will never die
-# plaintext will never die
 import os
 import glob
 from os.path import dirname, basename, isfile, join
