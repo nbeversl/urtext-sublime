@@ -3,6 +3,8 @@ import re
 #
 # Main Patterns
 
+
+metadata_assigner =                     '::'
 action_regex = re.compile(              r'>>>([A-Z_\-\+]+)\((.*)\)', re.DOTALL)
 dynamic_definition_regex = re.compile(  '(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
 dynamic_def_regexp = re.compile(        r'\[\[[^\]]*?\]\]', re.DOTALL)
@@ -20,7 +22,7 @@ hash_meta = re.compile(                 r'(?:^|\s)#[A-Z,a-z].*?\b')
 meta_separator = re.compile(            r'\s-\s|$')
 source_info = re.compile(               r'\(\(>[0-9,a-z]{3}\:\d+\)\)')
 subnode_regexp = re.compile(            r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-timestamp_match = re.compile(           '<([^-/<\s][^=<]+?)>')
+timestamp = re.compile(                 r'<([^-/<\s][^=<]+?)>')
 
 pattern_break =                         '($|(?=[\\s|\r|]))'
 
@@ -45,14 +47,17 @@ metadata_replacements = re.compile("|".join([
 
 #
 # Compilation
+bullet =                                 r'^([^\S\n]*?)•' 
+compact_node =                           bullet + r'([^\r\n]*)(\n|$)'
+opening_wrapper =                        r'(?<!\\){'
+closing_wrapper =                        r'(?<!\\)}'
 
-compact_node =                           r'^([^\S\n]*?)•([^\r\n]*)(\n|$)'
 compiled_symbols = {
-    re.compile(r'(?<!\\){') :           'opening_wrapper',
-    re.compile(r'(?<!\\)}')  :          'closing_wrapper',
-    re.compile(node_pointer_regex) :    'pointer',
-    re.compile(r'%%-[A-Z]*'+pattern_break)       :    'push_syntax', 
-    re.compile(r'%%-[A-Z]*-END')   :    'pop_syntax',
-    re.compile(compact_node, re.MULTILINE) : 'compact_node'
+    re.compile(opening_wrapper) :           'opening_wrapper',
+    re.compile(closing_wrapper) :           'closing_wrapper',
+    re.compile(node_pointer_regex) :        'pointer',
+    re.compile(r'%%-[A-Z]*'+pattern_break) :    'push_syntax', 
+    re.compile(r'%%-[A-Z]*-END')   :            'pop_syntax',
+    re.compile(compact_node, re.MULTILINE) :    'compact_node'
     }
 

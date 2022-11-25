@@ -25,13 +25,13 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .utils import force_list
     from .dynamic import UrtextDynamicDefinition
     from .timestamp import UrtextTimestamp, default_date
-    from .syntax import timestamp_match, metadata_entry, hash_meta, meta_separator
+    from .syntax import timestamp, metadata_entry, hash_meta, meta_separator, metadata_assigner
 
 else:
     from urtext.utils import force_list
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import UrtextTimestamp, default_date
-    from urtext.syntax import timestamp_match, metadata_entry, hash_meta, meta_separator
+    from urtext.syntax import timestamp, metadata_entry, hash_meta, meta_separator
 
 class NodeMetadata:
 
@@ -56,8 +56,7 @@ class NodeMetadata:
 
         for m in metadata_entry.finditer(full_contents):
 
-            keyname, contents = m.group().strip(';').split('::', 1)
-            keyname = keyname.lower()
+            keyname, contents = m.group().strip(';').split(metadata_assigner, 1)
             value_list = meta_separator.split(contents)
 
             tag_self=False
@@ -106,7 +105,7 @@ class NodeMetadata:
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
 
         # inline timestamps:
-        for m in timestamp_match.finditer(parsed_contents):
+        for m in timestamp.finditer(parsed_contents):
             self.add_entry(
                 'inline_timestamp',
                 m.group(),
@@ -287,8 +286,8 @@ class MetadataEntry:  # container for a single metadata entry
         
     def _parse_values(self, contents):
 
-        for timestamp in timestamp_match.finditer(contents):
-            dt_string = timestamp.group(0).strip()
+        for ts in timestamp.finditer(contents):
+            dt_string = ts.group(0).strip()
             contents = contents.replace(dt_string, '').strip()
             t = UrtextTimestamp(dt_string[1:-1])
             if t.datetime:

@@ -870,12 +870,10 @@ class UrtextProject:
       
         self.reset_settings()
         replacements = {}
-        print('GETTING SETTINGS FROM', node.id)
         for entry in node.metadata.entries:
-            entry.log()
    
             if entry.keyname in replace_settings:
-                replacements[entry.keyname].setdefault([])
+                replacements.setdefault(entry.keyname, [])
                 replacements[entry.keyname].append(entry.value)
                 continue
 
