@@ -83,6 +83,7 @@ class UrtextProject:
 
     urtext_file = UrtextFile
     urtext_node = UrtextNode
+    default_project_settings = default_project_settings
 
     def __init__(self,
                  path,
@@ -92,7 +93,7 @@ class UrtextProject:
                  async=True):
         
         self.is_async = async 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
@@ -160,7 +161,7 @@ class UrtextProject:
     
     def reset_settings(self):
 
-        self.settings = default_project_settings
+        self.settings = self.default_project_settings
 
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
@@ -869,50 +870,49 @@ class UrtextProject:
       
         self.reset_settings()
         replacements = {}
+        print('GETTING SETTINGS FROM', node.id)
         for entry in node.metadata.entries:
-            key = entry.keyname
-            value = entry.value
+            entry.log()
    
-            if key in replace_settings:
-                if key not in replacements:
-                    replacements[key] = []
-                replacements[key].append(value)
+            if entry.keyname in replace_settings:
+                replacements[entry.keyname].setdefault([])
+                replacements[entry.keyname].append(entry.value)
                 continue
 
-            if key == 'project_title':
-                # this one sets a project object property, not the settings dict
-                self.title = value
+            if entry.keyname == 'project_title':
+                # sets a project object property, not the settings dict
+                self.title = entry.value
                 continue
 
-            if key == 'numerical_keys':
-                self.settings['numerical_keys'].append(value)
-                self.settings['numerical_keys'] = list(set(self.settings['numerical_keys']))
+            if entry.keyname == 'numerical_keys':
+                self.settings['numerical_keys'].append(entry.value)
                 continue
 
-            if key in single_values_settings:
-                if key in integers_settings:
+            if entry.keyname in single_values_settings:
+                if entry.keyname in integers_settings:
                     try:
-                        self.settings[key] = int(value)
+                        self.settings[entry.keyname] = int(entry.value)
                     except:
-                        print(value + ' not an integer')
+                        print(entry.value + ' not an integer')
                 else:
-                    self.settings[key] = value
+                    self.settings[entry.keyname] = entry.value
                 continue
 
-            if key in single_boolean_values_settings:
-                self.settings[key] = True if value.lower() in ['true','yes'] else False
+            if entry.keyname in single_boolean_values_settings:
+                self.settings[entry.keyname] = True if entry.value.lower() in ['true','yes'] else False
                 continue            
 
-            if key not in self.settings:
-                self.settings[str(key)] = []
+            if entry.keyname not in self.settings:
+                self.settings[str(entry.keyname)] = []
 
-            self.settings[str(key)].append(value)
-            self.settings[str(key)] = list(set(self.settings[key]))
+            self.settings[str(entry.keyname)].append(entry.value)
+            self.settings[str(entry.keyname)] = list(set(self.settings[entry.keyname]))
 
         for k in replacements.keys():
+            print(k)
             if k in single_values_settings:
                 self.settings[k] = replacements[k][0]
-            else:   
+            else:
                 self.settings[k] = replacements[k]
 
     def run_action(self, action, string, filename, col_pos=0, file_pos=0):
