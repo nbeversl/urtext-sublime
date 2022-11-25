@@ -31,7 +31,7 @@ else:
     from urtext.utils import force_list
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import UrtextTimestamp, default_date
-    from urtext.syntax import timestamp, metadata_entry, hash_meta, meta_separator
+    from urtext.syntax import timestamp, metadata_entry, hash_meta, meta_separator, metadata_assigner
 
 class NodeMetadata:
 
