@@ -55,7 +55,7 @@ class NodeMetadata:
 
             #TODO fix regex?
             keyname, contents = m.group().strip(';').split(syntax.metadata_assigner_c.pattern, 1)
-            value_list = syntax.metadata_assigner_c.split(contents)
+            value_list = syntax.metadata_separator_c.split(contents)
 
             tag_self=False
             tag_children=False

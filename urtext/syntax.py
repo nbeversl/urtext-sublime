@@ -44,6 +44,7 @@ node_title =                            r'^'+ title_pattern +r'(?= _)'
 # Compiled Patterns
 
 action_c =                      re.compile(action, re.DOTALL)
+bullet_c =                      re.compile(bullet)
 compact_node_c =                re.compile(compact_node, re.DOTALL)
 dynamic_def_c =                 re.compile(dynamic_def, re.DOTALL)
 editor_file_link_c =            re.compile(editor_file_link)
@@ -51,11 +52,13 @@ embedded_syntax_open_c =        re.compile(embedded_syntax_open, flags=re.DOTALL
 embedded_syntax_c =             re.compile(embedded_syntax_full, flags=re.DOTALL)
 embedded_syntax_close_c =       re.compile(embedded_syntax_close, flags=re.DOTALL)
 error_messages_c =              re.compile(error_messages, flags=re.DOTALL)
-metadata_entry_c =              re.compile(metadata_entry, re.DOTALL)
 flag_c =                        re.compile(flag)
 format_key_c =                  re.compile(format_key, re.DOTALL)
 function_c =                    re.compile(function, re.DOTALL)
 hash_meta_c =                   re.compile(hash_meta)
+metadata_entry_c =              re.compile(metadata_entry, re.DOTALL)
+metadata_separator_c =          re.compile(metadata_separator)
+node_title_c =                  re.compile(node_title, re.MULTILINE)
 metadata_assigner_c =           re.compile(metadata_assigner)
 node_link_c =                   re.compile(node_link)
 node_link_or_pointer_c =        re.compile(node_link_or_pointer)
@@ -64,8 +67,6 @@ subnode_regexp_c =              re.compile(sub_node, re.DOTALL)
 timestamp_c =                   re.compile(timestamp)
 title_regex_c =                 re.compile(title_pattern)
 url_c =                         re.compile(url)                       
-node_title_c =                  re.compile(node_title, re.MULTILINE)
-flexible_node_title_regex_c=    re.compile(r'^'+ title_pattern +r'(?= _)?', re.MULTILINE)
 
 
 
