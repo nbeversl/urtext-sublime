@@ -22,12 +22,11 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
     import Urtext.urtext.node
-    from Urtext.urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
-
+    import Urtext.urtext.syntax as syntax
 else:
     from urtext.directive import UrtextDirectiveWithParamsFlags
     import urtext.node
-    from urtext.syntax import node_link_regex, node_pointer_regex, file_link_regex
+    import urtext.syntax as syntax
 
 
 class UrtextExport(UrtextDirectiveWithParamsFlags):
@@ -232,7 +231,7 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
 
         matches = []
         locations = []
-        for m in re.finditer(node_pointer_regex, text):
+        for m in node_pointer_c.finditer(text):
             if not self.is_escaped(escaped_regions, (m.start(), m.end())):
                locations.append((text.find(m.group()), m.group()))
         return locations
@@ -327,11 +326,10 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
     def replace_node_links(self, contents):
         """ replace node links, including titled ones, with exported versions """
 
-        node_links = re.findall(node_link_regex, contents)
+        node_links = syntax.node_link_c.findall(contents)
 
         for match in node_links:
-            print(match)
-            node_link = re.search(node_link_regex, match)           
+            node_link = synax.node_link_c.search(match)           
             node_id = node_link.group(0)
 
             if node_id not in self.project.nodes:                    
@@ -348,7 +346,7 @@ class UrtextExport(UrtextDirectiveWithParamsFlags):
 
     def replace_file_links(self, contents, escaped_regions):
         to_replace = []
-        for link in re.finditer(file_link_regex, contents):
+        for link in file_link_c.finditer(contents):
             if not self.is_escaped(escaped_regions, (link.start(), link.end())):
                 to_replace.append(link)
         for link in to_replace:

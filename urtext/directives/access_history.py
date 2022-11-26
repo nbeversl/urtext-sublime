@@ -1,11 +1,10 @@
 import os
-import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
-    from Urtext.urtext.syntax import title_regex
+    import Urtext.urtext.syntax as syntax 
 else:
     from urtext.directive import UrtextDirectiveWithKeysFlags
-    from urtext.syntax import title_regex
+    import urtext.syntax as syntax 
 # This class should be abstracted as an accumulator (prepend/append)
 
 class AccessHistory(UrtextDirectiveWithKeysFlags):
@@ -34,7 +33,7 @@ class AccessHistory(UrtextDirectiveWithKeysFlags):
                 self.project._set_node_contents(self.dynamic_definition.target_id, contents)
 
     def strip_first_line_title(self, contents):
-        title = re.search(title_regex, contents)
+        title = syntax.title_regex_c.search(contents)
         return title.group().strip() + ' _'
 
     def dynamic_output(self, input_contents):

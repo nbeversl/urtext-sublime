@@ -17,21 +17,18 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-import re
 import time
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .utils import force_list
     from .dynamic import UrtextDynamicDefinition
     from .timestamp import UrtextTimestamp, default_date
-    from .syntax import timestamp, metadata_entry, hash_meta, meta_separator, metadata_assigner
+    import Urtext.urtext.syntax as syntax
 
 else:
-    from urtext.utils import force_list
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import UrtextTimestamp, default_date
-    from urtext.syntax import timestamp, metadata_entry, hash_meta, meta_separator, metadata_assigner
+    import urtext.syntax as syntax
 
 class NodeMetadata:
 
@@ -54,10 +51,11 @@ class NodeMetadata:
         parsed_contents = full_contents
         remaining_contents = full_contents
 
-        for m in metadata_entry.finditer(full_contents):
+        for m in syntax.metadata_entry_c.finditer(full_contents):
 
-            keyname, contents = m.group().strip(';').split(metadata_assigner, 1)
-            value_list = meta_separator.split(contents)
+            #TODO fix regex?
+            keyname, contents = m.group().strip(';').split(syntax.metadata_assigner_c.pattern, 1)
+            value_list = syntax.metadata_assigner_c.split(contents)
 
             tag_self=False
             tag_children=False
@@ -93,7 +91,7 @@ class NodeMetadata:
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
 
         # shorthand meta:
-        for m in hash_meta.finditer(parsed_contents):
+        for m in syntax.hash_meta_c.finditer(parsed_contents):
             value = m.group().replace('#','').strip()
             keyname = self.project.settings['hash_key']
             self.add_entry(
@@ -105,7 +103,7 @@ class NodeMetadata:
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
 
         # inline timestamps:
-        for m in timestamp.finditer(parsed_contents):
+        for m in syntax.timestamp_c.finditer(parsed_contents):
             self.add_entry(
                 'inline_timestamp',
                 m.group(),
@@ -286,7 +284,7 @@ class MetadataEntry:  # container for a single metadata entry
         
     def _parse_values(self, contents):
 
-        for ts in timestamp.finditer(contents):
+        for ts in syntax.timestamp_c.finditer(contents):
             dt_string = ts.group(0).strip()
             contents = contents.replace(dt_string, '').strip()
             t = UrtextTimestamp(dt_string[1:-1])

@@ -21,9 +21,9 @@ import os
 import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .syntax import format_key_regex
+    import Urtext.urtext.syntax as syntax
 else:
-    from urtext.syntax import format_key_regex
+    import urtext.syntax as syntax
 
 class DynamicOutput():
 
@@ -52,7 +52,9 @@ class DynamicOutput():
         self.needs_values = False
 
         self.format_string = format_string
-        self.shah = '%&&&&888' #FUTURE : possibly randomize -- must not be any regex operators.
+
+        #TODO : randomize -- must not be any regex operators.
+        self.shah = '%&&&&888'
         self.values = []
         self.item_format = self._tokenize_format();
 
@@ -64,7 +66,7 @@ class DynamicOutput():
         item_format = bytes(item_format, "utf-8").decode("unicode_escape")
         
         # tokenize all $ format keys
-        format_keys = re.findall(format_key_regex, item_format)
+        format_keys = syntax.format_key_c.findall(item_format)
         for token in format_keys:
             item_format = item_format.replace(token, self.shah + token)
             self.values.append(token)

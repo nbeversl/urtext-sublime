@@ -1,10 +1,9 @@
 from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand
 from sublime_plugin import EventListener
-from Urtext.urtext.syntax import node_link_or_pointer_regex
+import Urtext.urtext.syntax as syntax
 import sublime
 from .sublime_urtext import refresh_project_text_command, refresh_project_event_listener
-import re
 import os
 
 class ToggleTraverse(UrtextTextCommand):
@@ -149,7 +148,7 @@ class TraverseFileTree(EventListener):
 
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
-			links = re.findall(node_link_or_pointer_regex, full_line)
+			links = syntax.node_link_or_pointer_c.findall(full_line)
 			# if there are no links on this line:
 			if len(links) == 0:  
 				return

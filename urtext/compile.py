@@ -18,16 +18,12 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
-import re
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import force_list
-    from .syntax import source_info
 else:
     from urtext.node import UrtextNode
     from urtext.utils import force_list
-    from urtext.syntax import source_info
 
 def _compile(self):
     
@@ -88,7 +84,6 @@ def _write_dynamic_def_output(self, dynamic_definition, final_output):
                 self.nodes[dynamic_definition.target_id].title = ''
     
     if dynamic_definition.target_file:
-        final_output = strip_source_information(final_output)
         self.exports[dynamic_definition.target_file] = dynamic_definition
         with open(os.path.join(self.path, dynamic_definition.target_file), 'w', encoding='utf-8' ) as f:
             f.write(final_output)
@@ -123,12 +118,6 @@ def indent(contents, spaces=4):
         if line.strip() != '':
             content_lines[index] = '\t' * spaces + line
     return '\n'+'\n'.join(content_lines)
-
-def strip_source_information(string):
-    
-    for s in source_info.findall(string):
-        string = string.replace(s,'')
-    return string
 
 compile_functions = [
     _compile, 

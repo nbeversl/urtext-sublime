@@ -28,7 +28,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape
-    from .syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, flexible_node_title_regex, node_title_regex
+    import Urtext.urtext.syntax as syntax
 
 else:
     from anytree import Node, PreOrderIter
@@ -37,7 +37,7 @@ else:
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape
-    from urtext.syntax import dynamic_definition_regex, dynamic_def_regexp, subnode_regexp, node_link_regex, metadata_replacements, embedded_syntax, embedded_syntax_open, embedded_syntax_close, flexible_node_title_regex, node_title_regex
+    import urtext.syntax as syntax
 
 class UrtextNode:
 
@@ -140,7 +140,7 @@ class UrtextNode:
             contents = self.contents()
         
         stripped_contents = contents
-        for inline_node in subnode_regexp.finditer(stripped_contents):
+        for inline_node in syntax.subnode_regexp.finditer(stripped_contents):
             stripped_contents = stripped_contents.replace(inline_node.group(), r * len(inline_node.group()))
         return stripped_contents
 
@@ -148,7 +148,7 @@ class UrtextNode:
  
         if contents == None:
             contents = self.content_only()
-        nodes = re.findall(node_link_regex, contents)  # link RegEx
+        nodes = syntax.node_link_c.findall(contents)  # link RegEx
         for node in nodes:
             self.links.append(node[1].strip())
 
@@ -181,7 +181,7 @@ class UrtextNode:
             if first_non_blank_line:
                 break
 
-        title = node_title_regex.search(contents)
+        title = syntax.node_title_c.search(contents)
         if title:
             title = title.group()
             if title in first_non_blank_line:
@@ -306,7 +306,7 @@ class UrtextNode:
         return self.set_file_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents, dynamic_definitions): 
-        for d in dynamic_def_regexp.finditer(contents):
+        for d in syntax.dynamic_def_c.finditer(contents):
             param_string = d.group(0)[2:-2]
             dynamic_definitions.append(UrtextDynamicDefinition(param_string, self.project, d.start()))
         return contents
@@ -341,7 +341,7 @@ def strip_metadata(contents, preserve_length=False):
 
         r = ' ' if preserve_length else ''
 
-        for e in metadata_replacements.finditer(contents):
+        for e in syntax.metadata_replacements.finditer(contents):
             contents = contents.replace(e.group(), r*len(e.group()))       
         contents = contents.replace('• ',r*2)
         return contents.strip()
@@ -353,7 +353,7 @@ def strip_dynamic_definitions(contents, preserve_length=False):
             return contents
         stripped_contents = contents
       
-        for dynamic_definition in dynamic_definition_regex.finditer(stripped_contents):
+        for dynamic_definition in syntax.dynamic_def_c.finditer(stripped_contents):
             stripped_contents = stripped_contents.replace(dynamic_definition.group(), r*len(dynamic_definition.group()))
         return stripped_contents.strip()
 
@@ -367,12 +367,12 @@ def strip_embedded_syntaxes(
     r = ' ' if preserve_length else ''
     if include_backtick:
         stripped_contents = strip_backtick_escape(stripped_contents)
-    for e in embedded_syntax.findall(stripped_contents):
+    for e in syntax.embedded_syntax_c.findall(stripped_contents):
         if reformat_and_keep_contents:
             unwrapped_contents = e
-            for opening_wrapper in embedded_syntax_open.findall(unwrapped_contents):
+            for opening_wrapper in syntax.embedded_syntax_open_c.findall(unwrapped_contents):
                 unwrapped_contents = unwrapped_contents.replace(opening_wrapper,'`',1)   
-            for closing_wrapper in embedded_syntax_close.findall(unwrapped_contents):
+            for closing_wrapper in syntax.embedded_syntax_close_c.findall(unwrapped_contents):
                 unwrapped_contents = unwrapped_contents.replace(closing_wrapper,'`',1)
             unwrapped_contents = unwrapped_contents.strip()
             unwrapped_contents = unwrapped_contents.split('\n')

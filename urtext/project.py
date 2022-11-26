@@ -36,7 +36,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .directive import UrtextDirective
     from .action import UrtextAction
     from .extension import UrtextExtension
-    from Urtext.urtext.syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
+    import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.directives     
     import Urtext.urtext.actions
@@ -53,7 +53,7 @@ else:
     from urtext.action import UrtextAction
     from urtext.extension import UrtextExtension
     from urtext.templates.templates import templates
-    from .syntax import action_regex, node_link_or_pointer_regex, editor_file_link_regex, url_scheme, compact_node
+    import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.directives     
     import urtext.actions
@@ -785,7 +785,7 @@ class UrtextProject:
         link_location = None
         filename = os.path.basename(filename)
 
-        result = action_regex.search(string)
+        result = syntax.action_c.search(string)
         if result:
             action = result.group(1)
             for name in self.actions:
@@ -799,8 +799,7 @@ class UrtextProject:
                         file_pos=file_pos)
 
         string = string.split('\n')[1]
-        print(string)
-        link = re.search(node_link_or_pointer_regex, string)
+        link = syntax.node_link_or_pointer_c.search(string)
         if link:
             full_match = link.group().strip()
             link = link.group(2).strip()
@@ -819,7 +818,7 @@ class UrtextProject:
             link = result # node id
             dest_position = self.get_file_position(link, 0)
         else:
-            result = re.search(editor_file_link_regex, string)            
+            result = syntax.editor_file_link_c.search(string)            
             if result:
                 full_match = result.group().strip()
                 link = os.path.join(self.path, result.group(2)).strip()
@@ -827,7 +826,7 @@ class UrtextProject:
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'              
             else:
-                result = re.search(url_scheme, string)                
+                result = url_scheme_c.search(string)                
                 if result:
                     kind ='HTTP'
                     link = result.group().strip()
@@ -907,7 +906,6 @@ class UrtextProject:
             self.settings[str(entry.keyname)] = list(set(self.settings[entry.keyname]))
 
         for k in replacements.keys():
-            print(k)
             if k in single_values_settings:
                 self.settings[k] = replacements[k][0]
             else:
@@ -952,6 +950,8 @@ class UrtextProject:
             replacement = '>'+new_id
         if new_project:
             replacement = '=>"'+new_project+'"'+replacement
+        
+        #TODO factor regexes out into syntax.py
         patterns_to_replace = [
             r'\|.*?\s>{1,2}',   # replace title markers before anything else
             r'[^\}]>>',         # then node pointers
@@ -1218,7 +1218,7 @@ Helpers
 """
 
 def match_compact_node(selection):
-    return True if re.match(compact_node, selection) else False
+    return True if syntax.compact_node_c.match(selection) else False
         
 def creation_date(path_to_file):
     """

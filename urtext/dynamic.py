@@ -16,19 +16,18 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-import re
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	from .directive import UrtextDirective
 	from .utils import force_list
 	from .directives.list import NodeList
-	from .syntax import function_regex
+	import Urtext.urtext.syntax as syntax
 else:
 	from urtext.directive import UrtextDirective
 	from urtext.utils import force_list
 	from urtext.directives.list import NodeList
-	from urtext.syntax import function_regex
+	import urtext.syntax as syntax
 
 phases = [
 	100, # Queries, building and sorting list of nodes included/excluded
@@ -66,7 +65,7 @@ class UrtextDynamicDefinition:
 			
 	def init_self(self, contents):
 
-		for match in re.findall(function_regex, contents):
+		for match in syntax.function_c.findall(contents):
 
 			func, argument_string = match[0], match[1]
 			if func and func in self.project.directives:

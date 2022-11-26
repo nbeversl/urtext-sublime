@@ -1,43 +1,73 @@
 import re
 
-#
-# Main Patterns
+# Units
 
+pattern_break =                         r'($|(?=[\\s|\r|]))'
 
-metadata_assigner =                     '::'
-action_regex = re.compile(              r'>>>([A-Z_\-\+]+)\((.*)\)', re.DOTALL)
-dynamic_definition_regex = re.compile(  '(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
-dynamic_def_regexp = re.compile(        r'\[\[[^\]]*?\]\]', re.DOTALL)
-editor_file_link_regex = re.compile(    '(f>{1,2})([^;]+)')
-embedded_syntax_open = re.compile(      '(%%-[A-Z-]+?)', flags=re.DOTALL)
-embedded_syntax = re.compile(           '%%-[A-Z-]*.*?%%-[A-Z-]*-END', flags=re.DOTALL)
-embedded_syntax_close = re.compile(     '%%-[A-Z-]+?-END', flags=re.DOTALL)
-error_messages =                        '<!{1,2}.*?!{1,2}>\n?'
-metadata_entry = re.compile(            '[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?',re.DOTALL)
-file_link_regex = re.compile(           'f>.*?')
-flag_regx = re.compile(                 r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)')
-format_key_regex = re.compile(          '\$_?[\.A-Za-z0-9_-]*', re.DOTALL)
-function_regex = re.compile(            '([A-Z_\-\+]+)\((.*?)\)', re.DOTALL)
-hash_meta = re.compile(                 r'(?:^|\s)#[A-Z,a-z].*?\b')
-meta_separator = re.compile(            r'\s-\s|$')
-source_info = re.compile(               r'\(\(>[0-9,a-z]{3}\:\d+\)\)')
-subnode_regexp = re.compile(            r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}', re.DOTALL)
-timestamp = re.compile(                 r'<([^-/<\s][^=<]+?)>')
+# Base Patterns
 
-pattern_break =                         '($|(?=[\\s|\r|]))'
-
-# Titles and links
+action =                                r'>>>([A-Z_\-\+]+)\((.*)\)'
+bullet =                                r'^([^\S\n]*?)•'
+closing_wrapper =                       r'(?<!\\)}'
+dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
+editor_file_link =                      r'(f>{1,2})([^;]+)'
+embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
+embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
+embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
+error_messages =                        r'<!{1,2}.*?!{1,2}>\n?'
+flag =                                  r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
+function =                              r'([A-Z_\-\+]+)\((.*?)\)'
+format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
+hash_meta =                             r'(?:^|\s)#[A-Z,a-z].*?\b'
+metadata_assigner =                     r'::'
+metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?'
+metadata_separator =                    r'\s-\s|$'
+opening_wrapper =                       r'(?<!\\){'
+pop_syntax =                            r'%%-[A-Z]*-END'
+preformat =                             r'\`.*?\`'
+push_syntax =                           r'%%-[A-Z]*'+pattern_break
+sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
+timestamp =                             r'<([^-/<\s][^=<]+?)>'
 title_pattern =                         r"(([^>\n\r_])|(?<!\s)_)+"
-title_regex = re.compile(               title_pattern)
-node_link_regex =                       r'(\|\s)(' + title_pattern + ')\s>(?!>)'
-node_link_or_pointer_regex =            r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
-node_pointer_regex =                    r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
-node_title_regex = re.compile(          r'^'+ title_pattern +r'(?= _)', re.MULTILINE)
-flexible_node_title_regex = re.compile(r'^'+ title_pattern +r'(?= _)?', re.MULTILINE)
-url_scheme = re.compile(                r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
-#
-# Metadata
+# flag_regx = re.compile(r'(^|\s)-[\w|_]+(?=\s|$)') ???
+
+# Composite patterns
+
+compact_node =                          bullet + r'([^\r\n]*)(\n|$)'
+node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
+node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
+node_pointer =                          r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
+node_title =                            r'^'+ title_pattern +r'(?= _)'
+
+# Compiled Patterns
+
+action_c =                      re.compile(action, re.DOTALL)
+compact_node_c =                re.compile(compact_node, re.DOTALL)
+dynamic_def_c =                 re.compile(dynamic_def, re.DOTALL)
+editor_file_link_c =            re.compile(editor_file_link)
+embedded_syntax_open_c =        re.compile(embedded_syntax_open, flags=re.DOTALL)
+embedded_syntax_c =             re.compile(embedded_syntax_full, flags=re.DOTALL)
+embedded_syntax_close_c =       re.compile(embedded_syntax_close, flags=re.DOTALL)
+error_messages_c =              re.compile(error_messages, flags=re.DOTALL)
+metadata_entry_c =              re.compile(metadata_entry, re.DOTALL)
+flag_c =                        re.compile(flag)
+format_key_c =                  re.compile(format_key, re.DOTALL)
+function_c =                    re.compile(function, re.DOTALL)
+hash_meta_c =                   re.compile(hash_meta)
+metadata_assigner_c =           re.compile(metadata_assigner)
+node_link_c =                   re.compile(node_link)
+node_link_or_pointer_c =        re.compile(node_link_or_pointer)
+preformat_c =                   re.compile(preformat, flags=re.DOTALL)
+subnode_regexp_c =              re.compile(sub_node, re.DOTALL)
+timestamp_c =                   re.compile(timestamp)
+title_regex_c =                 re.compile(title_pattern)
+url_c =                         re.compile(url)                       
+node_title_c =                  re.compile(node_title, re.MULTILINE)
+flexible_node_title_regex_c=    re.compile(r'^'+ title_pattern +r'(?= _)?', re.MULTILINE)
+
+
 
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)',        # timestamp
@@ -45,19 +75,13 @@ metadata_replacements = re.compile("|".join([
     r'(?:^|\s)#[A-Z,a-z].*?(\b|$)',         # shorthand_meta
     ]))
 
-#
-# Compilation
-bullet =                                 r'^([^\S\n]*?)•' 
-compact_node =                           bullet + r'([^\r\n]*)(\n|$)'
-opening_wrapper =                        r'(?<!\\){'
-closing_wrapper =                        r'(?<!\\)}'
 
 compiled_symbols = {
-    re.compile(opening_wrapper) :           'opening_wrapper',
-    re.compile(closing_wrapper) :           'closing_wrapper',
-    re.compile(node_pointer_regex) :        'pointer',
-    re.compile(r'%%-[A-Z]*'+pattern_break) :    'push_syntax', 
-    re.compile(r'%%-[A-Z]*-END')   :            'pop_syntax',
+    re.compile(opening_wrapper) :               'opening_wrapper',
+    re.compile(closing_wrapper) :               'closing_wrapper',
+    re.compile(node_pointer) :                  'pointer',
+    re.compile(push_syntax) :                   'push_syntax', 
+    re.compile(pop_syntax)   :                  'pop_syntax',
     re.compile(compact_node, re.MULTILINE) :    'compact_node'
     }
 

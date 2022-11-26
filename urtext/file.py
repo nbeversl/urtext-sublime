@@ -22,11 +22,11 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
-    from .syntax import compiled_symbols, error_messages, node_pointer_regex
+    import Urtext.urtext.syntax as syntax
 else:
     from urtext.node import UrtextNode
     from urtext.utils import strip_backtick_escape
-    from urtext.syntax import compiled_symbols, error_messages, node_pointer_regex
+    import urtext.syntax as syntax
 
 class UrtextBuffer:
 
@@ -54,7 +54,7 @@ class UrtextBuffer:
         symbols = {}
 
         contents = strip_backtick_escape(contents)
-        for symbol, symbol_type in compiled_symbols.items():
+        for symbol, symbol_type in syntax.compiled_symbols.items():
             for match in symbol.finditer(contents):
                 symbols[match.span()[0] + start_position] = {}
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
@@ -222,7 +222,7 @@ class UrtextBuffer:
           return
 
     def clear_errors(self, contents):
-        cleared_contents = re.sub(error_messages, '', contents, flags=re.DOTALL)
+        cleared_contents = syntax.error_messages_c.sub('', contents)
         if cleared_contents != contents:
             self._set_file_contents(cleared_contents)
         self.errors = False

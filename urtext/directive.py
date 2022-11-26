@@ -13,11 +13,11 @@ import re
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .syntax import flag_regx
+    import Urtext.urtext.syntax as syntax
     from .utils import force_list
 
 else:
-    from urtext.syntax import flag_regx
+    import urtext.syntax as syntax
     from urtext.utils import force_list
 
 class UrtextDirective():
@@ -100,8 +100,7 @@ class UrtextDirectiveWithKeysFlags(UrtextDirective):
 
     def _parse_flags(self, argument_string):
 
-        flag_regx = re.compile(r'(^|\s)-[\w|_]+(?=\s|$)')
-        for f in flag_regx.finditer(argument_string):
+        for f in syntax.flag_c.finditer(argument_string):
             self.flags.append(f.group().strip())
             argument_string = argument_string.replace(f.group(),' ')
         return argument_string
@@ -165,7 +164,7 @@ class UrtextDirectiveWithParamsFlags(UrtextDirective):
 
     def _parse_flags(self, argument_string):
         flags = []
-        for f in flag_regx.finditer(argument_string):
+        for f in syntax.flag_c.finditer(argument_string):
             flags.append(f.group().strip())
             argument_string = argument_string.replace(f.group(),' ')
         self.flags = flags
