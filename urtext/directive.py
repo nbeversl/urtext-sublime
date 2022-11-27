@@ -71,17 +71,15 @@ class UrtextDirective():
 
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string
-        argument_string_no_keys = self._parse_flags(argument_string)
-        self._parse_keys(argument_string_no_keys)
+        self._parse_flags(argument_string)
 
-        if argument_string:
-            for param in separate(argument_string):
-                key, value, delimiter = key_value(
-                    param, 
-                    ['before','after','=','?','~', '!='])
-                if value:
-                    for v in value:
-                        self.params.append((key,v,delimiter))
+        for param in [r.strip() for r in syntax.metadata_arg_delimiter_c.split(argument_string)]:
+            key, value, operator = key_value(
+                param,
+                syntax.metadata_ops)
+            if value:
+                for v in value:
+                    self.params.append((key,v,operator))
                         
         for param in self.params:
             self.params_dict[param[0]] = param[1:]
@@ -91,12 +89,6 @@ class UrtextDirective():
             self.flags.append(f.group().strip())
             argument_string = argument_string.replace(f.group(),' ')
         return argument_string
-
-    def _parse_keys(self, argument_string):
-        if argument_string:
-            for word in argument_string.split(' '):
-                if word and word[0] != '-':
-                    self.keys.append(word)
 
     def have_flags(self, flags):
         for f in force_list(flags):
@@ -110,16 +102,12 @@ class UrtextDirective():
                 return True
         return False
 
-def separate(string, delimiter=';'):
-    return [r.strip() for r in re.split(delimiter+'|\n', string)]
-
-def key_value(param, delimiters=[':']):
-    if isinstance(delimiters, str):
-        delimiters = [delimiters]
-    for delimiter in delimiters:
-        if delimiter in param:
-            key,value = param.split(delimiter,1)
-            key = key.lower().strip()
-            value = [v.strip() for v in value.split('|')]
-            return key, value, delimiter
+def key_value(param, operators):
+    operator = operators.search(param)
+    if operator:
+        operator = operator.group()
+        key, value = param.split(operator)
+        key = key.lower().strip()
+        value = [v.strip() for v in syntax.metadata_ops_or_c.split(value)]
+        return key, value, operator
     return None, None, None

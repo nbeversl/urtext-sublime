@@ -20,6 +20,14 @@ flag =                                  r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 function =                              r'([A-Z_\-\+]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
+metadata_arg_delimiter =                r';|\r'
+metadata_op_before =                    r'before'
+metadata_op_after =                     r'after'
+metadata_op_equals =                    r'='
+metadata_op_not_equals =                r'!='
+metadata_op_contains =                  r'\?'
+metadata_op_is_like =                   r'~'
+metadata_ops_or =                       r'\|'
 metadata_assigner =                     r'::'
 metadata_end_marker =                   r';'
 metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?'
@@ -34,6 +42,14 @@ sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 timestamp =                             r'<([^-/<\s][^=<]+?)>'
 title_pattern =                         r"(([^>\n\r_])|(?<!\s)_)+"
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+
+# Currently used for syntax highlighting only:
+
+metadata_key =                          r'\w+?(?=' + metadata_assigner + ')'
+metadata_values =                       r'(?<=::)[^\n};@]+;?'
+
+metadata_key_c =                        re.compile(metadata_key)
+metadata_values_c =                     re.compile(metadata_values)
 
 # Composite patterns
 
@@ -61,7 +77,18 @@ format_key_c =                  re.compile(format_key, re.DOTALL)
 function_c =                    re.compile(function, re.DOTALL)
 hash_key_c =                    re.compile(hash_key)
 hash_meta_c =                   re.compile(hash_meta)
+metadata_arg_delimiter_c =      re.compile(metadata_arg_delimiter)
 metadata_entry_c =              re.compile(metadata_entry, re.DOTALL)
+metadata_ops =                  re.compile(r'(' + r'|'.join([
+                                        metadata_op_before,
+                                        metadata_op_after,
+                                        metadata_op_equals,
+                                        metadata_op_not_equals,
+                                        metadata_op_contains,
+                                        metadata_op_is_like
+                                    ]) + r')')
+
+metadata_ops_or_c =             re.compile(metadata_ops_or)
 metadata_separator_c =          re.compile(metadata_separator)
 metadata_tag_self_c =           re.compile(metadata_tag_self)
 metadata_tag_desc_c =           re.compile(metadata_tag_desc)
