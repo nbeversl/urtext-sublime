@@ -9,9 +9,9 @@ class Limit(UrtextDirective):
 	name = ["LIMIT"]
 	phase = 250
 
-	def dynamic_output(self,nodes):
-
-		int(argument_string)
-		if self.number:
-			return nodes[:self.number]
+	def dynamic_output(self, nodes):
+		if self.argument_string:
+			number = int(self.argument_string)
+			if number:
+				return nodes[:number]
 		return nodes
