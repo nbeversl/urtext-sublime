@@ -47,7 +47,7 @@
 		 "dynamic-value" : "var(foreground)",
 		 "function-name" : "var(grey)",
 	
-		 "dynamic-keyword" : "var(pink)",
+		 "dynamic-flag" : "var(pink)",
 	  	 "dynamic-def-node-id"  : "var(foreground)",
 		 "dynamic-parens"  : "var(white2)",
 	  	 "format-variable" :"var(foreground)", // bold only
@@ -164,8 +164,8 @@
 	  			"foreground": "var(dynamic-value)",
 	  		},
 
-	  		{   "scope": "dynamic-keyword.urtext",
-	  			"foreground": "var(dynamic-keyword)",
+	  		{   "scope": "dynamic-flag.urtext",
+	  			"foreground": "var(dynamic-flag)",
 	  			"font_style":"italic",
 	  		},
 

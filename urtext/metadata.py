@@ -53,24 +53,23 @@ class NodeMetadata:
 
         for m in syntax.metadata_entry_c.finditer(full_contents):
 
-            #TODO fix regex?
-            keyname, contents = m.group().strip(';').split(syntax.metadata_assigner_c.pattern, 1)
+            keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)
             value_list = syntax.metadata_separator_c.split(contents)
 
             tag_self=False
             tag_children=False
             tag_descendants=False
 
-            if keyname[0] not in ['+','*']:
+            if not syntax.metadata_tag_self_c.match(keyname[0]) and not syntax.metadata_tag_desc_c.match(keyname[0]):
                 tag_self=True
             else:
-                if keyname[0] == '+':
+                if syntax.metadata_tag_self_c.match(keyname[0]):
                     tag_self = True
                     keyname = keyname[1:]            
-                if keyname[0] == '*' :
+                if syntax.metadata_tag_desc_c.match(keyname[0]):
                     tag_children = True
                     keyname = keyname[1:] #cdr
-                if keyname[0] == '*' :
+                if syntax.metadata_tag_desc_c.match(keyname[0]):
                     tag_descendants = True
                     keyname = keyname[1:] #cdr
 
@@ -92,7 +91,7 @@ class NodeMetadata:
 
         # shorthand meta:
         for m in syntax.hash_meta_c.finditer(parsed_contents):
-            value = m.group().replace('#','').strip()
+            value = syntax.hash_key_c.sub('',m.group()).strip()
             keyname = self.project.settings['hash_key']
             self.add_entry(
                 keyname,
@@ -116,10 +115,6 @@ class NodeMetadata:
 
         self.add_system_keys()
         return remaining_contents
-
-    def convert_hash_keys(self):
-        for entry in self.get_entries('#'):
-            entry.set_keyname(self.project.settings['hash_key'])
 
     def add_entry(self, key, value, position=0, end_position=0, from_node=None, recursive=False):
 

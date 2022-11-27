@@ -1,12 +1,12 @@
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from ..directive import  UrtextDirectiveWithKeysFlags
+	from ..directive import  UrtextDirective
 	from ..timestamp import UrtextTimestamp
 else:
-	from urtext.directive import  UrtextDirectiveWithKeysFlags
+	from urtext.directive import UrtextDirective
 	from urtext.timestamp import UrtextTimestamp
 
-class Sort(UrtextDirectiveWithKeysFlags):
+class Sort(UrtextDirective):
 
 	name = ["SORT","S"]
 	phase = 220

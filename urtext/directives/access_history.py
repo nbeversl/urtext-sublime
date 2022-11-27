@@ -1,13 +1,13 @@
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
+    from Urtext.urtext.directive import UrtextDirective
     import Urtext.urtext.syntax as syntax 
 else:
-    from urtext.directive import UrtextDirectiveWithKeysFlags
+    from urtext.directive import UrtextDirective
     import urtext.syntax as syntax 
 # This class should be abstracted as an accumulator (prepend/append)
 
-class AccessHistory(UrtextDirectiveWithKeysFlags):
+class AccessHistory(UrtextDirective):
 
     name = ["ACCESS_HISTORY"]
     phase = 700

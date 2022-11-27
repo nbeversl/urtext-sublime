@@ -20,16 +20,16 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+    from Urtext.urtext.directive import UrtextDirective
     import Urtext.urtext.node
     import Urtext.urtext.syntax as syntax
 else:
-    from urtext.directive import UrtextDirectiveWithParamsFlags
+    from urtext.directive import UrtextDirective
     import urtext.node
     import urtext.syntax as syntax
 
 
-class UrtextExport(UrtextDirectiveWithParamsFlags):
+class UrtextExport(UrtextDirective):
 
     name = ["EXPORT"]
     phase = 600

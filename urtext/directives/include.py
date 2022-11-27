@@ -1,11 +1,11 @@
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
+	from Urtext.urtext.directive import UrtextDirective
 else:
-	from urtext.directive import UrtextDirectiveWithParamsFlags, UrtextDirectiveWithInteger
+	from urtext.directive import UrtextDirective
 
-class NodeQuery(UrtextDirectiveWithParamsFlags):
+class NodeQuery(UrtextDirective):
 
 	name = ["QUERY"]
 	phase = 100

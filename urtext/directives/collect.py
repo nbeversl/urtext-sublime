@@ -18,19 +18,18 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.directive import UrtextDirectiveWithKeysFlags
     from Urtext.urtext.dynamic_output import DynamicOutput
     from Urtext.anytree import Node, PreOrderIter, RenderTree
     from Urtext.urtext.timestamp import UrtextTimestamp, default_date
-    from Urtext.urtext.directive import UrtextDirectiveWithParamsFlags
+    from Urtext.urtext.directive import UrtextDirective
 else:
-    from urtext.directive import UrtextDirectiveWithKeysFlags
+    from urtext.directive import UrtextDirective
     from urtext.dynamic_output import DynamicOutput
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.timestamp import UrtextTimestamp, default_date
-    from urtext.directive import UrtextDirectiveWithParamsFlags
+    from urtext.directive import UrtextDirective
 
-class Collect (UrtextDirectiveWithParamsFlags):
+class Collect (UrtextDirective):
 
     name = ["COLLECT"]
     phase = 300

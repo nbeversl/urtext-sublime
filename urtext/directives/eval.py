@@ -4,20 +4,20 @@ from io import StringIO
 import sys
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import UrtextDirectiveWithText
+	from Urtext.urtext.directive import UrtextDirective
 else:
-	from urtext.directive import UrtextDirectiveWithText
+	from urtext.directive import UrtextDirective
 
 python_code_regex = re.compile(r'(%%-PYTHON)(.*?)(%%-PYTHON-END)', re.DOTALL)
 
-class Eval(UrtextDirectiveWithText):
+class Exec(UrtextDirective):
 
-	name = ["EVAL"]
+	name = ["EXEC"]
 	phase = 350
 
 	def dynamic_output(self, input_contents):
-		if self.text in self.project.nodes:
-			contents = self.project.nodes[self.text].contents(do_strip_embedded_syntaxes=False)
+		if self.argument_string in self.project.nodes:
+			contents = self.project.nodes[self.argument_string].contents(do_strip_embedded_syntaxes=False)
 		python_embed = python_code_regex.search(contents)
 		if python_embed:
 			python_code = python_embed.group(2)
@@ -34,5 +34,5 @@ class Eval(UrtextDirectiveWithText):
 			except Exception as e:
 				sys.stdout = old_stdout
 				return str(e)
-		return '(NO Python CODE FOUND)'
+		return '(no Python code found)'
 

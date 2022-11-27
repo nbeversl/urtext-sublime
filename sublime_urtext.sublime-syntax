@@ -22,18 +22,16 @@ contexts:
     - include: file_link
     - include: shorthand_meta
     - include: url
+    - include: node_title
+    - include: trigger
+    - include: compact-node-opener
+
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
       push: dynamic-definition
-    - include: node_title
-
-    - include: trigger
-
+    
     - match: '`'
       push: raw 
-
-    - match: '(\|\s)[^_>\n\\|r]+\s>{1,2}'
-      scope: link_title
     
     - match: '(?<=::)[^\s]'
       push: metadata-value
@@ -106,7 +104,7 @@ contexts:
   trigger-with-args:
     - match: \(
       scope: dynamic-definition-parens
-      push: function-key-value-keyword-parameters
+      push: function
     - match: (?<=\))
       pop: true
 
@@ -117,7 +115,7 @@ contexts:
       push: datestamp
     - include: tagvalue-separator
     - include: node_link
-    - include: file_link    
+    - include: file_link  
     - match: ;|\r|(?=\})|$
       pop: true
 
@@ -140,68 +138,35 @@ contexts:
     - match: '>'
       set: metadata-value
 
-  # Dynamic Definition Closing Wrapper
-
   dynamic-definition:
     - meta_scope: dynamic-definition
-
     - match: '`'
-      push: raw 
-    
-    - match: '(\|\s)[^_>\n\\|r]+\s>{1,2}'
-      scope: link_title
-      
+      push: raw
     - include: node_link
     - include: file_link
 
-    - match: ((\+|\-)|([A-Z_]+)(?=\())
+    - match: '((\+|\-)|([A-Z_]+))(?=\()'
       scope: function-name.urtext
-      push: function-with-key-values
+      push: function
     
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
    
-  function-with-key-values: 
-    - match: \(
+  function:
+    - match: (\()
       scope: dynamic-definition-parens
-      push: function-key-value-keyword-parameters
-    - match: (?<=\))
-      pop: true
-
-  function-with-node-syntax:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function-node-syntax
-    - match: (?<=\))
-      pop: true
-
-  function-node-syntax:
-    - meta_scope: node_syntax_in_param.urtext
     - include: node_link
-    - match:  \w+?(?=::)
-      scope: meta_key.urtext
-    
-    - include: other-project-link
- 
-    - match: \)
-      scope: dynamic-definition-parens
-      pop: true   
-    - match: <
-      push: datestamp
-    - match: \)
-      scope: dynamic-definition-parens
-      pop: true
-
-  function-key-value-keyword-parameters:
+    - include: file_link
+    - include: dynamic-flag
     - include: asterisk
+    - include: var-word
     - match: <[^!\s-]
       push: datestamp
     - match: \)
       scope: dynamic-definition-parens
       pop: true
-    
-
+  
   key-value:
     - match: '(\w+)\s?[=|~|?]\s?([^\n;\-)]+)([\n;]?)'
       captures:
@@ -209,68 +174,18 @@ contexts:
         2: dynamic-value.urtext  
         3: dynamic-delimiter.urtext  
 
-  output-flags:
-    - match: '(-tree|-list|-collection|-search|-interlinks|-plaintext|-txt|-markdown|-md|-html)'
-      scope: dynamic-keyword.urtext
-
-  dynamic-keyword:
-    - match: '(\s)(-[a-z_]+)\b'
-      scope: dynamic-keyword.urtext
+  dynamic-flag:
+    - match: '(\s)\-[a-z_]+\b'
+      scope: dynamic-flag.urtext
 
   asterisk:
     - match: '(?<=\(|\s)\*(?=\)|\s)'
-      scope: dynamic-keyword.urtext
+      scope: dynamic-flag.urtext
 
   var-word:
     - meta_scope: format-string.urtext
     - match: \$[A-Za-z0-9_-]+
       scope: dynamic-def-format-var.urtext
-   
-
-  function-with-keywords-only:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function-with-keywords-only-parameters
-    - match: (?<=\))
-      pop: true
-
-  function-with-keywords-only-parameters:
-    - include: dynamic-keyword
-    - match: \)
-      scope: dynamic-definition-parens
-      pop: true
-
-  # Functions with node title
-  # ID, TREE
-
-  function-with-node-id:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function-with-node-id-parameters
-    - match: (?<=\))
-      pop: true
-
-  function-with-node-id-parameters:
-    - include: node_link
-    - include: output-flags
-    - include: file_link
-    - match: \)
-      scope: dynamic-definition-parens
-      pop: true
-
-  function-with-optional-parameters:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function-with-keywords-only-parameters
-    - match: (?<=\))
-      pop: true
-
-  function-with-filename:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function-with-filename
-    - match: (?<=\))
-      pop: true
 
   # Node Nesting
 
@@ -359,10 +274,6 @@ contexts:
     - match: ';'
       scope: punctuation.terminator.urtext
 
-  tagname-separator:
-    - match: ';'
-      scope: entity.name.tagname_separator.urtext
-
   tagvalue-separator:
     - match: '\s-\s'
       scope: entity.name.value_separator.urtext
@@ -376,11 +287,6 @@ contexts:
       captures:
         2: bold.urtext
 
-  compact-node: 
-    - include: datestamp
-    - include: main
-    - include: inline-node-1
-    - match: .*?
-    - meta_scope: compact_node.urtext 
-    - match: $
-      pop: true
+  compact-node-opener: 
+    - match: '(•|-)'
+      scope: compact_node_opener.urtext 
