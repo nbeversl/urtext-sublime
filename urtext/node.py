@@ -79,7 +79,6 @@ class UrtextNode:
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
-        contents = strip_dynamic_def_ref(contents)
             
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
@@ -391,7 +390,3 @@ def sanitize_escape(string):
     if string.count('`') == 1:
         return string.replace('`','')
     return string
-
-def strip_dynamic_def_ref(contents):
-    return re.sub(r'(\(\()([>]{1})([0-9,a-z]{3}\b)(:\d{1,10})?(\)\))', '', contents)
-
