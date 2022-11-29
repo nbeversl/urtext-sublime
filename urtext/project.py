@@ -795,7 +795,6 @@ class UrtextProject:
                         col_pos=col_pos,
                         file_pos=file_pos)
 
-        string = string.split('\n')[1]
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
             full_match = link.group().strip()
@@ -823,7 +822,7 @@ class UrtextProject:
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'              
             else:
-                result = url_scheme_c.search(string)                
+                result = syntax.url_c.search(string)                
                 if result:
                     kind ='HTTP'
                     link = result.group().strip()
