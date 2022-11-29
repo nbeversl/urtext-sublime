@@ -157,7 +157,6 @@ class UrtextProject:
         print('"'+self.title+'" compiled from '+self.path )
     
     def reset_settings(self):
-
         self.settings = self.default_project_settings
 
     def get_file_position(self, node_id, position): 
@@ -863,7 +862,6 @@ class UrtextProject:
 
     def _get_settings_from(self, node):
       
-        self.reset_settings()
         replacements = {}
         for entry in node.metadata.entries:
    
