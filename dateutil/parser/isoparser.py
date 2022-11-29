@@ -201,7 +201,7 @@ class isoparser(object):
     # Constants
     _DATE_SEP = b'-'
     _TIME_SEP = b':'
-    _FRaction_c = re.compile(b'[\\.,]([0-9]+)')
+    _FRACTION_REGEX = re.compile(b'[\\.,]([0-9]+)')
 
     def _parse_isodate(self, dt_str):
         try:
@@ -357,7 +357,7 @@ class isoparser(object):
 
             if comp == 3:
                 # Fraction of a second
-                frac = self._FRaction_c.match(timestr[pos:])
+                frac = self._FRACTION_REGEX.match(timestr[pos:])
                 if not frac:
                     continue
 
