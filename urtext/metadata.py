@@ -242,6 +242,10 @@ class NodeMetadata:
         for entry in list(self.entries):
             if entry.from_node == source_node_id:
                 self.entries.remove(entry)
+    
+    def convert_hash_keys(self):
+        for entry in self.get_entries('#'):
+            entry.set_keyname(self.project.settings['hash_key'])
 
     def log(self):
         for entry in self.entries:

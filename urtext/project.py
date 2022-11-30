@@ -148,7 +148,10 @@ class UrtextProject:
 
         elif new_project:
             print('Urtext project already exists here.')
-            return None            
+            return None
+
+        for node_id in self.nodes:
+            self.nodes[node_id].metadata.convert_hash_keys()       
         
         self._compile()
         self.compiled = True
