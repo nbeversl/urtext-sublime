@@ -105,6 +105,7 @@ def _add_sub_tags(self,
     entry,
     next_node=None,
     visited_nodes=None):
+
     
     if visited_nodes == None:
         visited_nodes = []
@@ -142,7 +143,6 @@ def _add_sub_tags(self,
                 visited_nodes=visited_nodes)
 
 def _remove_sub_tags(self, source_id):
-
     for target_id in self.nodes[source_id].target_nodes:
          if target_id in self.nodes:
              self.nodes[target_id].metadata.clear_from_source(source_id)       

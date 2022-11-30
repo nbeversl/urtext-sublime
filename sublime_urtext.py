@@ -259,9 +259,6 @@ class UrtextCompletions(EventListener):
         return []
 
 class UrtextSaveListener(EventListener):
-
-    def __init__(self):   
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
      
     @refresh_project_event_listener
     def on_post_save_async(self, view):
@@ -269,26 +266,25 @@ class UrtextSaveListener(EventListener):
 
 def urtext_on_modified(view):
     
-    if not view.file_name():
-        return
-    window = view.window()
-    open_files = [view.file_name()]
-    open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
-    result = _UrtextProjectList.on_modified(open_files)
-    if result:
-        if _UrtextProjectList.current_project.is_async:
-            renamed_file = result.result()
-            if result:
-                refresh_open_file(renamed_file, view)
-        else:
-            for f in open_files:
-                if f in result:
-                    window = view.window()
-                    view.set_scratch(True) # already saved
-                    view.close()
-                    new_view = window.open_file(f)
-                else:
-                    refresh_open_file( f, view)
+    if view.file_name():
+        window = view.window()
+        open_files = [view.file_name()]
+        open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
+        result = _UrtextProjectList.on_modified(open_files)
+        if result:
+            if _UrtextProjectList.current_project.is_async:
+                renamed_file = result.result()
+                if result:
+                    refresh_open_file(renamed_file, view)
+            else:
+                for f in open_files:
+                    if f in result:
+                        window = view.window()
+                        view.set_scratch(True) # already saved
+                        view.close()
+                        new_view = window.open_file(f)
+                    else:
+                        refresh_open_file( f, view)
 
 class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
@@ -296,7 +292,7 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
         if _UrtextProjectList and self.view.file_name():
             modified = _UrtextProjectList.visit_file(self.view.file_name())
             urtext_on_modified(self.view)
-            node_id=get_node_id(self.view)
+            node_id = get_node_id(self.view)
             _UrtextProjectList.nav_new(node_id)
             if _UrtextProjectList.current_project:
                 self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)

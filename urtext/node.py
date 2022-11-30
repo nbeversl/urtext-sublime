@@ -296,7 +296,6 @@ class UrtextNode:
         file_contents = self.get_file_contents()
         start_range = self.start_position()
         end_range = self.ranges[-1][1]
-
         new_file_contents = ''.join([
             file_contents[0:start_range],
             contents,

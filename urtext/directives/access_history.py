@@ -29,8 +29,9 @@ class AccessHistory(UrtextDirective):
                         contents
                     ])
                 access_history_file = self.project.get_file_name(self.dynamic_definition.target_id)
-                self.project._parse_file(access_history_file)
+                self.project.visit_file(access_history_file)
                 self.project._set_node_contents(self.dynamic_definition.target_id, contents)
+                self.project.visit_file(access_history_file)
                 self.last_visited = node_id # prevents duplicates from multiple calls
 
     def strip_first_line_title(self, contents):

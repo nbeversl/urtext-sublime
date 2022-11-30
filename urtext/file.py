@@ -216,7 +216,7 @@ class UrtextBuffer:
         self.parsed_items[ranges[0][0]] = new_node.id
 
     def _get_file_contents(self):
-          return self.contents 
+          return self.contents
           
     def _set_file_contents(self, contents):
           return
@@ -320,7 +320,7 @@ class UrtextFile(UrtextBuffer):
             return None
         except UnicodeDecodeError:
             self.log_error('UnicodeDecode Error: f>' + self.filename)
-            return None            
+            return None
         return full_file_contents
 
     def _insert_contents(self, inserted_contents, position):

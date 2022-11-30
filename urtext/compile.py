@@ -45,8 +45,9 @@ def _compile_file(self, filename):
         for node_id in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node_id):
                 output = self._process_dynamic_def(dd)
-                if self._write_dynamic_def_output(dd, output):
-                    modified = filename
+                if output: # omit 700 phase
+                    if self._write_dynamic_def_output(dd, output):
+                        modified = filename
     else:
         print('DEBUGGING: '+filename +' not found in project')
     return modified
@@ -75,7 +76,7 @@ def _write_dynamic_def_output(self, dynamic_definition, final_output):
 
     changed_file = None    
     if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
-        changed_file = self._set_node_contents(dynamic_definition.target_id, final_output)  
+        changed_file = self._set_node_contents(dynamic_definition.target_id, final_output) 
         if changed_file:
             self.nodes[dynamic_definition.target_id].dynamic = True
 

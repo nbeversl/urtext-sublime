@@ -24,6 +24,7 @@ import random
 import time
 from time import strftime
 import concurrent.futures
+import inspect
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -256,6 +257,7 @@ class UrtextProject:
 
             for entry in new_file.nodes[node_id].metadata.dynamic_entries:
                 entry.from_node = node_id
+                self._add_sub_tags(entry)
                 self.dynamic_metadata_entries.append(entry)
 
     def _add_all_sub_tags(self):
@@ -389,7 +391,7 @@ class UrtextProject:
             if self._parse_file(self.nodes[node_id].filename) == -1:
                 return
         if node_id in self.nodes:
-            if self.nodes[node_id].set_content(contents, preserve_metadata=True):
+             if self.nodes[node_id].set_content(contents, preserve_metadata=True):
                 self._parse_file(self.nodes[node_id].filename)
                 if node_id in self.nodes:
                     return self.nodes[node_id].filename
@@ -420,7 +422,7 @@ class UrtextProject:
 
             for node_id in self.files[filename].nodes:    
                 if node_id not in self.nodes:
-                    continue             
+                    continue
                 self._remove_sub_tags(node_id)
 
                 del self.nodes[node_id]
@@ -447,7 +449,7 @@ class UrtextProject:
                     del self.navigation[index]
                     if self.nav_index >= index:
                         self.nav_index -= 1            
-            self.remove_file(filename, is_async=False)
+            self._remove_file(filename)
             os.remove(os.path.join(self.path, filename))
         if filename in self.error_files:
             os.remove(os.path.join(self.path, filename))
@@ -471,11 +473,9 @@ class UrtextProject:
                 self.extensions[ext].on_file_renamed(old_filename, new_filename)
     
     """ 
-    Methods for filtering files to skip 
+    filtering files to skip 
     """
     def _filter_filenames(self, filename):
-        if not filename.endswith('.txt'):
-            return None
         if filename in ['history','files','.git']:
             return None            
         if filename in self.settings['exclude_files']:
@@ -974,7 +974,7 @@ class UrtextProject:
         return self.execute(self._file_update, filenames)
     
     def _file_update(self, filenames):
-
+        
         if self.compiled:
             modified_files = []
             for f in filenames:
@@ -1050,11 +1050,8 @@ class UrtextProject:
             raise DuplicateIDs()
         return self.execute(self._compile)
 
-    def remove_file(self, filename, is_async=True):
-        if self.is_async and is_async:
-            self.executor.submit(self._remove_file, os.path.basename(filename))
-        else:
-            self._remove_file(os.path.basename(filename)) 
+    def remove_file(self, filename):
+        self.execute(self._remove_file, os.path.basename(filename))
     
     def get_file_name(self, node_id, absolute=False):
         filename = None

@@ -36,7 +36,6 @@ class ProjectList():
         self.current_project = None
         self.navigation = []
         self.nav_index = -1
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         
         if first_project:
             self.init_new_project(base_path)    
