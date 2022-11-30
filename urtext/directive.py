@@ -72,6 +72,7 @@ class UrtextDirective():
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string
         self._parse_flags(argument_string)
+        self._parse_keys(argument_string)
 
         for param in [r.strip() for r in syntax.metadata_arg_delimiter_c.split(argument_string)]:
             key, value, operator = key_value(
@@ -85,10 +86,12 @@ class UrtextDirective():
             self.params_dict[param[0]] = param[1:]
     
     def _parse_flags(self, argument_string):
-        for f in syntax.flag_c.finditer(argument_string):
+        for f in syntax.dd_flag_c.finditer(argument_string):
             self.flags.append(f.group().strip())
-            argument_string = argument_string.replace(f.group(),' ')
-        return argument_string
+
+    def _parse_keys(self, argument_string):
+        for f in syntax.dd_key_c.finditer(argument_string):
+            self.keys.append(f.group().strip())
 
     def have_flags(self, flags):
         for f in force_list(flags):

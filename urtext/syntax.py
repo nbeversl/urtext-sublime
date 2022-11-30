@@ -9,13 +9,14 @@ pattern_break =                         r'($|(?=[\\s|\r|]))'
 action =                                r'>>>([A-Z_\-\+]+)\((.*)\)'
 bullet =                                r'^([^\S\n]*?)•'
 closing_wrapper =                       r'(?<!\\)}'
+dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
+dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
 editor_file_link =                      r'(f>{1,2})([^;]+)'
 embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
 error_messages =                        r'<!{1,2}.*?!{1,2}>\n?'
-flag =                                  r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 # flag =                                r'(^|\s)-[\w|_]+(?=\s|$)' ???
 function =                              r'([A-Z_\-\+]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
@@ -58,7 +59,7 @@ hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
 node_pointer =                          r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
-node_title =                            r'^'+ title_pattern +r'(?= _)'
+node_title =                            r'^'+ title_pattern +r'(?= _(\s|$))'
 
 # Compiled Patterns
 
@@ -66,13 +67,14 @@ action_c =                      re.compile(action, re.DOTALL)
 bullet_c =                      re.compile(bullet)
 compact_node_c =                re.compile(compact_node, re.MULTILINE)
 closing_wrapper_c =             re.compile(closing_wrapper)
+dd_flag_c =                     re.compile(dd_flag)
+dd_key_c =                      re.compile(dd_key)
 dynamic_def_c =                 re.compile(dynamic_def, re.DOTALL)
 editor_file_link_c =            re.compile(editor_file_link)
 embedded_syntax_open_c =        re.compile(embedded_syntax_open, flags=re.DOTALL)
 embedded_syntax_c =             re.compile(embedded_syntax_full, flags=re.DOTALL)
 embedded_syntax_close_c =       re.compile(embedded_syntax_close, flags=re.DOTALL)
 error_messages_c =              re.compile(error_messages, flags=re.DOTALL)
-flag_c =                        re.compile(flag)
 format_key_c =                  re.compile(format_key, re.DOTALL)
 function_c =                    re.compile(function, re.DOTALL)
 hash_key_c =                    re.compile(hash_key)
