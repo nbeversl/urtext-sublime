@@ -295,6 +295,7 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
     def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
             modified = _UrtextProjectList.visit_file(self.view.file_name())
+            urtext_on_modified(self.view)
             node_id=get_node_id(self.view)
             _UrtextProjectList.nav_new(node_id)
             if _UrtextProjectList.current_project:
@@ -789,6 +790,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         node_id = link['link']
         open_files = [f.file_name() for f in self.view.window().views()]
         _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
+        urtext_on_modified(self.view)
         
 class ReIndexFilesCommand(UrtextTextCommand):
     
