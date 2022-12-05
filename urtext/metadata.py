@@ -40,12 +40,8 @@ class NodeMetadata:
         self.node = node
         self.entries = []
         self.dynamic_entries = []
-        self._last_accessed = 0
         self.project = project
    
-    def access(self):
-        self._last_accessed = time.time()
-
     def parse_contents(self, full_contents):
 
         parsed_contents = full_contents
@@ -145,9 +141,6 @@ class NodeMetadata:
         as_int=False,
         use_timestamp=False,
         return_type=False):
-
-        if keyname == '_last_accessed':           
-            return self._last_accessed
 
         entries = self.get_entries(keyname.lower())
         if not entries:

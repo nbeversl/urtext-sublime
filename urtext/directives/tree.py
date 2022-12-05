@@ -99,10 +99,6 @@ class Tree(UrtextDirective):
             if next_content.needs_contents: 
                 next_content.contents = urtext_node.content_only().strip('\n').strip()
 
-            if next_content.needs_last_accessed: 
-                t = datetime.datetime.utcfromtimestamp(urtext_node.metadata.get_first_value('_last_accessed'))
-                next_content.last_accessed = t.strftime(self.project.settings['timestamp_format'])
-
             for meta_key in next_content.needs_other_format_keys:
                 
                 k, ext = meta_key, ''

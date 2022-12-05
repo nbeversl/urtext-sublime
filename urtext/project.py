@@ -988,7 +988,6 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        self.nodes[node_id].metadata.access() # ?
         for ext in self.extensions:
             self.extensions[ext].on_node_visited(node_id)
         for dd in self.dynamic_defs():

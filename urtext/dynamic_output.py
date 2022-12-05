@@ -36,7 +36,6 @@ class DynamicOutput():
         self.entry = ''
         self.key = ''
         self.contents = ''
-        self.last_accessed = ''
         self.other_format_keys = {}
         self.project_settings = project_settings
         self.needs_title = False
@@ -45,9 +44,7 @@ class DynamicOutput():
         self.needs_date = False
         self.needs_contents = False
         self.needs_entry = False
-        self.needs_other_format_keys = []
-        self.needs_last_accessed = False
-        
+        self.needs_other_format_keys = []        
         self.needs_key = False
         self.needs_values = False
 
@@ -98,8 +95,6 @@ class DynamicOutput():
             self.needs_key = True
         if self.shah + '$values' in self.item_format:
             self.needs_values = True
-        if self.shah + '$_last_accessed' in self.item_format:
-            self.needs_last_accessed = True
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
@@ -121,7 +116,6 @@ class DynamicOutput():
         self.item_format = self.item_format.replace(self.shah + '$entry', self.entry)
         self.item_format = self.item_format.replace(self.shah + '$key', self.key)
         self.item_format = self.item_format.replace(self.shah + '$values', str(self.values))
-        self.item_format = self.item_format.replace(self.shah + '$_last_accessed', str(self.last_accessed))
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
