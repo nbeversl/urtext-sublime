@@ -17,7 +17,6 @@ embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
 error_messages =                        r'<!{1,2}.*?!{1,2}>\n?'
-# flag =                                r'(^|\s)-[\w|_]+(?=\s|$)' ???
 function =                              r'([A-Z_\-\+]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
@@ -51,6 +50,9 @@ metadata_values =                       r'(?<=::)[^\n};@]+;?'
 
 metadata_key_c =                        re.compile(metadata_key)
 metadata_values_c =                     re.compile(metadata_values)
+
+metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
+metadata_flags_ =                       re.compile(metadata_flags)
 
 # Composite patterns
 
