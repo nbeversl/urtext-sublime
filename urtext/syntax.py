@@ -41,7 +41,7 @@ preformat =                             r'\`.*?\`'
 push_syntax =                           r'%%-([A-Z]+)'+pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 timestamp =                             r'<([^-/<\s][^=<]+?)>'
-title_pattern =                         r"(([^>\n\r_])|(?<!\s)_)+"
+title_pattern =                         r'([^>\n\r_])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 # Currently used for syntax highlighting only:
@@ -59,7 +59,7 @@ hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
 node_pointer =                          r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
-node_title =                            r'^'+ title_pattern +r'(?= _(\s|$))'
+node_title =                            r'^'+ title_pattern +r'(?=\s_(\s|$))'
 
 # Compiled Patterns
 
