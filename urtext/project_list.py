@@ -303,12 +303,11 @@ class ProjectList():
         return next_node
 
     def delete_file(self, file_name, project=None, open_files=[]):
-        self.executor.submit(self._delete_file, file_name, project=project, open_files=open_files)
-
-    def _delete_file(self, file_name, project=None, open_files=[]):
         if not project:
             project = self.current_project
-        removed_node_ids = project.delete_file(os.path.basename(file_name), open_files=open_files).future()
+        removed_node_ids = project.delete_file(os.path.basename(file_name), open_files=open_files)
+        if project.is_async:
+            removed_node_ids = removed_node_ids.future()
         for node_id in removed_node_ids:
             navigation_entry = (project.title, node_id)
             while navigation_entry in self.navigation:
