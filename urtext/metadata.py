@@ -37,6 +37,7 @@ class NodeMetadata:
 
         self.node = node
         self.entries = []
+        self.entries_dict = {}
         self.dynamic_entries = []
         self.project = project
    
@@ -105,12 +106,17 @@ class NodeMetadata:
                 )
             parsed_contents = parsed_contents.replace(m.group(),' '*len(m.group()), 1)
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
-     
 
         self.add_system_keys()
         return remaining_contents
 
-    def add_entry(self, key, value, position=0, end_position=0, from_node=None, recursive=False):
+    def add_entry(self, 
+        key, 
+        value,
+        position=0, 
+        end_position=0, 
+        from_node=None, 
+        recursive=False):
 
         if value in self.get_values(key):
             return False
@@ -131,8 +137,12 @@ class NodeMetadata:
         t = self.get_entries('inline_timestamp')
         if t:
             t = sorted(t, key=lambda i: i.timestamps[0].datetime) 
-            self.entries.append(MetadataEntry('_oldest_timestamp', '<'+t[0].timestamps[0].string+'>'))
-            self.entries.append(MetadataEntry('_newest_timestamp', '<'+t[-1].timestamps[0].string+'>'))
+            self.add_entry(
+                    '_oldest_timestamp', 
+                    '<'+t[0].timestamps[0].string+'>')
+            self.add_entry(
+                    '_newest_timestamp', 
+                    '<'+t[-1].timestamps[0].string+'>')
 
     def get_first_value(self, 
         keyname, 

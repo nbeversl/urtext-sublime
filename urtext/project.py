@@ -125,6 +125,7 @@ class UrtextProject:
         for c in all_extensions:
             for n in c.name:
                 self.extensions[n] = c(self)
+
         for c in all_actions:
             for n in c.name:
                 self.actions[n] = c
@@ -132,9 +133,8 @@ class UrtextProject:
         for c in all_directives:
             for n in c.name:
                 self.directives[n] = c
-        all_files = os.listdir(self.path)
-        urtext_files = [f for f in all_files if os.path.splitext(os.path.basename(f))[1] in self.file_extensions]
-        for file in urtext_files:
+
+        for file in [f for f in os.listdir(self.path) if os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
             self._parse_file(file)
 
         if self.nodes == {}:
@@ -1009,9 +1009,9 @@ class UrtextProject:
         new_files = []
         files = os.listdir(self.path)
         current_file_list = list(self.files)
-        modified_files = []
 
-        for file in [os.path.basename(f) for f in os.listdir(self.path) if f not in self.excluded_files]:
+        for file in [
+            os.path.basename(f) for f in os.listdir(self.path) if f not in self.excluded_files and os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
             if file in current_file_list:
                 current_file_list.remove(file)
                 continue
