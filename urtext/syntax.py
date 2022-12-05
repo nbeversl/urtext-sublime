@@ -2,7 +2,7 @@ import re
 
 # Units
 
-pattern_break =                         r'($|(?=[\\s|\r|]))'
+pattern_break =                         r'($|(?=[\s|\r|]))'
 
 # Base Patterns
 

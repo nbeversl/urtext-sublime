@@ -51,7 +51,7 @@ class UrtextBuffer:
         push_syntax = 0
         to_remove = []
         for p in sorted(symbols.keys()):
-            
+
             if symbols[p]['type'] == 'push_syntax' :
                 to_remove.append(p)
                 push_syntax += 1
