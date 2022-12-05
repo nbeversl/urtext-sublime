@@ -87,18 +87,16 @@ class NodeMetadata:
             parsed_contents = parsed_contents.replace(m.group(),' '*len(m.group()), 1)
             remaining_contents = remaining_contents.replace(m.group(),'', 1 )
 
-        # shorthand meta:
-        if self.project.compiled:
-            for m in syntax.hash_meta_c.finditer(parsed_contents):
-                value = syntax.hash_key_c.sub('',m.group()).strip()
-                keyname = self.project.settings['hash_key']
-                self.add_entry(
-                    keyname,
-                    value, 
-                    position=m.start(), 
-                    end_position=m.start() + len(m.group()))
-                parsed_contents = parsed_contents.replace(m.group(),' '*len(m.group()), 1)
-                remaining_contents = remaining_contents.replace(m.group(),'', 1 )
+        for m in syntax.hash_meta_c.finditer(parsed_contents):
+            value = syntax.hash_key_c.sub('',m.group()).strip()
+            keyname = self.project.settings['hash_key']
+            self.add_entry(
+                keyname,
+                value, 
+                position=m.start(), 
+                end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(m.group(),' '*len(m.group()), 1)
+            remaining_contents = remaining_contents.replace(m.group(),'', 1 )
 
         # inline timestamps:
         for m in syntax.timestamp_c.finditer(parsed_contents):
@@ -251,8 +249,11 @@ class NodeMetadata:
                     self.entries_dict[k].remove(entry)
     
     def convert_hash_keys(self):
-        for entry in self.get_entries('#'):
-            entry.set_keyname(self.project.settings['hash_key'])
+        if '#' in self.entries_dict:
+            for entry in self.get_entries('#'):
+                entry.keyname = self.project.settings['hash_key']
+            self.entries_dict[self.project.settings['hash_key']] = self.entries_dict['#']
+            del self.entries_dict['#']
 
     def log(self):
         for entry in self.all_entries():
@@ -284,9 +285,6 @@ class MetadataEntry:  # container for a single metadata entry
         print('from_node: %s' % self.from_node)
         print('recursive: %s' % self.recursive)
         print(self.timestamps)
-
-    def set_keyname(self, keyname):
-        self.keyname = keyname
         
     def _parse_values(self, contents):
 

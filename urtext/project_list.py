@@ -322,7 +322,6 @@ class ProjectList():
 
         # don't re-remember consecutive duplicate links
         if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
-            print('DUPLICTE')
             return
 
         # add the newly opened file as the new "HEAD"
