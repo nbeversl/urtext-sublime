@@ -84,7 +84,6 @@ class UrtextProject:
 
     urtext_file = UrtextFile
     urtext_node = UrtextNode
-    default_project_settings = default_project_settings
 
     def __init__(self,
                  path,
@@ -98,7 +97,7 @@ class UrtextProject:
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
-        self.reset_settings()
+        self.settings = default_project_settings()
         self.nodes = {}
         self.files = {}
         self.exports = {}
@@ -160,8 +159,6 @@ class UrtextProject:
         self.time = time.time()
         print('"'+self.title+'" compiled from '+self.path )
     
-    def reset_settings(self):
-        self.settings = self.default_project_settings
 
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:

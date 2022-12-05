@@ -319,7 +319,7 @@ class UrtextFile(UrtextBuffer):
         except IsADirectoryError:
             return None
         except UnicodeDecodeError:
-            self.log_error('UnicodeDecode Error: f>' + self.filename)
+            self.log_error('UnicodeDecode Error: f>' + self.filename, 0)
             return None
         return full_file_contents
 
