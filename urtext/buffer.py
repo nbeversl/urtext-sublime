@@ -20,7 +20,6 @@ class UrtextBuffer:
         self.root_nodes = []
         self.alias_nodes = []           
         self.parsed_items = {}
-        self.strict = False
         self.messages = []        
         self.errors = False
         self.contents = contents
@@ -117,16 +116,13 @@ class UrtextBuffer:
             if symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position + 1, position])
     
-                if nested == 0 and self.strict:
+                if nested == 0:
                     self.log_error('Missing closing wrapper', position)
                     return None
 
                 if nested < 0:
                     message = 'Stray closing wrapper at %s' % str(position)
-                    if self.strict:
-                        return self.log_error(message, position)  
-                    else:
-                        self.messages.append(message) 
+                    self.messages.append(message) 
 
                 self.add_node(
                     nested_levels[nested], 
@@ -153,17 +149,11 @@ class UrtextBuffer:
         
         if nested > 0:
             message = 'Un-closed node at %s' % str(position) + ' in ' + self.filename
-            if self.strict:
-                return self.log_error(message, position)  
-            else:
-                self.messages.append(message) 
+            self.messages.append(message) 
 
         if not from_compact and len(self.root_nodes) == 0:
             message = 'No root nodes found'
-            if self.strict: 
-                return self.log_error(message, 0)
-            else: 
-                self.messages.append(message)
+            self.messages.append(message)
 
     def add_node(self, 
         ranges, 

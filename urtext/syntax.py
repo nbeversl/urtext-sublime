@@ -36,9 +36,9 @@ metadata_separator =                    r'\s-\s|$'
 metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
 opening_wrapper =                       r'(?<!\\){'
-pop_syntax =                            r'%%-[A-Z]*-END'
+pop_syntax =                            r'%%-[A-Z]+-END'
 preformat =                             r'\`.*?\`'
-push_syntax =                           r'%%-[A-Z]*'+pattern_break
+push_syntax =                           r'%%-([A-Z]+)'+pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 timestamp =                             r'<([^-/<\s][^=<]+?)>'
 title_pattern =                         r"(([^>\n\r_])|(?<!\s)_)+"

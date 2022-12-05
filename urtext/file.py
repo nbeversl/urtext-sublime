@@ -31,7 +31,6 @@ class UrtextFile(UrtextBuffer):
         self.root_nodes = []
         self.alias_nodes = []           
         self.parsed_items = {}
-        self.strict = False
         self.messages = []    
         self.filename = filename    
         self.errors = False
