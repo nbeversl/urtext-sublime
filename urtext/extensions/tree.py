@@ -41,7 +41,7 @@ class UrtextAnyTree(UrtextExtension):
             parent = self.project.get_node_id_from_position(filename, start_of_node - 1)
             if parent:
                 while self.project.nodes[parent].compact:
-                    start_of_node = self.project.nodes[parent].start_position()                    
+                    start_of_node = self.project.nodes[parent].start_position()
                     if start_of_node == 0:
                         parent = self.project.nodes[self.project.files[filename].root_nodes[0]].title
                         break
@@ -50,7 +50,6 @@ class UrtextAnyTree(UrtextExtension):
                         if not parent:
                             parent = self.project.nodes[self.project.files[filename].root_nodes[0]].title
                             break
-
                 self.project.nodes[node_title].tree_node.parent = self.project.nodes[parent].tree_node
 
     def on_file_removed(self, filename):

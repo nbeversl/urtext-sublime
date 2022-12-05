@@ -207,7 +207,7 @@ class UrtextNode:
     def consolidate_metadata(self, one_line=True, separator='::'):
         
         keynames = {}
-        for entry in self.metadata.entries:
+        for entry in self.metadata.all_entries():
             if entry.keyname in [
                 '_newest_timestamp',
                 '_oldest_timestamp', 

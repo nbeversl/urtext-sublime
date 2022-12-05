@@ -863,7 +863,7 @@ class UrtextProject:
     def _get_settings_from(self, node):
       
         replacements = {}
-        for entry in node.metadata.entries:
+        for entry in node.metadata.all_entries():
    
             if entry.keyname in replace_settings:
                 replacements.setdefault(entry.keyname, [])
