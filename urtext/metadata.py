@@ -252,7 +252,8 @@ class NodeMetadata:
         if '#' in self.entries_dict:
             for entry in self.get_entries('#'):
                 entry.keyname = self.project.settings['hash_key']
-            self.entries_dict[self.project.settings['hash_key']] = self.entries_dict['#']
+            self.entries_dict.setdefault(self.project.settings['hash_key'], [])                
+            self.entries_dict[self.project.settings['hash_key']].extend(self.entries_dict['#'])
             del self.entries_dict['#']
 
     def log(self):
