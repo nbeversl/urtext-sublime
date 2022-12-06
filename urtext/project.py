@@ -134,7 +134,7 @@ class UrtextProject:
             for n in c.name:
                 self.directives[n] = c
 
-        for file in [f for f in os.listdir(self.path) if os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
+        for file in self._get_included_files():
             self._parse_file(file)
 
         if self.nodes == {}:
@@ -159,7 +159,6 @@ class UrtextProject:
         self.time = time.time()
         print('"'+self.title+'" compiled from '+self.path )
     
-
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
             node_length = 0
@@ -622,6 +621,10 @@ class UrtextProject:
         return next_node
 
     def nav_new(self, node_id):
+        """
+        Should be called from the wrapper on focus of any new file or
+        node_id and before calling on_modified() or visit_file()
+        """
         if node_id in self.nodes:
             # don't re-remember consecutive duplicate links
             if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
@@ -963,7 +966,9 @@ class UrtextProject:
                 return self.execute(self._file_update, filename)
 
     def on_modified(self, filenames):
-        
+        """
+        Call whenever a file is known to have changed contents
+        """        
         if not isinstance(filenames, list):
             filenames = [filenames]
         filenames = [f for f in filenames if f not in self.excluded_files]
@@ -997,34 +1002,41 @@ class UrtextProject:
     def visit_file(self, filename):
         return self.execute(self._visit_file, filename)
 
-    def _visit_file(self, filename):        
+    def _visit_file(self, filename):
+        """
+        Call whenever a file requires dynamic updating
+        """        
         filename = os.path.basename(filename)
         if filename in self.exports:
-            self._process_dynamic_def(self.exports[filename])
-        
+            self._process_dynamic_def(self.exports[filename])        
         if filename in self.files and self.compiled:
             return self._compile_file(filename)
-    
+
     def _sync_file_list(self):
-        new_files = []
-        files = os.listdir(self.path)
-        current_file_list = list(self.files)
+        included_files = self._get_included_files()
+        current_files = list(self.files)
+        for file in [f for f in included_files if f not in current_files]:
+            self._parse_file(file)
 
-        for file in [
-            os.path.basename(f) for f in os.listdir(self.path) if f not in self.excluded_files and os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
-            if file in current_file_list:
-                current_file_list.remove(file)
-                continue
-            duplicate_node_ids = self._parse_file(file)
-            if not duplicate_node_ids:
-                new_files.append(os.path.basename(file))
+        current_files = list(self.files)
+        for file in [f for f in current_files if f not in included_files]:
+            self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
+            self.remove_file(file)
 
-        for f in current_file_list: # now list of dropped files
-            self._log_item(f, f+' no longer seen in project path. Dropping it from the project.')
-            self.remove_file(f)
+    def _get_included_files(self):
+        basenames = self._get_basenames()
+        return [f for f in basenames if self._include_file(f)]
 
-        for f in new_files:
-            self._parse_file(f)
+    def _get_basenames(self):
+        all_files = os.listdir(self.path)
+        return [os.path.basename(f) for f in all_files]
+
+    def _include_file(self, filename):
+        if filename in self.excluded_files:
+            return False 
+        if os.path.splitext(filename)[1] not in self.file_extensions:
+            return False
+        return True
     
     def _add_to_excluded_files(self, filename):
         if filename not in self.excluded_files:
