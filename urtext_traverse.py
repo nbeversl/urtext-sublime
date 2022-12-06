@@ -5,6 +5,7 @@ import Urtext.urtext.syntax as syntax
 import sublime
 from .sublime_urtext import refresh_project_text_command, refresh_project_event_listener
 import os
+import time
 
 class ToggleTraverse(UrtextTextCommand):
 
@@ -129,7 +130,7 @@ class TraverseFileTree(EventListener):
 				self.return_to_left(moved_view, tree_view)
 
 			else:
-				sublime.set_timeout(lambda: move_to_location(moved_view, position), 10)
+				sublime.set_timeout(lambda: move_to_location(moved_view, position), 1)
 
 		""" Only if Traverse is on for this group (window division) """
 
@@ -148,84 +149,79 @@ class TraverseFileTree(EventListener):
 
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
-			links = syntax.node_link_or_pointer_c.findall(full_line)
+
+			link = self._UrtextProjectList.get_link_and_set_project(
+	            full_line, 
+	            tree_view.file_name())
+
 			# if there are no links on this line:
-			if len(links) == 0:  
+			if not link or link['kind'] != 'NODE':  
 				return
 
-			# get all the filenames corresponding to the links
-			filenames = []
-			for link in links:
-				node_title = link[1]
-				filename = self._UrtextProjectList.current_project.get_file_name(node_title)
-				if filename:
-					filenames.append(filename)
-
-			if len(filenames) > 0 and node_title in self._UrtextProjectList.current_project.nodes:
-				filename = filenames[0]
-				position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
+			node_title = link['link']
+			filename = self._UrtextProjectList.current_project.get_file_name(node_title)
+			position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
+			
+			""" If the tree is linking to another part of its own file """
+			if filename == os.path.basename(this_file):
 				
-				""" If the tree is linking to another part of its own file """
-				if filename == os.path.basename(this_file):
+				instances = self.find_filename_in_window(
+					os.path.join(self._UrtextProjectList.current_project.path, filename), window)
+
+				# Only allow two total instances of this file; 
+				# one to navigate, one to edit
+				if len(instances) < 2:
+					window.run_command("clone_file")
+					duplicate_file_view = self.find_filename_in_window(
+						os.path.join(self._UrtextProjectList.current_project.path, filename),
+						window)[1]
+
+				if len(instances) >= 2:
+					duplicate_file_view = instances[1]
+				
+				""" If the duplicate view is in the content group """
+				if duplicate_file_view in window.views_in_group(self.content_group):
+					window.focus_view(duplicate_file_view)
 					
-					instances = self.find_filename_in_window(
-						os.path.join(self._UrtextProjectList.current_project.path, filename), window)
-
-					# Only allow two total instances of this file; 
-					# one to navigate, one to edit
-					if len(instances) < 2:
-						window.run_command("clone_file")
-						duplicate_file_view = self.find_filename_in_window(
-							os.path.join(self._UrtextProjectList.current_project.path, filename),
-							window)[1]
-
-					if len(instances) >= 2:
-						duplicate_file_view = instances[1]
+					duplicate_file_view.sel().clear()
+					duplicate_file_view.sel().add(sublime.Region(position, position))
+					r = duplicate_file_view.text_to_layout(position)
+					duplicate_file_view.set_viewport_position(r)
 					
-					""" If the duplicate view is in the content group """
-					if duplicate_file_view in window.views_in_group(self.content_group):
-						window.focus_view(duplicate_file_view)
-						
-						duplicate_file_view.sel().clear()
-						duplicate_file_view.sel().add(sublime.Region(position, position))
-						r = duplicate_file_view.text_to_layout(position)
-						duplicate_file_view.set_viewport_position(r)
-						
-						self.return_to_left(duplicate_file_view, tree_view)
-						duplicate_file_view.settings().set('traverse', 'false')
-						return
+					self.return_to_left(duplicate_file_view, tree_view)
+					duplicate_file_view.settings().set('traverse', 'false')
+					return
 
-					""" If the duplicate view is in the tree group """
-					if duplicate_file_view in window.views_in_group(self.tree_group):
-						window.focus_group(self.tree_group)
-						duplicate_file_view.settings().set('traverse', 'false')  # this is for the cloned view
-						window.set_view_index(duplicate_file_view, self.content_group, 0)
-
-						duplicate_file_view.sel().clear()
-						duplicate_file_view.sel().add(sublime.Region(position, position))
-						r = duplicate_file_view.text_to_layout(position)
-						duplicate_file_view.set_viewport_position(r)
-
-						window.focus_view(tree_view)
-						window.focus_group(self.tree_group)
-						self.restore_traverse(view, tree_view)
-						return
-
-				else:
-					""" The tree is linking to another file """
-					path = self._UrtextProjectList.current_project.path
-					window.focus_group(self.content_group)
-					file_view = window.open_file(os.path.join(path, filename),
-												 sublime.TRANSIENT)
-
-					file_view.sel().clear()
-					file_view.sel().add(sublime.Region(position, position))
-					r = file_view.text_to_layout(position)
-					file_view.set_viewport_position(r)
-
-					file_view.sel().add(position)
+				""" If the duplicate view is in the tree group """
+				if duplicate_file_view in window.views_in_group(self.tree_group):
 					window.focus_group(self.tree_group)
-					self.return_to_left(file_view, tree_view)
+					duplicate_file_view.settings().set('traverse', 'false')  # this is for the cloned view
+					window.set_view_index(duplicate_file_view, self.content_group, 0)
+
+					duplicate_file_view.sel().clear()
+					duplicate_file_view.sel().add(sublime.Region(position, position))
+					r = duplicate_file_view.text_to_layout(position)
+					duplicate_file_view.set_viewport_position(r)
+
+					window.focus_view(tree_view)
+					window.focus_group(self.tree_group)
+					self.restore_traverse(view, tree_view)
+					return
+
+			else:
+				""" The tree is linking to another file """
+				path = self._UrtextProjectList.current_project.path
+				window.focus_group(self.content_group)
+				file_view = window.open_file(os.path.join(path, filename),
+											 sublime.TRANSIENT)
+
+				file_view.sel().clear()
+				file_view.sel().add(sublime.Region(position, position))
+				r = file_view.text_to_layout(position)
+				file_view.set_viewport_position(r)
+
+				file_view.sel().add(position)
+				window.focus_group(self.tree_group)
 
 	def find_filename_in_window(self, filename, window):
 		instances = []
@@ -239,7 +235,7 @@ class TraverseFileTree(EventListener):
 			traverse_view.settings().set('traverse', 'true')
 		else:
 			sublime.set_timeout(
-				lambda: self.return_to_left(wait_view, traverse_view), 10)
+				lambda: self.return_to_left(wait_view, traverse_view), 1)
 			return
 
 	""" 
@@ -259,7 +255,7 @@ class TraverseFileTree(EventListener):
 			wait_view.window().focus_group(self.tree_group)
 		
 		else:
-			sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 10)
+			sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 1)
 
 def size_to_groups(groups, view):
     panel_size = 1 / groups

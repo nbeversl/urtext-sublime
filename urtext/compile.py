@@ -38,18 +38,13 @@ def _compile(self):
     self._add_all_sub_tags()
 
 def _compile_file(self, filename):
-    self._add_all_sub_tags() # TODO optimize this per file
     modified = False
-    filename = os.path.basename(filename)
-    if filename in self.files:
-        for node_id in self.files[filename].nodes:
-            for dd in self.dynamic_defs(target=node_id):
-                output = self._process_dynamic_def(dd)
-                if output: # omit 700 phase
-                    if self._write_dynamic_def_output(dd, output):
-                        modified = filename
-    else:
-        print('DEBUGGING: '+filename +' not found in project')
+    for node_id in self.files[filename].nodes:
+        for dd in self.dynamic_defs(target=node_id):
+            output = self._process_dynamic_def(dd)
+            if output: # omit 700 phase
+                if self._write_dynamic_def_output(dd, output):
+                    modified = filename
     return modified
 
 def _process_dynamic_def(self, dynamic_definition):

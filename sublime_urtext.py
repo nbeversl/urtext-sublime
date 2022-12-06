@@ -291,8 +291,6 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
     def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
-            # modified = _UrtextProjectList.visit_file(self.view.file_name())
-            # urtext_on_modified(self.view)
             node_id = get_node_id(self.view)
             _UrtextProjectList.nav_new(node_id)
             _UrtextProjectList.visit_file(self.view.file_name())
@@ -577,12 +575,12 @@ class NodeInfo():
     def __init__(self, node_id, project_list, project=None):    
         if not project:
             project = project_list.current_project
-        self.title = project.nodes[node_id].get_title()
+        self.title = node_id
         if self.title.strip() == '':
             self.title = '(no title)'
         self.date =project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
-        self.node_id = project.nodes[node_id].id
+        self.node_id = node_id
         self.project_title = project.title
         self.display_meta = project.nodes[node_id].display_meta
 
