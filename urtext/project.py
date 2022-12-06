@@ -134,7 +134,7 @@ class UrtextProject:
             for n in c.name:
                 self.directives[n] = c
 
-        for file in [f for f in os.listdir(self.path) if os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
+        for file in self._get_included_files():
             self._parse_file(file)
 
         if self.nodes == {}:
@@ -453,7 +453,7 @@ class UrtextProject:
         if filename in self.messages:
             del self.messages[filename]
         if open_files:
-            return self.on_modified(open_files)
+            return self._on_modified(open_files)
         return []
     
     def _handle_renamed(self, old_filename, new_filename):
@@ -622,6 +622,10 @@ class UrtextProject:
         return next_node
 
     def nav_new(self, node_id):
+        """
+        Should be called from the wrapper on focus of any new file or
+        node_id and before calling on_modified() or visit_file()
+        """
         if node_id in self.nodes:
             # don't re-remember consecutive duplicate links
             if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
@@ -631,7 +635,7 @@ class UrtextProject:
             del self.navigation[self.nav_index:]
             self.navigation.append(node_id)
             self.visit_node(node_id)
-               
+
     def nav_reverse(self):
         if not self.navigation:
             return None
@@ -962,28 +966,38 @@ class UrtextProject:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
                 return self.execute(self._file_update, filename)
 
-    def on_modified(self, filenames):
-        
-        if not isinstance(filenames, list):
-            filenames = [filenames]
-        filenames = [f for f in filenames if f not in self.excluded_files]
+    def _on_modified(self, filenames):
+        return self.execute(self.__on_modified, filenames)
 
-        return self.execute(self._file_update, filenames)
-    
-    def _file_update(self, filenames):
-        
+    def __on_modified(self, filenames):
+        """
+        Call whenever a file is known to have changed contents
+        """
         if self.compiled:
+            filenames = [f for f in filenames if f not in self.excluded_files]
             modified_files = []
             for f in filenames:
-                if f not in self.files:
-                    continue
-                self._parse_file(f)
-                modified_file = self._compile_file(f)
-                if modified_file:
-                    modified_files.append(modified_file)
+                if f in self.files:
+                    self._parse_file(f)
+                    modified_file = self._compile_file(f)
+                    if modified_file:
+                        modified_files.append(modified_file)
             self._sync_file_list()
             return modified_files
 
+    def visit_file(self, filename):
+        return self.execute(self._visit_file, filename)
+
+    def _visit_file(self, filename): 
+        """
+        Call whenever a file requires updating
+        """
+        filename = os.path.basename(filename)
+        if filename in self.exports:
+            self._process_dynamic_def(self.exports[filename])
+        if filename in self.files and self.compiled:
+            return self._compile_file(filename)
+    
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
 
@@ -993,38 +1007,33 @@ class UrtextProject:
         for dd in self.dynamic_defs():
             for op in dd.operations:
                 op.on_node_visited(node_id)
-
-    def visit_file(self, filename):
-        return self.execute(self._visit_file, filename)
-
-    def _visit_file(self, filename):        
-        filename = os.path.basename(filename)
-        if filename in self.exports:
-            self._process_dynamic_def(self.exports[filename])
-        
-        if filename in self.files and self.compiled:
-            return self._compile_file(filename)
     
     def _sync_file_list(self):
         new_files = []
-        files = os.listdir(self.path)
-        current_file_list = list(self.files)
+        included_files = self._get_included_files()
 
-        for file in [
-            os.path.basename(f) for f in os.listdir(self.path) if f not in self.excluded_files and os.path.splitext(os.path.basename(f))[1] in self.file_extensions]:
-            if file in current_file_list:
-                current_file_list.remove(file)
-                continue
+        for file in [f for f in included_files if f not in self.files]:
             duplicate_node_ids = self._parse_file(file)
             if not duplicate_node_ids:
                 new_files.append(os.path.basename(file))
 
-        for f in current_file_list: # now list of dropped files
-            self._log_item(f, f+' no longer seen in project path. Dropping it from the project.')
-            self.remove_file(f)
+        for file in [f for f in self.files if f not in included_files]: # now list of dropped files
+            self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
+            self.remove_file(file)
 
         for f in new_files:
-            self._parse_file(f)
+            self._parse_file(file)
+
+    def _get_included_files(self):
+        return [f for f in os.listdir(self.path) if self._include_file(f)]
+
+    def _include_file(self, filename):
+        f = os.path.basename(filename)
+        if f in self.excluded_files:
+            return False 
+        if os.path.splitext(os.path.basename(f))[1] not in self.file_extensions:
+            return False
+        return True
     
     def _add_to_excluded_files(self, filename):
         if filename not in self.excluded_files:
