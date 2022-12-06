@@ -128,8 +128,6 @@ class UrtextNode:
             node_contents = self.strip_first_line_title(node_contents)
         return node_contents
 
-
-
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
@@ -192,7 +190,7 @@ class UrtextNode:
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-            title = title.strip(' _').strip()
+            title = title.strip('_').strip()         
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
@@ -323,6 +321,7 @@ class UrtextNode:
             contents = contents.replace(' _','',1)
         return contents
 
+
 def strip_contents(contents, 
     preserve_length=False, 
     include_backtick=True,
@@ -402,5 +401,3 @@ def sanitize_escape(string):
     if string.count('`') == 1:
         return string.replace('`','')
     return string
-
-

@@ -129,7 +129,6 @@ class NodeMetadata:
             recursive=recursive)
         if key == 'inline_timestamp' and not e.timestamps:
             return False
-        print(value)
         self.entries_dict.setdefault(key, [])
         self.entries_dict[key].append(e)
 

@@ -52,7 +52,7 @@ metadata_key_c =                        re.compile(metadata_key)
 metadata_values_c =                     re.compile(metadata_values)
 
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
-metadata_flags_ =                       re.compile(metadata_flags)
+metadata_flags_c =                      re.compile(metadata_flags)
 
 # Composite patterns
 

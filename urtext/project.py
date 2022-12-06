@@ -93,7 +93,7 @@ class UrtextProject:
                  run_async=True):
         
         self.is_async = run_async 
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
@@ -159,7 +159,6 @@ class UrtextProject:
         self.time = time.time()
         print('"'+self.title+'" compiled from '+self.path )
     
-
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
             node_length = 0
@@ -264,30 +263,30 @@ class UrtextProject:
     def _rewrite_changed_links(self, changed_ids):
 
         old_ids = list(changed_ids.keys())
+        files = list(self.files)
+        for file in files:
+            if file in self.files:
+                for node_id in self.files[file].nodes:
+                    changed_links = {}
 
-        for file in self.files:
+                    if node_id == '(untitled)' or node_id not in self.nodes:
+                        continue
 
-            for node_id in self.files[file].nodes:
-                changed_links = {}
-
-                if node_id == '(untitled)' or node_id not in self.nodes:
-                    continue
-
-                for link in self.nodes[node_id].links:
-                    for old_id in old_ids:
-                        if old_id.startswith(link):
-                            changed_links[link] = changed_ids[old_id]
-            if changed_links:
-                contents = self.files[file]._get_file_contents()
-                replaced_contents = contents
-                for node_id in list(changed_ids.keys()):
-                    if '| ' + node_id + ' >' in contents:
-                         replaced_contents = replaced_contents.replace(
-                            '| '+ node_id + ' >', 
-                            '| '+ changed_ids[node_id] + ' >')
-                if replaced_contents != contents:
-                    self.files[file]._set_file_contents(replaced_contents)
-                    self._parse_file(file)
+                    for link in self.nodes[node_id].links:
+                        for old_id in old_ids:
+                            if old_id.startswith(link):
+                                changed_links[link] = changed_ids[old_id]
+                if changed_links:
+                    contents = self.files[file]._get_file_contents()
+                    replaced_contents = contents
+                    for node_id in list(changed_ids.keys()):
+                        if '| ' + node_id + ' >' in contents:
+                             replaced_contents = replaced_contents.replace(
+                                '| '+ node_id + ' >', 
+                                '| '+ changed_ids[node_id] + ' >')
+                    if replaced_contents != contents:
+                        self.files[file]._set_file_contents(replaced_contents)
+                        self._parse_file(file)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -452,7 +451,7 @@ class UrtextProject:
         if filename in self.messages:
             del self.messages[filename]
         if open_files:
-            return self._on_modified(open_files)
+            return self.on_modified(open_files)
         return []
     
     def _handle_renamed(self, old_filename, new_filename):
@@ -634,7 +633,7 @@ class UrtextProject:
             del self.navigation[self.nav_index:]
             self.navigation.append(node_id)
             self.visit_node(node_id)
-
+               
     def nav_reverse(self):
         if not self.navigation:
             return None
@@ -965,38 +964,30 @@ class UrtextProject:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
                 return self.execute(self._file_update, filename)
 
-    def _on_modified(self, filenames):
-        return self.execute(self.__on_modified, filenames)
-
-    def __on_modified(self, filenames):
+    def on_modified(self, filenames):
         """
         Call whenever a file is known to have changed contents
-        """
+        """        
+        if not isinstance(filenames, list):
+            filenames = [filenames]
+        filenames = [f for f in filenames if f not in self.excluded_files]
+
+        return self.execute(self._file_update, filenames)
+    
+    def _file_update(self, filenames):
+        
         if self.compiled:
-            filenames = [f for f in filenames if f not in self.excluded_files]
             modified_files = []
             for f in filenames:
-                if f in self.files:
-                    self._parse_file(f)
-                    modified_file = self._compile_file(f)
-                    if modified_file:
-                        modified_files.append(modified_file)
+                if f not in self.files:
+                    continue
+                self._parse_file(f)
+                modified_file = self._compile_file(f)
+                if modified_file:
+                    modified_files.append(modified_file)
             self._sync_file_list()
             return modified_files
 
-    def visit_file(self, filename):
-        return self.execute(self._visit_file, filename)
-
-    def _visit_file(self, filename): 
-        """
-        Call whenever a file requires updating
-        """
-        filename = os.path.basename(filename)
-        if filename in self.exports:
-            self._process_dynamic_def(self.exports[filename])
-        if filename in self.files and self.compiled:
-            return self._compile_file(filename)
-    
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
 
@@ -1006,32 +997,41 @@ class UrtextProject:
         for dd in self.dynamic_defs():
             for op in dd.operations:
                 op.on_node_visited(node_id)
-    
+
+    def visit_file(self, filename):
+        return self.execute(self._visit_file, filename)
+
+    def _visit_file(self, filename):
+        """
+        Call whenever a file requires dynamic updating
+        """        
+        filename = os.path.basename(filename)
+        if filename in self.exports:
+            self._process_dynamic_def(self.exports[filename])        
+        if filename in self.files and self.compiled:
+            return self._compile_file(filename)
+
     def _sync_file_list(self):
-        return # test
-        new_files = []
         included_files = self._get_included_files()
-
-        for file in [f for f in included_files if f not in self.files]:
-            duplicate_node_ids = self._parse_file(file)
-            if not duplicate_node_ids:
-                new_files.append(os.path.basename(file))
-
+        current_files = list(self.files)
+        for file in [f for f in included_files if f not in current_files]:
+            self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
             self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
             self.remove_file(file)
 
-        for f in new_files:
-            self._parse_file(file)
-
     def _get_included_files(self):
-        return [f for f in os.listdir(self.path) if self._include_file(f)]
+        basenames = self._get_basenames()
+        return [f for f in basenames if self._include_file(f)]
+
+    def _get_basenames(self):
+        all_files = os.listdir(self.path)
+        return [os.path.basename(f) for f in all_files]
 
     def _include_file(self, filename):
-        f = os.path.basename(filename)
-        if f in self.excluded_files:
+        if filename in self.excluded_files:
             return False 
-        if os.path.splitext(os.path.basename(f))[1] not in self.file_extensions:
+        if os.path.splitext(filename)[1] not in self.file_extensions:
             return False
         return True
     
@@ -1183,8 +1183,10 @@ class UrtextProject:
                     if isinstance(value, str):
                         value=value.lower()
                     results = results.union(set(
-                        n for n in list(self.nodes) if value in self.nodes[n].metadata.get_values(
-                            k, use_timestamp=use_timestamp, lower=True)))
+                        n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
+                            k, 
+                            use_timestamp=use_timestamp, 
+                            lower=True)))
         
         return results
 

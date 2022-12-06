@@ -273,8 +273,9 @@ def urtext_on_modified(view):
         result = _UrtextProjectList.on_modified(open_files)
         if result:
             if _UrtextProjectList.current_project.is_async:
-                renamed_file = result.result()
-                if result:
+                for f in result: 
+                    renamed_file = f.result()
+                if renamed_file:
                     refresh_open_file(renamed_file, view)
             else:
                 for f in open_files:
@@ -290,13 +291,16 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
     def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
+            # modified = _UrtextProjectList.visit_file(self.view.file_name())
+            # urtext_on_modified(self.view)
             node_id = get_node_id(self.view)
             _UrtextProjectList.nav_new(node_id)
             _UrtextProjectList.visit_file(self.view.file_name())
             if _UrtextProjectList.current_project:
                 self.view.set_status(
                     'urtext_project', 
-                    'Urtext Project: '+ _UrtextProjectList.current_project.title)
+                    'Urtext Project: '+_UrtextProjectList.current_project.title)
+
 
 class UrtextHomeCommand(UrtextTextCommand):
     
@@ -922,6 +926,7 @@ class RandomNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
+
 """
 Utility functions
 """
@@ -960,8 +965,8 @@ def open_urtext_node(
     return None
     """
     Note we do not involve this function with navigation, since it is
-    called from forward/backward navigation and shouldn't
-    duplicate/override any of the operations of the methods that call it.
+    called from forward/backward navigation and shouldn't duplicate/override 
+    any of the operations of the methods that call it.
     """
 
 def position_node(new_view, position): 
