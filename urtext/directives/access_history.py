@@ -27,7 +27,10 @@ class AccessHistory(UrtextDirective):
                         ' >', 
                         contents
                     ])
-                self.project._set_node_contents(self.dynamic_definition.target_id, contents)
+                self.project._set_node_contents(
+                    self.dynamic_definition.target_id, 
+                    contents,
+                    parse=False)
 
     def dynamic_output(self, input_contents):
         return False # do not change existing output.

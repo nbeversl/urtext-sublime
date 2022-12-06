@@ -934,10 +934,11 @@ def open_urtext_node(
    
     if project:
         _UrtextProjectList.set_current_project(project.path)
-
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename and view.window():
-        
+
+        _UrtextProjectList.visit_file(filename)
+    
         file_view = view.window().open_file(filename)
 
         if not position:
@@ -959,7 +960,7 @@ def open_urtext_node(
     return None
     """
     Note we do not involve this function with navigation, since it is
-    use for forward/backward navigation and shouldn't
+    called from forward/backward navigation and shouldn't
     duplicate/override any of the operations of the methods that call it.
     """
 
@@ -970,8 +971,9 @@ def position_node(new_view, position):
     new_view.set_viewport_position(r)
     
 def refresh_open_file(changed_files, view):
-    if changed_files:
-        open_files = view.window().views()
+    window = view.window()
+    if changed_files and window:
+        open_files = window.views()
         for v in open_files:
             if v.file_name() and os.path.basename(v.file_name()) in changed_files:
                 view.run_command('revert') # undocumented

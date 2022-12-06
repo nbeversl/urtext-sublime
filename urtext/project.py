@@ -384,9 +384,8 @@ class UrtextProject:
         project-aware alias for the Node set_content() method 
         returns filename if contents has changed.
         """
-        if parse:
-            if self._parse_file(self.nodes[node_id].filename) == -1:
-                return
+        if parse and self._parse_file(self.nodes[node_id].filename) == -1:
+            return
         if node_id in self.nodes:
              if self.nodes[node_id].set_content(contents, preserve_metadata=True):
                 self._parse_file(self.nodes[node_id].filename)
@@ -1009,6 +1008,7 @@ class UrtextProject:
                 op.on_node_visited(node_id)
     
     def _sync_file_list(self):
+        return # test
         new_files = []
         included_files = self._get_included_files()
 
@@ -1017,7 +1017,7 @@ class UrtextProject:
             if not duplicate_node_ids:
                 new_files.append(os.path.basename(file))
 
-        for file in [f for f in self.files if f not in included_files]: # now list of dropped files
+        for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
             self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
             self.remove_file(file)
 
