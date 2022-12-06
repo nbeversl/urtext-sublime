@@ -969,8 +969,6 @@ def position_node(new_view, position):
     r = new_view.text_to_layout(position)
     new_view.set_viewport_position(r)
     
-  return None
-
 def refresh_open_file(changed_files, view):
     if changed_files:
         open_files = view.window().views()
