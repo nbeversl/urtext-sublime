@@ -273,8 +273,9 @@ def urtext_on_modified(view):
         result = _UrtextProjectList.on_modified(open_files)
         if result:
             if _UrtextProjectList.current_project.is_async:
-                renamed_file = result.result()
-                if result:
+                for f in result: 
+                    renamed_file = f.result()
+                if renamed_file:
                     refresh_open_file(renamed_file, view)
             else:
                 for f in open_files:

@@ -93,7 +93,7 @@ class UrtextProject:
                  run_async=True):
         
         self.is_async = run_async 
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
@@ -263,30 +263,30 @@ class UrtextProject:
     def _rewrite_changed_links(self, changed_ids):
 
         old_ids = list(changed_ids.keys())
+        files = list(self.files)
+        for file in files:
+            if file in self.files:
+                for node_id in self.files[file].nodes:
+                    changed_links = {}
 
-        for file in self.files:
+                    if node_id == '(untitled)' or node_id not in self.nodes:
+                        continue
 
-            for node_id in self.files[file].nodes:
-                changed_links = {}
-
-                if node_id == '(untitled)' or node_id not in self.nodes:
-                    continue
-
-                for link in self.nodes[node_id].links:
-                    for old_id in old_ids:
-                        if old_id.startswith(link):
-                            changed_links[link] = changed_ids[old_id]
-            if changed_links:
-                contents = self.files[file]._get_file_contents()
-                replaced_contents = contents
-                for node_id in list(changed_ids.keys()):
-                    if '| ' + node_id + ' >' in contents:
-                         replaced_contents = replaced_contents.replace(
-                            '| '+ node_id + ' >', 
-                            '| '+ changed_ids[node_id] + ' >')
-                if replaced_contents != contents:
-                    self.files[file]._set_file_contents(replaced_contents)
-                    self._parse_file(file)
+                    for link in self.nodes[node_id].links:
+                        for old_id in old_ids:
+                            if old_id.startswith(link):
+                                changed_links[link] = changed_ids[old_id]
+                if changed_links:
+                    contents = self.files[file]._get_file_contents()
+                    replaced_contents = contents
+                    for node_id in list(changed_ids.keys()):
+                        if '| ' + node_id + ' >' in contents:
+                             replaced_contents = replaced_contents.replace(
+                                '| '+ node_id + ' >', 
+                                '| '+ changed_ids[node_id] + ' >')
+                    if replaced_contents != contents:
+                        self.files[file]._set_file_contents(replaced_contents)
+                        self._parse_file(file)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -1186,8 +1186,10 @@ class UrtextProject:
                     if isinstance(value, str):
                         value=value.lower()
                     results = results.union(set(
-                        n for n in list(self.nodes) if value in self.nodes[n].metadata.get_values(
-                            k, use_timestamp=use_timestamp, lower=True)))
+                        n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
+                            k, 
+                            use_timestamp=use_timestamp, 
+                            lower=True)))
         
         return results
 
