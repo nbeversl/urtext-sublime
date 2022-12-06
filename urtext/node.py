@@ -72,7 +72,6 @@ class UrtextNode:
         self.display_meta = ''
         self.parent = None
         self.first_line_title = False
-        self.title_from_marker = False
     
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)
@@ -106,7 +105,6 @@ class UrtextNode:
 
     def contents(self, 
         preserve_length=False,
-        strip_first_line_title=False,
         do_strip_embedded_syntaxes=True):
    
         file_contents = self.get_file_contents()
@@ -124,11 +122,7 @@ class UrtextNode:
             node_contents = strip_embedded_syntaxes(
                 node_contents,
                 preserve_length=preserve_length)
-        if strip_first_line_title:
-            node_contents = self.strip_first_line_title(node_contents)
         return node_contents
-
-
 
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
@@ -189,10 +183,9 @@ class UrtextNode:
         title = syntax.node_title_c.search(contents)
         if title:
             title = title.group()
-            self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-            title = title.strip(' _').strip()
+            title = title.strip('_').strip()           
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
@@ -316,12 +309,6 @@ class UrtextNode:
             dynamic_definitions.append(UrtextDynamicDefinition(param_string, self.project, d.start()))
         return contents
 
-    def strip_first_line_title(self, contents):
-        if self.first_line_title:
-            contents = contents.replace(self.title,'',1)
-        if self.title_from_marker:
-            contents = contents.replace(' _','',1)
-        return contents
 
 def strip_contents(contents, 
     preserve_length=False, 
@@ -402,5 +389,3 @@ def sanitize_escape(string):
     if string.count('`') == 1:
         return string.replace('`','')
     return string
-
-

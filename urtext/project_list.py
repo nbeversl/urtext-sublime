@@ -107,15 +107,13 @@ class ProjectList():
         return link
 
     def on_modified(self, filenames):
-        modified_files = []
         if not isinstance(filenames, list):
             filenames = [filenames]
         for f in filenames:
             project = self._get_project_from_path(os.path.dirname(f))
             if project:
-                modified_files.append(project._on_modified(os.path.basename(f)))
-        return modified_files
-
+                return project.on_modified(os.path.basename(f))            
+        
     def _propagate_projects(self, future):
         # wait on future to complete
         if future: # future can be None

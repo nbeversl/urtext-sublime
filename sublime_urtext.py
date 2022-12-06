@@ -290,19 +290,20 @@ class RefreshUrtextFile(sublime_plugin.ViewEventListener):
 
     def on_activated(self):
         if _UrtextProjectList and self.view.file_name():
+            modified = _UrtextProjectList.visit_file(self.view.file_name())
+            urtext_on_modified(self.view)
             node_id = get_node_id(self.view)
             _UrtextProjectList.nav_new(node_id)
-            _UrtextProjectList.visit_file(self.view.file_name())
             if _UrtextProjectList.current_project:
-                self.view.set_status(
-                    'urtext_project', 
-                    'Urtext Project: '+ _UrtextProjectList.current_project.title)
+                self.view.set_status('urtext_project', 'Urtext Project: '+_UrtextProjectList.current_project.title)
+
 
 class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
         home = _UrtextProjectList.current_project.get_home()
+        print(home)
         if home:
             _UrtextProjectList.nav_new(home)
             open_urtext_node(self.view, home)
@@ -683,6 +684,7 @@ class NewFileNodeCommand(UrtextTextCommand):
     def run(self):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
+        # self._UrtextProjectList.nav_new(new_node['id'])
         new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
 
         def set_cursor(new_view):
@@ -784,6 +786,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         node_id = link['link']
         open_files = [f.file_name() for f in self.view.window().views()]
         _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
+        urtext_on_modified(self.view)
         
 class ReIndexFilesCommand(UrtextTextCommand):
     
@@ -922,6 +925,7 @@ class RandomNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
+
 """
 Utility functions
 """
@@ -959,7 +963,7 @@ def open_urtext_node(
     return None
     """
     Note we do not involve this function with navigation, since it is
-    use for forward/backward navigation and shouldn't
+    use for purposes including forward/backward navigation and shouldn't
     duplicate/override any of the operations of the methods that call it.
     """
 

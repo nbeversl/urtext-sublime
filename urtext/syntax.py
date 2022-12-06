@@ -40,7 +40,7 @@ preformat =                             r'\`.*?\`'
 push_syntax =                           r'%%-([A-Z]+)'+pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 timestamp =                             r'<([^-/<\s][^=<]+?)>'
-title_pattern =                         r'([^>\n\r])+'
+title_pattern =                         r'([^>\n\r_])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 # Currently used for syntax highlighting only:
