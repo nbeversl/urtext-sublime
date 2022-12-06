@@ -969,22 +969,7 @@ def position_node(new_view, position):
     r = new_view.text_to_layout(position)
     new_view.set_viewport_position(r)
     
-def get_path(view):  ## makes the path persist as much as possible ##
-
-    if view.file_name():
-        return os.path.dirname(view.file_name())
-    if view.window():
-        return get_path_from_window(view.window())
-    return None
-
-def get_path_from_window(window):
-
-    folders = window.folders()
-    if folders:
-        return folders[0]
-    if window.project_data():
-        return window.project_data()['folders'][0]['path']
-    return None
+  return None
 
 def refresh_open_file(changed_files, view):
     if changed_files:
