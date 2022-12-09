@@ -113,8 +113,9 @@ class ProjectList():
         for f in filenames:
             project = self._get_project_from_path(os.path.dirname(f))
             if project:
+                print('running on modified')
                 modified_files.append(project.on_modified(os.path.basename(f)))
-        return modified_files         
+        return modified_files      
         
     def _propagate_projects(self, future):
         # wait on future to complete

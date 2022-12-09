@@ -93,7 +93,7 @@ class UrtextProject:
                  run_async=True):
         
         self.is_async = run_async 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path
@@ -134,6 +134,10 @@ class UrtextProject:
             for n in c.name:
                 self.directives[n] = c
 
+        num_extensions = len(self.extensions)
+        num_actions = len(self.actions)
+        num_directives = len(self.directives)
+
         for file in self._get_included_files():
             self._parse_file(file)
 
@@ -154,6 +158,8 @@ class UrtextProject:
             self.nodes[node_id].metadata.convert_hash_keys()       
         
         self._compile()
+        if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
+            self._compile()
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
@@ -176,6 +182,8 @@ class UrtextProject:
     def _parse_file(self, filename):
     
         filename = os.path.basename(filename)
+        if filename in self.error_files:
+            self.error_files.remove(filename)
 
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
@@ -970,21 +978,18 @@ class UrtextProject:
         """        
         if not isinstance(filenames, list):
             filenames = [filenames]
-        filenames = [f for f in filenames if f not in self.excluded_files]
 
         return self.execute(self._file_update, filenames)
     
     def _file_update(self, filenames):
-        
         if self.compiled:
             modified_files = []
             for f in filenames:
-                if f not in self.files:
-                    continue
-                self._parse_file(f)
-                modified_file = self._compile_file(f)
-                if modified_file:
-                    modified_files.append(modified_file)
+                any_duplicate_ids = self._parse_file(f)
+                if not any_duplicate_ids:
+                    modified_file = self._compile_file(f)
+                    if modified_file:
+                        modified_files.append(modified_file)
             self._sync_file_list()
             return modified_files
 
@@ -1032,6 +1037,8 @@ class UrtextProject:
         if filename in self.excluded_files:
             return False 
         if os.path.splitext(filename)[1] not in self.file_extensions:
+            return False
+        if filename in self.error_files:
             return False
         return True
     

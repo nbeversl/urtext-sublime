@@ -5,8 +5,12 @@ import sys
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
+	from Urtext.urtext.action import UrtextAction
+	from Urtext.urtext.extension import UrtextExtension
 else:
 	from urtext.directive import UrtextDirective
+	from urtext.action import UrtextAction
+	from urtext.extension import UrtextExtension
 
 python_code_regex = re.compile(r'(%%-PYTHON)(.*?)(%%-PYTHON-END)', re.DOTALL)
 
@@ -24,7 +28,10 @@ class Exec(UrtextDirective):
 			old_stdout = sys.stdout
 			sys.stdout = mystdout = StringIO()
 			localsParameter = {
-				'UrtextProject' : self.project
+				'ThisProject' : self.project,
+				'UrtextDirective' : UrtextDirective,
+				'UrtextAction' : UrtextAction,
+				'UrtextExtension' : UrtextExtension,
 			}
 			try:
 				exec(python_code, {}, localsParameter)
