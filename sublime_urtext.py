@@ -29,9 +29,6 @@ from Urtext.urtext.project import match_compact_node
 
 _SublimeUrtextWindows = {}
 _UrtextProjectList = None
-quick_panel_waiting = False
-quick_panel_active  = False
-quick_panel_id = 0
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
 
@@ -139,7 +136,6 @@ def refresh_project_event_listener(function):
 
     return wrapper
 
-
 def initialize_project_list(view, 
     new_project=False, 
     reload_projects=False):
@@ -171,7 +167,6 @@ def get_path(view):
     given a view or None, establishes the current active path,
     either from the view or from the current active window.
     """
-
     current_path = None
     if view and view.file_name():
         return os.path.dirname(view.file_name())
@@ -183,7 +178,6 @@ def get_path(view):
     if 'folder' in window_variables:
         return window.extract_variables()['folder']
     return None
-  
 
 class ListProjectsCommand(UrtextTextCommand):
     
@@ -267,19 +261,17 @@ class UrtextSaveListener(EventListener):
 def urtext_on_modified(view):
     
     if view.file_name():
-        window = view.window()
-        open_files = [view.file_name()]
-        open_files.extend([v.file_name() for v in window.views() if v.file_name() not in [None, view.file_name()]])
-        result = _UrtextProjectList.on_modified(open_files)
+        print('sending', view.file_name())
+        result = _UrtextProjectList.on_modified(view.file_name())
         if result:
             if _UrtextProjectList.current_project.is_async:
+                result = result.result()
                 for f in result: 
-                    renamed_file = f.result()
-                if renamed_file:
-                    refresh_open_file(renamed_file, view)
+                    refresh_open_file(f, view)
             else:
-                for f in open_files:
-                    if f in result:
+                open_files = [v.file_name() for v in view.window().views()]
+                for f in result:
+                    if f in open_files:
                         window = view.window()
                         view.set_scratch(True) # already saved
                         view.close()
@@ -550,16 +542,32 @@ class NodeBrowserMenu:
         nodes=None,
         characters=255):
 
-        self.full_menu = make_node_menu(
-            project_list,
-            project=project,
-            nodes=nodes)
+        menu = []
 
-        self.display_menu = display_menu = []
-        for item in self.full_menu:  # there is probably a better way to copy this list.
+        projects = project_list.projects
+        if project:
+            projects = [project]
+
+        if nodes != None:
+            for node_id in nodes:
+                menu.append(
+                      NodeInfo(
+                        node_id,
+                        project_list))
+        else:
+            for single_project in projects:
+                for node_id in single_project.all_nodes():
+                    menu.append(
+                        NodeInfo(
+                            node_id, 
+                            project_list, 
+                            project=single_project))
+        self.menu = menu
+        self.display_menu = []
+        for item in menu:  # there is probably a better way to copy this list.
             display_meta = item.display_meta
             if display_meta:
-                display_meta = ' - '+display_meta
+                display_meta = ' - ' + display_meta
             new_item = [
                 item.title[:characters],
                 item.project_title + display_meta,            
@@ -568,7 +576,7 @@ class NodeBrowserMenu:
 
     def get_selection_from_index(self, selected_option):
         index = self.display_menu.index(selected_option)
-        return self.full_menu[index]
+        return self.menu[index]
 
 class NodeInfo():
 
@@ -583,36 +591,6 @@ class NodeInfo():
         self.node_id = node_id
         self.project_title = project.title
         self.display_meta = project.nodes[node_id].display_meta
-
-def make_node_menu(
-    project_list, 
-    project=None, 
-    nodes=None):
-
-    menu = []
-
-    projects = project_list.projects
-
-    if project:
-        projects = [project]
-
-    if nodes != None:
-        for node_id in nodes:
-            menu.append(
-                  NodeInfo(
-                    node_id,
-                    project_list))
-        return menu
-    
-    for single_project in projects:
-        for node_id in single_project.all_nodes():
-            menu.append(
-                NodeInfo(
-                    node_id, 
-                    project_list, 
-                    project=single_project))
-    
-    return menu
 
 def show_panel(window, menu, main_callback, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """
@@ -976,8 +954,8 @@ def position_node(new_view, position):
 def refresh_open_file(changed_files, view):
     window = view.window()
     if changed_files and window:
-        open_files = window.views()
-        for v in open_files:
+        open_views = window.views()
+        for v in open_views:
             if v.file_name() and os.path.basename(v.file_name()) in changed_files:
                 view.run_command('revert') # undocumented
 
@@ -1001,4 +979,3 @@ def get_node_id(view, use_buffer=False):
         filename = os.path.basename(view.file_name())
         position = view.sel()[0].a
         return _UrtextProjectList.current_project.get_node_id_from_position(filename,position)
-    

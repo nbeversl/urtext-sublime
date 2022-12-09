@@ -1,5 +1,4 @@
-from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command, UrtextTextCommand, open_urtext_node, NodeBrowserMenu, show_panel, make_node_menu
-
+from .sublime_urtext import refresh_project_text_command, UrtextTextCommand, open_urtext_node, NodeBrowserMenu, show_panel
 
 class KeywordsCommand(UrtextTextCommand):
 

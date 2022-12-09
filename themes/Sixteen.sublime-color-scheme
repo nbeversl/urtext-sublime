@@ -7,7 +7,8 @@
 		 "background" : "var(paper)",
 		 "foreground": "var(grey5)",
 		 "raw": "var(white2)",
-		 
+ 	     "highlight-yellow":"hsl(54, 95%, 67%)",
+
 		 // main syntax 
 
 		 	// metadata
@@ -291,18 +292,9 @@
 	  			"scope" : "url_link.urtext",
 	  			"foreground" : "var(blue)"
 	  		},
-
 	  		{ 	"scope" : "title_marker.urtext",
 	  			"foreground" : "var(unobtrusive)"
-
 	  		},
-
-
-	/* system message */
-
-	  		{  "scope": "entity.name.struct.message.urtext",
-	  			"foreground": "var(system-message)",
-	  		}
 	  		
 	],
 }

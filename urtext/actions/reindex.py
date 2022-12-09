@@ -129,6 +129,6 @@ class RenameSingleFile(ReindexFiles):
         return self.rename_file_nodes(filename, reindex=True, keep_prefix=True) 
 
 def strip_illegal_characters(filename):
-    for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*']:
+    for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:
         filename = filename.replace(c,' ')
     return filename

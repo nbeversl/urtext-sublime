@@ -89,6 +89,7 @@ contexts:
       escape: '%%-DOC-END'
       escape_captures: 0
 
+    # Any other
     - match: '%%-[A-Z-]*'
       embed: Packages/JavaScript/text.sublime-syntax
       scope: pass_marker.urtext
