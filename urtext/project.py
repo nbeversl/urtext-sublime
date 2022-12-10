@@ -459,7 +459,7 @@ class UrtextProject:
         if filename in self.messages:
             del self.messages[filename]
         if open_files:
-            return self.on_modified(open_files)
+            return self.on_modified([os.path.basename(f) for f in open_files])
         return []
     
     def _handle_renamed(self, old_filename, new_filename):
