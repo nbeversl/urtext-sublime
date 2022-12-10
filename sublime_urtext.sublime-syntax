@@ -70,11 +70,11 @@ contexts:
       escape: '%%-JSON-END'
       escape_captures: 0
 
-    - match: '%%-PLAINTEXT'
+    - match: '%%-JAVASCRIPT'
       scope: pass_marker.urtext
-      embed: Packages/JavaScript/text.sublime-syntax
+      embed: Packages/JavaScript/JavaScript.sublime-syntax
       embed_scope: text.urtext
-      escape: '%%-PLAINTEXT-END'
+      escape: '%%-JAVASCRIPT-END'
       escape_captures: 0
 
     - match: '%%-PHP'
