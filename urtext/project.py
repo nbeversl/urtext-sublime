@@ -93,7 +93,7 @@ class UrtextProject:
                  run_async=True):
         
         self.is_async = run_async 
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.path = path

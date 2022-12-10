@@ -309,7 +309,7 @@ class ProjectList():
             project = self.current_project
         removed_node_ids = project.delete_file(os.path.basename(file_name), open_files=open_files)
         if project.is_async:
-            removed_node_ids = removed_node_ids.future()
+            removed_node_ids = removed_node_ids.result()
         for node_id in removed_node_ids:
             navigation_entry = (project.title, node_id)
             while navigation_entry in self.navigation:
