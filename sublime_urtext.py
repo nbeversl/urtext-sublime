@@ -23,6 +23,7 @@ import time
 import concurrent.futures
 import subprocess
 import webbrowser
+import Urtext.urtext.syntax as syntax
 from Urtext.urtext.project_list import ProjectList
 from sublime_plugin import EventListener
 from Urtext.urtext.project import match_compact_node
@@ -862,6 +863,27 @@ class RandomNodeCommand(UrtextTextCommand):
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
 
+
+class ToNextNodeCommand(UrtextTextCommand):
+    @refresh_project_text_command()
+    def run(self):
+        next_wrapper = self.view.find(
+            syntax.opening_wrapper + '|' + syntax.bullet,
+            self.view.sel()[0].a + 1)
+        if next_wrapper:
+            self.view.sel().clear()
+            self.view.sel().add(next_wrapper.a) 
+            position_node(self.view, next_wrapper.a)
+
+class ToPreviousNodeCommand(UrtextTextCommand):
+    @refresh_project_text_command()
+    def run(self):
+        all_previous_opening_wrappers = [r.a for r in self.view.find_all(
+            syntax.opening_wrapper + '|' + syntax.bullet) if r.a < self.view.sel()[0].a]
+        if all_previous_opening_wrappers:
+            self.view.sel().clear()
+            self.view.sel().add(all_previous_opening_wrappers[-1])
+            position_node(self.view, all_previous_opening_wrappers[-1])
 
 """
 Utility functions
