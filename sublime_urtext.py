@@ -261,12 +261,11 @@ class UrtextSaveListener(EventListener):
 def urtext_on_modified(view):
     
     if view.file_name():
-        print('sending', view.file_name())
         result = _UrtextProjectList.on_modified(view.file_name())
         if result:
             if _UrtextProjectList.current_project.is_async:
-                result = result.result()
-                for f in result: 
+                for f in result:
+                    f = f.result()
                     refresh_open_file(f, view)
             else:
                 open_files = [v.file_name() for v in view.window().views()]
@@ -278,19 +277,6 @@ def urtext_on_modified(view):
                         new_view = window.open_file(f)
                     else:
                         refresh_open_file( f, view)
-
-class RefreshUrtextFile(sublime_plugin.ViewEventListener):
-
-    def on_activated(self):
-        if _UrtextProjectList and self.view.file_name():
-            node_id = get_node_id(self.view)
-            _UrtextProjectList.nav_new(node_id)
-            _UrtextProjectList.visit_file(self.view.file_name())
-            if _UrtextProjectList.current_project:
-                self.view.set_status(
-                    'urtext_project', 
-                    'Urtext Project: '+_UrtextProjectList.current_project.title)
-
 
 class UrtextHomeCommand(UrtextTextCommand):
     
@@ -586,7 +572,7 @@ class NodeInfo():
         self.title = node_id
         if self.title.strip() == '':
             self.title = '(no title)'
-        self.date =project.nodes[node_id].date
+        self.date = project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
         self.node_id = node_id
         self.project_title = project.title
