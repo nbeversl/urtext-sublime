@@ -262,22 +262,14 @@ class UrtextSaveListener(EventListener):
 def urtext_on_modified(view):
     
     if view.file_name():
-        result = _UrtextProjectList.on_modified(view.file_name())
-        if result:
-            if _UrtextProjectList.current_project.is_async:
-                for f in result:
-                    f = f.result()
-                    refresh_open_file(f, view)
-            else:
-                open_files = [v.file_name() for v in view.window().views()]
-                for f in result:
-                    if f in open_files:
-                        window = view.window()
-                        view.set_scratch(True) # already saved
-                        view.close()
-                        new_view = window.open_file(f)
-                    else:
-                        refresh_open_file( f, view)
+        modified_file = _UrtextProjectList.on_modified(view.file_name())
+        other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
+        for f in other_open_files:
+            _UrtextProjectList.visit_file(f)
+        if modified_file:
+                for f in modified_file:
+                   if _UrtextProjectList.current_project.is_async:
+                        f = f.result()
 
 class UrtextHomeCommand(UrtextTextCommand):
     
