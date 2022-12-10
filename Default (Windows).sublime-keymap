@@ -25,7 +25,7 @@
   { "keys": ["ctrl+shift+space"], "command":"rake_associate"},
   { "keys": ["ctrl+shift+alt+right"], "command":"pop_node"},
   { "keys": ["ctrl+shift+alt+left"], "command":"pull_node"},
-  { "keys": ["ctrl+shift+["], "command":"wrap_line"},
+  { "keys": ["ctrl+shift+["], "command":"wrap_selection"},
   { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
   { "keys": ["ctrl+shift+]"], "command":"go_to_dynamic_definition"},
 ]

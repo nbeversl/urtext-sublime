@@ -545,15 +545,6 @@ class UrtextProject:
 
         cursor_pos = 0
 
-        duplication_index = 2
-        if title != '':
-            while test_title in self.nodes:
-                test_title = title + ' (' + str(duplication_index) + ')'
-                duplication_index += 1
-
-            title = test_title
-            title += '\n'
-
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
             new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )

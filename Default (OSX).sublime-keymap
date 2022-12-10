@@ -9,7 +9,7 @@
 	{ "keys": ["ctrl+shift+,"], "command": "navigate_backward"},
 	{ "keys": ["ctrl+shift+."], "command": "navigate_forward"},
 	{ "keys": ["ctrl+shift+h"], "command": "urtext_home"},
-	{ "keys": ["ctrl+shift+1"], "command": "insert_node_single_line"},
+	{ "keys": ["ctrl+shift+1"], "command": "urtext_wrap_selection"},
 	{ "keys": ["ctrl+shift+6"], "command": "compact_node"},
 	{ "keys": ["ctrl+shift+f"], "command": "random_node"},
 	{ "keys": ["ctrl+shift+o"], "command": "list_projects"},
@@ -26,7 +26,7 @@
 	{ "keys": ["ctrl+shift+space"], "command":"rake_associate"},
 	{ "keys": ["ctrl+shift+alt+right"], "command":"pop_node"},
   	{ "keys": ["ctrl+shift+alt+left"], "command":"pull_node"},
-	{ "keys": ["ctrl+shift+["], "command":"wrap_line"},
+	{ "keys": ["ctrl+shift+["], "command":"wrap_selection"},
 	{ "keys": ["ctrl+shift+]"], "command":"go_to_dynamic_definition"},
     { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
 ]

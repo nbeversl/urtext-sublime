@@ -484,40 +484,14 @@ class FindByMetaCommand(sublime_plugin.TextCommand):
         if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 
-class WrapLineCommand(sublime_plugin.TextCommand):
+class WrapSelectionCommand(sublime_plugin.TextCommand):
     @refresh_project_text_command()
     def run(self):
         region = self.view.sel()[0]
         selection = self.view.substr(region)
-        line_region = self.view.line(region) # get full line region
-        line_contents = self.view.substr(line_region)
-        line_contents = line_contents.strip('{')
-        line_contents = line_contents.strip('}')
-        line_contents = line_contents.strip()
-        line_contents = ' ' + line_contents + ' '
-        self.view.replace(self.edit, line_region, '')
-        add_inline_node(self.view, contents=line_contents)
+        self.view.replace(self.edit, region, ''.join(['{ ',selection, ' }']))
         self.view.sel().clear()
-        self.view.sel().add(region) 
-
-def add_inline_node(view, 
-    locate_inside=True,
-    contents=''):
-
-    region = view.sel()[0]
-    if contents == '':        
-        contents = view.substr(region)
-
-    new_node = _UrtextProjectList.current_project.new_inline_node(
-        metadata={},
-        contents=contents)
-    new_node_contents = new_node['contents']
-    view.run_command("insert_snippet",
-                          {"contents": new_node_contents})  # (whitespace)
-    if locate_inside:
-        view.sel().clear()
-        new_cursor_position = sublime.Region(region.a + 1, region.a + 1 ) 
-        view.sel().add(new_cursor_position) 
+        self.view.sel().add(region)
 
 class NodeBrowserMenu:
     """ custom class to store more information on menu items than is displayed """
@@ -899,7 +873,7 @@ def open_urtext_node(
     position=0,
     highlight=''):
    
-    if project:
+    if project and _UrtextProjectList: 
         _UrtextProjectList.set_current_project(project.path)
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename and view.window():
