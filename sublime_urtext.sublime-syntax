@@ -91,7 +91,7 @@ contexts:
 
     # Any other
     - match: '%%-[A-Z-]*'
-      embed: Packages/JavaScript/text.sublime-syntax
+      embed: Packages/Text/text.sublime-syntax
       scope: pass_marker.urtext
       embed_scope: text.urtext
       escape: '%%-[A-Z-]*-END'
