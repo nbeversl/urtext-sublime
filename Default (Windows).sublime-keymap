@@ -28,4 +28,6 @@
   { "keys": ["ctrl+shift+["], "command":"wrap_selection"},
   { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
   { "keys": ["ctrl+shift+]"], "command":"go_to_dynamic_definition"},
+   { "keys": ["ctrl+shift+n"], "command":"to_next_node"},
+    { "keys": ["ctrl+shift+b"], "command":"to_previous_node"},
 ]
