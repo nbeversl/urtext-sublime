@@ -926,6 +926,8 @@ class ToPreviousNodeCommand(UrtextTextCommand):
             self.view.sel().add(all_previous_opening_wrappers[-1])
             position_node(self.view, all_previous_opening_wrappers[-1])
 
+## Folding
+
 class ToggleFoldSingleCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
@@ -953,7 +955,8 @@ class ToggleFoldAllCommand(UrtextTextCommand):
             else:
                 action = self.view.fold
             for r in regions:
-               action(r)
+                r = expand_scope_for_folding(scope_name, r, self.view)
+                action(r)
 
 folding_margins = {
     'dynamic-definition' : [2,2],
