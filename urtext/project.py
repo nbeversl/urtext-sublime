@@ -837,7 +837,10 @@ class UrtextProject:
                 'link_location' : link_location, 
                 'dest_position' : dest_position 
                 }
-
+    def get_node_contents(self, node_id):
+        if node_id in self.nodes:
+            return self.nodes[node_id].contents()
+            
     def _is_duplicate_id(self, node_id, filename):
         """ private method to check if a node id is already in the project """
         if node_id in self.nodes:

@@ -220,6 +220,10 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 
 class UrtextCompletions(EventListener):
 
+    @refresh_project_event_listener
+    def on_post_save_async(self, view):
+        urtext_on_modified(view)
+
     def on_query_completions(self, view, prefix, locations):
         
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
@@ -253,12 +257,61 @@ class UrtextCompletions(EventListener):
             return completions
         return []
 
-    @refresh_project_event_listener
-    def on_post_save_async(self, view):
-        urtext_on_modified(view)
-
     def on_hover(self, view, point, hover_zone):
+        
         if _UrtextProjectList:
+
+            #TODO refactor
+            region = view.line(point)
+            file_pos = region.a
+            full_line_region = view.full_line(region)
+            full_line = view.substr(full_line_region) 
+            link = _UrtextProjectList.get_link_and_set_project(full_line, view.file_name())
+            if link and 'node_id' in link:
+
+                contents = _UrtextProjectList.current_project.get_node_contents(link['node_id'])
+                if contents:
+
+                    def open_node_from_this_view(node_id):
+                        open_urtext_node(view, node_id)
+
+                    html = """
+                        <body id=linked_node_contents>
+                            <style>
+                                h1 {
+                                    font-size: 1.1rem;
+                                    font-weight: 500;
+                                    margin: 0 0 0.5em 0;
+                                    font-family: system;
+                                }
+                                p {
+                                    margin-top: 0;
+                                }
+                                a {
+                                    font-weight: normal;
+                                    font-style: italic;
+                                    padding-left: 1em;
+                                    font-size: 1.0rem;
+                                }
+                                span.nums {
+                                    display: inline-block;
+                                    text-align: right;
+                                    color: color(var(--foreground) a(0.8))
+                                }
+                                span.context {
+                                    padding-left: 0.5em;
+                                }
+                            </style>
+                            <p>%s</p>
+                            <a href="%s">open</a>
+                        </body>
+                    """ % (contents, link['node_id'])
+                    view.show_popup(html,
+                        max_width=512, 
+                        max_height=512, 
+                        on_navigate=open_node_from_this_view)
+                    return
+
             region = sublime.Region(point, point)
             if view.is_folded(region):
                 for r in view.folded_regions():
@@ -348,17 +401,8 @@ class NavigateForwardCommand(UrtextTextCommand):
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
-    def run(self):
-        file_pos = self.view.sel()[0].a
-        col_pos = self.view.rowcol(file_pos)[1]
-        full_line_region = self.view.line(self.view.sel()[0])
-        full_line = self.view.substr(full_line_region)
-        
-        link = _UrtextProjectList.get_link_and_set_project(
-            full_line, 
-            self.view.file_name(), 
-            col_pos=col_pos,
-            file_pos=file_pos)
+    def run(self):     
+        link = get_urtext_link(self.view)
 
         if link == None:   
             if not _UrtextProjectList.current_project.compiled:
@@ -392,7 +436,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         file_pos = region.a
         full_line_region = self.view.full_line(region)
         row, col_pos = self.view.rowcol(click_position)
-        contents = self.view.substr(sublime.Region(full_line_region.a -1, self.view.size()))
+        contents = self.view.substr(sublime.Region(full_line_region.a -1, full_line_region.b))
 
         link = _UrtextProjectList.get_link_and_set_project(
             contents, 
@@ -1062,6 +1106,18 @@ def refresh_open_file(changed_files, view):
         for v in open_views:
             if v.file_name() and os.path.basename(v.file_name()) in changed_files:
                 view.run_command('revert') # undocumented
+
+def get_urtext_link(view):
+    file_pos = view.sel()[0].a
+    col_pos = view.rowcol(file_pos)[1]
+    full_line_region = view.line(view.sel()[0])
+    full_line = view.substr(full_line_region)
+    
+    return _UrtextProjectList.get_link_and_set_project(
+        full_line, 
+        view.file_name(), 
+        col_pos=col_pos,
+        file_pos=file_pos)
 
 
 
