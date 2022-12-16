@@ -978,8 +978,8 @@ class ToggleFoldSingleCommand(UrtextTextCommand):
         region = self.view.extract_scope(self.view.sel()[0].a)
         scope_name = self.view.scope_name(self.view.sel()[0].a)
         scope = get_scope_for_folding(scope_name)
-        if scope:
-            region = expand_scope_for_folding(scope_name, region, self.view)       
+        if scope and region:
+            region = expand_scope_for_folding(scope, region, self.view)       
             if self.view.is_folded(region):
                 self.view.unfold(region)
             else:
@@ -991,65 +991,63 @@ class ToggleFoldAllCommand(UrtextTextCommand):
         region = self.view.extract_scope(self.view.sel()[0].a)
         scope_name = self.view.scope_name(self.view.sel()[0].a)    
         scope = get_scope_for_folding(scope_name)
-        region = expand_scope_for_folding(scope_name, region, self.view)
         if scope:
+            region = expand_scope_for_folding(scope_name, region, self.view)
             regions = self.view.find_by_selector(scope)
             if self.view.is_folded(region):
                 action = self.view.unfold
             else:
                 action = self.view.fold
             for r in regions:
-                r = expand_scope_for_folding(scope_name, r, self.view)
+                r = expand_scope_for_folding(scope, r, self.view)
                 action(r)
 
 folding_margins = {
     'dynamic-definition' : [2,2],
     'entity.name.struct.datestamp.urtext' : [1,1],
     'metadata_entry.urtext' : [0,0],
-    'compact_node.urtext' : [1,0],
-    'inline_node_1' : [1,1],
-    'inline_node_2' : [1,1],
-    'inline_node_3' : [1,1],
+    'inline_node_5' : [1,1],
     'inline_node_4' : [1,1],
-    'inline_node_5' : [1,1] }
+    'inline_node_3' : [1,1],
+    'inline_node_2' : [1,1],
+    'inline_node_1' : [1,1],
+    'compact_node.urtext' : [1,0], }
 
 scopes_to_fold = [
     'dynamic-definition',
     'entity.name.struct.datestamp.urtext',
     'metadata_entry.urtext',
-    'compact_node.urtext',
-    'inline_node_1',
-    'inline_node_2',
-    'inline_node_3',
+    'compact_node.urtext',  
+    'inline_node_5',
     'inline_node_4',
-    'inline_node_5']
+    'inline_node_3',
+    'inline_node_2',
+    'inline_node_1',
+    ]
 
 def get_scope_for_folding(scope_name):
-    scope = None
     for s in scopes_to_fold:
         if s in scope_name:
-            scope = s; 
-            return scope    
-    if 'inline_node' in scope_name:
-        inline_node_scopes = re.findall(r'inline_node_\d', scope_name)
-        nested = 0
-        for s in inline_node_scopes:
-            if int(s[-1]) > nested:
-                nested = int(s[-1])
-        scope = 'inline_node_' + str(nested)
-    return scope
+            if s == 'compact_node.urtext':
+                for t in scopes_to_fold:
+                    if t in scope_name and t != 'compact_node.urtext':
+                        return t
+            return s
 
 def expand_scope_for_folding(scope_name, region, view):
+    
     for s in scopes_to_fold:
-         if s in scope_name:
-            region = view.expand_to_scope(
-                region.a, s)
+        
+        if s in scope_name:
+            if s == 'compact_node.urtext':
+                for t in scopes_to_fold:
+                    if t != 'compact_node.urtext' and t in scope_name:
+                        s = t
+            region = view.expand_to_scope(region.a, s)
             region = sublime.Region(
                 region.a + folding_margins[s][0],
                 region.b - folding_margins[s][1])
-            return region
     return region
-
 
 """
 Utility functions
@@ -1118,8 +1116,6 @@ def get_urtext_link(view):
         view.file_name(), 
         col_pos=col_pos,
         file_pos=file_pos)
-
-
 
 def open_external_file(filepath):
 
