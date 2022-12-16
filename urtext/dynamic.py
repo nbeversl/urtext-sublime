@@ -114,16 +114,27 @@ class UrtextDynamicDefinition:
 		operations = list(self.operations)
 		
 		all_operations = sorted(operations, key = lambda op: op.phase)
+
 		for p in phases_to_process:
 			if p == 200:
 				# convert node_id list to node objects for remaining processing
 				self.included_nodes = outcome
 				outcome = [self.project.nodes[nid] for nid in outcome]
 			next_phase = p + 100
-			for operation in [op for op in all_operations if p <= op.phase < next_phase]:
-				new_outcome = operation.dynamic_output(outcome)
-				if new_outcome != False:
-					outcome = new_outcome
+			ops_this_phase = [op for op in all_operations if p <= op.phase < next_phase]
+			if len(ops_this_phase) > 1 and 300 <= p < 400:
+				# accumulate text
+				accumulated_text = ''
+				for operation in ops_this_phase:
+					next_outcome = operation.dynamic_output(outcome)
+					if next_outcome != False:
+						accumulated_text += next_outcome
+				outcome = accumulated_text
+			else:
+				for operation in ops_this_phase:
+					new_outcome = operation.dynamic_output(outcome)					
+					if new_outcome != False:
+						outcome = new_outcome
 		return outcome
 
 def has_text_output(operations):
