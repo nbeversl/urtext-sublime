@@ -934,7 +934,6 @@ class ToggleFoldSingleCommand(UrtextTextCommand):
         scope = get_scope_for_folding(scope_name)
         if scope:
             region = expand_scope_for_folding(scope_name, region, self.view)       
-
             if self.view.is_folded(region):
                 self.view.unfold(region)
             else:
@@ -956,18 +955,34 @@ class ToggleFoldAllCommand(UrtextTextCommand):
             for r in regions:
                action(r)
 
+folding_margins = {
+    'dynamic-definition' : [2,2],
+    'entity.name.struct.datestamp.urtext' : [1,1],
+    'metadata_entry.urtext' : [0,0],
+    'compact_node.urtext' : [1,0],
+    'inline_node_1' : [1,1],
+    'inline_node_2' : [1,1],
+    'inline_node_3' : [1,1],
+    'inline_node_4' : [1,1],
+    'inline_node_5' : [1,1] }
+
 scopes_to_fold = [
     'dynamic-definition',
     'entity.name.struct.datestamp.urtext',
     'metadata_entry.urtext',
-    'compact_node.urtext']
+    'compact_node.urtext',
+    'inline_node_1',
+    'inline_node_2',
+    'inline_node_3',
+    'inline_node_4',
+    'inline_node_5']
 
 def get_scope_for_folding(scope_name):
     scope = None
-    for s in  scopes_to_fold:
+    for s in scopes_to_fold:
         if s in scope_name:
-            scope = s; break
-            return scope
+            scope = s; 
+            return scope        
     if 'inline_node' in scope_name:
         inline_node_scopes = re.findall(r'inline_node_\d', scope_name)
         nested = 0
@@ -982,6 +997,9 @@ def expand_scope_for_folding(scope_name, region, view):
          if s in scope_name:
             region = view.expand_to_scope(
                 region.a, s)
+            region = sublime.Region(
+                region.a + folding_margins[s][0],
+                region.b - folding_margins[s][1])
             return region
     return region
 
