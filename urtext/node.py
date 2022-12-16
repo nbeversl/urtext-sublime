@@ -80,7 +80,7 @@ class UrtextNode:
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
-            
+
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
         if not contents:
@@ -90,13 +90,14 @@ class UrtextNode:
         self.content_only_text = contents
         if self.title == 'project_settings':
             self.contains_project_settings = True
-
-        self.id = self.title
-        self.tree_node = Node(self.id)
-        for d in self.dynamic_definitions:
-            d.source_id = self.id
-
+        self.apply_title(self.title)
         self.get_links(contents=contents)
+
+    def apply_title(self, title):
+        self.id = title
+        self.tree_node = Node(title)
+        for d in self.dynamic_definitions:
+            d.source_id = title
 
     def start_position(self):
         return self.ranges[0][0]

@@ -201,7 +201,7 @@ class UrtextProject:
         self._remove_file(filename)
  
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
-        
+
         if file_should_be_dropped:
             self._add_to_error_files(filename)
             return file_should_be_dropped
@@ -300,10 +300,16 @@ class UrtextProject:
 
         duplicate_nodes = {}
         for node_id in file_obj.nodes:
-            duplicate_filename = self._is_duplicate_id(node_id, file_obj.filename)
-            if duplicate_filename:
-                duplicate_nodes[node_id] = duplicate_filename
-
+            if self._is_duplicate_id(node_id, file_obj.filename):
+                resolved_id = self._resolve_duplicate_id(file_obj.nodes[node_id])
+                if resolved_id:
+                    file_obj.nodes[node_id].apply_title(resolved_id)
+                    for index in file_obj.parsed_items:
+                        if file_obj.parsed_items[index] == node_id:
+                            file_obj.parsed_items[index] = resolved_id
+                else:
+                    duplicate_nodes[node_id] = file_obj.filename
+        
         file_should_be_dropped = False
         should_re_parse = False
 
@@ -334,6 +340,15 @@ class UrtextProject:
                 for r in e.exports:
                     if file in r.to_files:
                         return nid
+
+    def _resolve_duplicate_id(self, node):
+        if node.metadata.get_entries('_oldest_timestamp'):
+            resolved_id = ' '.join([
+                node.id, 
+                #TODO make this simpler
+                node.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string])
+            if resolved_id not in self.nodes:
+                return resolved_id
 
     """
     Parsing helpers

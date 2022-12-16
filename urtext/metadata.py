@@ -295,7 +295,7 @@ class MetadataEntry:  # container for a single metadata entry
             t = UrtextTimestamp(dt_string[1:-1])
             if t.datetime:
                 self.timestamps.append(t)        
-        self.value = contents 
+        self.value = contents
    
     def ints(self):
         parts = self.value.split[' ']
