@@ -1029,7 +1029,7 @@ def get_scope_for_folding(scope_name):
     for s in scopes_to_fold:
         if s in scope_name:
             scope = s; 
-            return scope        
+            return scope    
     if 'inline_node' in scope_name:
         inline_node_scopes = re.findall(r'inline_node_\d', scope_name)
         nested = 0

@@ -11,7 +11,6 @@ contexts:
     - include: bold-text
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
-      push: inline-node 
     - match: '(?<!\\)}'
       scope: invalid.illegal.stray-bracket-end
   
@@ -301,5 +300,35 @@ contexts:
 
   compact-node:
     - meta_scope: compact_node.urtext
+    - include: node_pointer
+    - include: node_link
+    - include: other-project-link
+    - include: file_link
+    - include: shorthand_meta
+    - include: url
+    - include: node_title
+    - include: trigger
+    - include: bold-text
+    - match: '`'
+      push: raw 
+    
+    - match: '(?<=::)[^\s]'
+      push: metadata-value
+
+    - match: '(?<=::)<'
+      push: metadata-timestamp
+    
+    - match: \w+?(?=::)
+      scope: meta_key.urtext
+      push: metadata-entry
+
+    - match: \w+?(?=::)
+
+    - match: <[^!\s-]
+      push: datestamp
+
+    - match: '(?<!\\){'
+      scope: punctuation.section.braces.begin.inline_node_1.urtext
+      push: inline-node-1
     - match: '[\r|\n]'
       pop: true
