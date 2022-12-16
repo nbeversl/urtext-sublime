@@ -31,6 +31,8 @@
     { "keys": ["ctrl+shift+m"], "command":"find_by_meta"},
     { "keys": ["ctrl+shift+n"], "command":"to_next_node"},
     { "keys": ["ctrl+shift+b"], "command":"to_previous_node"},
+    { "keys": ["ctrl+shift+0"], "command":"toggle_fold_single"},
+    { "keys": ["ctrl+shift+9"], "command":"toggle_fold_all"},
 ]
 
 

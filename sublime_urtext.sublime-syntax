@@ -11,7 +11,7 @@ contexts:
     - include: bold-text
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
-      push: inline-node-1
+      push: inline-node 
     - match: '(?<!\\)}'
       scope: invalid.illegal.stray-bracket-end
   
@@ -24,7 +24,10 @@ contexts:
     - include: url
     - include: node_title
     - include: trigger
-    - include: compact-node-opener
+    
+    - match: (•|-)
+      scope: compact_node_opener.urtext 
+      push: compact-node
 
     - match: \[\[
       scope: punctuation.section.braces.begin.dynamic_definition.urtext
@@ -39,8 +42,11 @@ contexts:
     - match: '(?<=::)<'
       push: metadata-timestamp
     
-    - match:  \w+?(?=::)
+    - match: \w+?(?=::)
       scope: meta_key.urtext
+      push: metadata-entry
+
+    - match: \w+?(?=::)
 
     - match: <[^!\s-]
       push: datestamp
@@ -117,6 +123,11 @@ contexts:
     - include: tagvalue-separator
     - include: node_link
     - include: file_link  
+    - match: ;|\r|(?=\})|$
+      pop: true
+
+  metadata-entry:
+    - meta_scope: metadata_entry.urtext
     - match: ;|\r|(?=\})|$
       pop: true
 
@@ -288,6 +299,7 @@ contexts:
       captures:
         2: bold.urtext
 
-  compact-node-opener: 
-    - match: '(•|-)'
-      scope: compact_node_opener.urtext 
+  compact-node:
+    - meta_scope: compact_node.urtext
+    - match: '[\r|\n]'
+      pop: true

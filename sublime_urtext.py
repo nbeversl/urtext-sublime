@@ -253,11 +253,60 @@ class UrtextCompletions(EventListener):
             return completions
         return []
 
-class UrtextSaveListener(EventListener):
-     
     @refresh_project_event_listener
     def on_post_save_async(self, view):
         urtext_on_modified(view)
+
+    def on_hover(self, view, point, hover_zone):
+        if _UrtextProjectList:
+            region = sublime.Region(point, point)
+            if view.is_folded(region):
+                for r in view.folded_regions():
+                    if point in [r.a, r.b]:
+                        contents = (view.substr(r))
+
+                def unfold_region(href_region):
+                    points = href_region.split('-')
+                    region = sublime.Region(int(points[0]), int(points[1]))
+                    view.unfold(region)
+                    view.hide_popup()
+
+                html = """
+                    <body id=show-scope>
+                        <style>
+                            h1 {
+                                font-size: 1.1rem;
+                                font-weight: 500;
+                                margin: 0 0 0.5em 0;
+                                font-family: system;
+                            }
+                            p {
+                                margin-top: 0;
+                            }
+                            a {
+                                font-weight: normal;
+                                font-style: italic;
+                                padding-left: 1em;
+                                font-size: 1.0rem;
+                            }
+                            span.nums {
+                                display: inline-block;
+                                text-align: right;
+                                color: color(var(--foreground) a(0.8))
+                            }
+                            span.context {
+                                padding-left: 0.5em;
+                            }
+                        </style>
+                        <p>%s</p>
+                        <a href="%s-%s">unfold</a>
+                    </body>
+                """ % (contents, r.a, r.b)
+
+                view.show_popup(html, 
+                    max_width=512, 
+                    max_height=512, 
+                    on_navigate=unfold_region)
 
 def urtext_on_modified(view):
     
@@ -877,6 +926,66 @@ class ToPreviousNodeCommand(UrtextTextCommand):
             self.view.sel().add(all_previous_opening_wrappers[-1])
             position_node(self.view, all_previous_opening_wrappers[-1])
 
+class ToggleFoldSingleCommand(UrtextTextCommand):
+    @refresh_project_text_command()
+    def run(self):
+        region = self.view.extract_scope(self.view.sel()[0].a)
+        scope_name = self.view.scope_name(self.view.sel()[0].a)
+        scope = get_scope_for_folding(scope_name)
+        if scope:
+            region = expand_scope_for_folding(scope_name, region, self.view)       
+
+            if self.view.is_folded(region):
+                self.view.unfold(region)
+            else:
+                self.view.fold(region)
+
+class ToggleFoldAllCommand(UrtextTextCommand):
+    @refresh_project_text_command()
+    def run(self):
+        region = self.view.extract_scope(self.view.sel()[0].a)
+        scope_name = self.view.scope_name(self.view.sel()[0].a)    
+        scope = get_scope_for_folding(scope_name)
+        region = expand_scope_for_folding(scope_name, region, self.view)
+        if scope:
+            regions = self.view.find_by_selector(scope)
+            if self.view.is_folded(region):
+                action = self.view.unfold
+            else:
+                action = self.view.fold
+            for r in regions:
+               action(r)
+
+scopes_to_fold = [
+    'dynamic-definition',
+    'entity.name.struct.datestamp.urtext',
+    'metadata_entry.urtext',
+    'compact_node.urtext']
+
+def get_scope_for_folding(scope_name):
+    scope = None
+    for s in  scopes_to_fold:
+        if s in scope_name:
+            scope = s; break
+            return scope
+    if 'inline_node' in scope_name:
+        inline_node_scopes = re.findall(r'inline_node_\d', scope_name)
+        nested = 0
+        for s in inline_node_scopes:
+            if int(s[-1]) > nested:
+                nested = int(s[-1])
+        scope = 'inline_node_' + str(nested)
+    return scope
+
+def expand_scope_for_folding(scope_name, region, view):
+    for s in scopes_to_fold:
+         if s in scope_name:
+            region = view.expand_to_scope(
+                region.a, s)
+            return region
+    return region
+
+
 """
 Utility functions
 """
@@ -932,6 +1041,8 @@ def refresh_open_file(changed_files, view):
         for v in open_views:
             if v.file_name() and os.path.basename(v.file_name()) in changed_files:
                 view.run_command('revert') # undocumented
+
+
 
 def open_external_file(filepath):
 
