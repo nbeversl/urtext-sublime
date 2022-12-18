@@ -256,6 +256,16 @@ class NodeMetadata:
             self.entries_dict[self.project.settings['hash_key']].extend(self.entries_dict['#'])
             del self.entries_dict['#']
 
+    def get_oldest_timestamp(self):
+        if self.get_entries('_oldest_timestamp'):
+            return self.get_entries('_oldest_timestamp')[0].timestamps[0]
+        all_timestamp = []
+        for entry in self.all_entries():
+            all_timestamp.extend(entry.timestamps)
+        all_timestamps = sorted(all_timestamp, reverse=True, key=lambda ts: ts.datetime)
+        if all_timestamp:
+            return all_timestamps[0]
+
     def log(self):
         for entry in self.all_entries():
             entry.log()

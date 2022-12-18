@@ -132,8 +132,19 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
+    def resolve_duplicate_id(self):
+        timestamp = self.metadata.get_oldest_timestamp()
+        if timestamp:
+            resolved_id = ' '.join([
+                self.id, 
+                timestamp.string])
+            if resolved_id not in self.project.nodes:
+                return resolved_id
+
     def get_title(self):
         if not self.title:
+            if self.metadata.get_entries('_oldest_timestamp'):
+                return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
             return '(untitled)'
         if self.project:
             return self.title
@@ -243,7 +254,6 @@ class UrtextNode:
             for r in self.ranges:
                 tag = file_contents[r[0]:r[1]+1].find('title::'+t)
                 if tag > -1:
-                    print('FOUND TITLE TAG')
                     new_file_contents = file_contents[:r[0]+tag + len('title::'+t)]
                     new_file_contents += new_title
                     new_file_contents += file_contents[r[0]+tag + len('title::'+t):]
@@ -260,7 +270,6 @@ class UrtextNode:
                         title_location = file_contents[r[0]:r[1]+1].find(t)
                     if title_location < 0:
                         continue
-                    print('FOUND TITLE AT', title_location)
                     new_title = new_title + ' _'
                     new_file_contents = file_contents[:r[0]+title_location + len(new_title)]
                     new_file_contents += new_title

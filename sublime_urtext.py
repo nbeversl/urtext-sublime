@@ -613,7 +613,7 @@ class NodeBrowserMenu:
         for item in menu:  # there is probably a better way to copy this list.
             display_meta = item.display_meta
             if display_meta:
-                display_meta = ' - ' + display_meta
+                display_meta = ' - ' + str(display_meta)
             new_item = [
                 item.title[:characters],
                 item.project_title + display_meta,            
