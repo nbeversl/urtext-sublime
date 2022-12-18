@@ -553,7 +553,7 @@ class UrtextProject:
         cursor_pos = 0
 
         if contents_format:
-            new_node_contents = contents_format.replace('$timestamp', self.timestamp(datetime.datetime.now()) )
+            new_node_contents = contents_format.replace('$timestamp', '<' + self.timestamp(datetime.datetime.now()).string + '>')
             new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )
 
             if '$cursor' in new_node_contents:
@@ -868,9 +868,7 @@ class UrtextProject:
             date = datetime.datetime.now()
         if date.tzinfo == None:
             date = date.replace(tzinfo=datetime.timezone.utc)
-        return date
-        # timestamp_format = '<' + self.settings['timestamp_format'] + '>'
-        # return date.strftime(timestamp_format)
+        return UrtextTimestamp(date.strftime(self.settings['timestamp_format']))
 
     def _get_settings_from(self, node):
       
