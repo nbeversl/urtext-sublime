@@ -31,6 +31,10 @@
 		 // 
 		 "raw" : "var(dark1)",
 
+	  	 /* sytem message */
+	  	 "system-message" : "var(yellow)",
+	  	 "error-message" : "var(red)",
+
 		 // dynamic definitions
 		 "open-dynamic": "var(blue-grey)",
 		 "close-dynamic" : "var(blue-grey)",
@@ -46,10 +50,6 @@
 
 	  	 // Compact Node
 	  	 "compact-node-marker" : "var(blue-bright)",
-
-	  	 // System Message
-	  	 "system-message" : "var(red)",
-
 
 	  	 // Color definitions
     
@@ -323,9 +323,11 @@
 	  		
 	/* system message */
 
-	  		{  "scope": "entity.name.struct.message.urtext",
-	  			"foreground": "var(system-message)",
-	  		}
-	  		
+	  		{ 	"scope" : "entity.name.struct.system-message.urtext",
+	  			"foreground" : "var(system-message)"
+	  		},
+	  		{ 	"scope" : "entity.name.struct.error-message.urtext",
+	  			"foreground" : "var(error-message)"
+	  		},	  		
 	],
 }

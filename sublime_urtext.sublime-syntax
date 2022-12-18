@@ -12,7 +12,6 @@ contexts:
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
-
     - match: '(?<!\\)}'
       scope: invalid.illegal.stray-bracket-end
   
@@ -53,6 +52,9 @@ contexts:
       push: datestamp
 
     - match: <!!
+      push: error-message
+
+    - match: <!{1}
       push: system-message
       
     # Embedded Syntaxes
@@ -141,9 +143,14 @@ contexts:
     - match: '>'
       pop: true
 
-  system-message:
-    - meta_scope: entity.name.struct.message.urtext
+  error-message:
+    - meta_scope: entity.name.struct.error-message.urtext
     - match: '!!>'
+      pop: true
+
+  system-message:
+    - meta_scope: entity.name.struct.system-message.urtext
+    - match: '!>'
       pop: true
 
   metadata-timestamp:

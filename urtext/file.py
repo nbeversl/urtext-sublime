@@ -42,7 +42,7 @@ class UrtextFile(UrtextBuffer):
         self.clear_errors(self.contents)
         symbols = self.lex(self.contents)
         self.parse(self.contents, symbols)
-        self.write_errors(project.settings)
+        self.write_messages(project.settings)
 
     def _get_file_contents(self):
         return self.file_contents

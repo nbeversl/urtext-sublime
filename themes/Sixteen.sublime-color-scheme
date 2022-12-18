@@ -8,6 +8,7 @@
 		 "foreground": "var(grey5)",
 		 "raw": "var(white2)",
  	     "highlight-yellow":"hsl(54, 95%, 67%)",
+ 	     "yellow":"hsl(54, 95%, 67%)",
 
 		 // main syntax 
 
@@ -55,7 +56,8 @@
 	  	 "format-string" : "var(foreground)",
 		  	
 	  	 /* sytem message */
-	  	 "system-message" : "var(red)",
+	  	 "system-message" : "var(yellow)",
+	  	 "error-message" : "var(red)",
 
 		 /* color definitions - - - - - - - - - */
 		 "unobtrusive": "hsl(20, 5%, 84%)",				 
@@ -86,7 +88,6 @@
 	  			"background": "var(background)",
 	  		},
 
-			
 			/* Metadata:  | */	     
 	  		
 	  		{   "scope": "meta_key.urtext",
@@ -294,6 +295,12 @@
 	  		},
 	  		{ 	"scope" : "title_marker.urtext",
 	  			"foreground" : "var(unobtrusive)"
+	  		},
+	  		{ 	"scope" : "entity.name.struct.system-message.urtext",
+	  			"foreground" : "var(system-message)"
+	  		},
+	  		{ 	"scope" : "entity.name.struct.error-message.urtext",
+	  			"foreground" : "var(error-message)"
 	  		},
 	  		
 	],

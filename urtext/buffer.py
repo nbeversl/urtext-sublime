@@ -18,18 +18,24 @@ class UrtextBuffer:
         
         self.nodes = {}
         self.root_nodes = []
-        self.alias_nodes = []           
-        self.parsed_items = {}
+        self.alias_nodes = []
         self.messages = []        
         self.errors = False
-        self.contents = contents
+        self.contents = None
         self.filename = 'yyyyyyyyyyy'
         self.basename = 'yyyyyyyyyyy'
         self.project = project
-        self.file_length = len(contents)
+        self.lex_and_parse(contents)
+
+    def lex_and_parse(self, contents):
+        self.nodes = {}
+        self.root_nodes = []
+        self.parsed_items = {}
+        self.contents = contents
         symbols = self.lex(contents)
         self.parse(contents, symbols)
-            
+        self.file_length = len(contents)
+
     def lex(self, contents, start_position=0):
        
         symbols = {}
@@ -116,13 +122,14 @@ class UrtextBuffer:
             if symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position + 1, position])
     
-                if nested == 0:
-                    self.log_error('Missing closing wrapper', position)
-                    return None
-
-                if nested < 0:
-                    message = 'Stray closing wrapper at %s' % str(position)
-                    self.messages.append(message) 
+                if nested <= 0:
+                    message = '\n'.join([
+                        'Stray closing wrapper at %s' % str(position),
+                        'Attempted to fix. This message can be deleted.'])
+                    self.messages.append(message)
+                    contents = contents[:position] + contents[position + 1:]
+                    self._set_file_contents(contents)
+                    return self.lex_and_parse(contents)
 
                 self.add_node(
                     nested_levels[nested], 
@@ -148,12 +155,13 @@ class UrtextBuffer:
             last_position = position
         
         if nested > 0:
-            message = 'Un-closed node at %s' % str(position) + ' in ' + self.filename
-            self.messages.append(message) 
-
-        if not from_compact and len(self.root_nodes) == 0:
-            message = 'No root nodes found'
+            message = '\n'.join([
+                'Un-closed node at %s' % str(position) + ' in ' + self.filename,
+                'Attempted to fix. This message can be deleted.'])
             self.messages.append(message)
+            contents = contents[:position] + ' } ' + contents[position:]
+            self._set_file_contents(contents)
+            return self.lex_and_parse(contents)
 
     def add_node(self, 
         ranges, 
@@ -200,7 +208,7 @@ class UrtextBuffer:
         self.errors = False
         return cleared_contents
 
-    def write_errors(self, settings, messages=None):
+    def write_messages(self, settings, messages=None):
         if not messages and not self.messages:
             return False
         if messages:
@@ -209,9 +217,9 @@ class UrtextBuffer:
         contents = self._get_file_contents()
 
         messages = ''.join([ 
-            '<!!\n',
+            '<!\n',
             '\n'.join(self.messages),
-            '\n!!>\n',
+            '\n!>\n',
             ])
 
         message_length = len(messages)
@@ -234,11 +242,7 @@ class UrtextBuffer:
         self.root_nodes = []
         self.parsed_items = {}
         self.messages = []
-        symbols = self.lex(new_contents)
-        self.parse(new_contents, symbols)
-        self.errors = True
-        for n in self.nodes:
-            self.nodes[n].errors = True
+        self.lex_and_parse(new_contents)
 
     def get_ordered_nodes(self):
         return sorted( 
