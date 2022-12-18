@@ -11,6 +11,8 @@ contexts:
     - include: bold-text
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
+      push: inline-node-1
+
     - match: '(?<!\\)}'
       scope: invalid.illegal.stray-bracket-end
   
