@@ -363,7 +363,7 @@ class UrtextCompletions(EventListener):
 
 def urtext_on_modified(view):
     
-    if view.file_name():
+    if view.file_name() and view.window():
         modified_file = _UrtextProjectList.on_modified(view.file_name())
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
         for f in other_open_files:
