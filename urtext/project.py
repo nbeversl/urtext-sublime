@@ -860,7 +860,7 @@ class UrtextProject:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         
-    def timestamp(self, date=None):
+    def timestamp(self, date=None, as_string=False):
         """ 
         Returns a timestamp in the format set in project_settings, or the default 
         """
@@ -868,6 +868,8 @@ class UrtextProject:
             date = datetime.datetime.now()
         if date.tzinfo == None:
             date = date.replace(tzinfo=datetime.timezone.utc)
+        if as_string:
+            return '<' + date.strftime(self.settings['timestamp_format']) + '>'
         return UrtextTimestamp(date.strftime(self.settings['timestamp_format']))
 
     def _get_settings_from(self, node):

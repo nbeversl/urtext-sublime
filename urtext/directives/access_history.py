@@ -21,7 +21,7 @@ class AccessHistory(UrtextDirective):
                 contents = ''.join([ 
                         self.dynamic_definition.preserve_title_if_present(),
                         '\n',
-                        self.project.timestamp(), 
+                        self.project.timestamp(as_string=True), 
                         ' | ', 
                         self.project.nodes[node_id].get_title(), 
                         ' >', 

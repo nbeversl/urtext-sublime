@@ -363,7 +363,7 @@ class UrtextCompletions(EventListener):
 
 def urtext_on_modified(view):
     
-    if view.file_name() and view.window():
+    if view.file_name() and view.window() and view.window().views():
         modified_file = _UrtextProjectList.on_modified(view.file_name())
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
         for f in other_open_files:
@@ -769,7 +769,7 @@ class InsertTimestampCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        datestamp = self._UrtextProjectList.current_project.timestamp()
+        datestamp = self._UrtextProjectList.current_project.timestamp(as_string=True)
         for s in self.view.sel():
             if s.empty():
                 self.view.insert(self.edit, s.a, datestamp)
