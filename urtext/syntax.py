@@ -12,7 +12,7 @@ file_link_closing_wrapper =             ' >'
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
 link_opening_wrapper =                  '| '
-link_closing_wrapper =                   ' >'
+link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!!'
 urtext_message_closing_wrapper =        '!!>'
@@ -137,6 +137,7 @@ metadata_assigner_c =           re.compile(metadata_assigner)
 node_link_c =                   re.compile(node_link)
 node_link_or_pointer_c =        re.compile(node_link_or_pointer)
 opening_wrapper_c =             re.compile(opening_wrapper)
+pointer_closing_wrapper_c =     re.compile(pointer_closing_wrapper)
 preformat_c =                   re.compile(preformat, flags=re.DOTALL)
 subnode_regexp_c =              re.compile(sub_node, re.DOTALL)
 timestamp_c =                   re.compile(timestamp)

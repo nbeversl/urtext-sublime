@@ -99,7 +99,7 @@ class UrtextBuffer:
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
 
             if symbols[position]['type'] == 'pointer':
-                self.parsed_items[position] = symbols[position]['contents'] +' >>'
+                self.parsed_items[position] = symbols[position]['contents'] + syntax.pointer_closing_wrapper
                 continue
 
             if symbols[position]['type'] == 'opening_wrapper':                

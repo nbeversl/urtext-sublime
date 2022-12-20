@@ -20,8 +20,8 @@ class UrtextAnyTree(UrtextExtension):
         for position in positions:
 
             # parse each marker, positioning it within its parent node
-            if parsed_items[position][-2:].strip() == syntax.pointer_closing_wrapper:
-                inserted_node_id = parsed_items[position][:-2].strip()
+            if syntax.pointer_closing_wrapper_c.match(parsed_items[position][len(syntax.pointer_closing_wrapper) * - 1:]):                
+                inserted_node_id = parsed_items[position][:len(syntax.pointer_closing_wrapper) * - 1].strip()
                 parent_node = self.project.get_node_id_from_position(filename, position)
                 if not parent_node:
                     continue
