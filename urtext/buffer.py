@@ -217,11 +217,11 @@ class UrtextBuffer:
         contents = self._get_file_contents()
 
         messages = ''.join([ 
-            syntax.urtext_opening_wrapper,
+            syntax.urtext_message_opening_wrapper,
             '\n',
             '\n'.join(self.messages),
             '\n',
-            syntax.urtext_closing_wrapper,
+            syntax.urtext_message_closing_wrapper,
             '\n',
             ])
 
