@@ -326,11 +326,11 @@ class UrtextExport(UrtextDirective):
     def replace_node_links(self, contents):
         """ replace node links, including titled ones, with exported versions """
 
-        node_links = syntax.node_link_c.findall(contents)
+        node_links = syntax.node_link_c.finditer(contents)
         for match in node_links:
-            node_id = match[1]           
+            node_id = match.group(1)           
             if node_id not in self.project.nodes:                    
-                contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
+                contents = contents.replace(match.group(), '[ MISSING LINK : '+node_id+' ] ')
                 continue
 
             title = self.project.nodes[node_id].get_title()

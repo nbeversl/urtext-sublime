@@ -167,7 +167,7 @@ class UrtextNode:
  
         if contents == None:
             contents = self.content_only()
-        nodes = syntax.node_link_c.findall(contents)  # link RegEx
+        nodes = syntax.node_link_or_pointer_c.findall(contents)  # link RegEx
         for node in nodes:
             self.links.append(node[1].strip())
 
