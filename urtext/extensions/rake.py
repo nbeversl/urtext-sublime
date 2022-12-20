@@ -90,10 +90,6 @@ class Rake():
 """
 Free Association
 """
-
-
-
-
 def is_number(s):
     try:
         float(s) if '.' in s else int(s)

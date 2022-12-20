@@ -63,7 +63,7 @@ class PopNode(UrtextAction):
             file_contents[0:start - 1],
             '\n| ',
             self.project.nodes[popped_node_id].get_title(),
-            ' >>',
+            syntax.pointer_closing_wrapper,
             file_contents[end + 1:]
             ])
        

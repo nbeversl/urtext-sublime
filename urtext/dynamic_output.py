@@ -126,6 +126,7 @@ class DynamicOutput():
                 contents = contents.strip()
             if self.project_settings['contents_strip_internal_whitespace']:
                 contents =  strip_internal_whitespace(contents)
+            #TODO check whether this is ever reached:
             while '>>' in contents:
                 contents = contents.replace('>>','(>)>')
             suffix = ''

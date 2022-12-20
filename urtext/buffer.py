@@ -124,8 +124,8 @@ class UrtextBuffer:
     
                 if nested <= 0:
                     message = '\n'.join([
-                        'Stray closing wrapper at %s' % str(position),
-                        'Attempted to fix. This message can be deleted.'])
+                        'Removed stray closing wrapper at %s' % str(position),
+                        'This message can be deleted.'])
                     self.messages.append(message)
                     contents = contents[:position] + contents[position + 1:]
                     self._set_file_contents(contents)
@@ -156,8 +156,8 @@ class UrtextBuffer:
         
         if nested > 0:
             message = '\n'.join([
-                'Un-closed node at %s' % str(position) + ' in ' + self.filename,
-                'Attempted to fix. This message can be deleted.'])
+                'Appended closing bracket to close opening bracket at %s' % str(position),
+                'This message can be deleted.'])
             self.messages.append(message)
             contents = contents[:position] + ' } ' + contents[position:]
             self._set_file_contents(contents)
@@ -202,7 +202,7 @@ class UrtextBuffer:
           return
 
     def clear_errors(self, contents):
-        cleared_contents = syntax.error_messages_c.sub('', contents)
+        cleared_contents = syntax.urtext_messages_c.sub('', contents)
         if cleared_contents != contents:
             self._set_file_contents(cleared_contents)
         self.errors = False
@@ -217,9 +217,12 @@ class UrtextBuffer:
         contents = self._get_file_contents()
 
         messages = ''.join([ 
-            '<!\n',
+            syntax.urtext_opening_wrapper,
+            '\n',
             '\n'.join(self.messages),
-            '\n!>\n',
+            '\n',
+            syntax.urtext_closing_wrapper,
+            '\n',
             ])
 
         message_length = len(messages)

@@ -43,7 +43,6 @@ class UrtextDynamicDefinition:
 
 	def __init__(self, param_string, project, location):
 
-		
 		self.location = location
 		self.target_id = None
 		self.target_file = None
@@ -76,7 +75,7 @@ class UrtextDynamicDefinition:
 
 			if func =='ID':
 				## TODO: improve this prse
-				self.target_id = argument_string.strip('>').strip('|').strip()
+				self.target_id = argument_string.strip(syntax.link_closing_wrapper).strip(syntax.link_opening_wrapper).strip()
 				continue
 
 			if func == 'FILE':
@@ -104,7 +103,7 @@ class UrtextDynamicDefinition:
 
 	def preserve_title_if_present(self):
 		if self.project.nodes[self.target_id].first_line_title:
-			return ' ' + self.project.nodes[self.target_id].title + ' _\n'
+			return ' ' + self.project.nodes[self.target_id].title + syntax.title_marker +'\n'
 		return ''
 
 	def process_output(self, max_phase=800):

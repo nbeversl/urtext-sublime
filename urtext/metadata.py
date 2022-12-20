@@ -48,7 +48,7 @@ class NodeMetadata:
         for m in syntax.metadata_entry_c.finditer(full_contents):
 
             keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)
-            value_list = syntax.metadata_separator_c.split(contents)
+            value_list = syntax.metadata_separator_pattern_c.split(contents)
 
             tag_self=False
             tag_children=False
@@ -138,10 +138,19 @@ class NodeMetadata:
             t = sorted(t, key=lambda i: i.timestamps[0].datetime) 
             self.add_entry(
                     '_oldest_timestamp', 
-                    '<'+t[0].timestamps[0].string+'>')
+                    ''.join([
+                        syntax.timestamp_opening_wrapper,
+                        t[0].timestamps[0].string,
+                        syntax.timestamp_closing_wrapper
+                        ]))
+                    
             self.add_entry(
                     '_newest_timestamp', 
-                    '<'+t[-1].timestamps[0].string+'>')
+                    ''.join([
+                        syntax.timestamp_opening_wrapper,
+                        t[-1].timestamps[0].string,
+                        syntax.timestamp_closing_wrapper
+                        ]))
 
     def get_first_value(self, 
         keyname, 

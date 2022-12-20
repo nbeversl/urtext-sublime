@@ -164,11 +164,11 @@ class ProjectList():
             node_title = ''
             if node_id in project.nodes:
                 node_title = project.nodes[node_id].get_title()
-            link = '| ' + node_title + ' >'
+            link = syntax.link_opening_wrapper + node_title + syntax.link_closing_wrapper
             if pointer:
-                link +='>'
+                link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
             if include_project or project != self.current_project:
-                link = '=>"' + project.title +'"'+link
+                link = syntax.other_project_link_prefix+ '"' + project.title +'"'+link
             return link
 
     def nav_current(self):
@@ -252,7 +252,7 @@ class ProjectList():
                     node_id)
 
         # also move the history file
-        history_file = filename.replace('.txt','.pkl')
+        history_file = filename
         if os.path.exists(os.path.join(self.current_project.path, 'history', history_file)):
             os.rename(os.path.join(self.current_project.path, 'history', history_file),
                   os.path.join(destination_project.path, 'history', history_file))

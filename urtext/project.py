@@ -355,11 +355,18 @@ class UrtextProject:
                 
                 if defined and defined != new_node.id:
 
-                    message = ''.join([ 'Node >', definition.target_id,
-                                ' has duplicate definition in >' , new_node.id ,
-                                  '. Keeping the definition in >',
-                                  defined, '.'
-                                  ])
+                    message = ''.join(['Dynamic node ', 
+                                syntax.link_opening_wrapper,
+                                definition.target_id,
+                                syntax.link_closing_wrapper,
+                                ' has duplicate definition in', 
+                                syntax.link_opening_wrapper,
+                                new_node.id,
+                                syntax.link_closing_wrapper,
+                                '; Keeping the definition in ',
+                                syntax.link_opening_wrapper,
+                                defined,
+                                syntax.link_closing_wrapper])
                     self._log_item(new_node.filename, message)
 
                     definition = None
@@ -704,21 +711,6 @@ class UrtextProject:
         sorted_files.extend(files)
         return sorted_files
 
-    def root_nodes(self, primary=False):
-        """
-        Returns the IDs of all the root (file level) nodes
-        """
-        root_nodes = []        
-        for filename in self.files:
-            if not primary:
-                root_nodes.extend(self.files[filename].root_nodes)
-            else:
-                if not self.files[filename].root_nodes:
-                    self._log_item(filename, 'No root nodes in f>'+filename)
-                else:
-                    root_nodes.append(self.files[filename].root_nodes[0])
-        return root_nodes
-
     def get_node_id_from_position(self, filename, position):
         filename = os.path.basename(filename)
         if filename in self.files:
@@ -735,7 +727,6 @@ class UrtextProject:
                 if position  >= r[0] and position < r[1]:
                     return node_id
         return None
-
 
     def get_links_to(self, to_id):
         return [i for i in self.nodes if to_id in self.nodes[i].links]
@@ -869,7 +860,12 @@ class UrtextProject:
         if date.tzinfo == None:
             date = date.replace(tzinfo=datetime.timezone.utc)
         if as_string:
-            return '<' + date.strftime(self.settings['timestamp_format']) + '>'
+            return ''.join([
+                syntax.timestamp_opening_wrapper,
+                date.strftime(self.settings['timestamp_format']),
+                syntax.timestamp.closing_wrapper,
+                ])
+
         return UrtextTimestamp(date.strftime(self.settings['timestamp_format']))
 
     def _get_settings_from(self, node):
@@ -938,7 +934,7 @@ class UrtextProject:
                if k == '#':
                     k = self.settings['hash_key']
                for v in values:
-                    pairs.append(''.join([k, '::', str(v) ])  )
+                    pairs.append(''.join([k, syntax.metadata_assignment_operator, str(v) ])  )
 
         return list(set(pairs))
 

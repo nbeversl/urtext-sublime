@@ -22,9 +22,10 @@ class AccessHistory(UrtextDirective):
                         self.dynamic_definition.preserve_title_if_present(),
                         '\n',
                         self.project.timestamp(as_string=True), 
-                        ' | ', 
+                        ' ',
+                        syntax.link_opening_wrapper, 
                         self.project.nodes[node_id].get_title(), 
-                        ' >', 
+                        syntax.link_closing_wrapper, 
                         contents
                     ])
                 self.project._set_node_contents(

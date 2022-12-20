@@ -112,11 +112,15 @@ class UrtextNode:
    
         file_contents = self.get_file_contents()
         node_contents = []
+        wrappers = [
+            syntax.node_opening_wrapper, 
+            syntax.node_closing_wrapper
+            ]
         for segment in self.ranges:
             this_range = file_contents[segment[0]:segment[1]]
-            if this_range and this_range[0] in ['}','{']:
+            if this_range and this_range[0] in wrappers:
                 this_range = this_range[1:]
-            if this_range and this_range[-1] in ['}','{']:
+            if this_range and this_range[-1] in wrappers:
                 this_range = this_range[:-1]
             node_contents.append(this_range)
         node_contents = ''.join(node_contents)
@@ -202,7 +206,7 @@ class UrtextNode:
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-            title = title.strip('_').strip()         
+            title = title.strip(syntax.title_marker).strip()         
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
@@ -234,7 +238,7 @@ class UrtextNode:
                 keynames[entry.keyname] = []
             timestamps = ''
             if entry.timestamps:
-                timestamps = ' '.join(['<'+t.string+'>' for t in entry.timestamps])
+                timestamps = ' '.join([syntax.timestamp_opening_wrapper + t.string + syntax.timestamp_opening_wrapper for t in entry.timestamps])  
             if not entry.value:
                 keynames[entry.keyname].append(timestamps)
             else:
@@ -252,25 +256,25 @@ class UrtextNode:
         
         if t:
             for r in self.ranges:
-                tag = file_contents[r[0]:r[1]+1].find('title::'+t)
+                tag = file_contents[r[0]:r[1]+1].find('title'+ +t)
                 if tag > -1:
-                    new_file_contents = file_contents[:r[0]+tag + len('title::'+t)]
+                    new_file_contents = file_contents[:r[0]+tag + len('title' + syntax.metadata_assignment_operator + t)]
                     new_file_contents += new_title
-                    new_file_contents += file_contents[r[0]+tag + len('title::'+t):]
+                    new_file_contents += file_contents[r[0]+tag + len('title' + metadata_assignment_operator + t):]
                     self.set_file_contents(new_file_contents)
                     self.project._adjust_ranges(
                         self.filename, 
-                        r[0]+tag + len('title::'+t),
+                        r[0]+tag + len('title' + metadata_assignment_operator + t),
                         len(new_title) -len(t) * -1)
                     self.title = new_title
                     return
                 else:
-                    title_location = file_contents[r[0]:r[1]+1].find(t + ' _')
+                    title_location = file_contents[r[0]:r[1]+1].find(t + syntax.title_marker)
                     if title_location < 0:
                         title_location = file_contents[r[0]:r[1]+1].find(t)
                     if title_location < 0:
                         continue
-                    new_title = new_title + ' _'
+                    new_title = new_title + syntax.title_marker
                     new_file_contents = file_contents[:r[0]+title_location + len(new_title)]
                     new_file_contents += new_title
                     new_file_contents += file_contents[r[0]+title_location + len(new_title):]
@@ -286,7 +290,7 @@ class UrtextNode:
     def build_metadata(self, 
         metadata, 
         one_line=None, 
-        separator='::'
+        separator=syntax.metadata_assignment_operator
         ):
 
         if not metadata:
@@ -294,7 +298,7 @@ class UrtextNode:
 
         line_separator = '\n'
         if one_line:
-            line_separator = '; '
+            line_separator = syntax.metadata_closing_marker + ' '
         new_metadata = ''
 
         for keyname in metadata:
@@ -328,7 +332,7 @@ class UrtextNode:
         if self.first_line_title:
             contents = contents.replace(self.title,'',1)
         if self.title_from_marker:
-            contents = contents.replace(' _','',1)
+            contents = contents.replace(syntax.title_marker,'',1)
         return contents
 
 
@@ -347,14 +351,14 @@ def strip_contents(contents,
     return contents
 
 def strip_wrappers(contents):
-        wrappers = ['{','}']
+        wrappers = [syntax.node_opening_wrapper, syntax.node_closing_wrapper]
         if contents and contents[0] in wrappers:
             contents = contents[1:]
         if contents and contents[-1] in wrappers:
             contents = contents[:-1]
         
-        contents = contents.replace('{','')
-        contents = contents.replace('}','')
+        contents = contents.replace(syntax.node_opening_wrapper,'')
+        contents = contents.replace(syntax.node_closing_wrapper,'')
         return contents
 
 def strip_metadata(contents, preserve_length=False):

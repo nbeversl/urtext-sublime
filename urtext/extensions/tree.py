@@ -2,9 +2,11 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.extension import UrtextExtension
     from Urtext.anytree import Node
+    import Urtext.urtext.syntax as syntax
 else:
     from urtext.extension import UrtextExtension
     from anytree import Node
+    import urtext.syntax as syntax
 
 class UrtextAnyTree(UrtextExtension):
 
@@ -18,7 +20,7 @@ class UrtextAnyTree(UrtextExtension):
         for position in positions:
 
             # parse each marker, positioning it within its parent node
-            if parsed_items[position][-2:].strip() == '>>':
+            if parsed_items[position][-2:].strip() == syntax.pointer_closing_wrapper:
                 inserted_node_id = parsed_items[position][:-2].strip()
                 parent_node = self.project.get_node_id_from_position(filename, position)
                 if not parent_node:
@@ -32,7 +34,7 @@ class UrtextAnyTree(UrtextExtension):
             if node_title not in self.project.nodes:
                 continue
 
-            if position == 0 and parsed_items[0] == '{':
+            if position == 0 and parsed_items[0] == syntax.opening_wrapper:
                 self.project.nodes[node_title].tree_node.parent = self.project.nodes[root_node_id].tree_node
                 continue
 

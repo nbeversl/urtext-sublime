@@ -16,7 +16,6 @@ class UrtextTimestamp:
         if self.datetime == None:
             self.datetime = default_date
 
-
 def date_from_timestamp(datestamp_string):
     if not datestamp_string:
         return default_date

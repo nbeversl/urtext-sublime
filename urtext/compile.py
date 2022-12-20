@@ -21,9 +21,11 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import force_list
+    import Urtext.urtext.syntax as syntax
 else:
     from urtext.node import UrtextNode
     from urtext.utils import force_list
+    import urtext.syntax as syntax
 
 def _compile(self):
     
@@ -51,16 +53,28 @@ def _process_dynamic_def(self, dynamic_definition):
             
     if dynamic_definition.target_id == None: 
         # (export temporarily disabled)
-        print('Found NoneType target in '+dynamic_definition.source_id)
+        self._log_item(None, ''.join([
+                'Dynamic definition in ',
+                syntax.link_opening_wrapper,
+                dynamic_definition.source_id,
+                syntax.link_closing_wrapper,
+                ' has no target']))
         return
 
     if dynamic_definition.target_id == None and not dynamic_definition.target_file:
         return
         
     if dynamic_definition.target_id not in self.nodes:
-        return self._log_item(None, 'Dynamic node definition in >' + dynamic_definition.source_id +
-                      ' points to nonexistent node >' + dynamic_definition.target_id)
-        
+        return self._log_item(None, ''.join([
+                    'Dynamic node definition in',
+                    syntax.link_opening_wrapper,
+                    dynamic_definition.source_id,
+                    syntax.link_closing_wrapper,
+                    ' points to nonexistent node ',
+                    syntax.link_opening_wrapper,
+                    dynamic_definition.target_id,
+                    syntax.link_closing_wrapper]))
+
     output = dynamic_definition.process_output()    
     if not dynamic_definition.returns_text:
         return
