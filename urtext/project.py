@@ -863,7 +863,7 @@ class UrtextProject:
             return ''.join([
                 syntax.timestamp_opening_wrapper,
                 date.strftime(self.settings['timestamp_format']),
-                syntax.timestamp.closing_wrapper,
+                syntax.timestamp_closing_wrapper,
                 ])
 
         return UrtextTimestamp(date.strftime(self.settings['timestamp_format']))
