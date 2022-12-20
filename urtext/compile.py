@@ -47,12 +47,18 @@ def _compile_file(self, filename):
             if output: # omit 700 phase
                 if self._write_dynamic_def_output(dd, output):
                     modified = filename
+        #TODO Refactor
+        for dd in self.dynamic_definitions:
+            if dd.target_file and dd.source_id == node_id:
+                output = self._process_dynamic_def(dd)
+                if output:
+                    if self._write_dynamic_def_output(dd, output):
+                        modified = filename                        
     return modified
 
 def _process_dynamic_def(self, dynamic_definition):
             
-    if dynamic_definition.target_id == None: 
-        # (export temporarily disabled)
+    if dynamic_definition.target_id == None and not dynamic_definition.target_file: 
         self._log_item(None, ''.join([
                 'Dynamic definition in ',
                 syntax.link_opening_wrapper,
@@ -61,10 +67,7 @@ def _process_dynamic_def(self, dynamic_definition):
                 ' has no target']))
         return
 
-    if dynamic_definition.target_id == None and not dynamic_definition.target_file:
-        return
-        
-    if dynamic_definition.target_id not in self.nodes:
+    if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
         return self._log_item(None, ''.join([
                     'Dynamic node definition in',
                     syntax.link_opening_wrapper,
@@ -76,7 +79,8 @@ def _process_dynamic_def(self, dynamic_definition):
                     syntax.link_closing_wrapper]))
 
     output = dynamic_definition.process_output()    
-    if not dynamic_definition.returns_text:
+    
+    if not dynamic_definition.returns_text and not dynamic_definition.target_file:
         return
 
     return self._build_final_output(dynamic_definition, output) 
@@ -102,7 +106,6 @@ def _write_dynamic_def_output(self, dynamic_definition, final_output):
     return changed_file
 
 def _build_final_output(self, dynamic_definition, contents):
-
     metadata_values = {}
     
     built_metadata = UrtextNode.build_metadata(

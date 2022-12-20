@@ -317,19 +317,23 @@ class UrtextProject:
             basename = os.path.basename(file_obj.filename)
             messages = []
             
-            for n in duplicate_nodes:
-                if n == '(untitled)':
-                    if self.settings['allow_untitled_nodes'] == False:
-                        messages.append('untitled node in f>'+duplicate_nodes[n]+'\n')
-                        self._log_item(basename, 'Untitled node: '+ duplicate_nodes[n])
-                else:
-                    messages.append('>'+n + ' exists in f>'+duplicate_nodes[n]+'\n')
-                    self._log_item(basename, 'Duplicate node ID(s) found: '+ ', '.join(duplicate_nodes))
-                    file_should_be_dropped = True
+            self._log_item(basename, 
+                'Duplicate node ID(s) found: ' + ''.join([
+                    ''.join(['\n\t',
+                                syntax.link_opening_wrapper, 
+                                n,
+                                syntax.link_closing_wrapper,
+                                ' (also in) ',
+                                syntax.file_link_opening_wrapper,
+                                self.nodes[n].filename,
+                                syntax.file_link_closing_wrapper,
+                            ]) for n in duplicate_nodes]))
+            file_should_be_dropped = True
             
         return file_should_be_dropped, should_re_parse
 
     def _target_id_defined(self, check_id):
+        """ """
         for nid in list(self.nodes):
             if nid in self.nodes and check_id in [t.target_id for t in self.nodes[nid].dynamic_definitions]:
                 return nid
@@ -367,15 +371,8 @@ class UrtextProject:
                                 syntax.link_opening_wrapper,
                                 defined,
                                 syntax.link_closing_wrapper])
-                    self._log_item(new_node.filename, message)
 
-                    definition = None
-                       
-        if len(new_node.metadata.get_values('ID')) > 1:
-            message = ''.join([ 
-                    'Multiple ID tags in >' , new_node.id ,': ',
-                    ', '.join(new_node.metadata.get_first_value('ID')),' - using the first one found.'])
-            self._log_item(new_node.filename, message)
+                    self._log_item(new_node.filename, message)
 
         new_node.parent_project = self.title
         new_node.project = self
@@ -816,7 +813,7 @@ class UrtextProject:
             if result:
                 full_match = result.group().strip()
                 link = os.path.join(self.path, result.group(2)).strip()
-                kind = 'EDITOR_LINK'              
+                kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'              
             else:
@@ -1009,10 +1006,9 @@ class UrtextProject:
         Call whenever a file requires dynamic updating
         """        
         filename = os.path.basename(filename)
-        if filename in self.exports:
-            self._process_dynamic_def(self.exports[filename])        
         if filename in self.files and self.compiled:
             return self._compile_file(filename)
+
 
     def _sync_file_list(self):
         included_files = self._get_included_files()

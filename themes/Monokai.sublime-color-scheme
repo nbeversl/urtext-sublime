@@ -16,7 +16,7 @@
 			 // Links
 			 "link": "var(bright-green)",
 			 "other-project-link" : "var(reg-text-white)",
-			 "file-link" : "",
+			 "file-link" : "var(blue-grey)",
 			 "link-title" : "var(reg-text-white)",
 			 "datestamp" : "var(blue-brighter)",
 			 "link-prefix" : "var(reg-text-white)",

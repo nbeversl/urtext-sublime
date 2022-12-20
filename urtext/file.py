@@ -56,7 +56,11 @@ class UrtextFile(UrtextBuffer):
         except IsADirectoryError:
             return None
         except UnicodeDecodeError:
-            self.log_error('UnicodeDecode Error: f>' + self.filename, 0)
+            self.log_error(''.join([
+                'UnicodeDecode Error: ',
+                syntax.file_link_opening_wrapper,
+                self.filename,
+                syntax.file_link_closing_wrapper]))
             return None
         return full_file_contents
 

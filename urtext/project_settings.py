@@ -16,7 +16,6 @@ single_values_settings = [
     'filename_title_length' ]
 
 single_boolean_values_settings = [
-    'allow_untitled_nodes',
     'always_oneline_meta',
     'preformat',
     'console_log',
@@ -64,7 +63,6 @@ def default_project_settings():
         'node_date_keyname' : 'timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
         'atomic_rename' : False,
-        'allow_untitled_nodes':True,
         'tag_other': [],
         'title_length':255,
         'device_keyname' : '',

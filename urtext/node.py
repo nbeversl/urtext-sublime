@@ -149,7 +149,7 @@ class UrtextNode:
         if not self.title:
             if self.metadata.get_entries('_oldest_timestamp'):
                 return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
-            return '(untitled)'
+            return '(untitledDDDD)'
         if self.project:
             return self.title
 
@@ -211,8 +211,10 @@ class UrtextNode:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
                 self.first_line_title = True
+            elif self.metadata.get_entries('_oldest_timestamp'):
+                title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
             else:
-                title = '(untitled)'
+                title = "(untitled) TEST"
 
         if len(title) > 255:
             title = title[:255]

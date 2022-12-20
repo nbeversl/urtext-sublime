@@ -19,6 +19,7 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import re
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirective
     import Urtext.urtext.node
@@ -40,7 +41,6 @@ class UrtextExport(UrtextDirective):
                self.params_dict['root'][0],
                 )
         return ''
-
 
     def export_from(self, 
         root_node_id, 
@@ -231,7 +231,7 @@ class UrtextExport(UrtextDirective):
 
         matches = []
         locations = []
-        for m in node_pointer_c.finditer(text):
+        for m in syntax.node_pointer_c.finditer(text):
             if not self.is_escaped(escaped_regions, (m.start(), m.end())):
                locations.append((text.find(m.group()), m.group()))
         return locations
@@ -327,11 +327,8 @@ class UrtextExport(UrtextDirective):
         """ replace node links, including titled ones, with exported versions """
 
         node_links = syntax.node_link_c.findall(contents)
-
         for match in node_links:
-            node_link = synax.node_link_c.search(match)           
-            node_id = node_link.group(0)
-
+            node_id = match[1]           
             if node_id not in self.project.nodes:                    
                 contents = contents.replace(match, '[ MISSING LINK : '+node_id+' ] ')
                 continue
@@ -346,7 +343,7 @@ class UrtextExport(UrtextDirective):
 
     def replace_file_links(self, contents, escaped_regions):
         to_replace = []
-        for link in file_link_c.finditer(contents):
+        for link in syntax.editor_file_link_c.finditer(contents):
             if not self.is_escaped(escaped_regions, (link.start(), link.end())):
                 to_replace.append(link)
         for link in to_replace:

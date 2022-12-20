@@ -270,7 +270,7 @@ contexts:
         2: pointer_id.urtext
 
   file_link:
-    - match: '(f>{1,2})[^\s][^;]*'
+    - match: '(\|f>\s)[^\s][^;]*\s>'
       scope: file_link.urtext
 
   raw:

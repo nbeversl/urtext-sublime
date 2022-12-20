@@ -7,10 +7,12 @@ pattern_break =                         r'($|(?=[\s|\r|]))'
 
 # Syntax Elements
 
+file_link_opening_wrapper =             '|f> '
+file_link_closing_wrapper =             ' >'
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
 link_opening_wrapper =                  '| '
-link_closing_wrapper =                    ' >'
+link_closing_wrapper =                   ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!!'
 urtext_message_closing_wrapper =        '!!>'
@@ -23,15 +25,21 @@ metadata_separator =                    ' - '
 other_project_link_prefix =             '=>'
 dynamic_def_opening_wrapper =           '[['
 dynamic_def_closing_wrapper =           ']]'
+
 # Base Patterns
 
 action =                                r'>>>([A-Z_\-\+]+)\((.*)\)'
 bullet =                                r'^([^\S\n]*?)•'
-closing_wrapper =                       r'(?<!\\)' + node_closing_wrapper
+closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrapper)
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
-editor_file_link =                      r'(f>{1,2})([^;]+)'
+editor_file_link =                      r''.join([
+                                            '(',
+                                            re.escape(file_link_opening_wrapper),
+                                            ')([^;]+)(',
+                                            file_link_closing_wrapper,
+                                            ')'])
 embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
@@ -123,6 +131,7 @@ metadata_ops_or_c =             re.compile(metadata_ops_or)
 metadata_separator_pattern_c =  re.compile(metadata_separator_pattern)
 metadata_tag_self_c =           re.compile(metadata_tag_self)
 metadata_tag_desc_c =           re.compile(metadata_tag_desc)
+node_pointer_c =                re.compile(node_pointer)
 node_title_c =                  re.compile(node_title, re.MULTILINE)
 metadata_assigner_c =           re.compile(metadata_assigner)
 node_link_c =                   re.compile(node_link)
