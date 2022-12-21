@@ -20,10 +20,9 @@ class UrtextBuffer:
         self.root_nodes = []
         self.alias_nodes = []
         self.messages = []        
-        self.errors = False
         self.contents = None
-        self.filename = 'yyyyyyyyyyy'
-        self.basename = 'yyyyyyyyyyy'
+        self.filename = ''
+        self.basename = ''
         self.project = project
         self.lex_and_parse(contents)
 
@@ -200,13 +199,6 @@ class UrtextBuffer:
           
     def _set_file_contents(self, contents):
           return
-
-    def clear_errors(self, contents):
-        cleared_contents = syntax.urtext_messages_c.sub('', contents)
-        if cleared_contents != contents:
-            self._set_file_contents(cleared_contents)
-        self.errors = False
-        return cleared_contents
 
     def write_messages(self, settings, messages=None):
         if not messages and not self.messages:

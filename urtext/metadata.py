@@ -46,7 +46,6 @@ class NodeMetadata:
         remaining_contents = full_contents
 
         for m in syntax.metadata_entry_c.finditer(full_contents):
-
             keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)
             value_list = syntax.metadata_separator_pattern_c.split(contents)
 
@@ -268,11 +267,11 @@ class NodeMetadata:
     def get_oldest_timestamp(self):
         if self.get_entries('_oldest_timestamp'):
             return self.get_entries('_oldest_timestamp')[0].timestamps[0]
-        all_timestamp = []
+        all_timestamps = []
         for entry in self.all_entries():
-            all_timestamp.extend(entry.timestamps)
-        all_timestamps = sorted(all_timestamp, reverse=True, key=lambda ts: ts.datetime)
-        if all_timestamp:
+            all_timestamps.extend(entry.timestamps)
+        all_timestamps = sorted(all_timestamps, reverse=True, key=lambda ts: ts.datetime)
+        if all_timestamps:
             return all_timestamps[0]
 
     def log(self):

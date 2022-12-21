@@ -4,7 +4,6 @@ import re
 
 pattern_break =                         r'($|(?=[\s|\r|]))'
 
-
 # Syntax Elements
 
 file_link_opening_wrapper =             '|f> '
@@ -34,21 +33,9 @@ closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrap
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
-editor_file_link =                      r''.join([
-                                            '(',
-                                            re.escape(file_link_opening_wrapper),
-                                            ')([^;]+)(',
-                                            file_link_closing_wrapper,
-                                            ')'])
 embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
 embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
-urtext_messages =                       r''.join([
-                                            urtext_message_opening_wrapper,
-                                            r'.*?',
-                                            urtext_message_closing_wrapper,
-                                            '\n?'])
-warning_messages =                      r'<!.*?!{1,2}>\n?'
 function =                              r'([A-Z_\-\+]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
@@ -66,15 +53,11 @@ metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?'
 metadata_separator_pattern =            r'\s' + metadata_separator + r'\s|$'
 metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
-opening_wrapper =                       r'(?<!\\)' + node_opening_wrapper
+opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
 pop_syntax =                            r'%%-[A-Z]+-END'
 preformat =                             r'\`.*?\`'
-push_syntax =                           r'%%-([A-Z]+)'+pattern_break
+push_syntax =                           r'%%-([A-Z]+)' + pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
-timestamp =                             r''.join([
-                                            timestamp_opening_wrapper,
-                                            r'([^-/<\s][^=<]+?)',
-                                            timestamp_closing_wrapper])
 title_pattern =                         r'([^>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
@@ -82,10 +65,8 @@ url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&
 
 metadata_key =                          r'\w+?(?=' + metadata_assigner + ')'
 metadata_values =                       r'(?<=::)[^\n};@]+;?'
-
 metadata_key_c =                        re.compile(metadata_key)
 metadata_values_c =                     re.compile(metadata_values)
-
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
 metadata_flags_c =                      re.compile(metadata_flags)
 
@@ -97,7 +78,21 @@ node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
 node_pointer =                          r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
 node_title =                            r'^'+ title_pattern +r'(?=\s_(\s|$))'
-
+timestamp =                             r''.join([
+                                            timestamp_opening_wrapper,
+                                            r'([^-/<\s][^=<]+?)',
+                                            timestamp_closing_wrapper])
+editor_file_link =                      r''.join([
+                                            '(',
+                                            re.escape(file_link_opening_wrapper),
+                                            ')([^;]+)(',
+                                            file_link_closing_wrapper,
+                                            ')'])
+urtext_messages =                       r''.join([
+                                            urtext_message_opening_wrapper,
+                                            '.*?',
+                                            urtext_message_closing_wrapper
+                                            ])
 # Compiled Patterns
 
 action_c =                      re.compile(action, re.DOTALL)

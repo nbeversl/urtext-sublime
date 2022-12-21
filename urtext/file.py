@@ -39,7 +39,6 @@ class UrtextFile(UrtextBuffer):
         self.contents = self._get_file_contents()        
         self.filename = os.path.join(project.path, os.path.basename(filename))
         self.could_import = False        
-        self.clear_errors(self.contents)
         symbols = self.lex(self.contents)
         self.parse(self.contents, symbols)
         self.write_messages(project.settings)

@@ -116,7 +116,6 @@ class UrtextProject:
         self.file_extensions = file_extensions
         self.title = self.path # default
         self.excluded_files = []
-        self.error_files = []
         self.execute(self._initialize_project, new_project=new_project)
     
     def _initialize_project(self, 
@@ -182,17 +181,11 @@ class UrtextProject:
     def _parse_file(self, filename):
     
         filename = os.path.basename(filename)
-        if filename in self.error_files:
-            self.error_files.remove(filename)
-
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
         new_file = self.urtext_file(os.path.join(self.path, filename), self)
         self.messages[new_file.filename] = new_file.messages
-        if new_file.errors:
-            self._add_to_error_files(filename)
-            return -1
  
         old_node_ids = []
         if filename in self.files:
@@ -201,16 +194,9 @@ class UrtextProject:
         self._remove_file(filename)
  
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
-
-        if file_should_be_dropped:
-            self._add_to_error_files(filename)
-            return file_should_be_dropped
         
         if should_re_parse:
             return self._parse_file(filename)
-
-        if new_file.filename in self.error_files:
-            self.error_files.remove(new_file.filename)
 
         if old_node_ids: # (if the file was already in the project)
             new_node_ids = new_file.get_ordered_nodes()
@@ -464,8 +450,6 @@ class UrtextProject:
                     if self.nav_index >= index:
                         self.nav_index -= 1            
             self._remove_file(filename)
-            os.remove(os.path.join(self.path, filename))
-        if filename in self.error_files:
             os.remove(os.path.join(self.path, filename))
         if filename in self.messages:
             del self.messages[filename]
@@ -1032,18 +1016,12 @@ class UrtextProject:
             return False 
         if os.path.splitext(filename)[1] not in self.file_extensions:
             return False
-        if filename in self.error_files:
-            return False
         return True
     
     def _add_to_excluded_files(self, filename):
         if filename not in self.excluded_files:
             self.excluded_files.append(filename)    
     
-    def _add_to_error_files(self, filename):
-        if filename not in self.error_files:
-            self.error_files.append(filename)    
-
     def add_file(self, filename):
         """ 
         parse syncronously so we can raise an exception
