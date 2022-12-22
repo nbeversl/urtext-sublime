@@ -36,9 +36,7 @@ class FindByMetaCommand(UrtextTextCommand):
         if selected_option == -1:
             return
         new_view = self.view.window().open_file(
-            os.path.join(
-                self._UrtextProjectList.current_project.path,
-                self.menu.get_selection_from_index(selected_option).filename))
+                self.menu.get_selection_from_index(selected_option).filename)
         if len(selected_option) > 3 and selected_option[3] != None:
             self.locate_node(selected_option[3], new_view)
 

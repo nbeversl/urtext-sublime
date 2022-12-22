@@ -35,7 +35,7 @@ class ReindexFiles(UrtextAction):
         prefix = 0
         prefix_length = len(str(len(self.project.files)))
         for filename in filenames:
-            old_filename = os.path.basename(filename)
+            old_filename = filename
             if old_filename not in self.project.files:
                 return {}
 
@@ -101,9 +101,9 @@ class ReindexFiles(UrtextAction):
 
             # add history files
             old_history_file = old_filename.replace('.txt','.diff')
-            if os.path.exists(os.path.join(self.project.path, 'history', old_history_file) ):
+            if os.path.exists(os.path.join(self.project.path, 'urtext_history', old_history_file) ):
                 new_history_file = new_filename.replace('.txt','.diff')
-                #renamed_files[os.path.join(self.project.path, 'history', old_history_file)] = os.path.join(self.project.path, 'history', new_history_file)
+                #renamed_files[os.path.join(self.project.path, 'urtext_history', old_history_file)] = os.path.join(self.project.path, 'urtext_history', new_history_file)
 
             prefix += 1
             

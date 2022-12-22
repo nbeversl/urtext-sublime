@@ -22,7 +22,6 @@ class UrtextBuffer:
         self.messages = []        
         self.contents = None
         self.filename = ''
-        self.basename = ''
         self.project = project
         self.lex_and_parse(contents)
 

@@ -19,19 +19,18 @@ class HistorySnapshot(UrtextAction):
         col_pos=0, 
         node_id=None):
         contents=param_string
-        
+
         dmp = dmp_module.diff_match_patch()
-        filename = os.path.basename(filename)
         if filename not in self.project.files:
             return None
 
-        if not os.path.exists(os.path.join(self.project.path, 'history')):
-            os.mkdir(os.path.join(self.project.path, 'history'))
+        if not os.path.exists(os.path.join(os.path.dirname(filename), 'urtext_history')):
+            os.mkdir(os.path.join(os.path.dirname(filename), 'urtext_history'))
         
         history_file = os.path.join(
-            self.project.path, 
-            'history',
-            filename.replace('.txt','.diff'))
+            os.path.dirname(filename), 
+            'urtext_history',
+            os.path.basename(filename) + '.diff')
         
         file_history = get_history(self.project, filename)
         if not file_history:
@@ -43,9 +42,8 @@ class HistorySnapshot(UrtextAction):
             if contents != latest_history:
                 file_history[int(time.time())] = dmp.patch_toText(dmp.patch_make(latest_history, contents))                
                 os.remove(history_file) # might prevent duplicate files on cloud storage ?
-                with open( history_file, "w") as f:
+                with open(history_file, "w") as f:
                     f.write(json.dumps(file_history))
-
 
 class GetHistory(UrtextAction):
 
@@ -92,8 +90,7 @@ def apply_patches(history, distance_back=0):
     return original
 
 def get_history(project, filename):
-    filename = os.path.basename(filename)
-    history_file = os.path.join(project.path, 'history', filename.replace('.txt','.diff'))
+    history_file = os.path.join(os.path.dirname(filename), 'urtext_history', filename + '.diff')
     if os.path.exists(history_file):
         with open(history_file, "r") as f:
             file_history = f.read()

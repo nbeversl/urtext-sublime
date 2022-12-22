@@ -138,29 +138,35 @@ def refresh_project_event_listener(function):
     return wrapper
 
 def initialize_project_list(view, 
-    new_project=False, 
+    new_project=False,
     reload_projects=False):
 
     global _UrtextProjectList
 
     if reload_projects:
-        _UrtextProjectList = None        
+        _UrtextProjectList = None
 
-    folders = view.window().folders()       
-    
-    #TODO Refactor
-    if not folders and view.file_name():
+    folders = view.window().folders()          
+    urtext_settings_file = None
+    urtext_settings_obj = sublime.load_settings("Urtext.sublime-settings")
+    if urtext_settings_obj.has("urtext_settings_file") and urtext_settings_obj.get("urtext_settings_file"):
+        urtext_settings_file = urtext_settings_obj.get("urtext_settings_file")
+
+    if urtext_settings_file:
+        _UrtextProjectList = ProjectList(urtext_settings_file)
+
+    elif not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
         if _UrtextProjectList:
-            _UrtextProjectList._add_folder(folder)
+            _UrtextProjectList.add_project(folder)
         else:
-            _UrtextProjectList = ProjectList(folder)    
+            _UrtextProjectList = ProjectList({ 'project_paths' : [folder] })    
     elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
-            _UrtextProjectList._add_folder(current_path)
+            _UrtextProjectList.add_project({'path': current_path})
         else:
-            _UrtextProjectList = ProjectList(current_path)    
+            _UrtextProjectList = ProjectList({ 'project_paths' : [current_path] }) 
     return _UrtextProjectList
 
 def get_path(view):
@@ -713,7 +719,7 @@ class NewProjectCommand(UrtextTextCommand):
     def init_new_project(self, path):
         global _UrtextProjectList
         if not _UrtextProjectList:
-            _UrtextProjectList = ProjectList(path, first_project=True)
+            _UrtextProjectList = ProjectList(sublime.load_settings("Urtext.sublime-settings"))
         else:
             _UrtextProjectList.init_new_project(path)
         _UrtextProjectList.set_current_project(path)    
@@ -736,7 +742,7 @@ class DeleteThisNodeCommand(UrtextTextCommand):
     def run(self):
         if self.view.file_name():
             open_files = [f.file_name() for f in self.view.window().views() if f.file_name() != self.view.file_name()]
-            file_name = os.path.basename(self.view.file_name())
+            file_name = self.view.file_name()
             if self.view.is_dirty():
                 self.view.set_scratch(True)
             self.view.window().run_command('close_file')            
@@ -804,12 +810,8 @@ class ReIndexFilesCommand(UrtextTextCommand):
             for view in self.view.window().views():
                 if view.file_name() == None:
                     continue
-                if os.path.join(self._UrtextProjectList.current_project.path, view.file_name()) in renamed_files:               
-                    view.retarget(
-                        os.path.join(
-                            self._UrtextProjectList.current_project.path,
-                            renamed_files[os.path.join(self._UrtextProjectList.current_project.path, view.file_name())])
-                        )
+                if view.file_name() in renamed_files:               
+                    view.retarget(renamed_files[view.file_name()])
 
 class RenameFileCommand(UrtextTextCommand):
 
@@ -828,11 +830,7 @@ class RenameFileCommand(UrtextTextCommand):
             renamed_files=renamed_files.result()
 
         if renamed_files:
-            self.view.retarget(
-                os.path.join(
-                    self._UrtextProjectList.current_project.path,
-                    renamed_files[filename])
-                )
+            self.view.retarget(renamed_files[filename])
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -1002,7 +1000,7 @@ def refresh_open_file(changed_files, view):
     if changed_files and window:
         open_views = window.views()
         for v in open_views:
-            if v.file_name() and os.path.basename(v.file_name()) in changed_files:
+            if v.file_name() and v.file_name() in changed_files:
                 view.run_command('revert') # undocumented
 
 def get_urtext_link(view):
@@ -1034,6 +1032,6 @@ def get_node_id(view, use_buffer=False):
             return _UrtextProjectList.current_project.get_node_id_from_position_in_buffer(
                 view.substr(sublime.Region(0,view.size())), 
                 position)
-        filename = os.path.basename(view.file_name())
+        filename = view.file_name()
         position = view.sel()[0].a
         return _UrtextProjectList.current_project.get_node_id_from_position(filename,position)

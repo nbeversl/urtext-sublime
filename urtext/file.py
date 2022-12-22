@@ -26,7 +26,6 @@ else:
 class UrtextFile(UrtextBuffer):
    
     def __init__(self, filename, project):
-        self.basename = os.path.basename(filename)
         self.nodes = {}
         self.root_nodes = []
         self.alias_nodes = []           
@@ -37,7 +36,7 @@ class UrtextFile(UrtextBuffer):
         self.project = project
         self.file_contents = self._read_file_contents()
         self.contents = self._get_file_contents()        
-        self.filename = os.path.join(project.path, os.path.basename(filename))
+        self.filename = filename
         self.could_import = False        
         symbols = self.lex(self.contents)
         self.parse(self.contents, symbols)

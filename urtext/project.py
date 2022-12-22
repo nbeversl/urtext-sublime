@@ -24,7 +24,6 @@ import random
 import time
 from time import strftime
 import concurrent.futures
-import inspect
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -42,6 +41,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.directives     
     import Urtext.urtext.actions
     import Urtext.urtext.extensions
+    import Urtext.urtext.exceptions as exceptions
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -59,6 +59,8 @@ else:
     import urtext.directives     
     import urtext.actions
     import urtext.extensions
+    from urtext.project_list import NoPathProvided
+    import urtext.exceptions as exceptions
 
 functions = compile_functions
 functions.extend(metadata_functions)
@@ -85,18 +87,31 @@ class UrtextProject:
     urtext_file = UrtextFile
     urtext_node = UrtextNode
 
-    def __init__(self,
-                 path,
-                 file_extensions=['.txt'],
-                 rename=False,
-                 new_project=False,
-                 run_async=True):
+    def __init__(self, args):
         
-        self.is_async = run_async 
+        self.file_extensions = ['.txt', '.urtext']
+        self.is_async = True 
+        new_project=False
+
+        if 'path' in args and os.path.exists(args['path']):
+            self.path = args['path']
+        else:
+            raise exceptions.NoPathProvided
+
+        if 'file_extensions' in args:
+            self.file_extensions = args['file_extensions']
+            if not isinstance(self.file_extensions, list):
+                self.file_extensions = [self.file_extensions]
+
+        if 'new_project' in args:
+            new_project = args['new_project']
+
+        if 'async' in args:
+            self.is_async = args['async']
+
         self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
-        self.path = path
         self.settings = default_project_settings()
         self.nodes = {}
         self.files = {}
@@ -113,7 +128,7 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-        self.file_extensions = file_extensions
+        
         self.title = self.path # default
         self.excluded_files = []
         self.execute(self._initialize_project, new_project=new_project)
@@ -136,18 +151,15 @@ class UrtextProject:
         num_extensions = len(self.extensions)
         num_actions = len(self.actions)
         num_directives = len(self.directives)
-
         for file in self._get_included_files():
             self._parse_file(file)
 
         if self.nodes == {}:
             if new_project:
                 for filename in templates:
-                    with open(os.path.join(self.path, filename ), 'w', encoding='utf-8') as f:
+                    with open(filename, 'w', encoding='utf-8') as f:
                         f.write(templates[filename]) 
-                    self._parse_file(os.path.basename(filename))
-            else:
-                raise NoProject('No Urtext nodes in this folder.')
+                    self._parse_file(filename)
 
         elif new_project:
             print('Urtext project already exists here.')
@@ -180,11 +192,10 @@ class UrtextProject:
 
     def _parse_file(self, filename):
     
-        filename = os.path.basename(filename)
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
-        new_file = self.urtext_file(os.path.join(self.path, filename), self)
+        new_file = self.urtext_file(filename, self)
         self.messages[new_file.filename] = new_file.messages
  
         old_node_ids = []
@@ -233,7 +244,7 @@ class UrtextProject:
                                 pass
             self._rewrite_changed_links(changed_ids)
 
-        self.files[new_file.basename] = new_file  
+        self.files[new_file.filename] = new_file  
         for node_id in new_file.nodes:
             self._add_node(new_file.nodes[node_id])
     
@@ -300,10 +311,9 @@ class UrtextProject:
         should_re_parse = False
 
         if duplicate_nodes:
-            basename = os.path.basename(file_obj.filename)
             messages = []
             
-            self._log_item(basename, 
+            self._log_item(file_obj.filename, 
                 'Duplicate node ID(s) found: ' + ''.join([
                     ''.join(['\n\t',
                                 syntax.link_opening_wrapper, 
@@ -402,7 +412,7 @@ class UrtextProject:
         adjust the ranges of all nodes in the given file 
         a given amount, from a given position
         """
-        for node_id in self.files[os.path.basename(filename)].nodes:
+        for node_id in self.files[filename].nodes:
             number_ranges = len(self.nodes[node_id].ranges)
             for index in range(number_ranges):
                 this_range = self.nodes[node_id].ranges[index]
@@ -441,7 +451,6 @@ class UrtextProject:
         Deletes a file, removes it from the project,
         and returns a future of modified files.
         """
-        filename = os.path.basename(filename)
         if filename in self.files:
             for node_id in list(self.files[filename].nodes):
                 while node_id in self.navigation:
@@ -450,22 +459,20 @@ class UrtextProject:
                     if self.nav_index >= index:
                         self.nav_index -= 1            
             self._remove_file(filename)
-            os.remove(os.path.join(self.path, filename))
+            os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
         if open_files:
-            return self.on_modified([os.path.basename(f) for f in open_files])
+            return self.on_modified(open_files)
         return []
     
     def _handle_renamed(self, old_filename, new_filename):
-        new_filename = os.path.basename(new_filename)
-        old_filename = os.path.basename(old_filename)
         if new_filename != old_filename:
             self.files[new_filename] = self.files[old_filename]
             for node_id in self.files[new_filename].nodes:
                 self.nodes[node_id].filename = new_filename
-                self.files[new_filename].filename = os.path.join(self.path, new_filename)
-                self.nodes[node_id].full_path = os.path.join(self.path, new_filename)
+                self.files[new_filename].filename = new_filename
+                self.nodes[node_id].full_path = new_filename
             del self.files[old_filename]
             for ext in self.extensions:
                 self.extensions[ext].on_file_renamed(old_filename, new_filename)
@@ -474,7 +481,7 @@ class UrtextProject:
     filtering files to skip 
     """
     def _filter_filenames(self, filename):
-        if filename in ['history','files','.git']:
+        if filename in ['urtext_history','urtext_files','.git']:
             return None            
         if filename in self.settings['exclude_files']:
             return None
@@ -500,7 +507,7 @@ class UrtextProject:
             include_timestamp=self.settings['file_node_timestamp'])
         
         filename = filename + '.txt'
-        with open(os.path.join(self.path, filename), "w") as f:
+        with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
 
@@ -697,7 +704,6 @@ class UrtextProject:
         return sorted_files
 
     def get_node_id_from_position(self, filename, position):
-        filename = os.path.basename(filename)
         if filename in self.files:
             for node_id in self.files[filename].nodes:
                 for r in self.files[filename].nodes[node_id].ranges:                   
@@ -763,7 +769,6 @@ class UrtextProject:
         dest_position = None
         link_match = None
         link_location = None
-        filename = os.path.basename(filename)
 
         result = syntax.action_c.search(string)
         if result:
@@ -800,7 +805,7 @@ class UrtextProject:
             result = syntax.editor_file_link_c.search(string)            
             if result:
                 full_match = result.group().strip()
-                link = os.path.join(self.path, result.group(2)).strip()
+                link = result.group(2).strip()
                 kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'              
@@ -993,7 +998,6 @@ class UrtextProject:
         """
         Call whenever a file requires dynamic updating
         """        
-        filename = os.path.basename(filename)
         if filename in self.files and self.compiled:
             return self._compile_file(filename)
 
@@ -1008,12 +1012,8 @@ class UrtextProject:
             self.remove_file(file)
 
     def _get_included_files(self):
-        basenames = self._get_basenames()
-        return [f for f in basenames if self._include_file(f)]
-
-    def _get_basenames(self):
-        all_files = os.listdir(self.path)
-        return [os.path.basename(f) for f in all_files]
+        files = os.listdir(self.path)
+        return [os.path.join(self.path, f) for f in files if self._include_file(f)]
 
     def _include_file(self, filename):
         if filename in self.excluded_files:
@@ -1039,16 +1039,14 @@ class UrtextProject:
         return self.execute(self._compile)
 
     def remove_file(self, filename):
-        self.execute(self._remove_file, os.path.basename(filename))
+        self.execute(self._remove_file, filename)
     
-    def get_file_name(self, node_id, absolute=False):
+    def get_file_name(self, node_id):
         filename = None
         if node_id in self.nodes:
             filename = self.nodes[node_id].filename
         else:
             return None
-        if absolute:
-            filename = os.path.join(self.path, filename)
         return filename
 
     def title_completions(self):
@@ -1087,7 +1085,6 @@ class UrtextProject:
                 return { 
                     'id' : dd.source_id,
                     'location' : position}
-
 
     def get_by_meta(self, key, values, operator):
         
@@ -1175,7 +1172,7 @@ class UrtextProject:
 
     def get_file_and_position(self, node_id):
         if node_id in self.nodes:
-            filename = self.get_file_name(node_id, absolute=True)
+            filename = self.get_file_name(node_id)
             position = self.nodes[node_id].start_position()
             return filename, position
         return None, None
@@ -1186,11 +1183,6 @@ class UrtextProject:
             return future
         else:    
             return function(*args, **kwargs)
-
-                
-class NoProject(Exception):
-    """ no Urtext nodes are in the folder """
-    pass
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """

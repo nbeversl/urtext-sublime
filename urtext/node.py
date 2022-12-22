@@ -50,7 +50,7 @@ class UrtextNode:
         root=False,
         compact=False):
 
-        self.filename = os.path.basename(filename)
+        self.filename = filename
         self.project = project
         self.position = 0
         self.ranges = [[0, 0]]

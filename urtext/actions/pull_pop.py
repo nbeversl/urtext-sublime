@@ -24,7 +24,7 @@ class PopNode(UrtextAction):
         
         return self._pop_node(
             param_string, 
-            os.path.basename(filename), 
+            filename, 
             file_pos=file_pos)
 
     def _pop_node(self, 
@@ -89,7 +89,7 @@ class PullNode(UrtextAction):
         """ File must be saved in the editor """
         return self._pull_node(
             string, 
-            os.path.basename(filename), 
+            filename, 
             file_pos=file_pos, 
             col_pos=col_pos)
     

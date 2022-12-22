@@ -163,18 +163,15 @@ class TraverseFileTree(EventListener):
 			position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
 			
 			""" If the tree is linking to another part of its own file """
-			if filename == os.path.basename(this_file):
+			if filename == this_file:
 				
-				instances = self.find_filename_in_window(
-					os.path.join(self._UrtextProjectList.current_project.path, filename), window)
+				instances = self.find_filename_in_window(filename, window)
 
 				# Only allow two total instances of this file; 
 				# one to navigate, one to edit
 				if len(instances) < 2:
 					window.run_command("clone_file")
-					duplicate_file_view = self.find_filename_in_window(
-						os.path.join(self._UrtextProjectList.current_project.path, filename),
-						window)[1]
+					duplicate_file_view = self.find_filename_in_window(filename, window)[1]
 
 				if len(instances) >= 2:
 					duplicate_file_view = instances[1]
@@ -212,8 +209,7 @@ class TraverseFileTree(EventListener):
 				""" The tree is linking to another file """
 				path = self._UrtextProjectList.current_project.path
 				window.focus_group(self.content_group)
-				file_view = window.open_file(os.path.join(path, filename),
-											 sublime.TRANSIENT)
+				file_view = window.open_file(filename, sublime.TRANSIENT)
 
 				file_view.sel().clear()
 				file_view.sel().add(sublime.Region(position, position))

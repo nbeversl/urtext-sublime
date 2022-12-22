@@ -37,8 +37,7 @@ def take_snapshot(view, project):
     if view and view.file_name():
         project.run_action('HISTORY_SNAPSHOT',
             view.substr(sublime.Region(0, view.size())),
-            os.path.basename(view.file_name())
-            )
+            view.file_name())
 
 def get_contents(view):
     if view != None: 
@@ -57,7 +56,7 @@ class BrowseHistoryCommand(UrtextTextCommand):
             
             take_snapshot(self.view, self._UrtextProjectList.current_project)
 
-            self.current_file = os.path.basename(self.view.file_name())
+            self.current_file = self.view.file_name()
             new_history = self._UrtextProjectList.current_project.run_action(
                 'HISTORY_GET_HISTORY',
                 '',

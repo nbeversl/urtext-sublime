@@ -18,7 +18,7 @@ class ICS(UrtextAction):
         
         if not node_id:
             node_id = self.project.get_node_id_from_position(
-                os.path.basename(filename), 
+                filename, 
                 file_pos)
         if not node_id:
             return

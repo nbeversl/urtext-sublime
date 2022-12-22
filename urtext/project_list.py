@@ -19,27 +19,49 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import concurrent.futures
 import os
 import re
+import json
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .project import UrtextProject, NoProject
+    from .project import UrtextProject
+    from .settings import UrtextSettings
+    import Urtext.urtext.exceptions as exceptions
 else:
-    from urtext.project import UrtextProject, NoProject
+    from urtext.project import UrtextProject
+    from urtext.settings import UrtextSettings
+    import urtext.exceptions as exceptions
 
 class ProjectList():
 
-    def __init__(self, 
-        base_path, 
-        initial_project=None,
-        first_project=False):
+    def __init__(self, args_or_settings_file):
         self.projects = []
-        self.base_path = base_path
         self.current_project = None
         self.navigation = []
         self.nav_index = -1
-        
-        if first_project:
-            self.init_new_project(base_path)    
-        self._add_folder(base_path)
+
+        settings = None
+        if isinstance(args_or_settings_file, dict):
+            args = args_or_settings_file
+        else:
+            if os.path.exists(args_or_settings_file):
+                args = UrtextSettings(args_or_settings_file).to_dict()
+        if not args:
+            raise exceptions.NoValidSettings
+
+        if 'project_paths' in args:
+            self.paths = args['project_paths']
+        else:
+            raise exceptions.NoPathProvided
+
+        initial_project = None
+        if 'initial_project' in args:
+            initial_project = args['initial_project']
+
+        if not isinstance(self.paths, list):
+            self.paths = [self.paths]
+
+        for path in self.paths:
+            args['path'] = path
+            self.add_project(args)
         
         if self.projects:
             self.current_project = self.projects[0]
@@ -47,19 +69,12 @@ class ProjectList():
             self.set_current_project(initial_project)
         self._propagate_projects(None)
     
-    def _add_folder(self, folder):
+    def add_project(self, args):
         """ recursively add folders """
-        if folder not in [p.path for p in self.projects]:
-            try:
-                if os.path.basename(folder) not in ['history','img','files' ]:
-                    project = UrtextProject(folder)
-                    self.projects.append(project)
-            except NoProject:
-                print('No project found in '+folder)
-            sub_dirs = next(os.walk(folder))[1]
-            for subdir in sub_dirs:
-                if subdir not in ['.git','.DS_Store','/','history','files']:
-                    self._add_folder(os.path.join(folder, subdir))
+        if args['path'] not in [p.path for p in self.projects]:
+            if os.path.basename(args['path']) not in ['urtext_history','urtext_files' ]:
+                project = UrtextProject(args)
+                self.projects.append(project)
 
     def get_link_and_set_project(self, 
             string, 
@@ -97,7 +112,7 @@ class ProjectList():
         
         """ Otherwise, set the project, search the link for a link in the current project """
         if filename:
-            self.set_current_project(os.path.basename(filename))
+            self.set_current_project(os.path.dirname(filename))
             link = self.current_project.get_link( 
                 string, 
                 filename, 
@@ -113,7 +128,7 @@ class ProjectList():
         for f in filenames:
             project = self._get_project_from_path(os.path.dirname(f))
             if project:
-                modified_files.append(project.on_modified(os.path.basename(f)))
+                modified_files.append(project.on_modified(f))
         return modified_files
         
     def _propagate_projects(self, future):
@@ -188,7 +203,7 @@ class ProjectList():
 
     def init_new_project(self, path):
         if path in self.project_titles():
-            print('Path already in use.')
+            print('Path %s already in use.', path)
             return None
         if not os.path.exists(path):
             os.makedirs(path)
@@ -196,7 +211,7 @@ class ProjectList():
         if project:
             self.projects.append(project)
             self.set_current_project(path)
-            
+
         print('Initialized New project at '+os.path.abspath(path))
 
     def visit_file(self, filename):
@@ -221,7 +236,6 @@ class ProjectList():
             print('Destination project `'+ destination_project_name_or_path +'` was not found.')
             return None
 
-        filename = os.path.basename(filename)
         if filename not in self.current_project.files:
             print('File '+ filename +' not included in the current project.')
             return None
@@ -252,10 +266,11 @@ class ProjectList():
                     node_id)
 
         # also move the history file
-        history_file = filename
-        if os.path.exists(os.path.join(self.current_project.path, 'history', history_file)):
-            os.rename(os.path.join(self.current_project.path, 'history', history_file),
-                  os.path.join(destination_project.path, 'history', history_file))
+        history_file = os.path.join(os.dirname(filename), 'urtext_history', filename + '.diff')
+        if os.path.exists(history_file):
+            os.rename(
+                history_file,
+                os.path.join(destination_project.path, 'urtext_history', os.path.basename(history_file)))
 
         return True
 
@@ -307,7 +322,7 @@ class ProjectList():
     def delete_file(self, file_name, project=None, open_files=[]):
         if not project:
             project = self.current_project
-        removed_node_ids = project.delete_file(os.path.basename(file_name), open_files=open_files)
+        removed_node_ids = project.delete_file(file_name, open_files=open_files)
         if project.is_async:
             removed_node_ids = removed_node_ids.result()
         for node_id in removed_node_ids:
@@ -348,4 +363,3 @@ class ProjectList():
         self.set_current_project(project)
         self.current_project.nav_reverse()   
         return last_node
-
