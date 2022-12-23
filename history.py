@@ -56,11 +56,10 @@ class BrowseHistoryCommand(UrtextTextCommand):
             
             take_snapshot(self.view, self._UrtextProjectList.current_project)
 
-            self.current_file = self.view.file_name()
             new_history = self._UrtextProjectList.current_project.run_action(
                 'HISTORY_GET_HISTORY',
                 '',
-                self.current_file)
+                self.view.file_name())
             
             if self._UrtextProjectList.current_project.is_async:
                 new_history = new_history.result()
@@ -85,7 +84,7 @@ class BrowseHistoryCommand(UrtextTextCommand):
         state = self._UrtextProjectList.current_project.run_action(
             'APPLY_HISTORY_PATCHES',
             str(index),
-            os.path.basename(self.view.file_name()))
+            self.view.file_name())
 
         if self._UrtextProjectList.current_project.is_async:
             state = state.result()

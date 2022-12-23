@@ -11,7 +11,7 @@ class RenameHistoryFiles(UrtextExtension):
         history_file = os.path.join(
             os.dirname(old_filename), 
             'urtext_history',
-            old_filename + '.diff')
+            os.path.basename(old_filename) + '.diff')
         if os.path.exists(history_file):
             os.rename(history_file, new_filename + '.diff')
 

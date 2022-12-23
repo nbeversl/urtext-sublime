@@ -32,7 +32,7 @@ class HistorySnapshot(UrtextAction):
             'urtext_history',
             os.path.basename(filename) + '.diff')
         
-        file_history = get_history(self.project, filename)
+        file_history = get_history(filename)
         if not file_history:
             file_history = { int(time.time()) : contents}
             with open( history_file, "w") as f:
@@ -55,7 +55,7 @@ class GetHistory(UrtextAction):
         file_pos=0,
         col_pos=0, 
         node_id=None):
-        return get_history(self.project, filename)
+        return get_history(filename)
  
     def most_recent_history(self, history):
         times = sorted(history.keys())
@@ -72,7 +72,7 @@ class ApplyHistoryPatches(UrtextAction):
         col_pos=0, 
         node_id=None):
 
-        file_history = get_history(self.project, filename)
+        file_history = get_history(filename)
         distance_back = int(param_string)
         return apply_patches(file_history, distance_back)
  
@@ -89,11 +89,13 @@ def apply_patches(history, distance_back=0):
         original = dmp.patch_apply(dmp.patch_fromText(next_patch), original)[0]
     return original
 
-def get_history(project, filename):
-    history_file = os.path.join(os.path.dirname(filename), 'urtext_history', filename + '.diff')
+def get_history(filename):
+    history_file = os.path.join(
+        os.path.dirname(filename), 
+        'urtext_history', 
+        os.path.basename(filename) + '.diff')
     if os.path.exists(history_file):
         with open(history_file, "r") as f:
             file_history = f.read()
         return json.loads(file_history)
-    print('NO HISTORY FILE FOUND')
 
