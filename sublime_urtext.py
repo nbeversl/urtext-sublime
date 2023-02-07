@@ -282,8 +282,7 @@ class UrtextCompletions(EventListener):
                     contents = contents.replace('>','&gt;')
                     contents = contents.replace('\n','<br>')
 
-                    def open_node_from_this_view(node_id):
-                        open_urtext_node(view, node_id)
+                    
 
                     html = """
                         <body id=linked_node_contents>
@@ -319,6 +318,7 @@ class UrtextCompletions(EventListener):
                     view.show_popup(html,
                         max_width=800, 
                         max_height=512, 
+                        location=file_pos,
                         on_navigate=open_node_from_this_view)
                     return
 
@@ -369,6 +369,7 @@ class UrtextCompletions(EventListener):
                 view.show_popup(html, 
                     max_width=512, 
                     max_height=512, 
+                    location=file_pos,
                     on_navigate=unfold_region)
 
 def urtext_on_modified(view):
@@ -992,6 +993,9 @@ def open_urtext_node(
     called from forward/backward navigation and shouldn't duplicate/override 
     any of the operations of the methods that call it.
     """
+
+def open_node_from_this_view(node_id):
+    open_urtext_node(view, node_id)
 
 def position_node(new_view, position): 
     new_view.sel().clear()
