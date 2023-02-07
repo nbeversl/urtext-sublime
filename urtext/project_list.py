@@ -229,7 +229,7 @@ class ProjectList():
 
         affected_nodes = self.current_project.files[filename].nodes.keys()
         
-        self.current_project.remove_file(filename) # also updates the source project
+        self.current_project.drop_file(filename) # also updates the source project
 
         os.rename(
             os.path.join( self.current_project.path, filename),

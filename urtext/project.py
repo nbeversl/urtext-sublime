@@ -74,18 +74,12 @@ class UrtextProject:
 
     def __init__(self, args):
         
-        self.file_extensions = ['.urtext']
         self.is_async = True 
 
         if 'path' in args and os.path.exists(args['path']):
             self.path = args['path']
         else:
             raise exceptions.NoPathProvided
-
-        if 'file_extensions' in args:
-            self.file_extensions = args['file_extensions']
-            if not isinstance(self.file_extensions, list):
-                self.file_extensions = [self.file_extensions]
 
         if 'async' in args:
             self.is_async = args['async']
@@ -131,8 +125,14 @@ class UrtextProject:
         num_extensions = len(self.extensions)
         num_actions = len(self.actions)
         num_directives = len(self.directives)
+
         for file in self._get_included_files():
             self._parse_file(file)
+
+        if len(self.settings['include_extensions']) > 1:
+            for file in self._get_included_files():
+                if file not in self.files:
+                    self._parse_file(file)
 
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()       
@@ -171,7 +171,7 @@ class UrtextProject:
         if filename in self.files:
             old_node_ids = self.files[filename].get_ordered_nodes()
 
-        self._remove_file(filename)
+        self._drop_file(filename)
  
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
         
@@ -392,7 +392,7 @@ class UrtextProject:
     """
     Removing and renaming files
     """
-    def _remove_file(self, filename):
+    def _drop_file(self, filename):
        
         if filename in self.files:
             for dd in self.dynamic_defs():
@@ -427,7 +427,7 @@ class UrtextProject:
                     del self.navigation[index]
                     if self.nav_index >= index:
                         self.nav_index -= 1            
-            self._remove_file(filename)
+            self._drop_file(filename)
             os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
@@ -846,6 +846,13 @@ class UrtextProject:
                 self.settings['numerical_keys'].append(entry.value)
                 continue
 
+            if entry.keyname == 'include_extensions':
+                value = entry.value
+                if value[0] != '.':
+                    value = '.' + value
+                self.settings['include_extensions'].append(value)
+                continue
+
             if entry.keyname in single_values_settings:
                 if entry.keyname in integers_settings:
                     try:
@@ -970,7 +977,6 @@ class UrtextProject:
         if filename in self.files and self.compiled:
             return self._compile_file(filename)
 
-
     def _sync_file_list(self):
         included_files = self._get_included_files()
         current_files = list(self.files)
@@ -978,7 +984,7 @@ class UrtextProject:
             self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
             self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
-            self.remove_file(file)
+            self._drop_file(file)
 
     def _get_included_files(self):
         files = os.listdir(self.path)
@@ -986,8 +992,8 @@ class UrtextProject:
 
     def _include_file(self, filename):
         if filename in self.excluded_files:
-            return False 
-        if os.path.splitext(filename)[1] not in self.file_extensions:
+            return False
+        if os.path.splitext(filename)[1] not in self.settings['include_extensions']:
             return False
         return True
     
@@ -1007,8 +1013,8 @@ class UrtextProject:
             raise DuplicateIDs()
         return self.execute(self._compile)
 
-    def remove_file(self, filename):
-        self.execute(self._remove_file, filename)
+    def drop_file(self, filename):
+        self.execute(self._drop_file, filename)
     
     def get_file_name(self, node_id):
         filename = None
@@ -1365,10 +1371,10 @@ class UrtextProject:
                     next_node=self.nodes[node_to_tag].tree_node, 
                     visited_nodes=visited_nodes)
 
-def _remove_sub_tags(self, source_id):
-    for target_id in self.nodes[source_id].target_nodes:
-         if target_id in self.nodes:
-             self.nodes[target_id].metadata.clear_from_source(source_id)  
+    def _remove_sub_tags(self, source_id):
+        for target_id in self.nodes[source_id].target_nodes:
+             if target_id in self.nodes:
+                 self.nodes[target_id].metadata.clear_from_source(source_id)  
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
