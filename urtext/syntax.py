@@ -28,7 +28,7 @@ dynamic_def_closing_wrapper =           ']]'
 # Base Patterns
 
 action =                                r'>>>([A-Z_\-\+]+)\((.*)\)'
-bullet =                                r'^([^\S\n]*?)•'
+compact_node_opener =                   r'^[^\S\r\n]*(•|-)\s'
 closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrapper)
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
@@ -72,7 +72,7 @@ metadata_flags_c =                      re.compile(metadata_flags)
 
 # Composite patterns
 
-compact_node =                          bullet + r'([^\r\n]*)(\n|$)'
+compact_node =                          compact_node_opener + r'([^\r\n]*)(\n|$)'
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
@@ -96,8 +96,8 @@ urtext_messages =                       r''.join([
 # Compiled Patterns
 
 action_c =                      re.compile(action, re.DOTALL)
-bullet_c =                      re.compile(bullet)
-compact_node_c =                re.compile(compact_node, re.MULTILINE)
+compact_node_opener_c =         re.compile(compact_node_opener)
+compact_node_c =                re.compile(compact_node)
 closing_wrapper_c =             re.compile(closing_wrapper)
 dd_flag_c =                     re.compile(dd_flag)
 dd_key_c =                      re.compile(dd_key)

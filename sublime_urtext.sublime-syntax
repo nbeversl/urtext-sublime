@@ -25,7 +25,7 @@ contexts:
     - include: node_title
     - include: trigger
     
-    - match: (•|-)
+    - match: ^\s*(•|-)
       scope: compact_node_opener.urtext 
       push: compact-node
 
