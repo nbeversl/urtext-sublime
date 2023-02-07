@@ -20,8 +20,10 @@ import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .buffer import UrtextBuffer
+    import Urtext.urtext.syntax as syntax 
 else:
     from urtext.buffer import UrtextBuffer
+    import urtext.syntax as syntax
 
 class UrtextFile(UrtextBuffer):
    
@@ -35,12 +37,13 @@ class UrtextFile(UrtextBuffer):
         self.errors = False
         self.project = project
         self.file_contents = self._read_file_contents()
-        self.contents = self._get_file_contents()        
-        self.filename = filename
-        self.could_import = False        
-        symbols = self.lex(self.contents)
-        self.parse(self.contents, symbols)
-        self.write_messages(project.settings)
+        if self.file_contents:
+            self.contents = self._get_file_contents()        
+            self.filename = filename
+            self.could_import = False        
+            symbols = self.lex(self.contents)
+            self.parse(self.contents, symbols)
+            self.write_messages(project.settings)
 
     def _get_file_contents(self):
         return self.file_contents
@@ -58,7 +61,7 @@ class UrtextFile(UrtextBuffer):
                 'UnicodeDecode Error: ',
                 syntax.file_link_opening_wrapper,
                 self.filename,
-                syntax.file_link_closing_wrapper]))
+                syntax.file_link_closing_wrapper]), 0)
             return None
         return full_file_contents
 

@@ -58,6 +58,7 @@ def default_project_settings():
             '_newest_timestamp'],
         'filenames': ['PREFIX', 'title'],
         'filename_datestamp_format':'%m-%d-%Y',
+        'include_extensions' : ['.urtext'],
         'console_log': True,
         'always_oneline_meta': False,
         'node_date_keyname' : 'timestamp',
