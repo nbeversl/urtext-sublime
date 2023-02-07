@@ -93,6 +93,13 @@ contexts:
       escape: '%%-PHP-END'
       escape_captures: 0
 
+    - match: '%%-MARKDOWN'
+      scope: pass_marker.urtext
+      embed: Packages/Markdown/Markdown.sublime-syntax
+      embed_scope: markdown.urtext
+      escape: '%%-MARKDOWN-END'
+      escape_captures: 0
+
     - match: '%%-DOC'
       scope: pass_marker.urtext
       escape: '%%-DOC-END'

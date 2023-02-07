@@ -29,8 +29,6 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from ..anytree import Node, PreOrderIter, RenderTree
     from .file import UrtextFile, UrtextBuffer
     from .node import UrtextNode
-    from .compile import compile_functions
-    from .meta_handling import metadata_functions
     from .dynamic import UrtextDynamicDefinition
     from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from .directive import UrtextDirective
@@ -46,8 +44,6 @@ else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
     from urtext.node import UrtextNode
-    from urtext.compile import compile_functions
-    from urtext.meta_handling import metadata_functions
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from urtext.directive import UrtextDirective
@@ -62,9 +58,6 @@ else:
     from urtext.project_list import NoPathProvided
     import urtext.exceptions as exceptions
 
-functions = compile_functions
-functions.extend(metadata_functions)
-
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
@@ -73,14 +66,6 @@ all_extensions = all_subclasses(UrtextExtension)
 all_directives = all_subclasses(UrtextDirective)
 all_actions = all_subclasses(UrtextAction)
 
-def add_functions_as_methods(functions):
-    def decorator(Class):
-        for function in functions:
-            setattr(Class, function.__name__, function)
-        return Class
-    return decorator
-
-@add_functions_as_methods(functions)
 class UrtextProject:
     """ Urtext project object """
 
@@ -1184,6 +1169,223 @@ class UrtextProject:
         else:    
             return function(*args, **kwargs)
 
+    """ Project Compile """
+
+    def _compile(self):
+    
+        self._add_all_sub_tags()
+        for dynamic_definition in self.dynamic_defs():
+            if dynamic_definition.target_id in self.nodes:
+                self.nodes[dynamic_definition.target_id].dynamic = True
+
+        for dynamic_definition in self.dynamic_defs(): 
+            self._process_dynamic_def(dynamic_definition)
+
+        self._add_all_sub_tags()
+
+    def _compile_file(self, filename):
+
+        modified = False
+        for node_id in self.files[filename].nodes:
+            for dd in self.dynamic_defs(target=node_id):
+                output = self._process_dynamic_def(dd)
+                if output: # omit 700 phase
+                    if self._write_dynamic_def_output(dd, output):
+                        modified = filename
+            #TODO Refactor
+            for dd in self.dynamic_definitions:
+                if dd.target_file and dd.source_id == node_id:
+                    output = self._process_dynamic_def(dd)
+                    if output:
+                        if self._write_dynamic_def_output(dd, output):
+                            modified = filename                        
+        return modified
+
+    def _process_dynamic_def(self, dynamic_definition):
+                
+        if dynamic_definition.target_id == None and not dynamic_definition.target_file: 
+            self._log_item(None, ''.join([
+                    'Dynamic definition in ',
+                    syntax.link_opening_wrapper,
+                    dynamic_definition.source_id,
+                    syntax.link_closing_wrapper,
+                    ' has no target']))
+            return
+
+        if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
+            return self._log_item(None, ''.join([
+                        'Dynamic node definition in',
+                        syntax.link_opening_wrapper,
+                        dynamic_definition.source_id,
+                        syntax.link_closing_wrapper,
+                        ' points to nonexistent node ',
+                        syntax.link_opening_wrapper,
+                        dynamic_definition.target_id,
+                        syntax.link_closing_wrapper]))
+
+        output = dynamic_definition.process_output()    
+        
+        if not dynamic_definition.returns_text and not dynamic_definition.target_file:
+            return
+
+        return self._build_final_output(dynamic_definition, output) 
+
+    def _write_dynamic_def_output(self, dynamic_definition, final_output):
+
+        changed_file = None    
+        if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
+            changed_file = self._set_node_contents(dynamic_definition.target_id, final_output) 
+            if changed_file:
+                self.nodes[dynamic_definition.target_id].dynamic = True
+
+                # Dynamic nodes have blank title by default. Title can be set by header or title key.
+                if not self.nodes[dynamic_definition.target_id].metadata.get_first_value('title'):
+                    self.nodes[dynamic_definition.target_id].title = ''
+        
+        if dynamic_definition.target_file:
+            self.exports[dynamic_definition.target_file] = dynamic_definition
+            with open(os.path.join(self.path, dynamic_definition.target_file), 'w', encoding='utf-8' ) as f:
+                f.write(final_output)
+            changed_file = dynamic_definition.target_file
+
+        return changed_file
+
+    def _build_final_output(self, dynamic_definition, contents):
+        metadata_values = {}
+        
+        built_metadata = UrtextNode.build_metadata(
+            metadata_values, 
+            one_line = not dynamic_definition.multiline_meta)
+        final_contents = ''.join([
+            ' ', ## TODO: Make leading space an option.
+            dynamic_definition.preserve_title_if_present(),
+            contents,
+            built_metadata,
+            ])
+        
+        if dynamic_definition.spaces:
+            final_contents = indent(final_contents, dynamic_definition.spaces)
+
+        return final_contents
+
+    """ Metadata Handling """
+
+    def tag_other_node(self, node_id, open_files=[], metadata={}):
+        return self.execute(
+            self._tag_other_node, 
+            node_id, 
+            metadata=metadata, 
+            open_files=open_files)
+        
+    def _tag_other_node(self, node_id, metadata={}, open_files=[]):
+        """adds a metadata tag to a node programmatically"""
+
+        if metadata == {}:
+            if len(self.settings['tag_other']) < 2:
+                return None
+            timestamp = self.timestamp()
+            metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + timestamp}
+        
+        territory = self.nodes[node_id].ranges
+        metadata_contents = UrtextNode.build_metadata(metadata)
+
+        filename = self.nodes[node_id].filename
+
+        full_file_contents = self.files[filename]._get_file_contents()
+        tag_position = territory[-1][1]
+
+        separator = '\n'
+        if self.nodes[node_id].compact:
+            separator = ' '
+
+        new_contents = ''.join([
+            full_file_contents[:tag_position],
+            separator,
+            metadata_contents,
+            separator,
+            full_file_contents[tag_position:]])
+        self.files[filename]._set_file_contents(new_contents)
+        s = self.on_modified(filename)
+        return s
+
+    def consolidate_metadata(self, node_id, one_line=False):
+
+        if node_id not in self.nodes:
+            print('Node ID '+node_id+' not in project.')
+            return None
+
+        consolidated_metadata = self.nodes[node_id].consolidate_metadata(
+            one_line=one_line)
+
+        filename = self.nodes[node_id].filename
+        file_contents = self.files[filename]._get_file_contents()
+        length = len(file_contents)
+        ranges = self.nodes[node_id].ranges
+
+        for single_range in ranges:
+
+            for section in metadata_entry.finditer(file_contents[single_range[0]:single_range[1]]):
+                start = section.start() + single_range[0]
+                end = start + len(section.group())
+                first_splice = file_contents[:start]
+                second_splice = file_contents[end:]
+                file_contents = first_splice
+                file_contents += second_splice
+                self._adjust_ranges(filename, start, len(section.group()))
+
+        new_file_contents = file_contents[0:ranges[-1][1]]
+        new_file_contents += '\n'+consolidated_metadata
+        new_file_contents += file_contents[ranges[-1][1]:]
+        self.files[filename]._set_file_contents(new_file_contents)
+        self._parse_file(filename)
+
+            
+    def _add_sub_tags(self, 
+        entry,
+        next_node=None,
+        visited_nodes=None):
+
+        
+        if visited_nodes == None:
+            visited_nodes = []
+        if next_node:
+            source_tree_node = next_node
+        else:
+            source_tree_node = self.nodes[entry.from_node].tree_node
+        if source_tree_node.name.replace('ALIAS','') not in self.nodes:
+            return
+
+        for child in self.nodes[source_tree_node.name.replace('ALIAS','')].tree_node.children:
+            
+            uid = source_tree_node.name + child.name
+            if uid in visited_nodes:
+                continue
+            node_to_tag = child.name.replace('ALIAS','')
+            if node_to_tag not in self.nodes:
+                visited_nodes.append(uid)
+                continue
+            if uid not in visited_nodes and not self.nodes[node_to_tag].dynamic:
+                self.nodes[node_to_tag].metadata.add_entry(
+                    entry.keyname, 
+                    entry.value, 
+                    from_node=entry.from_node, 
+                    recursive=entry.recursive)
+                if node_to_tag not in self.nodes[entry.from_node].target_nodes:
+                    self.nodes[entry.from_node].target_nodes.append(node_to_tag)
+            
+            visited_nodes.append(uid)        
+            
+            if entry.recursive:
+                self._add_sub_tags(
+                    entry,
+                    next_node=self.nodes[node_to_tag].tree_node, 
+                    visited_nodes=visited_nodes)
+
+def _remove_sub_tags(self, source_id):
+    for target_id in self.nodes[source_id].target_nodes:
+         if target_id in self.nodes:
+             self.nodes[target_id].metadata.clear_from_source(source_id)  
+
 class DuplicateIDs(Exception):
     """ duplicate IDS """
     def __init__(self):
@@ -1195,7 +1397,16 @@ Helpers
 
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
-        
+
+def indent(contents, spaces=4):
+  
+    content_lines = contents.split('\n')
+    content_lines[0] = content_lines[0].strip()
+    for index, line in enumerate(content_lines):
+        if line.strip() != '':
+            content_lines[index] = '\t' * spaces + line
+    return '\n'+'\n'.join(content_lines)
+
 def creation_date(path_to_file):
     """
     Try to get the date that a file was created, falling back to when it was

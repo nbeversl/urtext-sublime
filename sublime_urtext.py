@@ -369,7 +369,6 @@ class UrtextCompletions(EventListener):
                 view.show_popup(html, 
                     max_width=512, 
                     max_height=512, 
-                    location=file_pos,
                     on_navigate=unfold_region)
 
 def urtext_on_modified(view):
