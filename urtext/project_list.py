@@ -201,19 +201,6 @@ class ProjectList():
                 return project
         return None
 
-    def init_new_project(self, path):
-        if path in self.project_titles():
-            print('Path %s already in use.', path)
-            return None
-        if not os.path.exists(path):
-            os.makedirs(path)
-        project = UrtextProject(path, new_project=True)
-        if project:
-            self.projects.append(project)
-            self.set_current_project(path)
-
-        print('Initialized New project at '+os.path.abspath(path))
-
     def visit_file(self, filename):
         if filename:
             path = os.path.dirname(filename)

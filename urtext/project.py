@@ -76,7 +76,6 @@ class UrtextProject:
         
         self.file_extensions = ['.urtext']
         self.is_async = True 
-        new_project=False
 
         if 'path' in args and os.path.exists(args['path']):
             self.path = args['path']
@@ -87,9 +86,6 @@ class UrtextProject:
             self.file_extensions = args['file_extensions']
             if not isinstance(self.file_extensions, list):
                 self.file_extensions = [self.file_extensions]
-
-        if 'new_project' in args:
-            new_project = args['new_project']
 
         if 'async' in args:
             self.is_async = args['async']
@@ -116,10 +112,9 @@ class UrtextProject:
         
         self.title = self.path # default
         self.excluded_files = []
-        self.execute(self._initialize_project, new_project=new_project)
+        self.execute(self._initialize_project)
     
-    def _initialize_project(self, 
-        new_project=False):
+    def _initialize_project(self):
 
         for c in all_extensions:
             for n in c.name:
@@ -138,17 +133,6 @@ class UrtextProject:
         num_directives = len(self.directives)
         for file in self._get_included_files():
             self._parse_file(file)
-
-        if self.nodes == {}:
-            if new_project:
-                for filename in templates:
-                    with open(filename, 'w', encoding='utf-8') as f:
-                        f.write(templates[filename]) 
-                    self._parse_file(filename)
-
-        elif new_project:
-            print('Urtext project already exists here.')
-            return None
 
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()       

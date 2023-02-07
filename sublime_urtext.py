@@ -137,9 +137,7 @@ def refresh_project_event_listener(function):
 
     return wrapper
 
-def initialize_project_list(view, 
-    new_project=False,
-    reload_projects=False):
+def initialize_project_list(view, reload_projects=False):
 
     global _UrtextProjectList
 
@@ -714,31 +712,6 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
         path = self._UrtextProjectList.current_project.path
         new_node = self._UrtextProjectList.current_project.new_file_node()
         self.view.run_command("insert", {"characters":'>' + new_node['id']})
-
-class NewProjectCommand(UrtextTextCommand):
-
-    def run(self, edit):
-        sublime.select_folder_dialog(self.init_new_project)
-
-    def init_new_project(self, path):
-        global _UrtextProjectList
-        if not _UrtextProjectList:
-            _UrtextProjectList = ProjectList(sublime.load_settings("Urtext.sublime-settings"))
-        else:
-            _UrtextProjectList.init_new_project(path)
-        _UrtextProjectList.set_current_project(path)    
-    
-        def open_home_node():
-            window = sublime.active_window()
-            if _UrtextProjectList.current_project.compiled and window:
-                node_id = _UrtextProjectList.current_project.get_home()
-                _UrtextProjectList.nav_new(node_id)
-                filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-                window = sublime.active_window()
-                open_urtext_node(self.view, node_id)
-            else:
-                sublime.set_timeout(lambda: open_home_node(), 50) 
-        open_home_node()
 
 class DeleteThisNodeCommand(UrtextTextCommand):
 
