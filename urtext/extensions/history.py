@@ -9,7 +9,7 @@ class RenameHistoryFiles(UrtextExtension):
     def on_file_renamed(self, old_filename, new_filename):
         
         history_file = os.path.join(
-            os.dirname(old_filename), 
+            os.path.dirname(old_filename), 
             'urtext_history',
             os.path.basename(old_filename) + '.diff')
         if os.path.exists(history_file):

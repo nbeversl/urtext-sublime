@@ -278,8 +278,8 @@ class UrtextCompletions(EventListener):
                 contents = _UrtextProjectList.current_project.get_node_contents(link['node_id'])
                 if contents:
 
-                    contents = contents.replace('<','&#9001;')
-                    contents = contents.replace('>','&#9002;')
+                    contents = contents.replace('<','&lt;')
+                    contents = contents.replace('>','&gt;')
                     contents = contents.replace('\n','<br>')
 
                     def open_node_from_this_view(node_id):
