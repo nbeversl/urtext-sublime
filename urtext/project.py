@@ -89,7 +89,7 @@ class UrtextProject:
 
     def __init__(self, args):
         
-        self.file_extensions = ['.txt', '.urtext']
+        self.file_extensions = ['.urtext']
         self.is_async = True 
         new_project=False
 
