@@ -1,6 +1,6 @@
 templates = {
 
-'new_file_node.txt' : """
+'new_file_node.urtext' : """
 New File Node _   
 
 This is a file node. 
@@ -12,7 +12,7 @@ Make new nodes using squiggly brackets. Example:
 """,
 
 
-'new_project_home.txt' : """
+'new_project_home.urtext' : """
 Home Node _
 
 Welcome to Urtext. This is a new, blank Urtext project.
@@ -126,7 +126,7 @@ NOTE: Add Created date
 """,
 
 
-'project_settings.txt' : """
+'project_settings.urtext' : """
 
 This is the `project_settings` node. In the metadata you can specify settings for the project.
 

@@ -278,6 +278,10 @@ class UrtextCompletions(EventListener):
                 contents = _UrtextProjectList.current_project.get_node_contents(link['node_id'])
                 if contents:
 
+                    contents = contents.replace('<','&#9001;')
+                    contents = contents.replace('>','&#9002;')
+                    contents = contents.replace('\n','<br>')
+
                     def open_node_from_this_view(node_id):
                         open_urtext_node(view, node_id)
 
@@ -313,7 +317,7 @@ class UrtextCompletions(EventListener):
                         </body>
                     """ % (contents, link['node_id'])
                     view.show_popup(html,
-                        max_width=512, 
+                        max_width=800, 
                         max_height=512, 
                         on_navigate=open_node_from_this_view)
                     return
@@ -370,8 +374,8 @@ class UrtextCompletions(EventListener):
 def urtext_on_modified(view):
     
     if view.file_name() and view.window() and view.window().views():
-        modified_file = _UrtextProjectList.on_modified(view.file_name())
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
+        modified_file = _UrtextProjectList.on_modified(view.file_name())
         for f in other_open_files:
             _UrtextProjectList.visit_file(f)
         if modified_file:

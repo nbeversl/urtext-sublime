@@ -506,7 +506,7 @@ class UrtextProject:
             metadata=metadata,
             include_timestamp=self.settings['file_node_timestamp'])
         
-        filename = filename + '.txt'
+        filename = filename + '.urtext'
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)

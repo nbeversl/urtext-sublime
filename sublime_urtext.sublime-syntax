@@ -131,6 +131,7 @@ contexts:
 
   metadata-entry:
     - meta_scope: metadata_entry.urtext
+    - include: metadata-value
     - match: ;|\r|(?=\})|$
       pop: true
 
@@ -321,21 +322,16 @@ contexts:
     - match: '`'
       push: raw 
     
+    - match: <[^!\s-]
+      push: datestamp
+
     - match: '(?<=::)[^\s]'
       push: metadata-value
-
-    - match: '(?<=::)<'
-      push: metadata-timestamp
     
     - match: \w+?(?=::)
       scope: meta_key.urtext
       push: metadata-entry
-
-    - match: \w+?(?=::)
-
-    - match: <[^!\s-]
-      push: datestamp
-
+  
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1

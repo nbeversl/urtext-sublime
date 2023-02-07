@@ -71,9 +71,9 @@ class PopNode(UrtextAction):
             f.write(remaining_node_contents)
         self.project._parse_file(filename) 
 
-        with open(os.path.join(self.project.path, popped_node_id+'.txt'), 'w',encoding='utf-8') as f:
+        with open(os.path.join(self.project.path, popped_node_id+'.urtext'), 'w',encoding='utf-8') as f:
             f.write(popped_node_contents)
-        self.project._parse_file(popped_node_id+'.txt') 
+        self.project._parse_file(popped_node_id+'.urtext') 
         return filename
 
 class PullNode(UrtextAction):

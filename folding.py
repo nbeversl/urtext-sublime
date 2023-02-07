@@ -1,4 +1,3 @@
-## Folding
 import sublime
 from .sublime_urtext import UrtextTextCommand, refresh_project_text_command
 

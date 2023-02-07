@@ -90,19 +90,19 @@ class ReindexFiles(UrtextAction):
             new_filename = new_filename.strip().strip('-').strip();
             new_filename = strip_illegal_characters(new_filename)
             new_filename = new_filename[:250]
-            new_filename += '.txt'
+            new_filename += '.urtext'
 
             if new_filename in used_names:
-                new_filename = new_filename.replace('.txt',' - '+root_node.id+'.txt')
+                new_filename = new_filename.replace('.urtext',' - '+root_node.id+'.urtext')
 
             # renamed_files retains full file paths
             renamed_files[os.path.join(self.project.path, old_filename)] = os.path.join(self.project.path, new_filename)
             used_names.append(new_filename)
 
             # add history files
-            old_history_file = old_filename.replace('.txt','.diff')
+            old_history_file = old_filename.replace('.urtext','.diff')
             if os.path.exists(os.path.join(self.project.path, 'urtext_history', old_history_file) ):
-                new_history_file = new_filename.replace('.txt','.diff')
+                new_history_file = new_filename.replace('.urtext','.diff')
                 #renamed_files[os.path.join(self.project.path, 'urtext_history', old_history_file)] = os.path.join(self.project.path, 'urtext_history', new_history_file)
 
             prefix += 1

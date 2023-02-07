@@ -37,6 +37,3 @@ class AccessHistory(UrtextDirective):
 
     def dynamic_output(self, input_contents):
         return False # do not change existing output.
-
-
-
