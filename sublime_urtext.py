@@ -280,7 +280,8 @@ class UrtextCompletions(EventListener):
                     contents = contents.replace('>','&gt;')
                     contents = contents.replace('\n','<br>')
 
-                    
+                    def open_node_from_this_view(node_id):
+                        open_urtext_node(view, node_id)
 
                     html = """
                         <body id=linked_node_contents>
@@ -965,9 +966,6 @@ def open_urtext_node(
     called from forward/backward navigation and shouldn't duplicate/override 
     any of the operations of the methods that call it.
     """
-
-def open_node_from_this_view(node_id):
-    open_urtext_node(view, node_id)
 
 def position_node(new_view, position): 
     new_view.sel().clear()

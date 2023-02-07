@@ -126,6 +126,7 @@ class UrtextProject:
         num_actions = len(self.actions)
         num_directives = len(self.directives)
 
+        
         for file in self._get_included_files():
             self._parse_file(file)
 
