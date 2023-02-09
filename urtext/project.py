@@ -39,7 +39,6 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.directives     
     import Urtext.urtext.actions
     import Urtext.urtext.extensions
-    import Urtext.urtext.exceptions as exceptions
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -55,7 +54,6 @@ else:
     import urtext.directives     
     import urtext.actions
     import urtext.extensions
-    import urtext.exceptions as exceptions
 
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
@@ -73,6 +71,8 @@ class UrtextProject:
     def __init__(self, entry_point, add_project):
 
         self._add_project = add_project
+        self.entry_point = entry_point
+        self.title = self.entry_point # default
         self.is_async = True
         self.is_async = False # development
         self.time = time.time()
@@ -93,7 +93,6 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-        self.title = None
         self.excluded_files = []
         self.execute(self._initialize_project)
     
@@ -117,12 +116,12 @@ class UrtextProject:
         num_included_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
-        if os.path.isdir(path):
-            self.settings['paths'].append(path)
+        if os.path.isdir(self.entry_point):
+            self.settings['paths'].append(self.entry_point)
             for file in self._get_included_files():
                 self._parse_file(file)
         else:
-            self._parse_file(path)
+            self._parse_file(self.entry_point)
 
         # now have to check what additional folders are included
         # or if additional projects have been added
@@ -987,8 +986,8 @@ class UrtextProject:
 
     def _get_included_files(self):
         files = []
-        for path in self.paths:
-            files.extend(os.listdir(path))
+        for path in self.settings['paths']:
+            files.extend([os.path.join(path, f) for f in os.listdir(path)])
         return [f for f in files if self._include_file(f)]
 
     def _include_file(self, filename):

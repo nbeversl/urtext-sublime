@@ -87,7 +87,7 @@ def default_project_settings():
         'numerical_keys': ['_index' ,'index','title_length'],
         'open_with_system' : ['pdf'],
         'other_projects' : [],
-        'paths': []
+        'paths': [],
         'recurse_folders': False,
         'tag_other': [],
         'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 

@@ -144,27 +144,19 @@ def initialize_project_list(view, reload_projects=False):
     if reload_projects:
         _UrtextProjectList = None
 
-    folders = view.window().folders()          
-    urtext_settings_file = None
-    urtext_settings_obj = sublime.load_settings("Urtext.sublime-settings")
-    if urtext_settings_obj.has("urtext_settings_file") and urtext_settings_obj.get("urtext_settings_file"):
-        urtext_settings_file = urtext_settings_obj.get("urtext_settings_file")
-
-    if urtext_settings_file:
-        _UrtextProjectList = ProjectList(urtext_settings_file)
-
-    elif not folders and view.file_name():
+    folders = view.window().folders()
+    if not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
         if _UrtextProjectList:
             _UrtextProjectList.add_project(folder)
         else:
-            _UrtextProjectList = ProjectList({ 'project_paths' : [folder] })    
+            _UrtextProjectList = ProjectList(folder)    
     elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
-            _UrtextProjectList.add_project({'path': current_path})
+            _UrtextProjectList.add_project(current_path)
         else:
-            _UrtextProjectList = ProjectList({ 'project_paths' : [current_path] }) 
+            _UrtextProjectList = ProjectList(current_path) 
     return _UrtextProjectList
 
 def get_path(view):

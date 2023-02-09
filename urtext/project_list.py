@@ -33,7 +33,7 @@ class ProjectList():
         self.current_project = None
         self.navigation = []
         self.nav_index = -1
-        self.add_project(entrypath)
+        self.add_project(entry_point)
 
     def add_project(self, path):
         """ recursively add folders """
@@ -103,7 +103,7 @@ class ProjectList():
 
     def _get_project_from_path(self, path):
         for project in self.projects:
-            if path == project.path:
+            if path in project.settings['paths']:
                 return project
         return None
 
@@ -123,7 +123,7 @@ class ProjectList():
         project = self.get_project(title_or_path) 
         if not project:
             return None
-        if  ( not self.current_project ) or ( project and project.title != self.current_project.title ) :
+        if ( not self.current_project ) or ( project and project.title != self.current_project.title ) :
            self.current_project = project
            print('Switched to project: ' + self.current_project.title)
         return project
@@ -160,7 +160,7 @@ class ProjectList():
 
     def get_current_project(self, path):
         for project in self.projects:
-            if project.path == path:
+            if project.path in project.settings['paths']:
                 return project
         return None
 
@@ -195,8 +195,8 @@ class ProjectList():
         self.current_project.drop_file(filename) # also updates the source project
 
         os.rename(
-            os.path.join( self.current_project.path, filename),
-            os.path.join( destination_project.path, filename)
+            os.path.join( self.current_project.settings['paths'][0], filename),
+            os.path.join( destination_project.settings['paths'][0], filename)
             )
 
         """
