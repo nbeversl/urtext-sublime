@@ -73,6 +73,7 @@ class UrtextProject:
         self.settings = default_project_settings()
         self._add_project = add_project # ProjectList method
         self.entry_point = entry_point
+        self.entry_path = os.path.dirname(entry_point)
         self.settings['project_title'] = self.entry_point # default
         self.is_async = True
         self.is_async = False # development
@@ -454,7 +455,8 @@ class UrtextProject:
         return filename
     
     def new_file_node(self, 
-        date=None, 
+        date=None,
+        path=None,
         contents=None,
         metadata = {}, 
         one_line=None):
@@ -473,6 +475,8 @@ class UrtextProject:
             include_timestamp=self.settings['file_node_timestamp'])
         
         filename = filename + '.urtext'
+        if path:
+            filename = os.path.join(path, filename)
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)

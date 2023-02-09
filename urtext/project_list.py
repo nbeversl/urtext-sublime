@@ -59,7 +59,7 @@ class ProjectList():
         Given a line of text, looks for a link to a node or project
         with node, sets the current project to the containing project,
         and returns the link information. Does not update navigation,
-        this should be done by the calling procedure.
+        this should be done by the calling method.
         """
         node_id = None
         project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
@@ -124,8 +124,6 @@ class ProjectList():
 
     def set_current_project(self, title_or_path):
         project = self.get_project(title_or_path) 
-        if not project:
-            return None
         if ( not self.current_project ) or ( project and project.settings['project_title'] != self.current_project.settings['project_title'] ) :
            self.current_project = project
            print('Switched to project: ' + self.current_project.settings['project_title'])

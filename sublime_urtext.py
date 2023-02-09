@@ -82,7 +82,7 @@ def refresh_project_text_command(import_project=False, change_project=True):
 
             # otherwise assign the current window to the current project
             elif _UrtextProjectList.current_project:
-                _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+                _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.settings['paths'][0]
                 
             # If there is a current project, return it
             if _UrtextProjectList.current_project:
@@ -129,7 +129,7 @@ def refresh_project_event_listener(function):
             return function(args[0], view)
 
         if _UrtextProjectList.current_project:
-            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.path
+            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.entry_path
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(args[0], view)
 
@@ -187,7 +187,7 @@ class ListProjectsCommand(UrtextTextCommand):
 
     def set_window_project(self, title):
         self._UrtextProjectList.set_current_project(title)
-        _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.path
+        _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.entry_path
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
@@ -685,9 +685,9 @@ class NewFileNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        path = self._UrtextProjectList.current_project.path
-        new_node = self._UrtextProjectList.current_project.new_file_node()
-        new_view = self.view.window().open_file(os.path.join(path, new_node['filename']))
+        new_node = self._UrtextProjectList.current_project.new_file_node(
+            path=os.path.dirname(self.view.file_name()))
+        new_view = self.view.window().open_file(new_node['filename'])
 
         def set_cursor(new_view):
             if not new_view.is_loading():
@@ -702,8 +702,8 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        path = self._UrtextProjectList.current_project.path
-        new_node = self._UrtextProjectList.current_project.new_file_node()
+        new_node = self._UrtextProjectList.current_project.new_file_node(
+            path=os.path.dirname(self.view.file_name()))
         self.view.run_command("insert", {"characters":'>' + new_node['id']})
 
 class DeleteThisNodeCommand(UrtextTextCommand):
@@ -915,8 +915,6 @@ class ToPreviousNodeCommand(UrtextTextCommand):
             self.view.sel().add(all_previous_opening_wrappers[-1])
             position_node(self.view, all_previous_opening_wrappers[-1])
 
-
-
 """
 Utility functions
 """
@@ -928,7 +926,7 @@ def open_urtext_node(
     highlight=''):
    
     if project and _UrtextProjectList: 
-        _UrtextProjectList.set_current_project(project.path)
+        _UrtextProjectList.set_current_project(project.entry_path)
     filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
     if filename and view.window():
 
