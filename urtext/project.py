@@ -70,14 +70,14 @@ class UrtextProject:
 
     def __init__(self, entry_point, add_project):
 
-        self._add_project = add_project
+        self.settings = default_project_settings()
+        self._add_project = add_project # ProjectList method
         self.entry_point = entry_point
-        self.title = self.entry_point # default
+        self.settings['project_title'] = self.entry_point # default
         self.is_async = True
         self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
-        self.settings = default_project_settings()
         self.nodes = {}
         self.files = {}
         self.exports = {}
@@ -142,7 +142,7 @@ class UrtextProject:
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
-        print('"'+self.title+'" compiled')
+        print('"'+self.settings['project_title']+'" compiled')
     
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
@@ -337,7 +337,6 @@ class UrtextProject:
 
                     self._log_item(new_node.filename, message)
 
-        new_node.parent_project = self.title
         new_node.project = self
         self.nodes[new_node.id] = new_node
 
@@ -833,11 +832,6 @@ class UrtextProject:
             if entry.keyname in replace_settings:
                 replacements.setdefault(entry.keyname, [])
                 replacements[entry.keyname].append(entry.value)
-                continue
-
-            if entry.keyname == 'project_title':
-                # sets a project object property, not the settings dict
-                self.title = entry.value
                 continue
 
             if entry.keyname == 'numerical_keys':

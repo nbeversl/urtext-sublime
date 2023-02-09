@@ -37,7 +37,10 @@ class ProjectList():
 
     def add_project(self, path):
         """ recursively add folders """
-        if path not in [p.path for p in self.projects]:
+        paths = []
+        for p in self.projects:
+            paths.extend(p.settings['paths'])
+        if path not in paths:
             if os.path.basename(path) not in [
                     'urtext_history',
                     'urtext_files' 
@@ -109,7 +112,7 @@ class ProjectList():
 
     def _get_project_from_title(self, title):
         for project in self.projects:
-            if title == project.title:
+            if title == project.settings['project_title']:
                 return project
         return None
 
@@ -123,9 +126,9 @@ class ProjectList():
         project = self.get_project(title_or_path) 
         if not project:
             return None
-        if ( not self.current_project ) or ( project and project.title != self.current_project.title ) :
+        if ( not self.current_project ) or ( project and project.settings['project_title'] != self.current_project.settings['project_title'] ) :
            self.current_project = project
-           print('Switched to project: ' + self.current_project.title)
+           print('Switched to project: ' + self.current_project.settings['project_title'])
         return project
 
     def build_contextual_link(self, 
@@ -146,7 +149,7 @@ class ProjectList():
             if pointer:
                 link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
             if include_project or project != self.current_project:
-                link = syntax.other_project_link_prefix+ '"' + project.title +'"'+link
+                link = syntax.other_project_link_prefix+ '"' + project.settings['project_title'] +'"'+link
             return link
 
     def nav_current(self):
@@ -155,7 +158,7 @@ class ProjectList():
     def project_titles(self):
         titles = []
         for project in self.projects:
-            titles.append(project.title)
+            titles.append(project.settings['project_title'])
         return titles
 
     def get_current_project(self, path):
@@ -211,8 +214,8 @@ class ProjectList():
         if replace_links:
             for node_id in affected_nodes:
                 self.replace_links(
-                    self.current_project.title,
-                    destination_project.title,                   
+                    self.current_project.settings['project_title'],
+                    destination_project.settings['project_title'],                   
                     node_id)
 
         # also move the history file
@@ -236,13 +239,13 @@ class ProjectList():
     def replace_links(self, old_project_path_or_title, new_project_path_or_title, node_id):
         old_project = self.get_project(old_project_path_or_title)
         new_project = self.get_project(new_project_path_or_title)
-        old_project.replace_links(node_id, new_project=new_project.title)
+        old_project.replace_links(node_id, new_project=new_project.settings['project_title'])
     
     def titles(self):
         title_list = {}
         for project in self.projects:
             for node_id in project.nodes:
-                title_list[project.nodes[node_id].get_title()] = (project.title, node_id)
+                title_list[project.nodes[node_id].get_title()] = (project.settings['project_title'], node_id)
         return title_list
 
     def is_in_export(self, filename, position):
@@ -276,7 +279,7 @@ class ProjectList():
         if project.is_async:
             removed_node_ids = removed_node_ids.result()
         for node_id in removed_node_ids:
-            navigation_entry = (project.title, node_id)
+            navigation_entry = (project.settings['project_title'], node_id)
             while navigation_entry in self.navigation:
                 index = self.navigation.index(navigation_entry)
                 del self.navigation[index]
@@ -294,7 +297,7 @@ class ProjectList():
         # add the newly opened file as the new "HEAD"
         self.nav_index += 1
         del self.navigation[self.nav_index:]
-        self.navigation.append((project.title, node_id))
+        self.navigation.append((project.settings['project_title'], node_id))
         self.current_project.nav_new(node_id)
 
     def nav_reverse(self):

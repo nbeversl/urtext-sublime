@@ -14,7 +14,7 @@ class UrtextStats(UrtextDirective):
 	def dynamic_output(self, nodes):
 
 		contents = []
-		contents.append('Project Title : '+self.project.title)
+		contents.append('Project Title : '+self.project.settings['project_title'])
 		contents.append('project size in memory (bytes): '+ str(sys.getsizeof(self.project)))
 
 		n_memory = 0

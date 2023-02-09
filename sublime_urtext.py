@@ -613,7 +613,7 @@ class NodeInfo():
         self.date = project.nodes[node_id].date
         self.filename = project.nodes[node_id].filename
         self.node_id = node_id
-        self.project_title = project.title
+        self.project_title = project.settings['project_title']
         self.display_meta = project.nodes[node_id].display_meta
 
 def show_panel(window, menu, main_callback, return_index=False):

@@ -63,7 +63,6 @@ class UrtextNode:
         self.root_node = root
         self.compact = compact
         self.contains_project_settings = False
-        self.parent_project = None
         self.dynamic_definitions = []
         self.target_nodes = []
         self.blank = False
