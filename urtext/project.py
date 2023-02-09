@@ -55,7 +55,6 @@ else:
     import urtext.directives     
     import urtext.actions
     import urtext.extensions
-    from urtext.project_list import NoPathProvided
     import urtext.exceptions as exceptions
 
 def all_subclasses(cls):
@@ -67,23 +66,14 @@ all_directives = all_subclasses(UrtextDirective)
 all_actions = all_subclasses(UrtextAction)
 
 class UrtextProject:
-    """ Urtext project object """
 
     urtext_file = UrtextFile
     urtext_node = UrtextNode
 
-    def __init__(self, args):
-        
-        self.is_async = True 
+    def __init__(self, entry_point, add_project):
 
-        if 'path' in args and os.path.exists(args['path']):
-            self.path = args['path']
-        else:
-            raise exceptions.NoPathProvided
-
-        if 'async' in args:
-            self.is_async = args['async']
-
+        self._add_project = add_project
+        self.is_async = True
         self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
@@ -103,8 +93,7 @@ class UrtextProject:
         self.compiled = False
         self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
-        
-        self.title = self.path # default
+        self.title = None
         self.excluded_files = []
         self.execute(self._initialize_project)
     
@@ -125,12 +114,21 @@ class UrtextProject:
         num_extensions = len(self.extensions)
         num_actions = len(self.actions)
         num_directives = len(self.directives)
+        num_included_extensions = len(self.settings['file_extensions'])
+        num_paths = len(self.settings['paths'])
 
-        
-        for file in self._get_included_files():
-            self._parse_file(file)
+        if os.path.isdir(path):
+            self.settings['paths'].append(path)
+            for file in self._get_included_files():
+                self._parse_file(file)
+        else:
+            self._parse_file(path)
 
-        if len(self.settings['include_extensions']) > 1:
+        # now have to check what additional folders are included
+        # or if additional projects have been added
+        # also actions, directions, or extensions have been added within the project.
+
+        if len(self.settings['file_extensions']) > 1:
             for file in self._get_included_files():
                 if file not in self.files:
                     self._parse_file(file)
@@ -139,12 +137,13 @@ class UrtextProject:
             self.nodes[node_id].metadata.convert_hash_keys()       
         
         self._compile()
+
         if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
             self._compile()
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
-        print('"'+self.title+'" compiled from '+self.path )
+        print('"'+self.title+'" compiled')
     
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
@@ -310,7 +309,6 @@ class UrtextProject:
                 for r in e.exports:
                     if file in r.to_files:
                         return nid
-
 
     """
     Parsing helpers
@@ -847,11 +845,11 @@ class UrtextProject:
                 self.settings['numerical_keys'].append(entry.value)
                 continue
 
-            if entry.keyname == 'include_extensions':
+            if entry.keyname == 'file_extensions':
                 value = entry.value
                 if value[0] != '.':
                     value = '.' + value
-                self.settings['include_extensions'].append(value)
+                self.settings['file_extensions'].append(value)
                 continue
 
             if entry.keyname in single_values_settings:
@@ -866,7 +864,7 @@ class UrtextProject:
 
             if entry.keyname in single_boolean_values_settings:
                 self.settings[entry.keyname] = True if entry.value.lower() in ['true','yes'] else False
-                continue            
+                continue          
 
             if entry.keyname not in self.settings:
                 self.settings[str(entry.keyname)] = []
@@ -988,13 +986,15 @@ class UrtextProject:
             self._drop_file(file)
 
     def _get_included_files(self):
-        files = os.listdir(self.path)
-        return [os.path.join(self.path, f) for f in files if self._include_file(f)]
+        files = []
+        for path in self.paths:
+            files.extend(os.listdir(path))
+        return [f for f in files if self._include_file(f)]
 
     def _include_file(self, filename):
         if filename in self.excluded_files:
             return False
-        if os.path.splitext(filename)[1] not in self.settings['include_extensions']:
+        if os.path.splitext(filename)[1] not in self.settings['file_extensions']:
             return False
         return True
     

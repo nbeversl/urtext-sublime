@@ -16,64 +16,34 @@ You should have received a copy of the GNU General Public License
 along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-import concurrent.futures
 import os
 import re
-import json
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
-    from .settings import UrtextSettings
-    import Urtext.urtext.exceptions as exceptions
 else:
     from urtext.project import UrtextProject
-    from urtext.settings import UrtextSettings
-    import urtext.exceptions as exceptions
 
 class ProjectList():
 
-    def __init__(self, args_or_settings_file):
+    def __init__(self, entry_point):
+    
+        self.entry_point = entry_point
         self.projects = []
         self.current_project = None
         self.navigation = []
         self.nav_index = -1
+        self.add_project(entrypath)
 
-        settings = None
-        if isinstance(args_or_settings_file, dict):
-            args = args_or_settings_file
-        else:
-            if os.path.exists(args_or_settings_file):
-                args = UrtextSettings(args_or_settings_file).to_dict()
-        if not args:
-            raise exceptions.NoValidSettings
-
-        if 'project_paths' in args:
-            self.paths = args['project_paths']
-        else:
-            raise exceptions.NoPathProvided
-
-        initial_project = None
-        if 'initial_project' in args:
-            initial_project = args['initial_project']
-
-        if not isinstance(self.paths, list):
-            self.paths = [self.paths]
-
-        for path in self.paths:
-            args['path'] = path
-            self.add_project(args)
-        
-        if self.projects:
-            self.current_project = self.projects[0]
-        if initial_project:
-            self.set_current_project(initial_project)
-        self._propagate_projects(None)
-    
-    def add_project(self, args):
+    def add_project(self, path):
         """ recursively add folders """
-        if args['path'] not in [p.path for p in self.projects]:
-            if os.path.basename(args['path']) not in ['urtext_history','urtext_files' ]:
-                project = UrtextProject(args)
+        if path not in [p.path for p in self.projects]:
+            if os.path.basename(path) not in [
+                    'urtext_history',
+                    'urtext_files' 
+                ]:
+                project = UrtextProject(path, 
+                    self.add_project)
                 self.projects.append(project)
 
     def get_link_and_set_project(self, 
@@ -130,13 +100,6 @@ class ProjectList():
             if project:
                 modified_files.append(project.on_modified(f))
         return modified_files
-        
-    def _propagate_projects(self, future):
-        # wait on future to complete
-        if future: # future can be None
-            s = future.result()
-        for project in self.projects:
-            project.project_list = self
 
     def _get_project_from_path(self, path):
         for project in self.projects:
