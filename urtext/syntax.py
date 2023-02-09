@@ -49,10 +49,11 @@ metadata_op_is_like =                   r'~'
 metadata_ops_or =                       r'\|'
 metadata_assigner =                     r''+metadata_assignment_operator
 metadata_end_marker =                   r';'
-metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]+[\n;]?'
+metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]*[\n;]?'
 metadata_separator_pattern =            r'\s' + metadata_separator + r'\s|$'
 metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
+meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
 pop_syntax =                            r'%%-[A-Z]+-END'
 preformat =                             r'\`.*?\`'
@@ -124,6 +125,7 @@ metadata_ops =                  re.compile(r'(' + r'|'.join([
 
 metadata_ops_or_c =             re.compile(metadata_ops_or)
 metadata_separator_pattern_c =  re.compile(metadata_separator_pattern)
+meta_to_node_c =                re.compile(meta_to_node, flags=re.DOTALL)
 metadata_tag_self_c =           re.compile(metadata_tag_self)
 metadata_tag_desc_c =           re.compile(metadata_tag_desc)
 node_pointer_c =                re.compile(node_pointer)
@@ -151,6 +153,7 @@ compiled_symbols = {
     re.compile(node_pointer) :          'pointer',
     re.compile(push_syntax) :           'push_syntax', 
     re.compile(pop_syntax) :            'pop_syntax',
-    compact_node_c :                    'compact_node'
+    compact_node_c :                    'compact_node',
+    meta_to_node_c :                    'meta_to_node'
     }
 

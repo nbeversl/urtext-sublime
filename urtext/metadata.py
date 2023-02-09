@@ -45,7 +45,7 @@ class NodeMetadata:
         remaining_contents = full_contents
 
         for m in syntax.metadata_entry_c.finditer(full_contents):
-            keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)
+            keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)                 
             value_list = syntax.metadata_separator_pattern_c.split(contents)
 
             tag_self=False
@@ -111,6 +111,7 @@ class NodeMetadata:
     def add_entry(self, 
         key, 
         value,
+        is_node=False,
         position=0, 
         end_position=0, 
         from_node=None, 
@@ -121,6 +122,7 @@ class NodeMetadata:
         e = MetadataEntry(
             key, 
             value,
+            is_node=is_node,
             position=position, 
             from_node=from_node,
             end_position=end_position,
@@ -281,6 +283,7 @@ class MetadataEntry:  # container for a single metadata entry
     def __init__(self, 
         keyname, 
         contents, 
+        is_node=False,
         as_int=False,
         position=None,
         recursive=False,
@@ -295,7 +298,11 @@ class MetadataEntry:  # container for a single metadata entry
         self.from_node = from_node
         self.position = position
         self.end_position = end_position
-        self._parse_values(contents)
+        self.is_node = is_node
+        if is_node:
+            self.value = contents
+        else:
+            self._parse_values(contents)
         
     def log(self):
         print('key: %s' % self.keyname)
@@ -305,7 +312,6 @@ class MetadataEntry:  # container for a single metadata entry
         print(self.timestamps)
         
     def _parse_values(self, contents):
-
         for ts in syntax.timestamp_c.finditer(contents):
             dt_string = ts.group(0).strip()
             contents = contents.replace(dt_string, '').strip()

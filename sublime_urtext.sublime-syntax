@@ -35,14 +35,21 @@ contexts:
     
     - match: '`'
       push: raw 
-    
+
     - match: '(?<=::)[^\s]'
       push: metadata-value
 
     - match: '(?<=::)<'
       push: metadata-timestamp
     
-    - match: \w+?(?=::)
+    - match: (\w+?)(::)(\{)
+      captures:
+        1: meta_key.urtext
+        2: tagvalue-separator.urtext  
+        3: punctuation.section.braces.begin.inline_node_1.urtext
+      push: inline-node-1
+
+    - match: \w+?(?=::)[^\{]
       scope: meta_key.urtext
       push: metadata-entry
 
@@ -261,6 +268,9 @@ contexts:
   inline-node-5: 
     - meta_scope: inline_node_5
     - include: syntax-main
+    - match: '(?<!\\){'
+      scope: punctuation.section.braces.begin.inline_node_5.urtext
+      push: inline-node-1
     - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_5.urtext
       pop: true
@@ -331,6 +341,9 @@ contexts:
     
     - match: <[^!\s-]
       push: datestamp
+
+    - match: '(?<=::){'
+      push: inline-node-1
 
     - match: '(?<=::)[^\s]'
       push: metadata-value

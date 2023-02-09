@@ -28,17 +28,11 @@ else:
 class UrtextFile(UrtextBuffer):
    
     def __init__(self, filename, project):
-        self.nodes = {}
-        self.root_nodes = []
-        self.alias_nodes = []           
-        self.parsed_items = {}
-        self.messages = []    
-        self.filename = filename    
-        self.errors = False
-        self.project = project
+        self.filename = filename
         self.file_contents = self._read_file_contents()
         if self.file_contents:
-            self.contents = self._get_file_contents()        
+            self.contents = self._get_file_contents()  
+            super().__init__(self.contents, project)  
             self.filename = filename
             self.could_import = False        
             symbols = self.lex(self.contents)
@@ -49,7 +43,6 @@ class UrtextFile(UrtextBuffer):
         return self.file_contents
 
     def _read_file_contents(self):
-        
         """ returns the file contents, filtering out Unicode Errors, directories, other errors """
         try:
             with open(self.filename, 'r', encoding='utf-8',) as theFile:
@@ -80,7 +73,6 @@ class UrtextFile(UrtextBuffer):
             ]))
 
     def _set_file_contents(self, new_contents, compare=True): 
-
         new_contents = "\n".join(new_contents.splitlines())
         if compare:
             existing_contents = self._get_file_contents()

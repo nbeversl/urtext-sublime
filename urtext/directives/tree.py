@@ -7,16 +7,17 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
     from ..dynamic_output import DynamicOutput
     from ..timestamp import UrtextTimestamp
     from ..directive import UrtextDirective
+    import Urtext.urtext.syntax as syntax
 else:
     from anytree import Node, RenderTree, PreOrderIter
     from anytree.render import ContStyle
     from urtext.dynamic_output import DynamicOutput
     from urtext.timestamp import UrtextTimestamp
     from urtext.directive import UrtextDirective
-
+    import urtext.syntax as syntax
 """
 Tree
-"""
+"""   
 
 class Tree(UrtextDirective):
 
@@ -114,7 +115,17 @@ class Tree(UrtextDirective):
                         else:
                             replacement = ' - '.join([t.string for t in timestamps])
                 else:
-                    values = [v for v in urtext_node.metadata.get_values(k) if v ]
+                    entries = urtext_node.metadata.get_entries(k)
+                    values = []
+                    for e in entries:
+                        if e.is_node:
+                            values.append(''.join([
+                                syntax.link_opening_wrapper,
+                                e.value.title,
+                                syntax.link_closing_wrapper
+                                ]))
+                        else:
+                            values.append(e.value)
                     replacement = ' - '.join(values)
                 next_content.other_format_keys[meta_key] = replacement
 

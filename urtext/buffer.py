@@ -19,16 +19,14 @@ class UrtextBuffer:
         self.nodes = {}
         self.root_nodes = []
         self.alias_nodes = []
+        self.parsed_items = {}
         self.messages = []        
         self.contents = None
-        self.filename = ''
         self.project = project
+        self.meta_to_node = []
         self.lex_and_parse(contents)
 
     def lex_and_parse(self, contents):
-        self.nodes = {}
-        self.root_nodes = []
-        self.parsed_items = {}
         self.contents = contents
         symbols = self.lex(contents)
         self.parse(contents, symbols)
@@ -39,41 +37,29 @@ class UrtextBuffer:
         symbols = {}
 
         contents = strip_backtick_escape(contents)
+        embedded_syntax = 0
         for symbol, symbol_type in syntax.compiled_symbols.items():
             for match in symbol.finditer(contents):
+                if symbol_type == 'pop_syntax':
+                    embedded_syntax -= 1
+                if symbol_type == 'push_syntax':
+                    embedded_syntax += 1
+                if embedded_syntax != 0:
+                    continue
+
                 symbols[match.span()[0] + start_position] = {}
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
                 symbols[match.span()[0] + start_position]['length'] = len(match.group())                
 
-                if symbol_type  == 'pointer':
+                if symbol_type == 'pointer':
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
-                if symbol_type  == 'compact_node':
+                if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
                     symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
-        
-        ## Filter out Syntax Push and delete wrapper elements between them.
-        push_syntax = 0
-        to_remove = []
-        for p in sorted(symbols.keys()):
-
-            if symbols[p]['type'] == 'push_syntax' :
-                to_remove.append(p)
-                push_syntax += 1
-                continue
-            
-            if symbols[p]['type'] == 'pop_syntax':
-                to_remove.append(p)
-                push_syntax -= 1
-                continue
-            
-            if push_syntax > 0:
-                to_remove.append(p)
-
-        for s in to_remove:
-            del symbols[s]
+                if symbol_type == 'meta_to_node':
+                    self.meta_to_node.append(match)
 
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
-        
         return symbols
 
     def parse(self, 

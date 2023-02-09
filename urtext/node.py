@@ -148,7 +148,7 @@ class UrtextNode:
         if not self.title:
             if self.metadata.get_entries('_oldest_timestamp'):
                 return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
-            return '(untitledDDDD)'
+            return '(untitled)'
         if self.project:
             return self.title
 

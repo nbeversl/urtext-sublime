@@ -220,6 +220,15 @@ class UrtextProject:
         for ext in self.extensions:
              self.extensions[ext].on_file_modified(filename)
 
+        for entry in new_file.meta_to_node:
+            keyname = entry.group(1)
+            source_node = self.get_node_id_from_position(filename, entry.span()[0])
+            target_node = self.get_node_id_from_position(filename, entry.span()[1])
+            self.nodes[source_node].metadata.add_entry(
+                keyname, 
+                self.nodes[target_node],
+                is_node=True)
+
         for node_id in new_file.nodes:
             for dd in new_file.nodes[node_id].dynamic_definitions:
                 dd.source_id = node_id
@@ -315,7 +324,6 @@ class UrtextProject:
     """
     def _add_node(self, new_node):
         """ Adds a node to the project object """
-
         for definition in new_node.dynamic_definitions:
             
             if definition.target_id:
@@ -1009,6 +1017,7 @@ class UrtextProject:
         if any_duplicate_ids:
             self._log_item(filename, 'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
             raise DuplicateIDs()
+
         return self.execute(self._compile)
 
     def drop_file(self, filename):
