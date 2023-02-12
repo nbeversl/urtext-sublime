@@ -374,8 +374,6 @@ def urtext_on_modified(view):
                    if _UrtextProjectList.current_project.is_async:
                         f = f.result()
 
-
-
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
