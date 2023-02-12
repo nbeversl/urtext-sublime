@@ -13,46 +13,27 @@ class UrtextAnyTree(UrtextExtension):
     name = ["TREE_EXTENSION"]
 
     def on_file_modified(self, filename):
-        """ Build tree elements """
+        """ Build anytree elements """
 
         parsed_items = self.project.files[filename].parsed_items
         positions = sorted(parsed_items.keys())
+
+        # parse each pointer, positioning it within its parent node
         for position in positions:
 
-            # parse each marker, positioning it within its parent node
             if syntax.pointer_closing_wrapper_c.match(parsed_items[position][len(syntax.pointer_closing_wrapper) * - 1:]):                
                 inserted_node_id = parsed_items[position][:len(syntax.pointer_closing_wrapper) * - 1].strip()
                 parent_node = self.project.get_node_id_from_position(filename, position)
                 if not parent_node:
                     continue
-                alias_node = Node('ALIAS'+inserted_node_id)
+                alias_node = Node('ALIAS to '+inserted_node_id) # anytree Node, not UrtextNode 
                 alias_node.parent = self.project.nodes[parent_node].tree_node
                 self.project.files[filename].alias_nodes.append(alias_node)
                 continue
 
-            node_title = parsed_items[position].strip()
-            if node_title not in self.project.nodes:
-                continue
-
-            if position == 0 and parsed_items[0] == syntax.opening_wrapper:
-                self.project.nodes[node_title].tree_node.parent = self.project.nodes[root_node_id].tree_node
-                continue
-
-            start_of_node = self.project.nodes[node_title].start_position()
-            
-            parent = self.project.get_node_id_from_position(filename, start_of_node - 1)
-            if parent:
-                while self.project.nodes[parent].compact:
-                    start_of_node = self.project.nodes[parent].start_position()
-                    if start_of_node == 0:
-                        parent = self.project.nodes[self.project.files[filename].root_nodes[0]].title
-                        break
-                    else:
-                        parent = self.project.get_node_id_from_position(filename, start_of_node - 1)
-                        if not parent:
-                            parent = self.project.nodes[self.project.files[filename].root_nodes[0]].title
-                            break
-                self.project.nodes[node_title].tree_node.parent = self.project.nodes[parent].tree_node
+        for node_title in self.project.files[filename].nodes:
+            if self.project.nodes[node_title].parent:
+                self.project.nodes[node_title].tree_node.parent = self.project.nodes[node_title].parent.tree_node
 
     def on_file_removed(self, filename):
         for node_id in self.project.files[filename].nodes:

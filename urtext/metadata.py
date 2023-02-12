@@ -60,16 +60,16 @@ class NodeMetadata:
                     keyname = keyname[1:]            
                 if syntax.metadata_tag_desc_c.match(keyname[0]):
                     tag_children = True
-                    keyname = keyname[1:] #cdr
+                    keyname = keyname[1:]
                 if syntax.metadata_tag_desc_c.match(keyname[0]):
                     tag_descendants = True
-                    keyname = keyname[1:] #cdr
+                    keyname = keyname[1:]
 
             for value in value_list:
                 value = value.strip()
                 entry = MetadataEntry(
                         keyname,
-                        value, 
+                        value,
                         recursive=tag_descendants,
                         position=m.start(), 
                         end_position=m.start() + len(m.group()))

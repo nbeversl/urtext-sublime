@@ -203,7 +203,7 @@ class Tree(UrtextDirective):
                         new_node.parent = new_root            
                 else:
                     new_node = Node('! RECURSION (from tree duplication) : '+ self.project.nodes[node_id].get_title() + ' >'+node_id)
-                    new_node.parent = new_root  
+                    new_node.parent = new_root
                 continue
 
             if node.parent == original_node:

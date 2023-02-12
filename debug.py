@@ -23,11 +23,13 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].compact)
         print('EXPORTS')
         print(self._UrtextProjectList.current_project.nodes[node_id].export_points)
-        print('PARENT')
+        print('NODE PARENT')
+        print(self._UrtextProjectList.current_project.nodes[node_id].parent)
+        print('TREE PARENT')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
-        print('CHILDREN')
+        print('TREE CHILDREN')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
-        print('Firrst line title')
+        print('First line title')
         print(self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
  
 class NoAsync(sublime_plugin.TextCommand):

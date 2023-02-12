@@ -17,6 +17,7 @@ class UrtextBuffer:
     def __init__(self, project):
         
         self.nodes = {}
+        self.node_tree = {}
         self.root_nodes = []
         self.alias_nodes = []
         self.parsed_items = {}
@@ -76,17 +77,20 @@ class UrtextBuffer:
     def parse(self, 
         contents,
         symbols,
+        nested_levels={},
+        nested=0,
+        child_group={},
         start_position=0,
         from_compact=False):
  
-        nested_levels = {}  # store node nesting into layers
-        nested = 0          # node nesting depth
+        # nested_levels = {}  # store node nesting into layers
+        # nested = 0          # node nesting depth
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
 
         for position in sorted(symbols.keys()):
 
-            if position <  last_position: 
+            if position < last_position: 
                 # avoid processing wrapped nodes twice if inside compact
                 continue
 
@@ -97,7 +101,7 @@ class UrtextBuffer:
                 self.parsed_items[position] = symbols[position]['contents'] + syntax.pointer_closing_wrapper
                 continue
 
-            if symbols[position]['type'] == 'opening_wrapper':                
+            if symbols[position]['type'] == 'opening_wrapper':
                 nested_levels[nested].append([last_position, position])
                 nested += 1
 
@@ -105,9 +109,15 @@ class UrtextBuffer:
                 nested_levels[nested].append([last_position, position])
                 
                 compact_symbols = self.lex(
-                    symbols[position]['full_match'], start_position=position)
-                self.parse(symbols[position]['node_contents'], 
+                    symbols[position]['full_match'], 
+                    start_position=position)
+
+                nested_levels, child_group = self.parse(
+                    symbols[position]['node_contents'], 
                     compact_symbols,
+                    nested_levels=nested_levels,
+                    nested=nested + 1,
+                    child_group=child_group,
                     start_position=position,
                     from_compact=True)
 
@@ -117,39 +127,55 @@ class UrtextBuffer:
             if symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position + 1, position])
     
-                if nested <= 0:
-                    message = '\n'.join([
+                if nested < 0:
+                    self.messages.append('\n'.join([
                         'Removed stray closing wrapper at %s' % str(position),
-                        'This message can be deleted.'])
-                    self.messages.append(message)
+                        'This message can be deleted.']))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_file_contents(contents)
                     return self.lex_and_parse(contents)
 
-                self.add_node(
+                node = self.add_node(
                     nested_levels[nested], 
                     unstripped_contents,
                     position,
                     start_position=start_position)
 
+                if nested + 1 in child_group:
+                    for child in child_group[nested+1]:
+                        child.parent = node
+                    del child_group[nested+1]
+                
+                child_group.setdefault(nested,[])
+                child_group[nested].append(node)
+
                 del nested_levels[nested]
                 nested -= 1
 
             if symbols[position]['type'] == 'EOB':
-                # handle closing of file
+                # handle closing of buffer
                 nested_levels[nested].append([last_position, position])
-                self.add_node(
+                root_node = self.add_node(
                     nested_levels[nested], 
                     unstripped_contents,
                     position,
                     root=True if not from_compact else False,
                     compact=from_compact,
                     start_position=start_position)
+
+                if nested + 1 in child_group:
+                    for child in child_group[nested+1]:
+                        child.parent = root_node
+                    del child_group[nested + 1]
+
+                if from_compact:
+                    child_group.setdefault(nested,[])
+                    child_group[nested].append(root_node)
                 continue
 
             last_position = position
         
-        if nested > 0:
+        if not from_compact and nested > 0:
             message = '\n'.join([
                 'Appended closing bracket to close opening bracket at %s' % str(position),
                 'This message can be deleted.'])
@@ -157,6 +183,9 @@ class UrtextBuffer:
             contents = contents[:position] + ' } ' + contents[position:]
             self._set_file_contents(contents)
             return self.lex_and_parse(contents)
+
+        return nested_levels, child_group
+
 
     def add_node(self, 
         ranges, 
@@ -187,8 +216,9 @@ class UrtextBuffer:
         self.nodes[new_node.id] = new_node   
         self.nodes[new_node.id].ranges = ranges
         if new_node.root_node:
-            self.root_nodes.append(new_node.id) 
+            self.root_nodes.append(new_node.id)
         self.parsed_items[ranges[0][0]] = new_node.id
+        return new_node
 
     def _get_file_contents(self):
           return self.contents
