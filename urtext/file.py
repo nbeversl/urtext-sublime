@@ -28,15 +28,14 @@ else:
 class UrtextFile(UrtextBuffer):
    
     def __init__(self, filename, project):
+        super().__init__(project)
         self.filename = filename
         self.file_contents = self._read_file_contents()
         if self.file_contents:
-            self.contents = self._get_file_contents()  
-            super().__init__(self.contents, project)  
+            self.contents = self._get_file_contents()                
             self.filename = filename
             self.could_import = False        
-            symbols = self.lex(self.contents)
-            self.parse(self.contents, symbols)
+            self.lex_and_parse(self.contents)
             self.write_messages(project.settings)
 
     def _get_file_contents(self):

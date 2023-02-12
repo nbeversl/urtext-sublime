@@ -14,17 +14,15 @@ class UrtextBuffer:
 
     urtext_node = UrtextNode
 
-    def __init__(self, contents, project):
+    def __init__(self, project):
         
         self.nodes = {}
         self.root_nodes = []
         self.alias_nodes = []
         self.parsed_items = {}
-        self.messages = []        
-        self.contents = None
+        self.messages = []     
         self.project = project
         self.meta_to_node = []
-        self.lex_and_parse(contents)
 
     def lex_and_parse(self, contents):
         self.contents = contents
