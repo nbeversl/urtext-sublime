@@ -112,7 +112,7 @@ class UrtextBuffer:
                     symbols[position]['full_match'], 
                     start_position=position)
 
-                nested_levels, child_group = self.parse(
+                nested_levels, child_group, nested = self.parse(
                     symbols[position]['node_contents'], 
                     compact_symbols,
                     nested_levels=nested_levels,
@@ -148,7 +148,6 @@ class UrtextBuffer:
                 
                 child_group.setdefault(nested,[])
                 child_group[nested].append(node)
-
                 del nested_levels[nested]
                 nested -= 1
 
@@ -168,9 +167,10 @@ class UrtextBuffer:
                         child.parent = root_node
                     del child_group[nested + 1]
 
-                if from_compact:
-                    child_group.setdefault(nested,[])
-                    child_group[nested].append(root_node)
+                child_group.setdefault(nested,[])
+                child_group[nested].append(root_node)
+                del nested_levels[nested]
+                nested -= 1
                 continue
 
             last_position = position
@@ -184,8 +184,7 @@ class UrtextBuffer:
             self._set_file_contents(contents)
             return self.lex_and_parse(contents)
 
-        return nested_levels, child_group
-
+        return nested_levels, child_group, nested
 
     def add_node(self, 
         ranges, 

@@ -164,14 +164,13 @@ class UrtextProject:
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
-        new_file = self.urtext_file(filename, self)
-        self.messages[new_file.filename] = new_file.messages
- 
         old_node_ids = []
         if filename in self.files:
             old_node_ids = self.files[filename].get_ordered_nodes()
-
         self._drop_file(filename)
+        
+        new_file = self.urtext_file(filename, self)
+        self.messages[new_file.filename] = new_file.messages
  
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
         
@@ -399,7 +398,7 @@ class UrtextProject:
     Removing and renaming files
     """
     def _drop_file(self, filename):
-       
+
         if filename in self.files:
             for dd in self.dynamic_defs():
                 for op in dd.operations:
@@ -409,7 +408,6 @@ class UrtextProject:
                 if node_id not in self.nodes:
                     continue
                 self._remove_sub_tags(node_id)
-
                 del self.nodes[node_id]
                 self.remove_dynamic_defs(node_id)
                 self.remove_dynamic_metadata_entries(node_id)

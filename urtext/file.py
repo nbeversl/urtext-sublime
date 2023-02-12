@@ -33,8 +33,6 @@ class UrtextFile(UrtextBuffer):
         self.file_contents = self._read_file_contents()
         if self.file_contents:
             self.contents = self._get_file_contents()                
-            self.filename = filename
-            self.could_import = False        
             self.lex_and_parse(self.contents)
             self.write_messages(project.settings)
 
