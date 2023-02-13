@@ -59,9 +59,7 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
-all_extensions = all_subclasses(UrtextExtension)
-all_directives = all_subclasses(UrtextDirective)
-all_actions = all_subclasses(UrtextAction)
+
 
 class UrtextProject:
 
@@ -89,57 +87,51 @@ class UrtextProject:
         self.dynamic_metadata_entries = []
         self.extensions = {}
         self.actions = {}
-        self.duplicate_ids = {}
         self.directives = {}
+        self.duplicate_ids = {}
         self.compiled = False
-        self.project_list = None # becomes UrtextProjectList, permits "awareness" of list context
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
+        self.project_list = None
         self.excluded_files = []
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)        
         self.execute(self._initialize_project)
     
     def _initialize_project(self):
 
-        for c in all_extensions:
-            for n in c.name:
-                self.extensions[n] = c(self)
+        self._collect_extensions_directives_actions()
 
-        for c in all_actions:
-            for n in c.name:
-                self.actions[n] = c
-
-        for c in all_directives:
-            for n in c.name:
-                self.directives[n] = c
-
-        num_extensions = len(self.extensions)
-        num_actions = len(self.actions)
-        num_directives = len(self.directives)
-        num_included_extensions = len(self.settings['file_extensions'])
+        num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
+        # parse the entry point
         if os.path.isdir(self.entry_point):
-            self.settings['paths'].append(self.entry_point)
+            self.settings['paths'].append({
+                'path' : self.entry_point,
+                'recurse' : False
+                })
             for file in self._get_included_files():
                 self._parse_file(file)
         else:
             self._parse_file(self.entry_point)
 
-        # now have to check what additional folders are included
-        # or if additional projects have been added
-        # also actions, directions, or extensions have been added within the project.
-
-        if len(self.settings['file_extensions']) > 1:
+        # check what additional folders are included
+        # and what paths within that folder are included
+        while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
+            num_paths = len(self.settings['paths'])
+            num_file_extensions = len(self.settings['file_extensions'])
             for file in self._get_included_files():
-                if file not in self.files:
-                    self._parse_file(file)
+                self._parse_file(file)
+
+        # or if additional projects have been added
+        
+        # also actions, directions, or extensions have been added within the project.
 
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()       
         
         self._compile()
 
-        if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
-            self._compile()
+        # if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
+        #     self._compile()
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
@@ -171,7 +163,7 @@ class UrtextProject:
         
         new_file = self.urtext_file(filename, self)
         self.messages[new_file.filename] = new_file.messages
- 
+
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
         
         if should_re_parse:
@@ -215,9 +207,10 @@ class UrtextProject:
         self.files[new_file.filename] = new_file  
         for node_id in new_file.nodes:
             self._add_node(new_file.nodes[node_id])
-    
-        for ext in self.extensions:
-             self.extensions[ext].on_file_modified(filename)
+        
+        for node_title in new_file.nodes:
+            if new_file.nodes[node_title].parent:
+                new_file.nodes[node_title].parent.children.append(new_file.nodes[node_title])
 
         for entry in new_file.meta_to_node:
             keyname = entry.group(1)
@@ -228,15 +221,52 @@ class UrtextProject:
                 self.nodes[target_node],
                 is_node=True)
 
+        for ext in self.extensions:
+             self.extensions[ext].on_file_modified(filename)
+
         for node_id in new_file.nodes:
-            for dd in new_file.nodes[node_id].dynamic_definitions:
-                dd.source_id = node_id
+            node = self.nodes[node_id]
+            if node.title == 'project_settings':
+                self._get_settings_from(node)     
+
+            for dd in node.dynamic_definitions:
+                dd.source_id = node.id
                 self.dynamic_definitions.append(dd)
 
-            for entry in new_file.nodes[node_id].metadata.dynamic_entries:
-                entry.from_node = node_id
+            for entry in node.metadata.dynamic_entries:
+                entry.from_node = node.id
                 self._add_sub_tags(entry)
-                self.dynamic_metadata_entries.append(entry)
+                self.dynamic_metadata_entries.append(entry) 
+
+    def _collect_extensions_directives_actions(self):
+
+        changed = False
+        all_extensions = all_subclasses(UrtextExtension)
+        all_directives = all_subclasses(UrtextDirective)
+        all_actions = all_subclasses(UrtextAction)
+
+        if len(all_extensions) != len(self.extensions):
+            changed = True
+
+        if len(all_directives) != len(self.directives):
+            changed = True
+
+        if len(all_actions) != len (self.actions):
+            changed = True
+
+        for c in all_extensions:
+            for n in c.name:
+                self.extensions[n] = c(self)
+
+        for c in all_actions:
+            for n in c.name:
+                self.actions[n] = c
+
+        for c in all_directives:
+            for n in c.name:
+                self.directives[n] = c
+
+        return changed 
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -346,10 +376,7 @@ class UrtextProject:
                     self._log_item(new_node.filename, message)
 
         new_node.project = self
-        self.nodes[new_node.id] = new_node
-
-        if new_node.contains_project_settings:
-            self._get_settings_from(new_node)            
+        self.nodes[new_node.id] = new_node       
         
     def get_source_node(self, filename, position):
         if filename not in self.files:
@@ -852,7 +879,19 @@ class UrtextProject:
                 value = entry.value
                 if value[0] != '.':
                     value = '.' + value
-                self.settings['file_extensions'].append(value)
+                self.settings['file_extensions'] = ['.urtext'].append(value)
+                continue
+
+            if entry.keyname == 'paths':
+                if entry.is_node:
+                    for n in entry.value.children:
+                        path = n.metadata.get_first_value('path')
+                        recurse = n.metadata.get_first_value('recurse')
+                        if path and path not in [entry['path'] for entry in self.settings['paths']]:
+                            self.settings['paths'].append({
+                                'path' : path,
+                                'recurse': True if recurse.lower() in ['yes', 'true'] else False
+                                })
                 continue
 
             if entry.keyname in single_values_settings:
@@ -991,7 +1030,7 @@ class UrtextProject:
     def _get_included_files(self):
         files = []
         for path in self.settings['paths']:
-            files.extend([os.path.join(path, f) for f in os.listdir(path)])
+            files.extend([os.path.join(path['path'], f) for f in os.listdir(path['path'])])
         return [f for f in files if self._include_file(f)]
 
     def _include_file(self, filename):

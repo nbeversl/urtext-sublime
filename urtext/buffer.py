@@ -175,7 +175,7 @@ class UrtextBuffer:
 
             last_position = position
         
-        if not from_compact and nested > 0:
+        if not from_compact and nested > -1:
             message = '\n'.join([
                 'Appended closing bracket to close opening bracket at %s' % str(position),
                 'This message can be deleted.'])

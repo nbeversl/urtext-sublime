@@ -14,6 +14,7 @@ class DebugCommand(sublime_plugin.TextCommand):
         if not node_id:
             print('No Node found here')
             return
+        print('METADATA')
         self._UrtextProjectList.current_project.nodes[node_id].metadata.log()
         print('Ranges')
         print(self._UrtextProjectList.current_project.nodes[node_id].ranges)
@@ -31,7 +32,7 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
         print('First line title')
         print(self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
- 
+        print('------------------------')
 class NoAsync(sublime_plugin.TextCommand):
 
     @refresh_project_text_command()

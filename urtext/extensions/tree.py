@@ -34,6 +34,7 @@ class UrtextAnyTree(UrtextExtension):
         for node_title in self.project.files[filename].nodes:
             if self.project.nodes[node_title].parent:
                 self.project.nodes[node_title].tree_node.parent = self.project.nodes[node_title].parent.tree_node
+                self.project.nodes[node_title].children.append(self.project.nodes[node_title])
 
     def on_file_removed(self, filename):
         for node_id in self.project.files[filename].nodes:

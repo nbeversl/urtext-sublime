@@ -62,7 +62,6 @@ class UrtextNode:
         self.links = []
         self.root_node = root
         self.compact = compact
-        self.contains_project_settings = False
         self.dynamic_definitions = []
         self.target_nodes = []
         self.blank = False
@@ -70,6 +69,7 @@ class UrtextNode:
         self.errors = False
         self.display_meta = ''
         self.parent = None
+        self.children = []
         self.first_line_title = False
         self.title_from_marker = False
     
@@ -87,8 +87,6 @@ class UrtextNode:
     
         self.title = self.set_title(contents)  
         self.content_only_text = contents
-        if self.title == 'project_settings':
-            self.contains_project_settings = True
         self.apply_title(self.title)
         self.get_links(contents=contents)
 

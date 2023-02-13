@@ -59,7 +59,7 @@ def default_project_settings():
             'filenames',
             'weblink',
             'timestamp',],
-        'console_log': True,
+        'console_log': False,
         'contents_strip_internal_whitespace' : True,
         'contents_strip_outer_whitespace' : True,
         'device_keyname' : '',

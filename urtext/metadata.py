@@ -310,6 +310,8 @@ class MetadataEntry:  # container for a single metadata entry
         print('from_node: %s' % self.from_node)
         print('recursive: %s' % self.recursive)
         print(self.timestamps)
+        print('is node', self.is_node)
+        print('-------------------------')
         
     def _parse_values(self, contents):
         for ts in syntax.timestamp_c.finditer(contents):
