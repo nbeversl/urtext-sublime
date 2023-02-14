@@ -118,7 +118,6 @@ class UrtextProject:
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
-            print('going')
             for file in self._get_included_files():
                 self._parse_file(file)
 
@@ -276,30 +275,26 @@ class UrtextProject:
     def _rewrite_changed_links(self, changed_ids):
 
         old_ids = list(changed_ids.keys())
-        files = list(self.files)
-        for file in files:
-            if file in self.files:
-                for node_id in self.files[file].nodes:
-                    changed_links = {}
+        nodes = list(self.nodes)
+        for node_id in nodes:
+            changed_links = {}
 
-                    if node_id == '(untitled)' or node_id not in self.nodes:
-                        continue
-
-                    for link in self.nodes[node_id].links:
-                        for old_id in old_ids:
-                            if old_id.startswith(link):
-                                changed_links[link] = changed_ids[old_id]
-                if changed_links:
-                    contents = self.files[file]._get_file_contents()
-                    replaced_contents = contents
-                    for node_id in list(changed_ids.keys()):
-                        if '| ' + node_id + ' >' in contents:
-                             replaced_contents = replaced_contents.replace(
-                                '| '+ node_id + ' >', 
-                                '| '+ changed_ids[node_id] + ' >')
-                    if replaced_contents != contents:
-                        self.files[file]._set_file_contents(replaced_contents)
-                        self._parse_file(file)
+            for link in self.nodes[node_id].links:
+                for old_id in old_ids:
+                    if old_id.startswith(link):
+                        changed_links[link] = changed_ids[old_id]
+            if changed_links:
+                filename = self.nodes[node_id].filename
+                contents = self.files[filename]._get_file_contents()
+                replaced_contents = contents
+                for node_id in list(changed_ids.keys()):
+                    if '| ' + node_id + ' >' in contents:
+                         replaced_contents = replaced_contents.replace(
+                            '| '+ node_id + ' >', 
+                            '| '+ changed_ids[node_id] + ' >')
+                if replaced_contents != contents:
+                    self.files[filename]._set_file_contents(replaced_contents)
+                    self._parse_file(filename)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -514,6 +509,9 @@ class UrtextProject:
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
+
+        #TODO refactor so that UrtextFile rememebrs these as UrtextNodes, not titles
+        title = self.files[filename].root_nodes[0]
 
         return { 
                 'filename' : filename, 

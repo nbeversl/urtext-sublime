@@ -33,6 +33,7 @@ class DebugCommand(sublime_plugin.TextCommand):
         print('First line title')
         print(self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
         print('------------------------')
+
 class NoAsync(sublime_plugin.TextCommand):
 
     @refresh_project_text_command()

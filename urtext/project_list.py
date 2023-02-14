@@ -106,7 +106,7 @@ class ProjectList():
 
     def _get_project_from_path(self, path):
         for project in self.projects:
-            if path in project.settings['paths']:
+            if path in [entry['path'] for entry in project.settings['paths']]:
                 return project
         return None
 

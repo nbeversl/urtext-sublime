@@ -145,6 +145,8 @@ class UrtextNode:
     def get_title(self):
         if not self.title:
             if self.metadata.get_entries('_oldest_timestamp'):
+                self.title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
+                self.metadata.add_entry('title', self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string)
                 return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
             return '(untitled)'
         if self.project:

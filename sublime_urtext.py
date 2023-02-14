@@ -694,8 +694,9 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
     def run(self):
         new_node = self._UrtextProjectList.current_project.new_file_node(
             path=os.path.dirname(self.view.file_name()))
-        self.view.run_command("insert", {"characters":'>' + new_node['id']})
-
+        self.view.run_command("insert", {"characters":'| ' + new_node['id'] + ' >'})
+        self.view.run_command('save')  # TODO insert notification
+        
 class DeleteThisNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
