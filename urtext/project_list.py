@@ -39,7 +39,7 @@ class ProjectList():
         """ recursively add folders """
         paths = []
         for p in self.projects:
-            paths.extend(p.settings['paths'])
+            paths.extend([entry['path'] for entry in p.settings['paths']])
         if path not in paths:
             if os.path.basename(path) not in [
                     'urtext_history',

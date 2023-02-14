@@ -118,6 +118,7 @@ class UrtextProject:
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
+            print('going')
             for file in self._get_included_files():
                 self._parse_file(file)
 

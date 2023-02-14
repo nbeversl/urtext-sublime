@@ -37,7 +37,7 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-def refresh_project_text_command(import_project=False, change_project=True):
+def refresh_project_text_command(change_project=True):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
@@ -70,7 +70,7 @@ def refresh_project_text_command(import_project=False, change_project=True):
             if view.file_name():
                 current_path = os.path.dirname(view.file_name())
                 _UrtextProjectList.set_current_project(current_path)
-                if import_project :
+                if import_project:
                     _UrtextProjectList.import_project(current_path)
             
             # then try the window
@@ -90,10 +90,6 @@ def refresh_project_text_command(import_project=False, change_project=True):
                 args[0]._UrtextProjectList = _UrtextProjectList
                 return function(args[0])
 
-            elif import_project:
-                current_paths = window.folders()
-                for path in current_paths:
-                    _UrtextProjectList.import_project(path)
             return None
 
         return wrapper
