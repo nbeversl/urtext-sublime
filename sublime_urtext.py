@@ -70,15 +70,11 @@ def refresh_project_text_command(change_project=True):
             if view.file_name():
                 current_path = os.path.dirname(view.file_name())
                 _UrtextProjectList.set_current_project(current_path)
-                if import_project:
-                    _UrtextProjectList.import_project(current_path)
             
             # then try the window
             elif window_id in _SublimeUrtextWindows:
                 current_path = _SublimeUrtextWindows[window_id]
                 _UrtextProjectList.set_current_project(current_path)
-                if import_project :
-                    _UrtextProjectList.import_project(current_path)
 
             # otherwise assign the current window to the current project
             elif _UrtextProjectList.current_project:
