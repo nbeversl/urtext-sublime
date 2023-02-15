@@ -170,7 +170,7 @@ class Tree(UrtextDirective):
 
         for leaf in leaves:
             ancestors = [a.name for a in leaf.ancestors]
-            if 'ALIAS' in leaf.name and leaf.name[5:] in self.project.nodes and self.project.nodes[leaf.name[5:]].tree_node.children:
+            if 'ALIA$' in leaf.name and leaf.name[5:] in self.project.nodes and self.project.nodes[leaf.name[5:]].tree_node.children:
                 if leaf.name not in ancestors:
                     alias_nodes.append(leaf)
                 else:
