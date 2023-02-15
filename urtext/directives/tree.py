@@ -43,7 +43,7 @@ class Tree(UrtextDirective):
 
         while alias_nodes:  
             for leaf in alias_nodes:
-                if leaf.name[:5] == 'ALIAS':
+                if leaf.name[:5] == 'ALIA$':
                     node_id = leaf.name[5:]
                     new_tree = self.duplicate_tree(self.project.nodes[node_id].tree_node, leaf)            
                     leaf.children = new_tree.children
@@ -64,7 +64,7 @@ class Tree(UrtextDirective):
                 continue
 
             if not this_node.name in self.project.nodes:
-                if this_node.name[:5] == 'ALIAS' and this_node.name[5:] not in self.project.nodes:
+                if this_node.name[:5] == 'ALIA$' and this_node.name[5:] not in self.project.nodes:
                     tree_render += "%s%s" % (pre, this_node.name + ' NOT IN PROJECT (DEBUGGING)\n')    
                     continue
 
@@ -72,7 +72,7 @@ class Tree(UrtextDirective):
                 tree_render += "%s%s" % (pre, this_node.name + '\n')    
                 continue
 
-            if this_node.name[:5] == 'ALIAS':
+            if this_node.name[:5] == 'ALIA$':
                 urtext_node = self.project.nodes[this_node.name[5:]]
             else:
                 urtext_node = self.project.nodes[this_node.name]
@@ -192,7 +192,7 @@ class Tree(UrtextDirective):
 
         for node in all_nodes: 
      
-            if 'ALIAS' in node.name:            
+            if 'ALIA$' in node.name:            
                 node_id = node.name[5:]
                 if node_id not in ancestors:
                     if node_id in self.project.nodes:

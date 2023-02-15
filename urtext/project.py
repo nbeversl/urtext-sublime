@@ -1385,15 +1385,15 @@ class UrtextProject:
             source_tree_node = next_node
         else:
             source_tree_node = self.nodes[entry.from_node].tree_node
-        if source_tree_node.name.replace('ALIAS','') not in self.nodes:
+        if source_tree_node.name.replace('ALIA$','') not in self.nodes:
             return
 
-        for child in self.nodes[source_tree_node.name.replace('ALIAS','')].tree_node.children:
+        for child in self.nodes[source_tree_node.name.replace('ALIA$','')].tree_node.children:
             
             uid = source_tree_node.name + child.name
             if uid in visited_nodes:
                 continue
-            node_to_tag = child.name.replace('ALIAS','')
+            node_to_tag = child.name.replace('ALIA$','')
             if node_to_tag not in self.nodes:
                 visited_nodes.append(uid)
                 continue

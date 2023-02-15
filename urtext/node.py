@@ -59,6 +59,7 @@ class UrtextNode:
         self.export_points = {}
         self.dynamic = False
         self.id = None
+        self.pointers = []
         self.links = []
         self.root_node = root
         self.compact = compact

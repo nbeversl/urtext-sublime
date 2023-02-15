@@ -87,6 +87,7 @@ class UrtextBuffer:
         # nested = 0          # node nesting depth
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
+        pointers = {}
 
         for position in sorted(symbols.keys()):
 
@@ -96,9 +97,10 @@ class UrtextBuffer:
 
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
+            pointers[nested] = [] if nested not in pointers else pointers[nested]
 
             if symbols[position]['type'] == 'pointer':
-                self.parsed_items[position] = symbols[position]['contents'] + syntax.pointer_closing_wrapper
+                pointers[nested].append(symbols[position]['contents'])
                 continue
 
             if symbols[position]['type'] == 'opening_wrapper':
@@ -144,7 +146,12 @@ class UrtextBuffer:
                 if nested + 1 in child_group:
                     for child in child_group[nested+1]:
                         child.parent = node
+                    node.children = child_group[nested+1]
                     del child_group[nested+1]
+
+                if nested in pointers:
+                    node.pointers = pointers[nested]
+                    del pointers[nested]
                 
                 child_group.setdefault(nested,[])
                 child_group[nested].append(node)
@@ -162,10 +169,15 @@ class UrtextBuffer:
                     compact=from_compact,
                     start_position=start_position)
 
+                #TODO refactor
                 if nested + 1 in child_group:
                     for child in child_group[nested+1]:
                         child.parent = root_node
                     del child_group[nested + 1]
+
+                if nested in pointers:
+                    root_node.pointers = pointers[nested]
+                    del pointers[nested]
 
                 child_group.setdefault(nested,[])
                 child_group[nested].append(root_node)
