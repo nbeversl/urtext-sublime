@@ -1,18 +1,15 @@
-import datetime
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
     from ..dynamic_output import DynamicOutput
-    from ..timestamp import UrtextTimestamp
     from ..directive import UrtextDirective
     import Urtext.urtext.syntax as syntax
 else:
     from anytree import Node, RenderTree, PreOrderIter
     from anytree.render import ContStyle
     from urtext.dynamic_output import DynamicOutput
-    from urtext.timestamp import UrtextTimestamp
     from urtext.directive import UrtextDirective
     import urtext.syntax as syntax
 """
@@ -174,7 +171,7 @@ class Tree(UrtextDirective):
                 if leaf.name not in ancestors:
                     alias_nodes.append(leaf)
                 else:
-                    leaf.name = '! RECURSION - (from alias) : '+ self.project.nodes[leaf.name].get_title() + ' >'+leaf.name
+                    leaf.name = '! RECURSION - (from pointer) : '+ self.project.nodes[leaf.name].get_title() + ' >'+leaf.name
 
         return alias_nodes
 
