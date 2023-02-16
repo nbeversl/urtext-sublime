@@ -13,8 +13,8 @@ node_closing_wrapper =                  '}'
 link_opening_wrapper =                  '| '
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
-urtext_message_opening_wrapper =        '<!!'
-urtext_message_closing_wrapper =        '!!>'
+urtext_message_opening_wrapper =        '<!'
+urtext_message_closing_wrapper =        '!>'
 timestamp_opening_wrapper =             '<'
 timestamp_closing_wrapper =             '>'
 title_marker =                          ' _'
@@ -33,8 +33,7 @@ closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrap
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
-embedded_syntax_open =                  r'(%%-[A-Z-]+?)'
-embedded_syntax_full =                  r'(%%-[A-Z-]+?)'
+embedded_syntax_open =                  r'(%%\w+?)'
 embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
 function =                              r'([A-Z_\-\+]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
@@ -74,6 +73,7 @@ metadata_flags_c =                      re.compile(metadata_flags)
 # Composite patterns
 
 compact_node =                          bullet + r'([^\r\n]*)(\n|$)'
+embedded_syntax_full =                  embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'

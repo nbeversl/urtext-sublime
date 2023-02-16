@@ -12,7 +12,7 @@ else:
 	from urtext.action import UrtextAction
 	from urtext.extension import UrtextExtension
 
-python_code_regex = re.compile(r'(%%-PYTHON)(.*?)(%%-PYTHON-END)', re.DOTALL)
+python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
 
 class Exec(UrtextDirective):
 

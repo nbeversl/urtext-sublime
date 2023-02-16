@@ -411,7 +411,7 @@ def strip_embedded_syntaxes(
     return stripped_contents
 
 def strip_errors(contents):
-    return re.sub('<!!.*?!!>', '', contents, flags=re.DOTALL)
+    return re.sub('<!.*?!>', '', contents, flags=re.DOTALL)
 
 def sanitize_escape(string):
     if string.count('`') == 1:

@@ -36,9 +36,6 @@ contexts:
     - match: '`'
       push: raw 
 
-    - match: '(?<=::)[^\s]'
-      push: metadata-value
-
     - match: '(?<=::)<'
       push: metadata-timestamp
     
@@ -56,66 +53,58 @@ contexts:
     - match: <[^!\s-]
       push: datestamp
 
-    - match: <!!
-      push: error-message
-
     - match: <!{1}
       push: system-message
       
     # Embedded Syntaxes
-    - match: '%%-PYTHON'
+    - match: '%%Python'
       scope: pass_marker
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: python.urtext
-      escape: '%%-PYTHON-END'
+      escape: '%%'
       escape-captures: 0
     
-    - match: '%%-HTML'
+    - match: '%%HTML'
       scope: pass_marker.urtext
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: html.urtext
-      escape: '%%-HTML-END'
+      escape: '%%'
       escape_captures: 0
     
-    - match: '%%-JSON'
+    - match: '%%JSON'
       scope: pass_marker.urtext
       embed: Packages/JSON/JSON.sublime-syntax
       embed_scope: json.urtext
-      escape: '%%-JSON-END'
+      escape: '%%'
       escape_captures: 0
 
-    - match: '%%-JAVASCRIPT'
+    - match: '%%JavaScript'
       scope: pass_marker.urtext
       embed: Packages/JavaScript/JavaScript.sublime-syntax
       embed_scope: text.urtext
-      escape: '%%-JAVASCRIPT-END'
+      escape: '%%'
       escape_captures: 0
 
-    - match: '%%-PHP'
+    - match: '%%PHP'
       scope: pass_marker.urtext
       embed: Packages/PHP/PHP Source.sublime-syntax
       embed_scope: php.urtext
-      escape: '%%-PHP-END'
+      escape: '%%'
       escape_captures: 0
 
-    - match: '%%-MARKDOWN'
+    - match: '%%Markdown'
       scope: pass_marker.urtext
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: markdown.urtext
       escape: '%%-MARKDOWN-END'
       escape_captures: 0
 
-    - match: '%%-DOC'
-      scope: pass_marker.urtext
-      escape: '%%-DOC-END'
-      escape_captures: 0
-
     # Any other
-    - match: '%%-[A-Z-]*'
+    - match: '%%\w*?'
       embed: Packages/Text/text.sublime-syntax
       scope: pass_marker.urtext
       embed_scope: text.urtext
-      escape: '%%-[A-Z-]*-END'
+      escape: '%%'
       escape_captures: 0
 
   trigger:
@@ -143,7 +132,8 @@ contexts:
 
   metadata-entry:
     - meta_scope: metadata_entry.urtext
-    - include: metadata-value
+    - match: '(?<=::)'
+      push: metadata-value
     - match: ;|\r|(?=\})|$
       pop: true
 
@@ -154,11 +144,6 @@ contexts:
   datestamp:
     - meta_scope: entity.name.struct.datestamp.urtext
     - match: '>'
-      pop: true
-
-  error-message:
-    - meta_scope: entity.name.struct.error-message.urtext
-    - match: '!!>'
       pop: true
 
   system-message:

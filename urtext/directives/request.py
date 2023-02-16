@@ -15,6 +15,6 @@ class Request(UrtextDirective):
 		try:
 			with urllib.request.urlopen(self.argument_string) as f:
 				t = f.read().decode('utf-8')
-			return '%%-JSON\n'+ t +'\n%%-JSON-END\n'
+			return '%%JSON\n'+ t +'\n%%\n'
 		except urllib.error.URLError:
 			return str(urllib.error.URLError)

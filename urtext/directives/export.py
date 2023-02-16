@@ -376,10 +376,8 @@ class UrtextExport(UrtextDirective):
         return title
 
 def preformat_embedded_syntaxes(text):
-    
-    text = re.sub('[^`]%%-DOC','',text )
-    text = re.sub('[^`]%%-DOC-END','',text )
 
+    #TODO update
     text = re.sub('%%-[^E][A-Z-]*','```',text )
     text = re.sub('%%-[A-Z-]*-END','```',text )
     return text
