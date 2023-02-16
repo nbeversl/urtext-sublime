@@ -201,7 +201,8 @@ class UrtextProject:
                             else:
                                 # try to map old to new. This is the hard part
                                 pass
-            self._rewrite_changed_links(changed_ids)
+            if self.compiled:
+                self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.filename] = new_file  
         for node_id in new_file.nodes:

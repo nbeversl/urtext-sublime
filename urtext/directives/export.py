@@ -62,9 +62,9 @@ class UrtextExport(UrtextDirective):
         return exported_content #, points
 
     def _add_node_content(self, 
-            root_node_id,                               # node to start from
+            root_node_id,   # node to start from
             added_contents = None,
-            exclude=None,                                 # specify any nodes to exclude
+            exclude=None,   # specify any nodes to exclude
             nested=None,
             points = None,                               
             visited_nodes=None,
