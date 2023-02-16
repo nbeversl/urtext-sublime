@@ -170,7 +170,7 @@ contexts:
     - include: node_link
     - include: file_link
 
-    - match: '((\+|\-)|([A-Z_]+))(?=\()'
+    - match: '((\+|\-|\>)|([A-Z_]+))(?=\()'
       scope: function-name.urtext
       push: function
     

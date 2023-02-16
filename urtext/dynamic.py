@@ -73,13 +73,12 @@ class UrtextDynamicDefinition:
 				op.parse_argument_string(argument_string)	
 				self.operations.append(op)
 
-			if func =='ID':
+			if func in ['TARGET', '>']:
 				## TODO: improve this prse
 				self.target_id = argument_string.strip(syntax.link_closing_wrapper).strip(syntax.link_opening_wrapper).strip()
 				continue
 
 			if func == 'FILE':
-				# currently works for files in the project path only
 				self.target_file = argument_string
 				continue
 

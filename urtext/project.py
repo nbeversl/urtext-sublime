@@ -1274,8 +1274,9 @@ class UrtextProject:
                     self.nodes[dynamic_definition.target_id].title = ''
         
         if dynamic_definition.target_file:
+            filename = os.path.join(self.entry_point, dynamic_definition.target_file)
             self.exports[dynamic_definition.target_file] = dynamic_definition
-            with open(dynamic_definition.target_file, 'w', encoding='utf-8' ) as f:
+            with open(filename, 'w', encoding='utf-8' ) as f:
                 f.write(final_output)
             changed_file = dynamic_definition.target_file
 

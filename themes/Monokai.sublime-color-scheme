@@ -29,7 +29,7 @@
 		 "wrapper5" : "var(dark5)",
 
 		 "embed-marker" : "var(red)",
-
+		 "dynamic-flag" : "var(blue)",
 		 // 
 		 "raw" : "var(dark1)",
 
@@ -233,6 +233,11 @@
 	  		{   "scope": "dynamic-def-format-var.urtext",
 	  			"foreground": "var(format-variable)",
 	  			"font_style":"bold",
+	  		},
+
+	  		{   "scope": "dynamic-flag.urtext",
+	  			"foreground": "var(dynamic-flag)",
+	  			"font_style":"italic",
 	  		},
 
 
