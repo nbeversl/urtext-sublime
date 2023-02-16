@@ -29,7 +29,6 @@ class ReindexFiles(UrtextAction):
             filenames = [filenames]
        
         used_names = []
-        existing_files = os.listdir(self.project.path)
         renamed_files = {}
         date_template = self.project.settings['filename_datestamp_format']
         prefix = 0
@@ -37,13 +36,8 @@ class ReindexFiles(UrtextAction):
         for filename in filenames:
             old_filename = filename
             if old_filename not in self.project.files:
-                return {}
-
-            if not self.project.files[old_filename].root_nodes:
-                print('No root nodes in '+old_filename)
                 continue
 
-            ## Name each file from the first root_node
             root_node_id = self.project.files[old_filename].root_nodes[0]
             root_node = self.project.nodes[root_node_id]
             filename_template = list(self.project.settings['filenames'])
@@ -89,24 +83,23 @@ class ReindexFiles(UrtextAction):
             new_filename = new_filename.replace('’', "'")
             new_filename = new_filename.strip().strip('-').strip();
             new_filename = strip_illegal_characters(new_filename)
-            new_filename = new_filename[:250]
+            new_filename = new_filename[:248]
             new_filename += '.urtext'
 
             if new_filename in used_names:
                 new_filename = new_filename.replace('.urtext',' - '+root_node.id+'.urtext')
-
+            new_filename = os.path.join(os.path.dirname(old_filename), new_filename)
             # renamed_files retains full file paths
-            renamed_files[os.path.join(self.project.path, old_filename)] = os.path.join(self.project.path, new_filename)
+            renamed_files[old_filename] = new_filename
             used_names.append(new_filename)
 
             # add history files
             old_history_file = old_filename.replace('.urtext','.diff')
-            if os.path.exists(os.path.join(self.project.path, 'urtext_history', old_history_file) ):
+            if os.path.exists(os.path.join(os.path.dirname(old_history_file), 'urtext_history', old_history_file) ):
                 new_history_file = new_filename.replace('.urtext','.diff')
-                #renamed_files[os.path.join(self.project.path, 'urtext_history', old_history_file)] = os.path.join(self.project.path, 'urtext_history', new_history_file)
 
             prefix += 1
-            
+
         for filename in renamed_files:
             old_filename = filename
             new_filename = renamed_files[old_filename]
