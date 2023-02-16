@@ -117,7 +117,8 @@ class UrtextProject:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
             for file in self._get_included_files():
-                self._parse_file(file)
+                if file not in self.files:
+                    self._parse_file(file)
 
         # or if additional projects have been added
         
