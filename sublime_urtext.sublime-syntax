@@ -49,11 +49,9 @@ contexts:
         3: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
 
-    - match: \w+?(?=::)[^\{]
+    - match: \w+?(?=::)
       scope: meta_key.urtext
       push: metadata-entry
-
-    - match: \w+?(?=::)
 
     - match: <[^!\s-]
       push: datestamp
@@ -345,7 +343,7 @@ contexts:
     - match: '(?<=::){'
       push: inline-node-1
 
-    - match: '(?<=::)[^\s]'
+    - match: '(?<=::)[^\s\{]'
       push: metadata-value
     
     - match: \w+?(?=::)
