@@ -28,9 +28,7 @@
 			 "datestamp" : "var(grey3)",
 			 "file-link" : "var(foreground)",
 		 	
-		 // pass marker:
-		 "pass-marker" : "var(foreground)",
-
+		"embed-marker" : "var(red)",
 		// action trigger:
 		 "trigger" : "var(red)",
 
@@ -242,8 +240,8 @@
 	        },
 
 	  		{
-	  			"scope" : "pass_marker.urtext",
-	  			"foreground" : "var(pass-marker)",
+	  			"scope" : "embed_marker.urtext",
+	  			"foreground" : "var(embed-marker)",
 	  			"font_style" : "italic bold",
 	  		},
 	  		{

@@ -58,54 +58,61 @@ contexts:
       
     # Embedded Syntaxes
     - match: '%%Python'
-      scope: pass_marker
+      scope: embed_marker.urtext
       embed: Packages/Python/Python.sublime-syntax
       embed_scope: python.urtext
       escape: '%%'
-      escape-captures: 0
+      escape_captures: 
+         0: escape_marker.urtext
     
     - match: '%%HTML'
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed: Packages/HTML/HTML.sublime-syntax
       embed_scope: html.urtext
       escape: '%%'
-      escape_captures: 0
+      escape_captures: 
+        0: escape_marker.urtext
     
     - match: '%%JSON'
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed: Packages/JSON/JSON.sublime-syntax
       embed_scope: json.urtext
       escape: '%%'
-      escape_captures: 0
+      escape_captures: 
+        0: escape_marker.urtext
 
     - match: '%%JavaScript'
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed: Packages/JavaScript/JavaScript.sublime-syntax
       embed_scope: text.urtext
       escape: '%%'
-      escape_captures: 0
+      escape_captures: 
+        0: escape_marker.urtext
 
     - match: '%%PHP'
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed: Packages/PHP/PHP Source.sublime-syntax
       embed_scope: php.urtext
       escape: '%%'
-      escape_captures: 0
+      escape_captures:
+        0: escape_marker.urtext
 
     - match: '%%Markdown'
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: markdown.urtext
       escape: '%%-MARKDOWN-END'
-      escape_captures: 0
+      escape_captures:
+        0: escape_marker.urtext
 
     # Any other
     - match: '%%\w*?'
       embed: Packages/Text/text.sublime-syntax
-      scope: pass_marker.urtext
+      scope: embed_marker.urtext
       embed_scope: text.urtext
       escape: '%%'
-      escape_captures: 0
+      escape_captures:
+        0: escape_marker.urtext
 
   trigger:
     - match: '(>>>[A-Z_]+)(?=\()'

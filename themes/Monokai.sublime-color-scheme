@@ -28,6 +28,8 @@
 		 "wrapper4" : "var(dark4)",
 		 "wrapper5" : "var(dark5)",
 
+		 "embed-marker" : "var(red)",
+
 		 // 
 		 "raw" : "var(dark1)",
 
@@ -168,8 +170,16 @@
 			{   "scope": "file_link.urtext",
 	  			"foreground": "var(file-link)",
 	  		},
-
-	  	
+	  		{
+	  			"scope" : "embed_marker.urtext",
+	  			"foreground" : "var(embed-marker)",
+	  			"font_style" : "italic bold",
+	  		},
+	  		{
+	  			"scope" : "escape_marker.urtext",
+	  			"foreground" : "var(embed-marker)",
+	  			"font_style" : "italic bold",
+	  		},
 
 	        /* Compact Node (^) */
 	  		
