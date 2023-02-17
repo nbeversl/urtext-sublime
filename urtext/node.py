@@ -44,13 +44,11 @@ class UrtextNode:
     urtext_metadata = NodeMetadata
 
     def __init__(self, 
-        filename, 
         contents,
         project,
         root=False,
         compact=False):
 
-        self.filename = filename
         self.project = project
         self.position = 0
         self.ranges = [[0, 0]]

@@ -215,7 +215,6 @@ class UrtextBuffer:
             for r in ranges])
         
         new_node = self.urtext_node(
-            self.filename, 
             node_contents,
             self.project,
             root=root,
@@ -236,45 +235,6 @@ class UrtextBuffer:
           
     def _set_file_contents(self, contents):
           return
-
-    def write_messages(self, settings, messages=None):
-        if not messages and not self.messages:
-            return False
-        if messages:
-            self.messages = messages
-
-        contents = self._get_file_contents()
-
-        messages = ''.join([ 
-            syntax.urtext_message_opening_wrapper,
-            '\n',
-            '\n'.join(self.messages),
-            '\n',
-            syntax.urtext_message_closing_wrapper,
-            '\n',
-            ])
-
-        message_length = len(messages)
-        
-        for n in re.finditer('position \d{1,10}', messages):
-            old_n = int(n.group().strip('position '))
-            new_n = old_n + message_length
-            messages = messages.replace(str(old_n), str(new_n))
-
-        if len(messages) != message_length:
-            pass
-             
-        new_contents = ''.join([
-            messages,
-            contents,
-            ])
-
-        self._set_file_contents(new_contents, compare=False)
-        self.nodes = {}
-        self.root_nodes = []
-        self.parsed_items = {}
-        self.messages = []
-        self.lex_and_parse(new_contents)
 
     def get_ordered_nodes(self):
         return sorted( 

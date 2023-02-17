@@ -713,10 +713,11 @@ class UrtextProject:
                         return node_id
         return None
 
-    def get_node_id_from_position_in_buffer(self, buffer, position):
-        buffer_file = UrtextBuffer(buffer, self)
-        for node_id in buffer_file.nodes:
-            for r in buffer_file.nodes[node_id].ranges:
+    def get_node_id_from_position_in_buffer(self, contents, position):
+        buffer = UrtextBuffer(self)
+        buffer.lex_and_parse(contents)
+        for node_id in buffer.nodes:
+            for r in buffer.nodes[node_id].ranges:
                 if position  >= r[0] and position < r[1]:
                     return node_id
         return None
