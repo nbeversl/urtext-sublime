@@ -86,13 +86,14 @@ class ProjectList():
         """ Otherwise, set the project, search the link for a link in the current project """
         if filename:
             self.set_current_project(os.path.dirname(filename))
-            link = self.current_project.get_link( 
-                string, 
-                filename, 
-                col_pos=col_pos,
-                file_pos=file_pos
-                )
-            return link
+            if self.current_project:
+                link = self.current_project.get_link( 
+                    string, 
+                    filename, 
+                    col_pos=col_pos,
+                    file_pos=file_pos
+                    )
+                return link
 
     def on_modified(self, filenames):
         modified_files = []

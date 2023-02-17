@@ -1274,13 +1274,16 @@ class UrtextProject:
                 # Dynamic nodes have blank title by default. Title can be set by header or title key.
                 if not self.nodes[dynamic_definition.target_id].metadata.get_first_value('title'):
                     self.nodes[dynamic_definition.target_id].title = ''
-        
+
         if dynamic_definition.target_file:
             filename = os.path.join(self.entry_point, dynamic_definition.target_file)
             self.exports[dynamic_definition.target_file] = dynamic_definition
             with open(filename, 'w', encoding='utf-8' ) as f:
                 f.write(final_output)
             changed_file = dynamic_definition.target_file
+
+            #TODO -- If the file is an export, need to make sure it is remembered
+            # when parsed so duplicate titles can be avoided
 
         return changed_file
 

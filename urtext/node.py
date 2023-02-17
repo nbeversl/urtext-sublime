@@ -349,7 +349,7 @@ def strip_contents(contents,
         reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
     contents = strip_metadata(contents=contents, preserve_length=preserve_length)
     contents = strip_dynamic_definitions(contents=contents, preserve_length=preserve_length)
-    contents = contents.strip().strip('{').strip()
+    contents = contents.strip().strip('{}').strip()
     return contents
 
 def strip_wrappers(contents):

@@ -29,7 +29,6 @@ else:
     import urtext.node
     import urtext.syntax as syntax
 
-
 class UrtextExport(UrtextDirective):
 
     name = ["EXPORT"]
@@ -59,12 +58,13 @@ class UrtextExport(UrtextDirective):
             visited_nodes=visited_nodes,
             points=points,
             )
-        return exported_content #, points
+
+        return exported_content
 
     def _add_node_content(self, 
             root_node_id,   # node to start from
             added_contents = None,
-            exclude=None,   # specify any nodes to exclude
+            exclude=None,
             nested=None,
             points = None,                               
             visited_nodes=None,
@@ -76,11 +76,11 @@ class UrtextExport(UrtextDirective):
         if not root_node_id:
             print('Root node ID is None')
             return
-            
+
         if root_node_id not in self.project.nodes:
             print('EXPORT: Root node ID ' + root_node_id +' not in the project.')
             return '','',''    
-       
+
         """
         Get and set up initial values
         """
@@ -93,28 +93,26 @@ class UrtextExport(UrtextDirective):
         if exclude == None:
             exclude = []
         if nested == None:
-            nested = 1
+            nested = 0
 
         ranges = self.project.nodes[root_node_id].ranges
         filename = self.project.nodes[root_node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         title = self.project.nodes[root_node_id].get_title()
-        meta_title = True if self.project.nodes[root_node_id].metadata.get_first_value('title') else False
 
         if root_node_id in exclude or root_node_id in visited_nodes:
-            return added_contents, points, visited_nodes
-        
+            return '\n' + added_contents, points, visited_nodes
         """
         Recursively add nodes, its inline nodes and node pointers, in order
         from a given starting node, keeping track of nesting level, and wrapping in markup.        
         """    
-
         visited_nodes.append(root_node_id)
-        
+
         """ get all the node pointers and their locations"""
         locations = []
         for single_range in ranges:
-            locations.extend(self.get_node_pointers_with_locations(file_contents[single_range[0]:single_range[1]]))
+            locations.extend(self.get_node_pointers_with_locations(
+                file_contents[single_range[0]:single_range[1]]))
             """ locations contain tuple of (location, matched_text)"""
 
         """ sort node pointers in order of occurrence and remember the node_ids"""
@@ -128,40 +126,34 @@ class UrtextExport(UrtextDirective):
         for single_range in ranges:
 
             """ Get and add the range's contents """
-            range_contents = file_contents[single_range[0]:single_range[1]]
-           
-            if 'keep_syntax' not in self.project.nodes[root_node_id].metadata.get_values('_settings'):
-                range_contents = self._strip_urtext_syntax(range_contents)                
-            
-            """ If  first range: """
+            range_contents = file_contents[single_range[0]:single_range[1]]           
+            range_contents = self._strip_urtext_syntax(range_contents)
+
+            """ If first range, replace and reformat title """
             if single_range == ranges[0]:
-    
-                ## Replace and Format Title
-                if 'c' not in self.project.nodes[root_node_id].metadata.get_values('flags'):  
-                    range_contents = re.sub(re.escape(title)+'( _)?', '', range_contents, 1)
+                range_contents = re.sub(re.escape(title)+r'(\s+_)?', '', range_contents, 1)
+                if range_contents:
                     range_contents = self.wrap_title(root_node_id, nested) + range_contents
                 else:
-                    nested -=1
-                
-                if 'n' in self.project.nodes[root_node_id].metadata.get_values('flags'):
-                    range_contents += '  \n'
-                                    
+                    range_contents = self.wrap_title(root_node_id, nested) + '\n'
+
+            # range_contents = range_contents.rstrip()
+            range_contents = strip_indent(range_contents)
+            range_contents = indent(range_contents, nested + 1)
             range_contents = self.replace_range(range_contents, range_number, nested)   
             range_contents = self.before_replace_node_links(range_contents)
-                                
+            
             if not self.project.nodes[root_node_id].is_tree or not self.have_flags('-preformat'):
                 ## Only replace node links if this is not a tree
                 ## or it is a tree and preformat was not selected
                 range_contents = self.replace_node_links(range_contents)
-            
-            range_contents = self.after_replace_node_links(range_contents)
 
+            range_contents = self.after_replace_node_links(range_contents)
             """
-            If this is end of the node, mark it complete
+            If this is end of the node, add a wrapper if needed
             """
             if single_range[1] == ranges[-1][1]:
                 range_contents += self.closing_wrapper()
-
             """
             #TODO
             FUTURE: map the exported content to the source content.
@@ -169,7 +161,8 @@ class UrtextExport(UrtextDirective):
             Note each point will be relative to the beginning of the 
             containing node, not the beginning of the file containing the export.
             """
-            
+            if (len(added_contents), len(added_contents) + len(range_contents) ) in points:
+                del points[ (len(added_contents), len(added_contents) + len(range_contents) ) ]
             points[ (len(added_contents), len(added_contents) + len(range_contents) ) ] = ( root_node_id, single_range[0] )
 
             added_contents += range_contents
@@ -200,7 +193,6 @@ class UrtextExport(UrtextDirective):
         """ replace node pointers with their contents recursively"""
 
         if not self.project.nodes[root_node_id].dynamic :  
-
             if self.have_flags('-as_single_file'):
                 added_contents, points, visited_nodes = self.replace_node_pointers(
                     nested,
@@ -210,7 +202,6 @@ class UrtextExport(UrtextDirective):
                     exclude=exclude,
                     visited_nodes=visited_nodes,
                    )
-
         
         return added_contents, points, visited_nodes
     
@@ -257,7 +248,9 @@ class UrtextExport(UrtextDirective):
         for location in locations:
 
             match = node_pointer_locations[location]
-            node_id = match
+
+            #TODO use regex instead
+            node_id = match[2:-3]
 
             pointer_length = len(match)
 
@@ -328,7 +321,7 @@ class UrtextExport(UrtextDirective):
 
         node_links = syntax.node_link_c.finditer(contents)
         for match in node_links:
-            node_id = match.group(1)           
+            node_id = match.group(2) 
             if node_id not in self.project.nodes:                    
                 contents = contents.replace(match.group(), '[ MISSING LINK : '+node_id+' ] ')
                 continue
@@ -351,15 +344,9 @@ class UrtextExport(UrtextDirective):
         return contents
 
     def _strip_urtext_syntax(self, contents):
-        
         contents = Urtext.urtext.node.strip_contents(contents, 
-            include_backtick=False, 
-            reformat_and_keep_embedded_syntaxes=True).strip()
-        if contents and contents[0] == '{':
-            contents = contents[1:]
-        if contents and contents[-1] == '}':
-            contents = contents[:-1]
-            
+            include_backtick=False,
+            reformat_and_keep_embedded_syntaxes=True).strip()           
         return contents
 
     def opening_wrapper(self, node_id, nested):
@@ -373,20 +360,16 @@ class UrtextExport(UrtextDirective):
 
     def wrap_title(self, node_id, nested):        
         title = self.project.nodes[node_id].get_title()
-        return title
+        return '\n' + '\t' * nested + title
 
 def preformat_embedded_syntaxes(text):
-
     #TODO update
-    text = re.sub('%%-[^E][A-Z-]*','```',text )
-    text = re.sub('%%-[A-Z-]*-END','```',text )
+    text = re.sub(r'%%\w+[\s|$]','```',text )
+    text = re.sub(r'%%[\s|$]','```', text)
     return text
 
-    
-def strip_leading_space(text):
-    result = []
-    for line in text.split('\n'):
-        if '├' not in line and '└' and '─' not in line:
-            line = line.lstrip()
-        result.append(line)
-    return '\n'.join(result)
+def strip_indent(text):
+    return '\n'.join([line.strip() for line in text.split('\n')])
+
+def indent(text, tabs):
+    return '\n'.join(['\t' * tabs + line for line in text.split('\n')])
