@@ -3,9 +3,10 @@ from .sublime_urtext import UrtextTextCommand
 
 class UrtextHomeCommand(UrtextTextCommand):
     
-    @refresh_project_text_command(change_project=False)
+    @refresh_project_text_command()
     def run(self):
         home = self._UrtextProjectList.current_project.get_home()
+        print(home)
         if home:
             self._UrtextProjectList.nav_new(home)
             open_urtext_node(self.view, home)

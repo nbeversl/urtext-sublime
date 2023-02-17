@@ -28,7 +28,6 @@ from Urtext.urtext.project_list import ProjectList
 from sublime_plugin import EventListener
 from Urtext.urtext.project import match_compact_node
 
-_SublimeUrtextWindows = {}
 _UrtextProjectList = None
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
@@ -52,34 +51,29 @@ def refresh_project_text_command(change_project=True):
             _UrtextProjectList = initialize_project_list(view)
             if not _UrtextProjectList:
                 return None
-
+            
             if not change_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
                 return function(args[0])
-                
+            
             window = sublime.active_window()
             if not window:
                 print('NO ACTIVE WINDOW')
                 return
-
+            
             view = window.active_view()
             window_id = window.id()
 
             # get the current project first from the view
             if view.file_name():
-                current_path = os.path.dirname(view.file_name())
-                _UrtextProjectList.set_current_project(current_path)
-            
+                _UrtextProjectList.set_current_project(os.path.dirname(view.file_name()))
+           
             # then try the window
-            elif window_id in _SublimeUrtextWindows:
-                current_path = _SublimeUrtextWindows[window_id]
-                _UrtextProjectList.set_current_project(current_path)
-
-            # otherwise assign the current window to the current project
-            elif _UrtextProjectList.current_project:
-                _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.settings['paths'][0]
-                
+            for folder in window.folders():
+                if _UrtextProjectList.set_current_project(folder):
+                    break
+            
             # If there is a current project, return it
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
@@ -114,14 +108,11 @@ def refresh_project_event_listener(function):
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(args[0], view)
 
-        if window_id in _SublimeUrtextWindows:
-            current_path = _SublimeUrtextWindows[window_id]
-            _UrtextProjectList.set_current_project(current_path)
-            args[0]._UrtextProjectList = _UrtextProjectList
-            return function(args[0], view)
+        for folder in window.folders():
+            if _UrtextProjectList.set_current_project(folder):
+                break
 
         if _UrtextProjectList.current_project:
-            _SublimeUrtextWindows[window_id] = _UrtextProjectList.current_project.entry_path
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(args[0], view)
 
@@ -179,7 +170,6 @@ class ListProjectsCommand(UrtextTextCommand):
 
     def set_window_project(self, title):
         self._UrtextProjectList.set_current_project(title)
-        _SublimeUrtextWindows[self.view.window().id()] = self._UrtextProjectList.current_project.entry_path
         node_id = self._UrtextProjectList.nav_current()
         self._UrtextProjectList.nav_new(node_id)
         open_urtext_node(self.view, node_id)
