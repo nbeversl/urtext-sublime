@@ -117,7 +117,7 @@ class UrtextFile(UrtextBuffer):
 
         self._set_file_contents(new_contents, compare=False)
         self.nodes = {}
-        self.root_nodes = []
+        self.root_node = None
         self.parsed_items = {}
         self.messages = []
         self.lex_and_parse(new_contents)

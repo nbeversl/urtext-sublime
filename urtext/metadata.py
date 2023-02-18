@@ -266,6 +266,7 @@ class NodeMetadata:
             del self.entries_dict['#']
 
     def get_oldest_timestamp(self):
+
         if self.get_entries('_oldest_timestamp'):
             return self.get_entries('_oldest_timestamp')[0].timestamps[0]
         all_timestamps = []

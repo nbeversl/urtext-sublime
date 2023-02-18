@@ -18,7 +18,7 @@ class UrtextBuffer:
         
         self.nodes = {}
         self.node_tree = {}
-        self.root_nodes = []
+        self.root_node = None
         self.alias_nodes = []
         self.parsed_items = {}
         self.messages = []     
@@ -30,6 +30,7 @@ class UrtextBuffer:
         symbols = self.lex(contents)
         self.parse(contents, symbols)
         self.file_length = len(contents)
+        self.propagate_timestamps(self.nodes[self.root_node])
 
     def lex(self, contents, start_position=0):
        
@@ -174,6 +175,7 @@ class UrtextBuffer:
                 if nested + 1 in child_group:
                     for child in child_group[nested+1]:
                         child.parent = root_node
+                    root_node.children = child_group[nested+1]
                     del child_group[nested + 1]
 
                 if nested in pointers:
@@ -227,7 +229,7 @@ class UrtextBuffer:
         self.nodes[new_node.id] = new_node   
         self.nodes[new_node.id].ranges = ranges
         if new_node.root_node:
-            self.root_nodes.append(new_node.id)
+            self.root_node = new_node.id
         self.parsed_items[ranges[0][0]] = new_node.id
         return new_node
 
@@ -242,11 +244,26 @@ class UrtextBuffer:
             list(self.nodes.keys()),
             key=lambda node_id :  self.nodes[node_id].start_position())
 
+    def propagate_timestamps(self, start_node):
+        oldest_timestamp = start_node.metadata.get_oldest_timestamp()
+        if oldest_timestamp:
+            for child in start_node.children:
+                child_oldest_timestamp = child.metadata.get_oldest_timestamp()
+                if not child_oldest_timestamp:
+                    child.metadata.add_entry('inline_timestamp', ''.join([
+                        syntax.timestamp_opening_wrapper,
+                        oldest_timestamp.string,
+                        syntax.timestamp_closing_wrapper
+                        ]),
+                    from_node=start_node.title)
+                    child.metadata.add_system_keys()
+                self.propagate_timestamps(child)
+
     def log_error(self, message, position):
 
         self.nodes = {}
         self.parsed_items = {}
-        self.root_nodes = []
+        self.root_node = None
         self.file_length = 0
         self.messages.append(message +' at position '+ str(position))
 

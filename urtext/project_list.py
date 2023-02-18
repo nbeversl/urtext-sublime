@@ -171,7 +171,7 @@ class ProjectList():
         return None
 
     def visit_file(self, filename):
-        if filename:
+        if filename and self.current_project:
             path = os.path.dirname(filename)
             self.set_current_project(path)
             return self.current_project.visit_file(filename)

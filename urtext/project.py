@@ -511,7 +511,7 @@ class UrtextProject:
         self._parse_file(filename)
 
         #TODO refactor so that UrtextFile rememebrs these as UrtextNodes, not titles
-        title = self.files[filename].root_nodes[0]
+        title = self.files[filename].root_node
 
         return { 
                 'filename' : filename, 
@@ -697,9 +697,9 @@ class UrtextProject:
         for k in self.settings['file_index_sort']:
             k = k.lower()
             use_timestamp= True if k in self.settings['use_timestamp'] else False
-            file_group = [f for f in files if self.files[f].root_nodes and self.nodes[self.files[f].root_nodes[0]].metadata.get_first_value(k, use_timestamp=use_timestamp)]
+            file_group = [f for f in files if self.files[f].root_node and self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp)]
             file_group = sorted(file_group, 
-                key=lambda f:  self.nodes[self.files[f].root_nodes[0]].metadata.get_first_value(k, use_timestamp=use_timestamp),
+                key=lambda f:  self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp),
                 reverse=use_timestamp)
             sorted_files.extend(file_group)
             files = list(set(files) - set(sorted_files))
@@ -1381,8 +1381,7 @@ class UrtextProject:
         new_file_contents += file_contents[ranges[-1][1]:]
         self.files[filename]._set_file_contents(new_file_contents)
         self._parse_file(filename)
-
-            
+ 
     def _add_sub_tags(self, 
         entry,
         next_node=None,
