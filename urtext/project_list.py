@@ -129,7 +129,7 @@ class ProjectList():
         project = self.get_project(title_or_path) 
         if not project:
             return
-        if ( not self.current_project ) or ( project and project.settings['project_title'] != self.current_project.settings['project_title'] ) :
+        if ( not self.current_project ) or ( project.settings['project_title'] != self.current_project.settings['project_title'] ) :
            self.current_project = project
            print('Switched to project: ' + self.current_project.settings['project_title'])
         return project

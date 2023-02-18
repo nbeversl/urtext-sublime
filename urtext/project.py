@@ -690,6 +690,7 @@ class UrtextProject:
         return sorted_nodes
 
     def all_files(self):
+        self._sync_file_list()
         files=list(self.files)
         prefix = 0
         sorted_files = []
