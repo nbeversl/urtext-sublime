@@ -135,7 +135,7 @@ contexts:
     - include: node_link
     - include: file_link  
     - match: ;|\r|(?=\})|$
-      pop: true
+      pop: 2
 
   metadata-entry:
     - meta_scope: metadata_entry.urtext
