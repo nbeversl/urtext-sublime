@@ -479,7 +479,7 @@ class UrtextProject:
     filtering files to skip 
     """
     def _filter_filenames(self, filename):
-        if filename in ['urtext_history','urtext_files','.git']:
+        if filename in ['urtext_files','.git']:
             return None            
         if filename in self.settings['exclude_files']:
             return None

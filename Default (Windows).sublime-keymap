@@ -14,7 +14,6 @@
   { "keys": ["ctrl+shift+o"], "command": "list_projects"},
   { "keys": ["ctrl+shift+n"], "command": "full_text_search"},
   { "keys": ["ctrl+shift+8"], "command": "all_projects_node_browser"},
-  { "keys": ["ctrl+shift+g"], "command": "browse_history"},
   { "keys": ["ctrl+shift+c"], "command": "copy_link_to_here"},
   { "keys": ["ctrl+shift+super+c"], "command": "copy_link_to_here_with_project"},
   { "keys": ["ctrl+shift+'"], "command": "insert_link_to_new_node"},

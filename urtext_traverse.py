@@ -69,8 +69,6 @@ class TraverseFileTree(EventListener):
 
 		# give this view a name since we have so many to keep track of
 		called_from_view = view 
-		if called_from_view.name() == 'urtext_history':
-			return
 		#
 		# TODO:
 		# Add a failsafe in case the user has closed the next group to the left

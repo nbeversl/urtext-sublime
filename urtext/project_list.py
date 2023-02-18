@@ -43,10 +43,7 @@ class ProjectList():
         for p in self.projects:
             paths.extend([entry['path'] for entry in p.settings['paths']])
         if path not in paths:
-            if os.path.basename(path) not in [
-                    'urtext_history',
-                    'urtext_files' 
-                ]:
+            if os.path.basename(path) not in ['urtext_files']:
                 project = UrtextProject(path, 
                     self.add_project)
                 self.projects.append(project)
@@ -220,13 +217,6 @@ class ProjectList():
                     self.current_project.settings['project_title'],
                     destination_project.settings['project_title'],                   
                     node_id)
-
-        # also move the history file
-        history_file = os.path.join(os.dirname(filename), 'urtext_history', filename + '.diff')
-        if os.path.exists(history_file):
-            os.rename(
-                history_file,
-                os.path.join(destination_project.path, 'urtext_history', os.path.basename(history_file)))
 
         return True
 
