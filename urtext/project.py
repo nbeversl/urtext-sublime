@@ -69,7 +69,7 @@ class UrtextProject:
         self.settings = default_project_settings()
         self._add_project = add_project # ProjectList method
         self.entry_point = entry_point
-        self.entry_path = os.path.dirname(entry_point)
+        self.entry_path = None
         self.settings['project_title'] = self.entry_point # default
         self.is_async = True
         self.is_async = False # development
@@ -102,6 +102,7 @@ class UrtextProject:
 
         # parse the entry point
         if os.path.isdir(self.entry_point):
+            self.entry_path = self.entry_point
             self.settings['paths'].append({
                 'path' : self.entry_point,
                 'recurse' : False
@@ -109,6 +110,7 @@ class UrtextProject:
             for file in self._get_included_files():
                 self._parse_file(file)
         else:
+            self.entry_path = os.dirname(self.entry_point)
             self._parse_file(self.entry_point)
 
         # check what additional folders are included

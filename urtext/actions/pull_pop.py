@@ -1,10 +1,11 @@
 import os
-import datetime
 import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.action import UrtextAction
+    import Urtext.urtext.syntax as syntax
 else:
     from urtext.action import UrtextAction
+    import urtext.syntax as syntax
 
 class PopNode(UrtextAction):
 
@@ -21,13 +22,12 @@ class PopNode(UrtextAction):
         was called in the same calling function, this completes before evaluating
         the node_id from the position.
         """
-        
         return self._pop_node(
             param_string, 
             filename, 
             file_pos=file_pos)
 
-    def _pop_node(self, 
+    def _pop_node(self,
         param_string, 
         filename, 
         file_pos=None,  
@@ -52,28 +52,36 @@ class PopNode(UrtextAction):
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
-
         popped_node_contents = file_contents[start:end].strip()
         parent_id = self.project.nodes[node_id].tree_node.parent
 
         if self.project.settings['breadcrumb_key']:
-            popped_node_contents += '\n'+self.project.settings['breadcrumb_key']+'::| '+parent_id.name+ ' > '+self.project.timestamp(datetime.datetime.now());
+            popped_node_contents += ''.join([
+                '\n',
+                self.project.settings['breadcrumb_key'],
+                syntax.metadata_assignment_operator,
+                syntax.link_opening_wrapper,
+                parent_id.name,
+                syntax.link_closing_wrapper,
+                self.project.timestamp().wrapped_string]);
 
         remaining_node_contents = ''.join([
             file_contents[0:start - 1],
-            '\n| ',
+            '\n',
+            syntax.link_opening_wrapper,
             self.project.nodes[popped_node_id].get_title(),
             syntax.pointer_closing_wrapper,
             file_contents[end + 1:]
             ])
        
-        with open (os.path.join(self.project.path, filename), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.project.entry_path, filename), 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
         self.project._parse_file(filename) 
 
-        with open(os.path.join(self.project.path, popped_node_id+'.urtext'), 'w',encoding='utf-8') as f:
+        new_file_name = os.path.join(self.project.entry_path, popped_node_id+'.urtext')
+        with open(new_file_name, 'w',encoding='utf-8') as f:
             f.write(popped_node_contents)
-        self.project._parse_file(popped_node_id+'.urtext') 
+        self.project._parse_file(new_file_name) 
         return filename
 
 class PullNode(UrtextAction):
@@ -151,7 +159,12 @@ class PullNode(UrtextAction):
         pulled_contents = source_file_contents[start:end]
         destination_file_contents = self.project.files[destination_filename]._get_file_contents()
     
-        wrapped_contents = ''.join(['{ ',pulled_contents,' }'])
+        wrapped_contents = ''.join([
+            syntax.node_opening_wrapper,
+            ' ',
+            pulled_contents,
+            ' ',
+            syntax.node_closing_wrapper])
 
         for m in re.finditer(re.escape(link['full_match']), destination_file_contents):
                 
@@ -166,7 +179,7 @@ class PullNode(UrtextAction):
             self.project._parse_file(destination_filename)
 
         if root:
-            return os.path.join(self.project.path, source_filename)
+            return os.path.join(self.project.entry_path, source_filename)
         
         return None
 

@@ -318,7 +318,7 @@ class MetadataEntry:  # container for a single metadata entry
         for ts in syntax.timestamp_c.finditer(contents):
             dt_string = ts.group(0).strip()
             contents = contents.replace(dt_string, '').strip()
-            t = UrtextTimestamp(dt_string[1:-1])
+            t = UrtextTimestamp(dt_string)
             if t.datetime:
                 self.timestamps.append(t)        
         self.value = contents
