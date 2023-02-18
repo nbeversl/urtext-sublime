@@ -54,9 +54,9 @@ metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
 meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
-pop_syntax =                            r'%%-[A-Z]+-END'
+pop_syntax =                            r'%%'
 preformat =                             r'\`.*?\`'
-push_syntax =                           r'%%-([A-Z]+)' + pattern_break
+push_syntax =                           r'%%(\w+)' + pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 title_pattern =                         r'([^>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
@@ -72,7 +72,7 @@ metadata_flags_c =                      re.compile(metadata_flags)
 
 # Composite patterns
 
-compact_node =                          bullet + r'([^\r\n]*)(\n|$)'
+compact_node =                          bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full =                  embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'

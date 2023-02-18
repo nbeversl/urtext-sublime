@@ -224,7 +224,7 @@ class UrtextProject:
         for ext in self.extensions:
              self.extensions[ext].on_file_modified(filename)
 
-        for node_id in new_file.nodes:
+        for node_id in new_file.nodes:            
             node = self.nodes[node_id]
             if node.title == 'project_settings':
                 self._get_settings_from(node)     
@@ -1317,13 +1317,17 @@ class UrtextProject:
         
     def _tag_other_node(self, node_id, metadata={}, open_files=[]):
         """adds a metadata tag to a node programmatically"""
-
+        
         if metadata == {}:
             if len(self.settings['tag_other']) < 2:
                 return None
             timestamp = self.timestamp()
-            metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + timestamp}
-        
+            wrapped_timestamp = ''.join([
+                syntax.timestamp_opening_wrapper,
+                timestamp.string,
+                syntax.timestamp_closing_wrapper
+                ])
+            metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + wrapped_timestamp}
         territory = self.nodes[node_id].ranges
         metadata_contents = UrtextNode.build_metadata(metadata)
 

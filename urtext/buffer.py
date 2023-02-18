@@ -38,6 +38,9 @@ class UrtextBuffer:
         contents = strip_backtick_escape(contents)
         for symbol, symbol_type in syntax.compiled_symbols.items():
             for match in symbol.finditer(contents):
+                if symbol_type == 'meta_to_node':
+                    self.meta_to_node.append(match)
+                    continue
                 symbols[match.span()[0] + start_position] = {}
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
                 symbols[match.span()[0] + start_position]['length'] = len(match.group())                
@@ -47,8 +50,6 @@ class UrtextBuffer:
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
                     symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
-                if symbol_type == 'meta_to_node':
-                    self.meta_to_node.append(match)
 
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0

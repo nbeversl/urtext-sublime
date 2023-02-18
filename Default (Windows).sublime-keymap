@@ -5,7 +5,7 @@
   { "keys": ["ctrl+shift+s"], "command": "rename_file"},
   { "keys": ["ctrl+shift+/"], "command": "open_urtext_link"},
   { "keys": ["ctrl+shift+t"], "command": "insert_timestamp"},
-  { "keys": ["ctrl+shift+0"], "command": "tag_from_other_node"},
+  { "keys": ["ctrl+shift+-"], "command": "tag_from_other_node"},
   { "keys": ["ctrl+shift+,"], "command": "navigate_backward"},
   { "keys": ["ctrl+shift+."], "command": "navigate_forward"},
   { "keys": ["ctrl+shift+h"], "command": "urtext_home"},
