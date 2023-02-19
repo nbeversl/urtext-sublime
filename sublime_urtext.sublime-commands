@@ -14,9 +14,6 @@
   	{ "caption": "Urtext: Inline Node from Selection", "command" :"insert_node"},
     { "caption": "Urtext: Compact Node from Selection", "command" :"compact_node"},
   
-    /* Formatting */
-    { "caption": "Urtext: Consolidate Metadata", "command" :"consolidate_metadata"},
-
     /* Help and Log */
     { "caption": "Urtext: Documentation", "command" :"show_urtext_help"},
     { "caption": "Urtext: Log", "command" :"open_urtext_log"},
@@ -30,14 +27,7 @@
     { "caption": "Urtext: Pull Node", "command" :"pull_node"},
     { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
 
-
-    /* Sync & Export */
-    { "caption": "Urtext: Export From This Node", "command" :"export_from_id"},
-    { "caption": "Urtext: Export to ICS", "command" :"to_ics"},
-
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
-    { "caption": "Urtext: Turn Off Async (debugginh)", "command" :"no_async"},
-    { "caption": "Urtext: Convert Project to No Node IDs", "command" :"convert_to_no_node_ids"},
-  
+    { "caption": "Urtext: Turn Off Async (debugginh)", "command" :"no_async"},  
 ] 

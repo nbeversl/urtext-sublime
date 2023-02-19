@@ -710,18 +710,6 @@ class InsertTimestampCommand(UrtextTextCommand):
             else:
                 self.view.replace(self.edit, s, datestamp)
 
-class ConsolidateMetadataCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.view.run_command('save')  # TODO insert notification
-        node_id = get_node_id(self.view)
-        if node_id:
-            self._UrtextProjectList.current_project.consolidate_metadata(node_id, one_line=True)
-            return True    
-        print('No Urtext node or no Urtext node with ID found here.')
-        return False
-
 class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
@@ -790,12 +778,6 @@ class UrtextReloadProjectCommand(UrtextTextCommand):
         if initialize_project_list(self.view, reload_projects=True) == None:
             print('No Urtext Project')
             return None
-
-class ConvertToNoNodeIdsCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self._UrtextProjectList.current_project.convert_project_to_no_node_ids()
 
 class CompactNodeCommand(UrtextTextCommand):
 

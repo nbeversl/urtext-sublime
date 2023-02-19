@@ -1352,37 +1352,6 @@ class UrtextProject:
         self.files[filename]._set_file_contents(new_contents)
         s = self.on_modified(filename)
         return s
-
-    def consolidate_metadata(self, node_id, one_line=False):
-
-        if node_id not in self.nodes:
-            print('Node ID '+node_id+' not in project.')
-            return None
-
-        consolidated_metadata = self.nodes[node_id].consolidate_metadata(
-            one_line=one_line)
-
-        filename = self.nodes[node_id].filename
-        file_contents = self.files[filename]._get_file_contents()
-        length = len(file_contents)
-        ranges = self.nodes[node_id].ranges
-
-        for single_range in ranges:
-
-            for section in metadata_entry.finditer(file_contents[single_range[0]:single_range[1]]):
-                start = section.start() + single_range[0]
-                end = start + len(section.group())
-                first_splice = file_contents[:start]
-                second_splice = file_contents[end:]
-                file_contents = first_splice
-                file_contents += second_splice
-                self._adjust_ranges(filename, start, len(section.group()))
-
-        new_file_contents = file_contents[0:ranges[-1][1]]
-        new_file_contents += '\n'+consolidated_metadata
-        new_file_contents += file_contents[ranges[-1][1]:]
-        self.files[filename]._set_file_contents(new_file_contents)
-        self._parse_file(filename)
  
     def _add_sub_tags(self, 
         entry,
