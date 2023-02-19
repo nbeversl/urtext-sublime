@@ -50,10 +50,9 @@ class RakeAssociateCommand(UrtextTextCommand):
             nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
                 full_line, self.view.file_name(), file_pos)
             )
-        
+
         def open_selection(selection):
-            open_urtext_node(self.view, 
-                menu.display_menu[selection].node_id)
+            open_urtext_node(self.view, menu.display_menu[selection][0])
 
         show_panel(
             window, 
