@@ -37,7 +37,7 @@ class ReindexFiles(UrtextAction):
             if old_filename not in self.project.files:
                 continue
 
-            root_node_id = self.project.files[old_filename].root_nodes[0]
+            root_node_id = self.project.files[old_filename].root_node
             root_node = self.project.nodes[root_node_id]
             filename_template = list(self.project.settings['filenames'])
             if keep_prefix and 'PREFIX' in filename_template:

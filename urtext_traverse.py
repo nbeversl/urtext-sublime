@@ -205,7 +205,7 @@ class TraverseFileTree(EventListener):
 
 			else:
 				""" The tree is linking to another file """
-				path = self._UrtextProjectList.current_project.path
+				path = self._UrtextProjectList.current_project.entry_path
 				window.focus_group(self.content_group)
 				file_view = window.open_file(filename, sublime.TRANSIENT)
 

@@ -391,7 +391,8 @@ def strip_embedded_syntaxes(
     r = ' ' if preserve_length else ''
     if include_backtick:
         stripped_contents = strip_backtick_escape(stripped_contents)
-    for e in syntax.embedded_syntax_c.findall(stripped_contents):
+    for e in syntax.embedded_syntax_c.finditer(stripped_contents):
+        e = e.group()
         if reformat_and_keep_contents:
             unwrapped_contents = e
             for opening_wrapper in syntax.embedded_syntax_open_c.findall(unwrapped_contents):
@@ -404,7 +405,7 @@ def strip_embedded_syntaxes(
             unwrapped_contents = '\t\t\n'.join(unwrapped_contents)
             stripped_contents = stripped_contents.replace(e, unwrapped_contents)
         else:
-            stripped_contents = stripped_contents.replace(e,r*len(e))
+            stripped_contents = stripped_contents.replace(e, r*len(e))
 
     return stripped_contents
 

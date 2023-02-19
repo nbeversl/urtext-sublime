@@ -53,7 +53,7 @@ class RakeAssociateCommand(UrtextTextCommand):
         
         def open_selection(selection):
             open_urtext_node(self.view, 
-                menu.full_menu[selection].node_id)
+                menu.display_menu[selection].node_id)
 
         show_panel(
             window, 

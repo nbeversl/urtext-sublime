@@ -57,12 +57,12 @@ class UrtextBuffer:
         to_remove = []
         for p in sorted(symbols.keys()):
 
-            if symbols[p]['type'] == 'push_syntax' :
+            if symbols[p]['type'] == 'embedded_syntax_open' :
                 to_remove.append(p)
                 push_syntax += 1
                 continue
             
-            if symbols[p]['type'] == 'pop_syntax':
+            if symbols[p]['type'] == 'embedded_syntax_close':
                 to_remove.append(p)
                 push_syntax -= 1
                 continue
@@ -85,8 +85,6 @@ class UrtextBuffer:
         start_position=0,
         from_compact=False):
  
-        # nested_levels = {}  # store node nesting into layers
-        # nested = 0          # node nesting depth
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
         pointers = {}
@@ -190,12 +188,16 @@ class UrtextBuffer:
 
             last_position = position
         
-        if not from_compact and nested > -1:
+        if not from_compact and nested > 0:
             message = '\n'.join([
                 'Appended closing bracket to close opening bracket at %s' % str(position),
                 'This message can be deleted.'])
             self.messages.append(message)
-            contents = contents[:position] + ' } ' + contents[position:]
+            contents = ''.join([contents[:position],
+                 ' ',
+                 syntax.node_closing_wrapper,
+                 ' ',
+                 contents[position:]])
             self._set_file_contents(contents)
             return self.lex_and_parse(contents)
 

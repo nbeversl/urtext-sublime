@@ -106,9 +106,6 @@ class UrtextFile(UrtextBuffer):
             old_n = int(n.group().strip('position '))
             new_n = old_n + message_length
             messages = messages.replace(str(old_n), str(new_n))
-
-        if len(messages) != message_length:
-            pass
              
         new_contents = ''.join([
             messages,

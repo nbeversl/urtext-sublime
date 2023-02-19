@@ -33,8 +33,8 @@ closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrap
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
-embedded_syntax_open =                  r'(%%\w+?)'
-embedded_syntax_close =                 r'%%-[A-Z-]+?-END'
+embedded_syntax_open =                  r'%%\w+'
+embedded_syntax_close =                 r'%%'
 function =                              r'([A-Z_\-\+\>]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
@@ -54,9 +54,7 @@ metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
 meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
-pop_syntax =                            r'%%'
 preformat =                             r'\`.*?\`'
-push_syntax =                           r'%%(\w+)' + pattern_break
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 title_pattern =                         r'([^>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
@@ -151,8 +149,8 @@ compiled_symbols = {
     opening_wrapper_c :                 'opening_wrapper',
     closing_wrapper_c :                 'closing_wrapper',
     re.compile(node_pointer) :          'pointer',
-    re.compile(push_syntax) :           'push_syntax', 
-    re.compile(pop_syntax) :            'pop_syntax',
+    re.compile(embedded_syntax_open) :  'embedded_syntax_open', 
+    re.compile(embedded_syntax_close) : 'embedded_syntax_close',
     compact_node_c :                    'compact_node',
     meta_to_node_c :                    'meta_to_node'
     }
