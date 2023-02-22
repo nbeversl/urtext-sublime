@@ -432,7 +432,7 @@ class NodeBrowserCommand(UrtextTextCommand):
         
         #rough estimate of how many characters wide the viewport is
         characters_wide = int(self.view.viewport_extent()[0] / self.view.em_width())
-
+        self.window = self.view.window()
         self.menu = NodeBrowserMenu(
             _UrtextProjectList, 
             project=_UrtextProjectList.current_project,
@@ -440,7 +440,11 @@ class NodeBrowserCommand(UrtextTextCommand):
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
-            self.open_the_file)
+            self.open_the_file,
+            on_highlight=self.on_highlight)
+
+    def on_highlight(self, index):
+        preview_urtext_node(self.window, self.menu.menu[index].node_id)
 
     def open_the_file(self, selected_option):        
         selected_item = self.menu.get_selection_from_index(selected_option)
@@ -597,9 +601,10 @@ class NodeInfo():
         self.project_title = project.settings['project_title']
         self.display_meta = project.nodes[node_id].display_meta
 
-def show_panel(window, menu, main_callback, return_index=False):
+def show_panel(window, menu, main_callback, on_highlight=None, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """
-    def private_callback(index):
+    
+    def on_selected(index):
         if index == -1:
             return
         # otherwise return the main callback with the index of the selected item
@@ -607,7 +612,10 @@ def show_panel(window, menu, main_callback, return_index=False):
             return main_callback(index)
         
         main_callback(menu[index])
-    window.show_quick_panel(menu, private_callback)
+    
+    window.show_quick_panel(menu, 
+        on_selected, 
+        on_highlight=on_highlight)
 
 class LinkToNodeCommand(UrtextTextCommand):
 
@@ -886,8 +894,7 @@ def open_urtext_node(
     view, 
     node_id, 
     project=None, 
-    position=0,
-    highlight=''):
+    position=0):
    
     if project and _UrtextProjectList: 
         _UrtextProjectList.set_current_project(project.entry_path)
@@ -895,7 +902,6 @@ def open_urtext_node(
     if filename and view.window():
 
         _UrtextProjectList.visit_file(filename)
-    
         file_view = view.window().open_file(filename)
 
         if not position:
@@ -909,8 +915,8 @@ def open_urtext_node(
                     position_node(focus_view, position)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
-                
-        focus_position(file_view, position)
+
+        focus_position(view, position)
 
         return file_view
  
@@ -921,9 +927,29 @@ def open_urtext_node(
     any of the operations of the methods that call it.
     """
 
-def position_node(new_view, position): 
-    new_view.sel().clear()
-    new_view.sel().add(sublime.Region(position, position))
+def preview_urtext_node(window, node_id):
+    if _UrtextProjectList.set_current_project(window.folders()[0]):
+        filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+        try:
+            window.open_file(filename, flags=sublime.TRANSIENT)
+        except:
+            pass
+            # silences a console warning that 
+            # appear to be a Sublime bug on sublime.TRANSIENT
+        preview = window.active_sheet().view()
+
+        def focus_position(focus_view, position):
+            if not focus_view.is_loading():
+                if focus_view.window():
+                    position_node(focus_view, position, focus=False)
+            else:
+                sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+        focus_position(preview, node_position)
+
+def position_node(new_view, position, focus=True): 
+    if focus:
+        new_view.sel().clear()
+        new_view.sel().add(sublime.Region(position, position))
     r = new_view.text_to_layout(position)
     new_view.set_viewport_position(r)
     
