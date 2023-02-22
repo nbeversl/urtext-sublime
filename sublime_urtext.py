@@ -916,7 +916,7 @@ def open_urtext_node(
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
 
-        focus_position(view, position)
+        focus_position(file_view, position)
 
         return file_view
  
