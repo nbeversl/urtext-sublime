@@ -346,7 +346,7 @@ class UrtextCompletions(EventListener):
 
 def urtext_on_modified(view):
     
-    if view.file_name() and view.window() and view.window().views():
+    if _UrtextProjectList and view.file_name() and view.window() and view.window().views():
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
         modified_file = _UrtextProjectList.on_modified(view.file_name())
         for f in other_open_files:
@@ -359,15 +359,15 @@ def urtext_on_modified(view):
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
-    def run(self):     
+    def run(self):    
+        
         link = get_urtext_link(self.view)
 
         if link == None:   
             if not _UrtextProjectList.current_project.compiled:
-                   sublime.error_message("Project is still compiling")
+                sublime.error_message("Project is still compiling")
             else:
-                print('NO LINK') 
-            return
+                return print('NO LINK') 
         
         if link['kind'] == 'SYSTEM':
             open_external_file(link['link'])
@@ -378,7 +378,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         if link['kind'] in ['NODE','OTHER_PROJECT']:
             _UrtextProjectList.nav_new(link['link'])   
             open_urtext_node(self.view, link['link'], position=link['dest_position'])
-        
+
         if link['kind'] == 'HTTP':
             success = webbrowser.get().open(link['link'])
             if not success:
@@ -387,6 +387,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, **kwargs):
+
         if not _UrtextProjectList:
             return
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
@@ -939,7 +940,7 @@ def get_urtext_link(view):
     col_pos = view.rowcol(file_pos)[1]
     full_line_region = view.line(view.sel()[0])
     full_line = view.substr(full_line_region)
-    
+
     return _UrtextProjectList.get_link_and_set_project(
         full_line, 
         view.file_name(), 

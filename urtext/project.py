@@ -1005,9 +1005,9 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        for ext in self.extensions:
+        for ext in list(self.extensions):
             self.extensions[ext].on_node_visited(node_id)
-        for dd in self.dynamic_defs():
+        for dd in list(self.dynamic_definitions):
             for op in dd.operations:
                 op.on_node_visited(node_id)
 

@@ -26,6 +26,8 @@ else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
 
+project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
+
 class ProjectList():
 
     def __init__(self, entry_point):
@@ -61,7 +63,6 @@ class ProjectList():
         this should be done by the calling method.
         """
         node_id = None
-        project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
         link = project_link_r.search(string)
         project_name = link.group(2)
         node_id = link.group(4)
@@ -75,7 +76,6 @@ class ProjectList():
                         'link' : node_id, 
                         'dest_position' : 0,
                     }
-
             return {
                 'kind': 'NODE', 
                 'link': self.current_project.nav_current(), 
@@ -86,13 +86,11 @@ class ProjectList():
         if filename:
             self.set_current_project(os.path.dirname(filename))
             if self.current_project:
-                link = self.current_project.get_link( 
+                return self.current_project.get_link( 
                     string, 
                     filename, 
                     col_pos=col_pos,
-                    file_pos=file_pos
-                    )
-                return link
+                    file_pos=file_pos)
 
     def on_modified(self, filenames):
         modified_files = []
@@ -280,6 +278,7 @@ class ProjectList():
                     self.nav_index -= 1
 
     def nav_new(self, node_id, project=None):
+        
         if not project:
             project = self.current_project
 

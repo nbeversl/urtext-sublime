@@ -1,4 +1,5 @@
 import os
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.directive import UrtextDirective
     import Urtext.urtext.syntax as syntax
@@ -12,6 +13,7 @@ class AccessHistory(UrtextDirective):
     phase = 700
 
     def on_node_visited(self, node_id):
+            
         self.dynamic_definition.process_output(max_phase=200)
         last_visited = None
         if len(self.project.navigation) > 1:
