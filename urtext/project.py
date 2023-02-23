@@ -127,7 +127,11 @@ class UrtextProject:
         # also actions, directions, or extensions have been added within the project.
 
         for node_id in self.nodes:
-            self.nodes[node_id].metadata.convert_hash_keys()       
+            self.nodes[node_id].metadata.convert_hash_keys()
+            self.nodes[node_id].metadata.convert_node_links()
+            
+
+
         
         self._compile()
 
@@ -374,7 +378,9 @@ class UrtextProject:
                     self._log_item(new_node.filename, message)
 
         new_node.project = self
-        self.nodes[new_node.id] = new_node       
+        self.nodes[new_node.id] = new_node  
+        if self.compiled:
+            new_node.metadata.convert_node_links()     
         
     def get_source_node(self, filename, position):
         if filename not in self.files:

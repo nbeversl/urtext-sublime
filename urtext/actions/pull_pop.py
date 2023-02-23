@@ -63,6 +63,7 @@ class PopNode(UrtextAction):
                 syntax.link_opening_wrapper,
                 parent_id.name,
                 syntax.link_closing_wrapper,
+                ' ',
                 self.project.timestamp().wrapped_string]);
 
         remaining_node_contents = ''.join([

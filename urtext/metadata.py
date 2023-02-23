@@ -276,6 +276,17 @@ class NodeMetadata:
         if all_timestamps:
             return all_timestamps[0]
 
+    def convert_node_links(self):
+        for entry in self.all_entries():
+            if not entry.is_node:
+                m = syntax.node_link_or_pointer_c.search(entry.value)
+                if m:
+                    node_id = m.group(2)
+                    if node_id in self.project.nodes:
+                        entry.value = self.project.nodes[node_id]
+                        entry.is_node = True
+                        # timestamp, if any, will remain
+
     def log(self):
         for entry in self.all_entries():
             entry.log()
