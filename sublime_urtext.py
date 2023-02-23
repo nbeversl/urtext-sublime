@@ -259,6 +259,7 @@ class UrtextCompletions(EventListener):
                             ),
                         minihtml=True
                     )
+                
                 def open_node_from_this_view(node_id):
                     open_urtext_node(view, node_id)
 
@@ -386,6 +387,8 @@ class NodeBrowserCommand(UrtextTextCommand):
             _UrtextProjectList, 
             project=_UrtextProjectList.current_project,
             characters=characters_wide)
+
+        self.selection_has_changed = False
         show_panel(
             self.view.window(), 
             self.menu.display_menu, 
@@ -393,7 +396,11 @@ class NodeBrowserCommand(UrtextTextCommand):
             on_highlight=self.on_highlight)
 
     def on_highlight(self, index):
-        preview_urtext_node(self.window, self.menu.menu[index].node_id)
+        if self.selection_has_changed:
+            preview_urtext_node(self.window, self.menu.menu[index].node_id)
+        else:
+            self.selection_has_changed = True
+            #workaround for Sublime text bug
 
     def open_the_file(self, selected_option):        
         selected_item = self.menu.get_selection_from_index(selected_option)
@@ -552,10 +559,12 @@ class NodeInfo():
 
 def show_panel(window, menu, main_callback, on_highlight=None, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """
-    
     def on_selected(index):
+        print(index)
+
         if index == -1:
             return
+
         # otherwise return the main callback with the index of the selected item
         if return_index:
             return main_callback(index)
@@ -564,6 +573,7 @@ def show_panel(window, menu, main_callback, on_highlight=None, return_index=Fals
     
     window.show_quick_panel(menu, 
         on_selected, 
+        selected_index=-1, # doesn't work; Sublime Text Bug
         on_highlight=on_highlight)
 
 class LinkToNodeCommand(UrtextTextCommand):
