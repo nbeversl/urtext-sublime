@@ -460,42 +460,6 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
             self.menu.display_menu, 
             self.open_the_file)
 
-class FindByMetaCommand(sublime_plugin.TextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.tagnames = _UrtextProjectList.current_project.get_all_keys()
-        self.view.window().show_quick_panel(self.tagnames, self.list_values)
-
-    def list_values(self, index):
-        self.selected_tag = self.tagnames[index]
-        self.values =  _UrtextProjectList.current_project.get_all_values_for_key(self.selected_tag)        
-        self.values.insert(0, '< all >')
-        self.view.window().show_quick_panel(self.values, self.display_files)
-
-    def display_files(self, index):
-
-        self.selected_value = self.values[index]
-        if self.selected_value == '< all >':
-            pass  # fix this
-        self.menu = NodeBrowserMenu(
-            self._UrtextProjectList,
-            nodes = _UrtextProjectList.current_project.get_by_meta(self.selected_tag, self.selected_value, '='))
-        show_panel(self.view.window(), self.menu.display_menu,
-                   self.open_the_file)
-
-    def open_the_file(self, selected_option): 
-        # TODO refactor from below
-        if selected_option == -1:
-            return
-        path = get_path(self.view)
-        new_view = self.view.window().open_file(
-            os.path.join(
-                path,
-                self.menu.get_selection_from_index(selected_option).filename))
-        if len(selected_option) > 3 and selected_option[3] != None:
-            self.locate_node(selected_option[3], new_view)
-
 class WrapSelectionCommand(sublime_plugin.TextCommand):
     @refresh_project_text_command()
     def run(self):

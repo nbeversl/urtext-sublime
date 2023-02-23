@@ -348,7 +348,16 @@ class MetadataEntry:  # container for a single metadata entry
         try:
             return int(self.value)
         except:
-            return None 
+            return None
+
+    def value_as_string(self):
+        if self.is_node:
+            return ''.join([
+                syntax.link_opening_wrapper,
+                self.value.title,
+                syntax.link_closing_wrapper ])
+        return self.value
+
 
 """ Helpers """
 

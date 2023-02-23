@@ -1099,9 +1099,10 @@ class UrtextProject:
         return list(set(keys))
 
     def get_all_values_for_key(self, key, lower=False):
-        values = []
+        entries = []
         for nid in self.nodes:
-            values.extend(self.nodes[nid].metadata.get_values(key))
+            entries.extend(self.nodes[nid].metadata.get_entries(key))
+        values = [e.value_as_string() for e in entries]
         if lower:
             return list(set([v.lower() for v in values]))
         return list(set(values))
