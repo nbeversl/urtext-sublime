@@ -927,4 +927,4 @@ def get_node_id(view, use_buffer=False):
                 position)
         filename = view.file_name()
         position = view.sel()[0].a
-        return _UrtextProjectList.current_project.get_node_id_from_position(filename,position)
+        return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)

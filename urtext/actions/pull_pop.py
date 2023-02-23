@@ -48,20 +48,20 @@ class PopNode(UrtextAction):
 
         self.project._parse_file(filename)
         start = self.project.nodes[node_id].start_position()
-        end = self.project.nodes[node_id].ranges[-1][1]
+        end = self.project.nodes[node_id].end_position()
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
-        popped_node_contents = file_contents[start:end].strip()
-        parent_id = self.project.nodes[node_id].tree_node.parent
-
+        popped_node_contents = file_contents[start + 1:end].strip()  # omit opening bracket
+        parent_id = self.project.nodes[node_id].parent.id
+        
         if self.project.settings['breadcrumb_key']:
             popped_node_contents += ''.join([
                 '\n',
                 self.project.settings['breadcrumb_key'],
                 syntax.metadata_assignment_operator,
                 syntax.link_opening_wrapper,
-                parent_id.name,
+                self.project.nodes[parent_id].get_title(),
                 syntax.link_closing_wrapper,
                 ' ',
                 self.project.timestamp().wrapped_string]);

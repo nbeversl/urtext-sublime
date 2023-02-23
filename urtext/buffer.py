@@ -128,7 +128,7 @@ class UrtextBuffer:
                 continue
  
             if symbols[position]['type'] == 'closing_wrapper':
-                nested_levels[nested].append([last_position + 1, position])
+                nested_levels[nested].append([last_position, position])
     
                 if nested <= 0:
                     self.messages.append('\n'.join([
