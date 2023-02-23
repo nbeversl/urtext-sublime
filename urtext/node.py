@@ -97,6 +97,9 @@ class UrtextNode:
 
     def start_position(self):
         return self.ranges[0][0]
+
+    def end_position(self):
+        return self.ranges[-1][1]
     
     def get_date(self, date_keyword):
         return self.metadata.get_date(date_keyword)

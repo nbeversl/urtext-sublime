@@ -55,6 +55,7 @@ class UrtextBuffer:
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0
         to_remove = []
+
         for p in sorted(symbols.keys()):
 
             if symbols[p]['type'] == 'embedded_syntax_open' :

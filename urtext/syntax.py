@@ -34,7 +34,7 @@ dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
 dd_key =                                r'(^|\s)[\w_]+(\s|$)'
 dynamic_def =                           r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open =                  r'%%\w+'
-embedded_syntax_close =                 r'%%'
+embedded_syntax_close =                 r'%%'+pattern_break
 function =                              r'([A-Z_\-\+\>]+)\((.*?)\)'
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
@@ -71,7 +71,7 @@ metadata_flags_c =                      re.compile(metadata_flags)
 # Composite patterns
 
 compact_node =                          bullet + r'([^\r\n]*)(?=\n|$)'
-embedded_syntax_full =                  embedded_syntax_open + '.*?' + embedded_syntax_close
+embedded_syntax_full =                  embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
 node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'

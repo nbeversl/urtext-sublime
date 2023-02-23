@@ -3,6 +3,7 @@
 name: Urtext
 file_extensions: 
   - txt
+  - urtext
 scope: urtext
 
 contexts:
