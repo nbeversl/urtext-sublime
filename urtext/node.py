@@ -97,8 +97,8 @@ class UrtextNode:
 
     def start_position(self):
         if self.root_node:
-            self.ranges[0][0]
-        return self.ranges[0][0] + 1 # first position is wrapper
+            return self.ranges[0][0]
+        return self.ranges[0][0] + 1
 
     def end_position(self):
         return self.ranges[-1][1]
@@ -204,8 +204,8 @@ class UrtextNode:
                 break
 
         title = syntax.node_title_c.search(contents)
-        if title:
-            title = title.group()
+        if title:            
+            title = title.group().strip()
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
