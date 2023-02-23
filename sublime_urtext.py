@@ -251,27 +251,34 @@ class UrtextCompletions(EventListener):
                 scratch_view = view.window().open_file(
                     filename,
                     flags=sublime.TRANSIENT)
+                view.window().focus_view(view)
 
-                contents = scratch_view.export_to_html(
+                def show_preview(current_view, scratch_view):
+                    if not scratch_view.is_loading():                    
+                        contents = scratch_view.export_to_html(
                         sublime.Region(
                                _UrtextProjectList.current_project.nodes[node_id].start_position(),                                
                                _UrtextProjectList.current_project.nodes[node_id].end_position(),
                             ),
-                        minihtml=True
-                    )
-                
-                def open_node_from_this_view(node_id):
-                    open_urtext_node(view, node_id)
+                        minihtml=True)
+                        scratch_view.close()
+                        
+                        def open_node_from_this_view(node_id):
+                            open_urtext_node(view, node_id)
+                            current_view.hide_popup()
 
-                contents += '<div><a href="%s">open</a></div>' % node_id
+                        contents += '<div><a href="%s">open</a></div>' % node_id
 
-                view.show_popup(contents,
-                    max_width=800, 
-                    max_height=512, 
-                    location=file_pos,
-                    on_navigate=open_node_from_this_view)
+                        current_view.show_popup(contents,
+                            max_width=800, 
+                            max_height=512, 
+                            location=file_pos,
+                            on_navigate=open_node_from_this_view)
 
-                return
+                    else:
+                        sublime.set_timeout(lambda: show_preview(current_view, scratch_view), 10) 
+
+                return show_preview(view, scratch_view)
 
             region = sublime.Region(point, point)
             if view.is_folded(region):
@@ -296,7 +303,7 @@ class UrtextCompletions(EventListener):
 
 def urtext_on_modified(view):
     
-    if _UrtextProjectList and view.file_name() and view.window() and view.window().views():
+    if _UrtextProjectList != None and view.file_name() and view.window() and view.window().views():
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
         modified_file = _UrtextProjectList.on_modified(view.file_name())
         for f in other_open_files:
@@ -560,8 +567,6 @@ class NodeInfo():
 def show_panel(window, menu, main_callback, on_highlight=None, return_index=False):
     """ shows a quick panel with an option to cancel if -1 """
     def on_selected(index):
-        print(index)
-
         if index == -1:
             return
 
