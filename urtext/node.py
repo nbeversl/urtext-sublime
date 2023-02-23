@@ -96,7 +96,9 @@ class UrtextNode:
             d.source_id = title
 
     def start_position(self):
-        return self.ranges[0][0]
+        if self.root_node:
+            self.ranges[0][0]
+        return self.ranges[0][0] + 1 # first position is wrapper
 
     def end_position(self):
         return self.ranges[-1][1]
@@ -317,7 +319,7 @@ class UrtextNode:
         
         file_contents = self.get_file_contents()
         start_range = self.start_position()
-        end_range = self.ranges[-1][1]
+        end_range = self.end_position()
         new_file_contents = ''.join([
             file_contents[0:start_range],
             contents,

@@ -130,7 +130,7 @@ class UrtextBuffer:
             if symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position, position])
     
-                if nested <= 0:
+                if nested < 0:
                     self.messages.append('\n'.join([
                         'Removed stray closing wrapper at %s' % str(position),
                         'This message can be deleted.']))
