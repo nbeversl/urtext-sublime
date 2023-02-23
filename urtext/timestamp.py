@@ -10,11 +10,13 @@ else:
 default_date = datetime.datetime(1970,1,1, tzinfo=datetime.timezone.utc)
 
 class UrtextTimestamp:
-    def __init__(self, wrapped_string):
-        unwrapped_string = wrapped_string.strip(
-             syntax.timestamp_opening_wrapper + syntax.timestamp_closing_wrapper
-            )
-        self.wrapped_string = wrapped_string
+    def __init__(self, unwrapped_string):
+        self.wrapped_string = ''.join([
+            syntax.timestamp_opening_wrapper,
+            unwrapped_string,
+            syntax.timestamp_closing_wrapper
+            ])
+        self.unwrapped_string = unwrapped_string
         self.datetime = date_from_timestamp(unwrapped_string)
         self.string = unwrapped_string
         if self.datetime == None:
