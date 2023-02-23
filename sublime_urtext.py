@@ -250,7 +250,7 @@ class UrtextCompletions(EventListener):
                 filename = _UrtextProjectList.current_project.nodes[node_id].filename
                 scratch_view = view.window().open_file(
                     filename,
-                    flags=sublime.TRANSIENT)
+                    flags=sublime.TRANSIENT + sublime.FORCE_CLONE)
                 view.window().focus_view(view)
 
                 def show_preview(current_view, scratch_view):
@@ -264,7 +264,7 @@ class UrtextCompletions(EventListener):
                         scratch_view.close()
                         
                         def open_node_from_this_view(node_id):
-                            open_urtext_node(view, node_id)
+                            open_urtext_node(current_view, node_id)
                             current_view.hide_popup()
 
                         contents += '<div><a href="%s">open</a></div>' % node_id
@@ -638,8 +638,15 @@ class NewFileNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        new_node = self._UrtextProjectList.current_project.new_file_node(
-            path=os.path.dirname(self.view.file_name()))
+        path = None
+        if self.view and self.view.file_name():
+            path = os.path.dirname(self.view.file_name())
+        if not path:
+            path = self.view.window().folders()[0]
+        if not path:
+            return
+        _UrtextProjectList.set_current_project(path)
+        new_node = self._UrtextProjectList.current_project.new_file_node(path=path)
         new_view = self.view.window().open_file(new_node['filename'])
 
         def set_cursor(new_view):

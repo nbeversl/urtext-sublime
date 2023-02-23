@@ -171,6 +171,13 @@ class ProjectList():
             self.set_current_project(path)
             return self.current_project.visit_file(filename)
 
+    def new_project_in_path(self, path):
+        if os.path.exists(path):
+            new_project = UrtextProject(path, self.add_project)
+            self.set_current_project(path)
+        else:
+            print('%s does not exist' % path) 
+
     def move_file(self, 
         filename, 
         destination_project_name_or_path,
