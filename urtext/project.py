@@ -1171,7 +1171,10 @@ class UrtextProject:
             for value in values:
 
                 if value in ['*']:
-                    results = results.union(set(n for n in list(self.nodes) if self.nodes[n].metadata.get_values(k))) 
+                    results = results.union(
+                        set(n for n in list(self.nodes) if n in self.nodes 
+                            and self.nodes[n].metadata.get_values(k))
+                        ) 
                     continue
 
                 use_timestamp = False
