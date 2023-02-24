@@ -142,16 +142,16 @@ class UrtextNode:
         if timestamp:
             resolved_id = ' '.join([
                 self.id, 
-                timestamp.string])
+                timestamp.unwrapped_string])
             if resolved_id not in self.project.nodes:
                 return resolved_id
 
     def get_title(self):
         if not self.title:
             if self.metadata.get_entries('_oldest_timestamp'):
-                self.title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
-                self.metadata.add_entry('title', self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string)
-                return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
+                self.title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
+                self.metadata.add_entry('title', self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string)
+                return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
             return '(untitled)'
         if self.project:
             return self.title
@@ -215,9 +215,9 @@ class UrtextNode:
                 title = first_non_blank_line.strip()
                 self.first_line_title = True
             elif self.metadata.get_entries('_oldest_timestamp'):
-                title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].string
+                title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
             else:
-                title = "(untitled) TEST"
+                title = '(untitled)'
 
         if len(title) > 255:
             title = title[:255]
@@ -243,7 +243,7 @@ class UrtextNode:
                 keynames[entry.keyname] = []
             timestamps = ''
             if entry.timestamps:
-                timestamps = ' '.join([syntax.timestamp_opening_wrapper + t.string + syntax.timestamp_opening_wrapper for t in entry.timestamps])  
+                timestamps = ' '.join([t.wrapped_string for t in entry.timestamps])  
             if not entry.value:
                 keynames[entry.keyname].append(timestamps)
             else:

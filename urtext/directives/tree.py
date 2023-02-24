@@ -108,9 +108,9 @@ class Tree(UrtextDirective):
                     timestamps = urtext_node.metadata.get_values(k, use_timestamp=True)
                     if timestamps:
                         if ext == 'timestamp':
-                            replacement = timestamps[0].string
+                            replacement = timestamps[0].unwrapped_string
                         else:
-                            replacement = ' - '.join([t.string for t in timestamps])
+                            replacement = ' - '.join([t.unwrapped_string for t in timestamps])
                 else:
                     entries = urtext_node.metadata.get_entries(k)
                     values = []

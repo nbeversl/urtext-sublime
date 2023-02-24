@@ -367,7 +367,7 @@ class UrtextProject:
                                 syntax.link_opening_wrapper,
                                 definition.target_id,
                                 syntax.link_closing_wrapper,
-                                ' has duplicate definition in', 
+                                ' has duplicate definition in ', 
                                 syntax.link_opening_wrapper,
                                 new_node.id,
                                 syntax.link_closing_wrapper,
@@ -559,7 +559,7 @@ class UrtextProject:
         cursor_pos = 0
 
         if contents_format:
-            new_node_contents = contents_format.replace('$timestamp', '<' + self.timestamp(datetime.datetime.now()).string + '>')
+            new_node_contents = contents_format.replace('$timestamp', self.timestamp().wrapped_string)
             new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )
 
             if '$cursor' in new_node_contents:
@@ -1333,14 +1333,8 @@ class UrtextProject:
         
         if metadata == {}:
             if len(self.settings['tag_other']) < 2:
-                return None
-            timestamp = self.timestamp()
-            wrapped_timestamp = ''.join([
-                syntax.timestamp_opening_wrapper,
-                timestamp.string,
-                syntax.timestamp_closing_wrapper
-                ])
-            metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + wrapped_timestamp}
+                return None            
+            metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + self.timestamp().wrapped_string }
         territory = self.nodes[node_id].ranges
         metadata_contents = UrtextNode.build_metadata(metadata)
 

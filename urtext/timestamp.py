@@ -18,7 +18,6 @@ class UrtextTimestamp:
             ])
         self.unwrapped_string = unwrapped_string
         self.datetime = date_from_timestamp(unwrapped_string)
-        self.string = unwrapped_string
         if self.datetime == None:
             self.datetime = default_date
 

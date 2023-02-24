@@ -140,7 +140,7 @@ class NodeMetadata:
                     '_oldest_timestamp', 
                     ''.join([
                         syntax.timestamp_opening_wrapper,
-                        t[0].timestamps[0].string,
+                        t[0].timestamps[0].unwrapped_string,
                         syntax.timestamp_closing_wrapper
                         ]))
                     
@@ -148,7 +148,7 @@ class NodeMetadata:
                     '_newest_timestamp', 
                     ''.join([
                         syntax.timestamp_opening_wrapper,
-                        t[-1].timestamps[0].string,
+                        t[-1].timestamps[0].unwrapped_string,
                         syntax.timestamp_closing_wrapper
                         ]))
 
@@ -329,7 +329,7 @@ class MetadataEntry:  # container for a single metadata entry
         for ts in syntax.timestamp_c.finditer(contents):
             dt_string = ts.group(0).strip()
             contents = contents.replace(dt_string, '').strip()
-            t = UrtextTimestamp(dt_string)
+            t = UrtextTimestamp(dt_string[1:-1])
             if t.datetime:
                 self.timestamps.append(t)        
         self.value = contents

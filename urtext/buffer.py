@@ -253,12 +253,10 @@ class UrtextBuffer:
             for child in start_node.children:
                 child_oldest_timestamp = child.metadata.get_oldest_timestamp()
                 if not child_oldest_timestamp:
-                    child.metadata.add_entry('inline_timestamp', ''.join([
-                        syntax.timestamp_opening_wrapper,
-                        oldest_timestamp.string,
-                        syntax.timestamp_closing_wrapper
-                        ]),
-                    from_node=start_node.title)
+                    child.metadata.add_entry(
+                        'inline_timestamp', 
+                        oldest_timestamp.wrapped_string,
+                        from_node=start_node.title)
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)
 
