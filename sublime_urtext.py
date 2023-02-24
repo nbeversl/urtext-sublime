@@ -267,7 +267,7 @@ class UrtextCompletions(EventListener):
                             open_urtext_node(current_view, node_id)
                             current_view.hide_popup()
 
-                        contents += '<div><a href="%s">open</a></div>' % node_id
+                        contents += '<div><a href="%s">open</a></div>' % node_id.replace('"',"''")
 
                         current_view.show_popup(contents,
                             max_width=800, 
@@ -865,6 +865,9 @@ def open_urtext_node(
 def preview_urtext_node(window, node_id):
     if _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
+        if node_position == None:
+            print('DEBUGGING -- sublime_urtext.py 869')
+            print(node_id)
         try:
             window.open_file(filename, flags=sublime.TRANSIENT)
         except:
