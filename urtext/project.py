@@ -323,15 +323,16 @@ class UrtextProject:
             messages = []
             
             self._log_item(file_obj.filename, 
-                'Duplicate node ID(s) found: ' + ''.join([
+                'Duplicate node ID(s) found in ' + ''.join([
                     ''.join(['\n\t',
                                 syntax.link_opening_wrapper, 
                                 n,
                                 syntax.link_closing_wrapper,
-                                ' (also in) ',
+                                '\n(also in): ',
                                 syntax.file_link_opening_wrapper,
                                 self.nodes[n].filename,
                                 syntax.file_link_closing_wrapper,
+                                '\n'
                             ]) for n in duplicate_nodes]))
             file_should_be_dropped = True
             
@@ -848,8 +849,7 @@ class UrtextProject:
         return False
 
     def _log_item(self, filename, message):
-        if filename: 
-            self.messages.setdefault(filename, [])
+        if filename:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         

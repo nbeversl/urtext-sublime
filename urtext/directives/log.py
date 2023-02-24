@@ -19,6 +19,9 @@ class Log(UrtextDirective):
 			else:
 				file = '(no file) '
 			for message in self.project.messages[k]:
-				output.append(file + '\n' + message)
+				output.append(''.join([
+	                'in file : ',
+	                file,
+	                '\n']) + message)
 
 		return '\n'.join(output) + '\n'
