@@ -97,7 +97,10 @@ class UrtextProject:
 
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
-
+        num_extensions = -1
+        num_actions = -1
+        num_directions = -1
+        
         if os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point
             self.settings['paths'].append({
@@ -108,8 +111,8 @@ class UrtextProject:
                 self._parse_file(file)
         else:
             self.entry_path = os.dirname(self.entry_point)
-            self._parse_file(self.entry_point)
-
+            self._parse_file(self.entry_point)    
+        
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
@@ -117,18 +120,16 @@ class UrtextProject:
                 if file not in self.files:
                     self._parse_file(file)
 
-        # or if additional projects have been added
-        
-        # also actions, directions, or extensions have been added within the project.
-
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()
             self.nodes[node_id].metadata.convert_node_links()
-            
-        self._compile()
+   
+        while len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
+            num_extensions = len(self.extensions)
+            num_actions = len(self.actions)
+            num_directives = len(self.directives)     
+            self._compile()
 
-        # if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
-        #     self._compile()
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
@@ -883,17 +884,24 @@ class UrtextProject:
                 self.settings['file_extensions'] = ['.urtext'].append(value)
                 continue
 
+            if entry.keyname == 'recurse_subfolders':
+                self.settings['paths'][0]['recurse_subfolders'] = True if entry.value.lower() in ['yes', 'true'] else False
+                continue
+
             if entry.keyname == 'paths':
                 if entry.is_node:
                     for n in entry.value.children:
                         path = n.metadata.get_first_value('path')
-                        recurse = n.metadata.get_first_value('recurse')
+                        recurse = n.metadata.get_first_value('recurse_subfolders')
                         if path and path not in [entry['path'] for entry in self.settings['paths']]:
                             self.settings['paths'].append({
                                 'path' : path,
-                                'recurse': True if recurse.lower() in ['yes', 'true'] else False
+                                'recurse_subfolders': True if recurse.lower() in ['yes', 'true'] else False
                                 })
                 continue
+
+            if entry.keyname == 'other_entry_points':
+                self.project_list.add_project(entry.value)
 
             if entry.keyname in single_values_settings:
                 if entry.keyname in integers_settings:
@@ -1032,6 +1040,9 @@ class UrtextProject:
         files = []
         for path in self.settings['paths']:
             files.extend([os.path.join(path['path'], f) for f in os.listdir(path['path'])])
+            if 'recurse_subfolders' in path and path['recurse_subfolders']:
+                for dirpath, dirnames, filenames in os.walk(path['path']):
+                    files.extend([os.path.join(dirpath, f) for f in filenames])
         return [f for f in files if self._include_file(f)]
 
     def _include_file(self, filename):
@@ -1202,6 +1213,8 @@ class UrtextProject:
         return None, None
 
     def execute(self, function, *args, **kwargs):
+        if self.compiled and not self.nodes:
+            return
         if self.is_async:
             future = self.executor.submit(function, *args, **kwargs)
             return future
