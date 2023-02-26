@@ -215,7 +215,7 @@ class UrtextProject:
             source_node = self.get_node_id_from_position(filename, entry.span()[0])
             target_node = self.get_node_id_from_position(filename, entry.span()[1])
             self.nodes[source_node].metadata.add_entry(
-                keyname, 
+                keyname,
                 self.nodes[target_node],
                 is_node=True)
 

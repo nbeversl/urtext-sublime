@@ -300,6 +300,44 @@ class UrtextNode:
             contents = contents.replace(syntax.title_marker,'',1)
         return contents
 
+    def get_extended_values(self, meta_keys):
+        return get_extended_values(self, meta_keys)
+
+def get_extended_values(urtext_node, meta_keys):
+
+    if '.' in meta_keys:
+        meta_keys = meta_keys.split('.')
+    else:
+        if not isinstance(meta_keys, list):
+            meta_keys = [meta_keys]
+    for index, k in enumerate(meta_keys):
+
+        entries = urtext_node.metadata.get_entries(k)
+        if not entries:
+            return ['(?)']
+        for e in entries:
+
+            if e.is_node:
+                if index == len(meta_keys) - 1:
+
+                    return ''.join([
+                            syntax.link_opening_wrapper,
+                            e.value.title,
+                            syntax.link_closing_wrapper
+                        ])
+                else:
+                    return get_extended_values(e.value, meta_keys[1:])
+
+            if index == len(meta_keys) - 1:
+                return [e.value]
+
+            if meta_keys[index+1] in ['timestamp','timestamps'] or k in urtext_node.project.settings['use_timestamp']: 
+                timestamps = urtext_node.metadata.get_values(k, use_timestamp=True)
+                if timestamps:
+                    if k== 'timestamp':
+                        return timestamps[0].unwrapped_string
+                    else:
+                        return ' - '.join([t.unwrapped_string for t in timestamps])
 
 def strip_contents(contents, 
     preserve_length=False, 

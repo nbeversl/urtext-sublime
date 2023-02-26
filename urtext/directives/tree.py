@@ -99,33 +99,8 @@ class Tree(UrtextDirective):
             if next_content.needs_contents: 
                 next_content.contents = urtext_node.content_only().strip('\n').strip()
 
-            for meta_key in next_content.needs_other_format_keys:
-                
-                k, ext = meta_key, ''
-                if '.' in meta_key:
-                    k, ext = meta_key.split('.')
-                replacement = ''
-                if ext in ['timestamp','timestamps'] or k in self.project.settings['use_timestamp']:  
-                    timestamps = urtext_node.metadata.get_values(k, use_timestamp=True)
-                    if timestamps:
-                        if ext == 'timestamp':
-                            replacement = timestamps[0].unwrapped_string
-                        else:
-                            replacement = ' - '.join([t.unwrapped_string for t in timestamps])
-                else:
-                    entries = urtext_node.metadata.get_entries(k)
-                    values = []
-                    for e in entries:
-                        if e.is_node:
-                            values.append(''.join([
-                                syntax.link_opening_wrapper,
-                                e.value.title,
-                                syntax.link_closing_wrapper
-                                ]))
-                        else:
-                            values.append(e.value)
-                    replacement = ' - '.join(values)
-                next_content.other_format_keys[meta_key] = replacement
+            for meta_keys in next_content.needs_other_format_keys:
+                next_content.other_format_keys[meta_keys] = urtext_node.get_extended_values(meta_keys)
 
             if level == 0:
                 prefix = pre
@@ -210,4 +185,3 @@ class Tree(UrtextDirective):
                 new_node.parent = new_root
 
         return new_root
-

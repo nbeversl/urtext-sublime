@@ -119,6 +119,7 @@ class NodeMetadata:
 
         if value in self.get_values(key):
             return False
+
         e = MetadataEntry(
             key, 
             value,
@@ -130,7 +131,10 @@ class NodeMetadata:
         if key == 'inline_timestamp' and not e.timestamps:
             return False
         self.entries_dict.setdefault(key, [])
-        self.entries_dict[key].append(e)
+        if e.is_node:
+            self.entries_dict[key] = [e]
+        else:
+            self.entries_dict[key].append(e)
 
     def add_system_keys(self):
         t = self.get_entries('inline_timestamp')
