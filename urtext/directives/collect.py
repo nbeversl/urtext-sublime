@@ -196,7 +196,7 @@ class Collect (UrtextDirective):
                 for v in keys[k]:
                     f = None
                     if isinstance(v, UrtextTimestamp):
-                        t=Node(v.string)
+                        t=Node(v.unwrapped_string)
                     else:
                         t = Node(v) 
                     for node in nodes:

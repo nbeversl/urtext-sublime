@@ -329,15 +329,16 @@ def get_extended_values(urtext_node, meta_keys):
                     return get_extended_values(e.value, meta_keys[1:])
 
             if index == len(meta_keys) - 1:
+                if k in urtext_node.project.settings['use_timestamp'] and e.timestamps:
+                    return [e.timestamps[0].unwrapped_string]
                 return [e.value]
 
             if meta_keys[index+1] in ['timestamp','timestamps'] or k in urtext_node.project.settings['use_timestamp']: 
-                timestamps = urtext_node.metadata.get_values(k, use_timestamp=True)
-                if timestamps:
-                    if k== 'timestamp':
-                        return timestamps[0].unwrapped_string
+                if e.timestamps:
+                    if k == 'timestamp':
+                        return e.timestamps[0].unwrapped_string
                     else:
-                        return ' - '.join([t.unwrapped_string for t in timestamps])
+                        return ' - '.join([t.unwrapped_string for t in e.timestamps])
 
 def strip_contents(contents, 
     preserve_length=False, 
