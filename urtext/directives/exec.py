@@ -22,24 +22,26 @@ class Exec(UrtextDirective):
 	def dynamic_output(self, input_contents):
 		if self.argument_string in self.project.nodes:
 			contents = self.project.nodes[self.argument_string].contents(do_strip_embedded_syntaxes=False)
-		python_embed = python_code_regex.search(contents)
-		if python_embed:
-			python_code = python_embed.group(2)
-			old_stdout = sys.stdout
-			sys.stdout = mystdout = StringIO()
-			localsParameter = {
-				'ThisProject' : self.project,
-				'UrtextDirective' : UrtextDirective,
-				'UrtextAction' : UrtextAction,
-				'UrtextExtension' : UrtextExtension,
-			}
-			try:
-				exec(python_code, {}, localsParameter)
-				sys.stdout = old_stdout
-				message = mystdout.getvalue()
-				return message
-			except Exception as e:
-				sys.stdout = old_stdout
-				return str(e)
+			python_embed = python_code_regex.search(contents)
+			if python_embed:
+				python_code = python_embed.group(2)
+				old_stdout = sys.stdout
+				sys.stdout = mystdout = StringIO()
+				localsParameter = {
+					'ThisProject' : self.project,
+					'UrtextDirective' : UrtextDirective,
+					'UrtextAction' : UrtextAction,
+					'UrtextExtension' : UrtextExtension,
+				}
+				try:
+					exec(python_code, {}, localsParameter)
+					sys.stdout = old_stdout
+					message = mystdout.getvalue()
+					self.project._collect_extensions_directives_actions()
+					return message
+				except Exception as e:
+					sys.stdout = old_stdout
+					return str(e)
+
 		return '(no Python code found)'
 

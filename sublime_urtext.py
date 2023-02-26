@@ -255,7 +255,7 @@ class UrtextCompletions(EventListener):
                 view.window().focus_view(view)
 
                 def show_preview(current_view, scratch_view):
-                    if not scratch_view.is_loading():                    
+                    if not scratch_view.is_loading():   
                         contents = scratch_view.export_to_html(
                         sublime.Region(
                                _UrtextProjectList.current_project.nodes[node_id].start_position(),                                

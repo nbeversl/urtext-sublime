@@ -127,7 +127,8 @@ class UrtextProject:
         while len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
             num_extensions = len(self.extensions)
             num_actions = len(self.actions)
-            num_directives = len(self.directives)     
+            num_directives = len(self.directives)
+            self._collect_extensions_directives_actions()
             self._compile()
 
         self.compiled = True
@@ -235,38 +236,22 @@ class UrtextProject:
             for entry in node.metadata.dynamic_entries:
                 entry.from_node = node.id
                 self._add_sub_tags(entry)
-                self.dynamic_metadata_entries.append(entry) 
+                self.dynamic_metadata_entries.append(entry)
 
     def _collect_extensions_directives_actions(self):
 
-        changed = False
-        all_extensions = all_subclasses(UrtextExtension)
-        all_directives = all_subclasses(UrtextDirective)
-        all_actions = all_subclasses(UrtextAction)
-
-        if len(all_extensions) != len(self.extensions):
-            changed = True
-
-        if len(all_directives) != len(self.directives):
-            changed = True
-
-        if len(all_actions) != len (self.actions):
-            changed = True
-
-        for c in all_extensions:
+        for c in all_subclasses(UrtextExtension):
             for n in c.name:
                 self.extensions[n] = c(self)
 
-        for c in all_actions:
+        for c in all_subclasses(UrtextAction):
             for n in c.name:
                 self.actions[n] = c
 
-        for c in all_directives:
+        for c in all_subclasses(UrtextDirective):
             for n in c.name:
                 self.directives[n] = c
-
-        return changed 
-
+            
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
             self._add_sub_tags(entry)
