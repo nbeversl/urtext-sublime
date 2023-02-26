@@ -64,10 +64,10 @@ class UrtextProject:
     urtext_file = UrtextFile
     urtext_node = UrtextNode
 
-    def __init__(self, entry_point, add_project):
+    def __init__(self, entry_point, project_list=None):
 
         self.settings = default_project_settings()
-        self._add_project = add_project # ProjectList method
+        self.project_list = project_list
         self.entry_point = entry_point
         self.entry_path = None
         self.settings['project_title'] = self.entry_point # default
@@ -86,9 +86,7 @@ class UrtextProject:
         self.extensions = {}
         self.actions = {}
         self.directives = {}
-        self.duplicate_ids = {}
         self.compiled = False
-        self.project_list = None
         self.excluded_files = []
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)        
         self.execute(self._initialize_project)
@@ -100,7 +98,6 @@ class UrtextProject:
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
-        # parse the entry point
         if os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point
             self.settings['paths'].append({
@@ -113,8 +110,6 @@ class UrtextProject:
             self.entry_path = os.dirname(self.entry_point)
             self._parse_file(self.entry_point)
 
-        # check what additional folders are included
-        # and what paths within that folder are included
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
@@ -130,9 +125,6 @@ class UrtextProject:
             self.nodes[node_id].metadata.convert_hash_keys()
             self.nodes[node_id].metadata.convert_node_links()
             
-
-
-        
         self._compile()
 
         # if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:

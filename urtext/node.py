@@ -251,46 +251,6 @@ class UrtextNode:
 
         return self.build_metadata(keynames, one_line=one_line, separator=separator)
 
-    def rewrite_title(self, title_suffix):
-
-        # check for metadata
-        t = self.metadata.get_first_value('title')
-        new_title = t + title_suffix
-
-        file_contents = self.get_file_contents()
-        
-        if t:
-            for r in self.ranges:
-                tag = file_contents[r[0]:r[1]+1].find('title'+ +t)
-                if tag > -1:
-                    new_file_contents = file_contents[:r[0]+tag + len('title' + syntax.metadata_assignment_operator + t)]
-                    new_file_contents += new_title
-                    new_file_contents += file_contents[r[0]+tag + len('title' + metadata_assignment_operator + t):]
-                    self.set_file_contents(new_file_contents)
-                    self.project._adjust_ranges(
-                        self.filename, 
-                        r[0]+tag + len('title' + metadata_assignment_operator + t),
-                        len(new_title) -len(t) * -1)
-                    self.title = new_title
-                    return
-                else:
-                    title_location = file_contents[r[0]:r[1]+1].find(t + syntax.title_marker)
-                    if title_location < 0:
-                        title_location = file_contents[r[0]:r[1]+1].find(t)
-                    if title_location < 0:
-                        continue
-                    new_title = new_title + syntax.title_marker
-                    new_file_contents = file_contents[:r[0]+title_location + len(new_title)]
-                    new_file_contents += new_title
-                    new_file_contents += file_contents[r[0]+title_location + len(new_title):]
-                    self.set_file_contents(new_file_contents)
-                    self.project._adjust_ranges(
-                        self.filename, 
-                        r[0] + title_location + len(t),
-                        len(new_title) - len(t) * -1)
-                    self.title = new_title
-                    return   
-
     @classmethod
     def build_metadata(self, 
         metadata, 

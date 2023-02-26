@@ -46,8 +46,7 @@ class ProjectList():
             paths.extend([entry['path'] for entry in p.settings['paths']])
         if path not in paths:
             if os.path.basename(path) not in ['urtext_files']:
-                project = UrtextProject(path, 
-                    self.add_project)
+                project = UrtextProject(path, project_list=self)
                 self.projects.append(project)
 
     def get_link_and_set_project(self, 
@@ -173,7 +172,7 @@ class ProjectList():
 
     def new_project_in_path(self, path):
         if os.path.exists(path):
-            new_project = UrtextProject(path, self.add_project)
+            new_project = UrtextProject(path, project_list=self)
             self.set_current_project(path)
         else:
             print('%s does not exist' % path) 
