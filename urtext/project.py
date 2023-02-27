@@ -48,7 +48,6 @@ else:
     from urtext.directive import UrtextDirective
     from urtext.action import UrtextAction
     from urtext.extension import UrtextExtension
-    from urtext.templates.templates import templates
     import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.directives     
@@ -1181,10 +1180,10 @@ class UrtextProject:
                             k, use_timestamp=use_timestamp)))
                 else:
                     if isinstance(value, str):
-                        value=value.lower()
+                        value = value.lower()
                     results = results.union(set(
                         n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
-                            k, 
+                            k,
                             use_timestamp=use_timestamp, 
                             lower=True)))
         

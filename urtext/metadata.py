@@ -203,21 +203,15 @@ class NodeMetadata:
         use_timestamp=False,
         lower=False):
 
-        keyname = keyname.lower()
         values = []
         entries = self.get_entries(keyname)
 
-        for e in entries:
-            if use_timestamp:
-                values.extend(e.timestamps)
-            else:
-                values.append(e.value)        
-
-        if not values and use_timestamp:
-            for e in entries:
-                values.extend(e.timestamps)            
+        if use_timestamp:
+            values = [e.timestamps for e in entries]
+        else:
+            values = [e.value for e in entries]        
         if lower:
-            return strings_to_lower(values)
+            return [v.lower() if isinstance(v, str) else v for v in values]
         return values
     
     def get_keys(self, exclude=[]):
@@ -232,7 +226,7 @@ class NodeMetadata:
         for k in self.entries_dict:
             all_entries.extend(self.entries_dict[k])
         return all_entries
-        
+
     def get_matching_entries(self, keyname, value):    
         entries = self.get_entries(keyname)
         matching_entries = []
@@ -361,12 +355,3 @@ class MetadataEntry:  # container for a single metadata entry
                 self.value.title,
                 syntax.link_closing_wrapper ])
         return self.value
-
-
-""" Helpers """
-
-def strings_to_lower(list):
-    for i in range(len(list)):
-        if isinstance(list[i], str):
-            list[i] = list[i].lower()
-    return list 
