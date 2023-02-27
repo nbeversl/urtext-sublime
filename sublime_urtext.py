@@ -220,18 +220,17 @@ class UrtextCompletions(EventListener):
             file_pos = view.sel()[0].a
             full_line = view.substr(view.line(view.sel()[0]))
 
-            related_nodes=_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
+            related_nodes =_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
                     full_line, 
                     view.file_name(), 
                     file_pos)
-            for n in list(set(related_nodes)):
-                subl_completions.append([
-                    _UrtextProjectList.current_project.nodes[n].get_title(), 
-                    _UrtextProjectList.current_project.nodes[n].get_title()])
+            if related_nodes
+                for n in list(set(related_nodes)):
+                    subl_completions.append([
+                        _UrtextProjectList.current_project.nodes[n].get_title(), 
+                        _UrtextProjectList.current_project.nodes[n].get_title()])
+                return (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
-            completions = (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
-
-            return completions
         return []
 
     def on_hover(self, view, point, hover_zone):
