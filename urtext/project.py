@@ -259,25 +259,25 @@ class UrtextProject:
 
         old_ids = list(changed_ids.keys())
         nodes = list(self.nodes)
-        for node_id in nodes:
-            changed_links = {}
-
-            for link in self.nodes[node_id].links:
-                for old_id in old_ids:
-                    if old_id.startswith(link):
-                        changed_links[link] = changed_ids[old_id]
-            if changed_links:
-                filename = self.nodes[node_id].filename
-                contents = self.files[filename]._get_file_contents()
-                replaced_contents = contents
-                for node_id in list(changed_ids.keys()):
-                    if '| ' + node_id + ' >' in contents:
-                         replaced_contents = replaced_contents.replace(
-                            '| '+ node_id + ' >', 
-                            '| '+ changed_ids[node_id] + ' >')
-                if replaced_contents != contents:
-                    self.files[filename]._set_file_contents(replaced_contents)
-                    self._parse_file(filename)
+        for node_id in list(nodes):
+            if node_id in self.nodes:
+                changed_links = {}
+                for link in self.nodes[node_id].links:
+                    for old_id in old_ids:
+                        if old_id.startswith(link):
+                            changed_links[link] = changed_ids[old_id]
+                if changed_links:
+                    filename = self.nodes[node_id].filename
+                    contents = self.files[filename]._get_file_contents()
+                    replaced_contents = contents
+                    for node_id in list(changed_ids.keys()):
+                        if make_link(node_id) in contents:
+                             replaced_contents = replaced_contents.replace(
+                                make_link(node_id), 
+                                make_link(changed_ids[node_id]))
+                    if replaced_contents != contents:
+                        self.files[filename]._set_file_contents(replaced_contents)
+                        self._parse_file(filename)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -1400,6 +1400,12 @@ class DuplicateIDs(Exception):
 """ 
 Helpers 
 """
+
+def make_link(string):
+    return ''.join([
+        syntax.link_opening_wrapper,
+        string,
+        syntax.link_closing_wrapper])
 
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False

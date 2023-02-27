@@ -140,21 +140,8 @@ class NodeMetadata:
         t = self.get_entries('inline_timestamp')
         if t:
             t = sorted(t, key=lambda i: i.timestamps[0].datetime) 
-            self.add_entry(
-                    '_oldest_timestamp', 
-                    ''.join([
-                        syntax.timestamp_opening_wrapper,
-                        t[0].timestamps[0].unwrapped_string,
-                        syntax.timestamp_closing_wrapper
-                        ]))
-                    
-            self.add_entry(
-                    '_newest_timestamp', 
-                    ''.join([
-                        syntax.timestamp_opening_wrapper,
-                        t[-1].timestamps[0].unwrapped_string,
-                        syntax.timestamp_closing_wrapper
-                        ]))
+            self.add_entry('_oldest_timestamp', t[0].timestamps[0].wrapped_string)
+            self.add_entry('_newest_timestamp', t[-1].timestamps[0].wrapped_string)
 
     def get_first_value(self, 
         keyname, 
