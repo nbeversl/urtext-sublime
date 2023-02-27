@@ -224,7 +224,7 @@ class UrtextCompletions(EventListener):
                     full_line, 
                     view.file_name(), 
                     file_pos)
-            if related_nodes
+            if related_nodes:
                 for n in list(set(related_nodes)):
                     subl_completions.append([
                         _UrtextProjectList.current_project.nodes[n].get_title(), 
