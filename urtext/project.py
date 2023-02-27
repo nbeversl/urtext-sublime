@@ -826,7 +826,7 @@ class UrtextProject:
         return False
 
     def _log_item(self, filename, message):
-        if filename:
+        if filename and filename in self.files:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         

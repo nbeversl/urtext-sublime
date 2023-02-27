@@ -18,8 +18,7 @@ class ReindexFiles(UrtextAction):
         col_pos=0, 
         node_id=None):
 
-        files = self.project.all_files() 
-        return self.rename_file_nodes(files, reindex=True)
+        return self.rename_file_nodes(self.project.all_files(), reindex=True)
      
     def rename_file_nodes(self, filenames, reindex=False, keep_prefix=False):
         """ Rename a file or list of files by metadata """
@@ -36,7 +35,9 @@ class ReindexFiles(UrtextAction):
             old_filename = filename
             if old_filename not in self.project.files:
                 continue
-
+            if not self.project.files[old_filename].root_node:
+                # empty file
+                continue
             root_node_id = self.project.files[old_filename].root_node
             root_node = self.project.nodes[root_node_id]
             filename_template = list(self.project.settings['filenames'])
@@ -78,20 +79,27 @@ class ReindexFiles(UrtextAction):
             if keep_prefix and 'PREFIX' in filename_template:
                 filename_template.insert(0, str(existing_prefix))
             filename_template = [p.strip() for p in filename_template if p.strip()]
-            new_filename = ' - '.join(filename_template)      
-            new_filename = new_filename.replace('’', "'")
-            new_filename = new_filename.strip().strip('-').strip();
-            new_filename = strip_illegal_characters(new_filename)
-            new_filename = new_filename[:248]
-            new_filename += '.urtext'
+            new_basename = ' - '.join(filename_template)      
+            new_basename = new_basename.replace('’', "'")
+            new_basename = new_basename.strip().strip('-').strip();
+            new_basename = strip_illegal_characters(new_basename)
+            new_basename = new_basename[:248].strip()
 
-            if new_filename in used_names:
-                new_filename = new_filename.replace('.urtext',' - '+root_node.id+'.urtext')
-            new_filename = os.path.join(os.path.dirname(old_filename), new_filename)
-            # renamed_files retains full file paths
+            test_filename = os.path.join(
+                os.path.dirname(old_filename), 
+                new_basename + '.urtext')
+
+            # avoid overwriting existing files
+            unique_file_suffix = 1
+            while test_filename in used_names or os.path.exists(test_filename):
+                unique_file_suffix += 1
+                test_filename = os.path.join(
+                    os.path.dirname(old_filename), 
+                    new_basename + ' ' + str(unique_file_suffix) + '.urtext')
+
+            new_filename = test_filename
             renamed_files[old_filename] = new_filename
             used_names.append(new_filename)
-
             prefix += 1
 
         for filename in renamed_files:
