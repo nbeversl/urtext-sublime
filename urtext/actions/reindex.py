@@ -20,7 +20,7 @@ class ReindexFiles(UrtextAction):
 
         return self.rename_file_nodes(self.project.all_files(), reindex=True)
      
-    def rename_file_nodes(self, filenames, reindex=False, keep_prefix=False):
+    def rename_file_nodes(self, filenames, reindex=False):
         """ Rename a file or list of files by metadata """
 
         if isinstance(filenames, str):
@@ -41,23 +41,10 @@ class ReindexFiles(UrtextAction):
             root_node_id = self.project.files[old_filename].root_node
             root_node = self.project.nodes[root_node_id]
             filename_template = list(self.project.settings['filenames'])
-            if keep_prefix and 'PREFIX' in filename_template:
-                filename_template.pop(filename_template.index('PREFIX')) 
-                try:
-                    existing_prefix = int(old_filename.split('-')[0])
-                    existing_prefix = old_filename.split('-')[0].strip()
-                except:
-                    existing_prefix = ''
             
             for i in range(0,len(filename_template)):
-
-                if filename_template[i] == 'PREFIX' and reindex == True:
-                    padded_prefix = '{number:0{width}d}'.format(
-                        width = prefix_length, 
-                        number = prefix)
-                    filename_template[i] = padded_prefix
                 
-                elif filename_template[i].lower() == 'title':
+                if filename_template[i].lower() == 'title':
                     filename_length = int(self.project.settings['filename_title_length'])
                     if filename_length > 255:
                         filename_length = 255
@@ -76,8 +63,6 @@ class ReindexFiles(UrtextAction):
             if filename_template in [ [], [''] ]:
                 return print('New filename(s) could not be made. Check project_settings')
 
-            if keep_prefix and 'PREFIX' in filename_template:
-                filename_template.insert(0, str(existing_prefix))
             filename_template = [p.strip() for p in filename_template if p.strip()]
             new_basename = ' - '.join(filename_template)      
             new_basename = new_basename.replace('’', "'")
@@ -121,7 +106,7 @@ class RenameSingleFile(ReindexFiles):
         col_pos=0, 
         node_id=None):
 
-        return self.rename_file_nodes(filename, reindex=True, keep_prefix=True) 
+        return self.rename_file_nodes(filename, reindex=True) 
 
 def strip_illegal_characters(filename):
     for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:

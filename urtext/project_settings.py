@@ -70,7 +70,7 @@ def default_project_settings():
             '_oldest_timestamp', 
             '_breadcrumb',
              'def'],        
-        'filenames': ['PREFIX', 'title'],
+        'filenames': ['title'],
         'file_extensions' : ['.urtext'],
         'file_index_sort': ['_oldest_timestamp'],
         'filename_datestamp_format':'%m-%d-%Y',
