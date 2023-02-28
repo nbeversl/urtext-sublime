@@ -246,7 +246,8 @@ class UrtextCompletions(EventListener):
             
             if link and 'node_id' in link:
                 node_id = link['node_id']
-                print(link)
+                if node_id not in _UrtextProjectList.current_project.nodes:
+                    return
                 filename = _UrtextProjectList.current_project.nodes[node_id].filename
                 scratch_view = view.window().open_file(
                     filename,
