@@ -863,7 +863,7 @@ def open_urtext_node(
     """
 
 def preview_urtext_node(window, node_id):
-    if _UrtextProjectList.set_current_project(window.folders()[0]):
+    if window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
         if node_position == None:
             print('DEBUGGING -- sublime_urtext.py 869')
