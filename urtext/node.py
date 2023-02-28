@@ -314,7 +314,7 @@ def get_extended_values(urtext_node, meta_keys):
 
         entries = urtext_node.metadata.get_entries(k)
         if not entries:
-            return ['(?)']
+            return []
         for e in entries:
 
             if e.is_node:

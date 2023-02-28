@@ -1,10 +1,10 @@
 import os
+import datetime
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from ..directive import  UrtextDirective
-	from ..timestamp import UrtextTimestamp
 else:
 	from urtext.directive import UrtextDirective
-	from urtext.timestamp import UrtextTimestamp
 
 class Sort(UrtextDirective):
 
@@ -28,9 +28,11 @@ class Sort(UrtextDirective):
 			k, ext = k, ''
 			if '.' in k:
 				k, ext = k.split('.')
-			value = node.metadata.get_first_value(k, return_type=True)				
+			value = node.metadata.get_first_value(k, return_type=True)	
 			if isinstance(value, str):
 				value=value.lower()
+				t.append(value)
+			if isinstance(value, datetime.datetime):
 				t.append(value)
 			# else it's type UrtextNode()
 		if self.have_flags('-num'):
@@ -38,5 +40,5 @@ class Sort(UrtextDirective):
 				nt = [int(n) for n in t]
 			except ValueError:
 				return tuple([])
-			return tuple(nt)	
+			return tuple(nt)
 		return tuple(t)
