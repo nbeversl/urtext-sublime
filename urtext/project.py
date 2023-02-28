@@ -160,6 +160,9 @@ class UrtextProject:
         self._drop_file(filename)
         
         new_file = self.urtext_file(filename, self)
+        if not new_file.root_node:
+            print('%s has no root node, dropping' % filename)
+            return
         self.messages[new_file.filename] = new_file.messages
 
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
@@ -454,7 +457,6 @@ class UrtextProject:
             for node_id in self.files[new_filename].nodes:
                 self.nodes[node_id].filename = new_filename
                 self.files[new_filename].filename = new_filename
-                self.nodes[node_id].full_path = new_filename
             del self.files[old_filename]
             for ext in self.extensions:
                 self.extensions[ext].on_file_renamed(old_filename, new_filename)
@@ -827,6 +829,7 @@ class UrtextProject:
 
     def _log_item(self, filename, message):
         if filename and filename in self.files:
+            self.messages.setdefault(filename, [])
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         

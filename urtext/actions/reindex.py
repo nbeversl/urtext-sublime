@@ -28,16 +28,15 @@ class ReindexFiles(UrtextAction):
        
         used_names = []
         renamed_files = {}
-        date_template = self.project.settings['filename_datestamp_format']
-        prefix = 0
-        prefix_length = len(str(len(self.project.files)))
-        for filename in filenames:
-            old_filename = filename
+        for old_filename in filenames:
+            
             if old_filename not in self.project.files:
+                print('%s not found in project files' % old_filename)
                 continue
             if not self.project.files[old_filename].root_node:
-                # empty file
+                print('%s is an empty file, nothing to use for filenaming' % old_filename)
                 continue
+
             root_node_id = self.project.files[old_filename].root_node
             root_node = self.project.nodes[root_node_id]
             filename_template = list(self.project.settings['filenames'])
@@ -54,7 +53,7 @@ class ReindexFiles(UrtextAction):
                 elif filename_template[i].lower() in self.project.settings['use_timestamp']:
                     timestamp = root_node.metadata.get_first_value(filename_template[i], use_timestamp=True)
                     if timestamp:
-                        filename_template[i] = timestamp.strftime(date_template)
+                        filename_template[i] = timestamp.strftime(self.project.settings['filename_datestamp_format'])
                     else:
                         filename_template[i] = ''                
                 else:
@@ -85,10 +84,8 @@ class ReindexFiles(UrtextAction):
             new_filename = test_filename
             renamed_files[old_filename] = new_filename
             used_names.append(new_filename)
-            prefix += 1
 
-        for filename in renamed_files:
-            old_filename = filename
+        for old_filename in renamed_files:
             new_filename = renamed_files[old_filename]
             os.rename(old_filename, new_filename)
             self.project._handle_renamed(old_filename, new_filename)
