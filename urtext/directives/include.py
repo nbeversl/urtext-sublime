@@ -44,9 +44,10 @@ class Exclude(NodeQuery):
 
 	def dynamic_output(self, nodes):
 		excluded_nodes = set(self.build_list([]))
-		self.dynamic_definition.excluded_nodes = list(excluded_nodes)
+		if self.have_flags('-including_descendants'):
+			self.dynamic_definition.excluded_nodes = list(excluded_nodes)
+			print(excluded_nodes)
 		return list(set(nodes) - excluded_nodes)
-			 
 
 class Include(NodeQuery):
 

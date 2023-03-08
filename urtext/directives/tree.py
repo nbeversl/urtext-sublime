@@ -24,20 +24,14 @@ class Tree(UrtextDirective):
         super().__init__(project)
         self.depth = 1
 
-    def dynamic_output(self, start_point, exclude=None):
+    def dynamic_output(self, start_point):
         
-        exclude=self.dynamic_definition.excluded_nodes
-        from_root_of=False
-
         if self.have_flags('*'):
             self.depth = 999999
         
         start_point = start_point.tree_node
-        if from_root_of == True:
-            start_point = project.nodes[node_id].tree_node.root
 
         alias_nodes = self._has_aliases(start_point)
-
         while alias_nodes:  
             for leaf in alias_nodes:
                 if leaf.name[:5] == 'ALIA$':
@@ -55,14 +49,14 @@ class Tree(UrtextDirective):
                 maxlevel=self.depth):
 
             indented_pre = '  ' + pre
-
-            if self._tree_node_is_excluded(this_node, exclude):
+            
+            if self._tree_node_is_excluded(this_node):
                 this_node.children = []
                 continue
 
             if not this_node.name in self.project.nodes:
                 if this_node.name[:5] == 'ALIA$' and this_node.name[5:] not in self.project.nodes:
-                    tree_render += "%s%s" % (pre, this_node.name + ' NOT IN PROJECT (DEBUGGING)\n')    
+                    tree_render += "%s%s" % (pre, this_node.name[5:] + ' NOT IN PROJECT (DEBUGGING)\n')    
                     continue
 
             if this_node.name[:11] == '! RECURSION':
@@ -116,23 +110,21 @@ class Tree(UrtextDirective):
     def on_project_init(self):        
         return
         
-    
-    def _tree_node_is_excluded(self, tree_node, excluded_nodes):
+    def _tree_node_is_excluded(self, tree_node):
 
-        if not excluded_nodes:
-            return False
+        if self.dynamic_definition.excluded_nodes:
 
-        node_id = tree_node.name
+            node_id = tree_node.name
 
-        if node_id in excluded_nodes:
-            return True
-
-        if node_id not in self.project.nodes:
-            return True
-
-        for ancestor in self.project.nodes[node_id].tree_node.ancestors:
-            if ancestor.name in excluded_nodes:
+            if node_id in self.dynamic_definition.excluded_nodes:
                 return True
+
+            if node_id not in self.project.nodes:
+                return True
+
+            for ancestor in self.project.nodes[node_id].tree_node.ancestors:
+                if ancestor.name in self.dynamic_definition.excluded_nodes:
+                    return True
 
         return False
 
