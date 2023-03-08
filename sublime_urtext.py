@@ -866,7 +866,7 @@ def open_urtext_node(
 def preview_urtext_node(window, node_id):
     if window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        if node_position == None:
+        if node_position == None: # this should not happen
             print('DEBUGGING -- sublime_urtext.py 869')
             print(node_id)
         try:
@@ -883,6 +883,7 @@ def preview_urtext_node(window, node_id):
                     position_node(focus_view, position, focus=False)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+        
         focus_position(preview, node_position)
 
 def position_node(new_view, position, focus=True): 

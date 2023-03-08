@@ -162,7 +162,7 @@ class UrtextProject:
         new_file = self.urtext_file(filename, self)
         if not new_file.root_node:
             print('%s has no root node, dropping' % filename)
-            return
+            return self.excluded_files.append(filename)
         self.messages[new_file.filename] = new_file.messages
 
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
@@ -817,6 +817,7 @@ class UrtextProject:
                 'link_location' : link_location, 
                 'dest_position' : dest_position 
                 }
+
     def get_node_contents(self, node_id):
         if node_id in self.nodes:
             return self.nodes[node_id].contents()

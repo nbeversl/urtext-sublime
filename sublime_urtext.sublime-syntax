@@ -26,6 +26,10 @@ contexts:
     - include: node_title
     - include: trigger
     
+    - match: \w+?(?=::)
+      scope: meta_key.urtext
+      push: metadata-entry
+
     - match: ^\s*(•|-)
       scope: compact_node_opener.urtext 
       push: compact-node
@@ -47,9 +51,7 @@ contexts:
         3: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
 
-    - match: \w+?(?=::)
-      scope: meta_key.urtext
-      push: metadata-entry
+    
 
     - match: <[^!\s-]
       push: datestamp
@@ -102,7 +104,7 @@ contexts:
       scope: embed_marker.urtext
       embed: Packages/Markdown/Markdown.sublime-syntax
       embed_scope: markdown.urtext
-      escape: '%%-MARKDOWN-END'
+      escape: '%%'
       escape_captures:
         0: escape_marker.urtext
 
@@ -132,18 +134,19 @@ contexts:
     - meta_scope: meta_value.urtext
     - match: <
       push: datestamp
+    - include: meta-key-terminator
     - include: tagvalue-separator
     - include: node_link
     - include: file_link  
     - match: ;|\r|(?=\})|$
-      pop: 2
+      pop: true
 
   metadata-entry:
     - meta_scope: metadata_entry.urtext
     - match: '(?<=::)'
       push: metadata-value
     - match: ;|\r|(?=\})|$
-      pop: true
+      pop: 1
 
   shorthand_meta:
     - match: '(?:^|\s)#[A-Z,a-z].*?\b'
@@ -234,7 +237,6 @@ contexts:
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_3.urtext
       push: inline-node-3
-    
 
   inline-node-3: 
     - meta_scope: inline_node_3
@@ -301,7 +303,7 @@ contexts:
 
   meta-key-terminator:
     - match: ';'
-      scope: punctuation.terminator.urtext
+      meta_scope: punctuation.terminator.urtext
 
   tagvalue-separator:
     - match: '\s-\s'
