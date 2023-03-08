@@ -96,9 +96,6 @@ class UrtextProject:
 
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
-        num_extensions = -1
-        num_actions = -1
-        num_directions = -1
         
         if os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point
@@ -123,10 +120,7 @@ class UrtextProject:
             self.nodes[node_id].metadata.convert_hash_keys()
             self.nodes[node_id].metadata.convert_node_links()
    
-        while len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
-            num_extensions = len(self.extensions)
-            num_actions = len(self.actions)
-            num_directives = len(self.directives)
+        if len(self.extensions) > 0 or len(self.actions) > 0 or len(self.directives) > 0:
             self._collect_extensions_directives_actions()
             self._compile()
 
@@ -162,7 +156,9 @@ class UrtextProject:
         new_file = self.urtext_file(filename, self)
         if not new_file.root_node:
             print('%s has no root node, dropping' % filename)
-            return self.excluded_files.append(filename)
+            self.excluded_files.append(filename)
+            return
+
         self.messages[new_file.filename] = new_file.messages
 
         file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
@@ -241,6 +237,10 @@ class UrtextProject:
                 self.dynamic_metadata_entries.append(entry)
 
     def _collect_extensions_directives_actions(self):
+        
+        num_extensions = len(self.extensions)
+        num_actions = len(self.actions)
+        num_directives = len(self.directives)
 
         for c in all_subclasses(UrtextExtension):
             for n in c.name:
@@ -253,7 +253,10 @@ class UrtextProject:
         for c in all_subclasses(UrtextDirective):
             for n in c.name:
                 self.directives[n] = c
-            
+
+        if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
+            self._collect_extensions_directives_actions()
+
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
             self._add_sub_tags(entry)
@@ -420,9 +423,9 @@ class UrtextProject:
                 if node_id not in self.nodes:
                     continue
                 self._remove_sub_tags(node_id)
-                del self.nodes[node_id]
                 self.remove_dynamic_defs(node_id)
                 self.remove_dynamic_metadata_entries(node_id)
+                del self.nodes[node_id]
             del self.files[filename]
 
         if filename in self.messages:
@@ -987,8 +990,8 @@ class UrtextProject:
         if self.compiled:
             modified_files = []
             for f in filenames:
-                any_duplicate_ids = self._parse_file(f)
-                if not any_duplicate_ids:
+                self._parse_file(f)
+                if f in self.files:
                     modified_file = self._compile_file(f)
                     if modified_file:
                         modified_files.append(modified_file)
@@ -1233,12 +1236,12 @@ class UrtextProject:
                     if self._write_dynamic_def_output(dd, output):
                         modified = filename
             #TODO Refactor
-            for dd in self.dynamic_definitions:
+            for dd in self.dynamic_defs():
                 if dd.target_file and dd.source_id == node_id:
                     output = self._process_dynamic_def(dd)
                     if output:
                         if self._write_dynamic_def_output(dd, output):
-                            modified = filename                        
+                            modified = filename                    
         return modified
 
     def _process_dynamic_def(self, dynamic_definition):

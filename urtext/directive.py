@@ -22,7 +22,7 @@ else:
 
 class UrtextDirective():
 
-    name = ["EXTENSION"]
+    name = ["DIRECTIVE"]
     phase = 0
     def __init__(self, project):
         
@@ -32,7 +32,7 @@ class UrtextDirective():
         self.params_dict = {}
         self.project = project
         self.argument_string = None
-        self.dynamic_definitions = None
+        self.dynamic_definition = None
 
     """ command """
 

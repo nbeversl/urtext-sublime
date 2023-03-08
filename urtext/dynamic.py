@@ -21,12 +21,10 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	from .directive import UrtextDirective
 	from .utils import force_list
-	from .directives.list import NodeList
 	import Urtext.urtext.syntax as syntax
 else:
 	from urtext.directive import UrtextDirective
 	from urtext.utils import force_list
-	from urtext.directives.list import NodeList
 	import urtext.syntax as syntax
 
 phases = [
@@ -48,21 +46,22 @@ class UrtextDynamicDefinition:
 		self.target_file = None
 		self.included_nodes = []
 		self.excluded_nodes = []
-		self.operations = []
 		self.spaces = 0
 		self.project = project
 		self.preformat = False
 		self.show = None
 		self.multiline_meta = False
 		self.returns_text = True
-		self.init_self(param_string)
-		self.all_ops = []
+		self.param_string = param_string
+		self.init_self(param_string)	
 		self.source_id = None # set by node once compiled
 		
 		if not self.show:
 			self.show = '$link\n'
 			
 	def init_self(self, contents):
+
+		self.operations = []
 
 		for match in syntax.function_c.findall(contents):
 
@@ -85,7 +84,7 @@ class UrtextDynamicDefinition:
 			if func == "SHOW":
 				self.show = argument_string
 		
-		self.phases = [op.phase for op in self.operations]
+		self.phases = list(set([op.phase for op in self.operations]))
 		is_custom_output = max(self.phases) >= 700 if self.phases else False
 		if not is_custom_output and not has_text_output(self.operations):
 			# add simple list output if none supplied
@@ -94,8 +93,6 @@ class UrtextDynamicDefinition:
 			op.set_dynamic_definition(self)
 			self.operations.append(op)
 			self.phases.append(300)
-
-		self.all_ops = [t for op in self.operations for t in op.name]
 
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
