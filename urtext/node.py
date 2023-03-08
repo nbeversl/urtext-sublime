@@ -209,7 +209,7 @@ class UrtextNode:
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-            title = title.strip(syntax.title_marker).strip()         
+            title = title.strip(syntax.title_marker).strip()      
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
@@ -222,6 +222,7 @@ class UrtextNode:
         if len(title) > 255:
             title = title[:255]
         title = sanitize_escape(title)
+        title = strip_nested_links(title)
         self.metadata.add_entry('title', title)
         return title
    
@@ -384,6 +385,13 @@ def strip_dynamic_definitions(contents, preserve_length=False):
         for dynamic_definition in syntax.dynamic_def_c.finditer(stripped_contents):
             stripped_contents = stripped_contents.replace(dynamic_definition.group(), r*len(dynamic_definition.group()))
         return stripped_contents.strip()
+
+def strip_nested_links(title):
+    nested_link = syntax.node_link_or_pointer_c.search(title)
+    while nested_link:
+        title = title.replace(nested_link.group(), '(' + nested_link.group(2) + ')' )
+        nested_link = syntax.node_link_or_pointer_c.search(title)
+    return title
 
 #TODO refactor
 def strip_embedded_syntaxes(

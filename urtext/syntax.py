@@ -56,7 +56,7 @@ meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
 preformat =                             r'\`.*?\`'
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
-title_pattern =                         r'([^>\n\r])+'
+title_pattern =                         r'([^\|>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 # Currently used for syntax highlighting only:
