@@ -679,12 +679,12 @@ class UrtextProject:
 
     def all_files(self):
         self._sync_file_list()
-        files=list(self.files)
+        files = list(self.files)
         prefix = 0
         sorted_files = []
         for k in self.settings['file_index_sort']:
             k = k.lower()
-            use_timestamp= True if k in self.settings['use_timestamp'] else False
+            use_timestamp = True if k in self.settings['use_timestamp'] else False
             file_group = [f for f in files if self.files[f].root_node and self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp)]
             file_group = sorted(file_group, 
                 key=lambda f:  self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp),

@@ -26,6 +26,13 @@ contexts:
     - include: node_title
     - include: trigger
     
+    - match: (\w+?)(::)(\{)
+      captures:
+        1: meta_key.urtext
+        2: tagvalue-separator.urtext  
+        3: punctuation.section.braces.begin.inline_node_1.urtext
+      push: inline-node-1
+
     - match: \w+?(?=::)
       scope: meta_key.urtext
       push: metadata-entry
@@ -44,14 +51,7 @@ contexts:
     - match: '(?<=::)<'
       push: metadata-timestamp
     
-    - match: (\w+?)(::)(\{)
-      captures:
-        1: meta_key.urtext
-        2: tagvalue-separator.urtext  
-        3: punctuation.section.braces.begin.inline_node_1.urtext
-      push: inline-node-1
-
-    
+   
 
     - match: <[^!\s-]
       push: datestamp
