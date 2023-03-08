@@ -290,7 +290,7 @@ contexts:
       pop: true
 
   node_title:
-    - match: '(?!<=\{)((([^>\{\}\n\r_])|(?<!\s)_)+)(\s_)(\s|$)'
+    - match: '(?!<=\{)((([^\|>\{\}\n\r_])|(?<!\s)_)+)(\s_)(\s|$)'
       captures:
         1: node_title.urtext
         4: title_marker.urtext
