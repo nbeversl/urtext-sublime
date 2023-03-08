@@ -13,7 +13,7 @@ class AccessHistory(UrtextDirective):
     phase = 700
 
     def on_node_visited(self, node_id):
-            
+        
         self.dynamic_definition.process_output(max_phase=200)
         last_visited = None
         if len(self.project.navigation) > 1:

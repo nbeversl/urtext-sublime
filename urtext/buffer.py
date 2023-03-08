@@ -116,7 +116,7 @@ class UrtextBuffer:
                     start_position=position)
 
                 nested_levels, child_group, nested = self.parse(
-                    symbols[position]['node_contents'], 
+                    symbols[position]['full_match'], 
                     compact_symbols,
                     nested_levels=nested_levels,
                     nested=nested + 1,
