@@ -60,7 +60,16 @@ class Tree(UrtextDirective):
 
             if not this_node.name in self.project.nodes:
                 if this_node.name[:5] == 'ALIA$' and this_node.name[5:] not in self.project.nodes:
-                    tree_render += "%s%s" % (pre, this_node.name[5:] + ' NOT IN PROJECT (DEBUGGING)\n')    
+                    tree_render += "%s%s" % (
+                        indented_pre, 
+                        ''.join([
+                            this_node.name[5:],
+                            ' ',
+                            syntax.urtext_message_opening_wrapper,
+                            ' NOT IN PROJECT (DEBUGGING) ',
+                            syntax.urtext_message_closing_wrapper,
+                            '\n']
+                            ))    
                     continue
 
             if this_node.name[:11] == '! RECURSION':
