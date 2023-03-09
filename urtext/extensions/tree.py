@@ -17,7 +17,8 @@ class UrtextAnyTree(UrtextExtension):
 
         for node in self.project.files[filename].nodes:
             for pointer in self.project.nodes[node].pointers:
-                alias_node = Node('ALIA$'+pointer) # anytree Node, not UrtextNode 
+                alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
+                alias_node.position = pointer['position']
                 alias_node.parent = self.project.nodes[node].tree_node
                 self.project.files[filename].alias_nodes.append(alias_node)
 

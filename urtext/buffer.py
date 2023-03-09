@@ -101,7 +101,10 @@ class UrtextBuffer:
             pointers[nested] = [] if nested not in pointers else pointers[nested]
 
             if symbols[position]['type'] == 'pointer':
-                pointers[nested].append(symbols[position]['contents'])
+                pointers[nested].append({ 
+                    'id' : symbols[position]['contents'],
+                    'position' : position
+                    })
                 continue
 
             if symbols[position]['type'] == 'opening_wrapper':
