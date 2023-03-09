@@ -149,9 +149,12 @@ compiled_symbols = {
     opening_wrapper_c :                 'opening_wrapper',
     closing_wrapper_c :                 'closing_wrapper',
     re.compile(node_pointer) :          'pointer',
-    re.compile(embedded_syntax_open) :  'embedded_syntax_open', 
-    re.compile(embedded_syntax_close) : 'embedded_syntax_close',
     compact_node_c :                    'compact_node',
     meta_to_node_c :                    'meta_to_node'
     }
 
+embedded_syntax_symbols = {
+    re.compile(embedded_syntax_open) :  'embedded_syntax_open', 
+    re.compile(embedded_syntax_close) : 'embedded_syntax_close',
+
+}

@@ -35,43 +35,26 @@ class UrtextBuffer:
     def lex(self, contents, start_position=0):
        
         symbols = {}
-
+        embedded_syntaxes = []
         contents = strip_backtick_escape(contents)
+
+        for match in syntax.embedded_syntax_c.finditer(contents):
+            embedded_syntaxes.append([match.start(), match.end()])
         for symbol, symbol_type in syntax.compiled_symbols.items():
             for match in symbol.finditer(contents):
+                for r in embedded_syntaxes:
+                    if match.start() in range(r[0], r[1]):
+                        continue
                 if symbol_type == 'meta_to_node':
                     self.meta_to_node.append(match)
                     continue
                 symbols[match.span()[0] + start_position] = {}
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
-                symbols[match.span()[0] + start_position]['length'] = len(match.group())                
 
                 if symbol_type == 'pointer':
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
-
-        ## Filter out Syntax Push and delete wrapper elements between them.
-        push_syntax = 0
-        to_remove = []
-
-        for p in sorted(symbols.keys()):
-
-            if symbols[p]['type'] == 'embedded_syntax_open' :
-                to_remove.append(p)
-                push_syntax += 1
-                continue
-            
-            if symbols[p]['type'] == 'embedded_syntax_close':
-                to_remove.append(p)
-                push_syntax -= 1
-                continue
-            
-            if push_syntax > 0:
-                to_remove.append(p)
-
-        for s in to_remove:
-            del symbols[s]
 
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
