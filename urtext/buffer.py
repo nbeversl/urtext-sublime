@@ -1,4 +1,6 @@
 import os
+import re
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
@@ -86,6 +88,8 @@ class UrtextBuffer:
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
         pointers = {}
+        if from_compact:
+            unstripped_contents = re.sub(syntax.bullet, '', unstripped_contents)
 
         for position in sorted(symbols.keys()):
 
@@ -131,7 +135,8 @@ class UrtextBuffer:
                 nested_levels[nested].append([last_position , position])
     
                 if nested <= 0:
-                    self.messages.append('Removed stray closing wrapper at %s. This message can be deleted.' % str(position))
+                    self.messages.append(
+                        'Removed stray closing wrapper at %s. This message can be deleted.' % str(position))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_file_contents(contents)
                     return self.lex_and_parse(contents)
@@ -188,10 +193,8 @@ class UrtextBuffer:
             last_position = position
         
         if not from_compact and nested >= 0:
-            message = '\n'.join([
-                'Appended closing bracket to close opening bracket at %s' % str(position),
-                'This message can be deleted.'])
-            self.messages.append(message)
+            self.messages.append(
+                'Appended closing bracket to close opening bracket at %s. This message can be deleted.' % str(position))
             contents = ''.join([contents[:position],
                  ' ',
                  syntax.node_closing_wrapper,
