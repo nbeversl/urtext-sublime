@@ -48,6 +48,10 @@ class Tree(UrtextDirective):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
+            this_node.children = sorted(
+                this_node.children, 
+                key=lambda n: self.project.nodes[n.name].start_position() if n.name in self.project.nodes else 0)
+
             indented_pre = '  ' + pre
             
             if self._tree_node_is_excluded(this_node):
