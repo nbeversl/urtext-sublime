@@ -1,6 +1,4 @@
 import os
-import re
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
@@ -50,7 +48,6 @@ class UrtextBuffer:
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
-                    symbols[match.span()[0] + start_position]['node_contents'] = match.group(2)
 
         ## Filter out Syntax Push and delete wrapper elements between them.
         push_syntax = 0
@@ -134,9 +131,7 @@ class UrtextBuffer:
                 nested_levels[nested].append([last_position , position])
     
                 if nested <= 0:
-                    self.messages.append('\n'.join([
-                        'Removed stray closing wrapper at %s' % str(position),
-                        'This message can be deleted.']))
+                    self.messages.append('Removed stray closing wrapper at %s. This message can be deleted.' % str(position))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_file_contents(contents)
                     return self.lex_and_parse(contents)
