@@ -47,7 +47,6 @@ class Tree(UrtextDirective):
                 start_point, 
                 style=ContStyle, 
                 maxlevel=self.depth):
-
             this_node.children = sorted(
                 this_node.children,
                 key=lambda n: self.project.nodes[n.name].start_position() if n.name in self.project.nodes else n.position)
@@ -66,7 +65,7 @@ class Tree(UrtextDirective):
                             this_node.name[5:],
                             ' ',
                             syntax.urtext_message_opening_wrapper,
-                            ' NOT IN PROJECT (DEBUGGING) ',
+                            ' NOT IN PROJECT ',
                             syntax.urtext_message_closing_wrapper,
                             '\n']
                             ))    
@@ -170,18 +169,22 @@ class Tree(UrtextDirective):
 
         for node in all_nodes: 
      
-            if 'ALIA$' in node.name:            
+            if 'ALIA$' in node.name:       
                 node_id = node.name[5:]
                 if node_id not in ancestors:
                     if node_id in self.project.nodes:
                         new_node = Node(node.name)
                         new_node.parent = new_root
+                        new_node.position = node.position
                     else:
                         new_node = Node('! (Missing Node) >'+node_id)
+                        new_node.position = node.position
                         new_node.parent = new_root            
                 else:
                     new_node = Node('! RECURSION (from tree duplication) : '+ self.project.nodes[node_id].get_title() + ' >'+node_id)
                     new_node.parent = new_root
+                    new_node.position = node.position
+                    
                 continue
 
             if node.parent == original_node:
