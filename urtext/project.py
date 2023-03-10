@@ -97,7 +97,7 @@ class UrtextProject:
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
         
-        if os.path.isdir(self.entry_point):
+        if os.path.exists(self.entry_point) and os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point
             self.settings['paths'].append({
                 'path' : self.entry_point,
@@ -105,8 +105,8 @@ class UrtextProject:
                 })
             for file in self._get_included_files():
                 self._parse_file(file)
-        else:
-            self.entry_path = os.dirname(self.entry_point)
+        elif os.path.exists(self.entry_point):
+            self.entry_path = os.path.dirname(self.entry_point)            
             self._parse_file(self.entry_point)    
         
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
