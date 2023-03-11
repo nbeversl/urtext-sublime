@@ -866,15 +866,12 @@ def open_urtext_node(
 def preview_urtext_node(window, node_id):
     if window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        if node_position == None: # this should not happen
-            print('DEBUGGING -- sublime_urtext.py 869')
-            print(node_id)
-        try:
-            window.open_file(filename, flags=sublime.TRANSIENT)
-        except:
-            pass
-            # silences a console warning that 
-            # appear to be a Sublime bug on sublime.TRANSIENT
+        if node_position == None or not filename:
+            print('(DEBUGGING ONLY, sublime_urtext.py line 870):')
+            print(node_position)
+            print(filename)
+            return
+        window.open_file(filename, flags=sublime.TRANSIENT)
         preview = window.active_sheet().view()
 
         def focus_position(focus_view, position):

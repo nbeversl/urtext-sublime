@@ -73,6 +73,9 @@ class ReindexFiles(UrtextAction):
                 os.path.dirname(old_filename), 
                 new_basename + '.urtext')
 
+            if test_filename == old_filename:
+                continue
+
             # avoid overwriting existing files
             unique_file_suffix = 1
             while test_filename in used_names or os.path.exists(test_filename):
@@ -80,6 +83,11 @@ class ReindexFiles(UrtextAction):
                 test_filename = os.path.join(
                     os.path.dirname(old_filename), 
                     new_basename + ' ' + str(unique_file_suffix) + '.urtext')
+                if test_filename == old_filename:
+                    break
+
+            if test_filename == old_filename:
+                continue
 
             new_filename = test_filename
             renamed_files[old_filename] = new_filename
