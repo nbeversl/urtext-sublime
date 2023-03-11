@@ -124,6 +124,9 @@ class Tree(UrtextDirective):
         
     def _tree_node_is_excluded(self, tree_node):
 
+        if tree_node.name == self.dynamic_definition.target_id:
+            return True
+
         if self.dynamic_definition.excluded_nodes:
 
             node_id = tree_node.name
