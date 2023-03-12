@@ -157,7 +157,7 @@ class UrtextProject:
         if not new_file.root_node:
             print('%s has no root node, dropping' % filename)
             self.excluded_files.append(filename)
-            return
+            return False
 
         self.messages[new_file.filename] = new_file.messages
 
@@ -235,6 +235,8 @@ class UrtextProject:
                 entry.from_node = node.id
                 self._add_sub_tags(entry)
                 self.dynamic_metadata_entries.append(entry)
+        
+        return new_file.messages
 
     def _collect_extensions_directives_actions(self):
         
@@ -990,7 +992,8 @@ class UrtextProject:
         if self.compiled:
             modified_files = []
             for f in filenames:
-                self._parse_file(f)
+                if self._parse_file(f):
+                    modified_files.append(f)
                 if f in self.files:
                     modified_file = self._compile_file(f)
                     if modified_file:
