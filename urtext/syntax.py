@@ -62,7 +62,7 @@ url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&
 # Currently used for syntax highlighting only:
 
 metadata_key =                          r'\w+?(?=' + metadata_assigner + ')'
-metadata_values =                       r'(?<=::)[^\n};@]+;?'
+metadata_values =                       r'(?<=::)[^\n};@\s]+;?'
 metadata_key_c =                        re.compile(metadata_key)
 metadata_values_c =                     re.compile(metadata_values)
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
