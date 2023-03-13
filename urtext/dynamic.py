@@ -42,6 +42,7 @@ class UrtextDynamicDefinition:
 	def __init__(self, param_string, project, location):
 
 		self.location = location
+		self.contents = None
 		self.target_id = None
 		self.target_file = None
 		self.included_nodes = []
@@ -63,6 +64,8 @@ class UrtextDynamicDefinition:
 
 		self.operations = []
 
+		self.contents = contents
+
 		for match in syntax.function_c.findall(contents):
 
 			func, argument_string = match[0], match[1]
@@ -73,8 +76,9 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func in ['TARGET', '>']:
-				## TODO: improve this prse
-				self.target_id = argument_string.strip(syntax.link_closing_wrapper).strip(syntax.link_opening_wrapper).strip()
+				self.target_id = argument_string.strip(
+					syntax.link_closing_wrapper).strip(
+					syntax.link_opening_wrapper).strip()
 				continue
 
 			if func == 'FILE':
@@ -131,6 +135,15 @@ class UrtextDynamicDefinition:
 					new_outcome = operation.dynamic_output(outcome)					
 					if new_outcome != False:
 						outcome = new_outcome
+
+		
+		if self.target_id == self.source_id:
+			outcome = outcome +  '\n' + ''.join([
+				syntax.dynamic_def_opening_wrapper,
+				self.contents,
+				syntax.dynamic_def_closing_wrapper
+				])
+
 		return outcome
 
 def has_text_output(operations):

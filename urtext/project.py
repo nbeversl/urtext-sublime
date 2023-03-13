@@ -229,6 +229,8 @@ class UrtextProject:
 
             for dd in node.dynamic_definitions:
                 dd.source_id = node.id
+                if dd.target_id == '@self' :
+                    dd.target_id = node.id
                 self.dynamic_definitions.append(dd)
 
             for entry in node.metadata.dynamic_entries:
@@ -584,7 +586,7 @@ class UrtextProject:
 
     def dynamic_defs(self, target=None, source=None):
         if target:
-            return [dd for dd in self.dynamic_definitions if dd.target_id == target]
+            return [dd for dd in self.dynamic_definitions if dd.target_id == target or dd.target_id == '@self']
         return self.dynamic_definitions
 
     def remove_dynamic_defs(self, node_id):
@@ -1224,8 +1226,8 @@ class UrtextProject:
             if dynamic_definition.target_id in self.nodes:
                 self.nodes[dynamic_definition.target_id].dynamic = True
 
-        for dynamic_definition in self.dynamic_defs(): 
-            self._process_dynamic_def(dynamic_definition)
+        for file in self.files:
+            self._compile_file(file)
 
         self._add_all_sub_tags()
 
@@ -1269,7 +1271,7 @@ class UrtextProject:
                         dynamic_definition.target_id,
                         syntax.link_closing_wrapper]))
 
-        output = dynamic_definition.process_output()    
+        output = dynamic_definition.process_output() 
         
         if not dynamic_definition.returns_text and not dynamic_definition.target_file:
             return
@@ -1278,7 +1280,7 @@ class UrtextProject:
 
     def _write_dynamic_def_output(self, dynamic_definition, final_output):
 
-        changed_file = None    
+        changed_file = None
         if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
             changed_file = self._set_node_contents(dynamic_definition.target_id, final_output) 
             if changed_file:
@@ -1315,7 +1317,6 @@ class UrtextProject:
         
         if dynamic_definition.spaces:
             final_contents = indent(final_contents, dynamic_definition.spaces)
-
         return final_contents
 
     """ Metadata Handling """

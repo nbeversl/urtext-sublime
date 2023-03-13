@@ -42,9 +42,13 @@ class UrtextBuffer:
             embedded_syntaxes.append([match.start(), match.end()])
         for symbol, symbol_type in syntax.compiled_symbols.items():
             for match in symbol.finditer(contents):
+                is_embedded = False
                 for r in embedded_syntaxes:
                     if match.start() in range(r[0], r[1]):
-                        continue
+                        is_embedded = True
+                        break
+                if is_embedded:
+                    continue
                 if symbol_type == 'meta_to_node':
                     self.meta_to_node.append(match)
                     continue
