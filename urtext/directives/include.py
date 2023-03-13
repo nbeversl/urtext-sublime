@@ -26,6 +26,7 @@ class NodeQuery(UrtextDirective):
 				_build_group_and(
 					self.project, 
 					self.params, 
+					self.dynamic_definition,
 					include_dynamic=self.have_flags('-include_dynamic'))
 				)
 		
@@ -54,19 +55,25 @@ class Include(NodeQuery):
 	name = ["INCLUDE","+"] 	
 	phase = 100
 
-def _build_group_and(project, params, include_dynamic=False):
+def _build_group_and(
+	project, 
+	params, 
+	dd, 
+	include_dynamic=False):
 	
 	found_sets = []
 	new_group = set([])
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			if '"' not in value:
+			if '"' not in value or value != "@parent":
 				print('NO READABLE VALUE in ', value)
 				continue
 			value = value.split('"')[1]
 			new_group = set([value])
 		else:
+			if value == "@parent" and project.nodes[dd.source_id].parent:
+				value = project.nodes[dd.source_id].parent.id
 			new_group = set(project.get_by_meta(key, value, operator))
 		found_sets.append(new_group)
 	
@@ -74,7 +81,7 @@ def _build_group_and(project, params, include_dynamic=False):
 		new_group = new_group.intersection(this_set)
 
 	if not include_dynamic:
-		new_group = [f for f in new_group if f in project.nodes and not project.nodes[f].dynamic and not project.nodes[f].errors]
+		new_group = [f for f in new_group if f in project.nodes and not project.nodes[f].dynamic]
 	
 	return new_group
 

@@ -297,6 +297,8 @@ class UrtextProject:
                 resolved_id = file_obj.nodes[node_id].resolve_duplicate_id()
                 if resolved_id:
                     file_obj.nodes[node_id].apply_title(resolved_id)
+                    file_obj.nodes[resolved_id] = file_obj.nodes[node_id]
+                    del file_obj.nodes[node_id]
                     for index in file_obj.parsed_items:
                         if file_obj.parsed_items[index] == node_id:
                             file_obj.parsed_items[index] = resolved_id

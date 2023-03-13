@@ -65,7 +65,6 @@ class UrtextNode:
         self.target_nodes = []
         self.blank = False
         self.title = ''
-        self.errors = False
         self.display_meta = ''
         self.parent = None
         self.children = []
