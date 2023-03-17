@@ -181,6 +181,9 @@ contexts:
     - match: \]\]
       scope: punctuation.section.braces.end.dynamic_definition.urtext
       pop: true
+
+  at-marker:
+    - match: '@\w+'
    
   function:
     - match: (\()
@@ -190,6 +193,7 @@ contexts:
     - include: dynamic-flag
     - include: asterisk
     - include: var-word
+    - include: at-marker
     - match: <[^!\s-]
       push: datestamp
     - match: \)

@@ -14,6 +14,9 @@ class DebugCommand(sublime_plugin.TextCommand):
         if not node_id:
             print('No Node found here')
             return
+
+        print('NODE ID')
+        print(node_id)
         print('METADATA')
         self._UrtextProjectList.current_project.nodes[node_id].metadata.log()
         print('Ranges')

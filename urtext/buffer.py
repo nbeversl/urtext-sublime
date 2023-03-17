@@ -16,11 +16,10 @@ class UrtextBuffer:
 
     def __init__(self, project):
         
-        self.nodes = {}
+        self.nodes = []
         self.node_tree = {}
         self.root_node = None
         self.alias_nodes = []
-        self.parsed_items = {}
         self.messages = []     
         self.project = project
         self.meta_to_node = []
@@ -30,7 +29,7 @@ class UrtextBuffer:
         symbols = self.lex(contents)
         self.parse(contents, symbols)
         self.file_length = len(contents)
-        self.propagate_timestamps(self.nodes[self.root_node])
+        self.propagate_timestamps(self.root_node)
 
     def lex(self, contents, start_position=0):
        
@@ -216,12 +215,10 @@ class UrtextBuffer:
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
-
-        self.nodes[new_node.id] = new_node   
-        self.nodes[new_node.id].ranges = ranges
+        new_node.ranges = ranges
+        self.nodes.append(new_node)
         if new_node.root_node:
-            self.root_node = new_node.id
-        self.parsed_items[ranges[0][0]] = new_node.id
+            self.root_node = new_node
         return new_node
 
     def _get_file_contents(self):
@@ -232,8 +229,8 @@ class UrtextBuffer:
 
     def get_ordered_nodes(self):
         return sorted( 
-            list(self.nodes.keys()),
-            key=lambda node_id :  self.nodes[node_id].start_position())
+            list(self.nodes),
+            key=lambda node :  node.start_position())
 
     def propagate_timestamps(self, start_node):
         oldest_timestamp = start_node.metadata.get_oldest_timestamp()
@@ -251,7 +248,6 @@ class UrtextBuffer:
     def log_error(self, message, position):
 
         self.nodes = {}
-        self.parsed_items = {}
         self.root_node = None
         self.file_length = 0
         self.messages.append(message +' at position '+ str(position))

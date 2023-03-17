@@ -52,7 +52,6 @@ class UrtextNode:
         self.project = project
         self.position = 0
         self.ranges = [[0, 0]]
-        self.tree = None
         self.is_tree = False
         self.export_points = {}
         self.dynamic = False
@@ -90,9 +89,12 @@ class UrtextNode:
 
     def apply_title(self, title):
         self.id = title
-        self.tree_node = Node(title)
+        self.title = title
+        self.metadata.add_entry('title', title)
         for d in self.dynamic_definitions:
             d.source_id = title
+        for entry in self.metadata.dynamic_entries:
+            entry.from_node = title
 
     def start_position(self):
         if self.root_node:
@@ -137,11 +139,22 @@ class UrtextNode:
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
     def resolve_duplicate_id(self):
+        title = self.title.split(' ^ ')[0]
+        if self.parent:
+            resolved_id = ''.join([
+                    title,
+                    ' ^ ',
+                    self.parent.title
+                ]) 
+            if resolved_id not in self.project.nodes:
+                return resolved_id
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
-            resolved_id = ' '.join([
-                self.id, 
-                timestamp.unwrapped_string])
+            resolved_id = ''.join([
+                title,
+                ' ^ ',
+                timestamp.unwrapped_string, 
+                ])
             if resolved_id not in self.project.nodes:
                 return resolved_id
 

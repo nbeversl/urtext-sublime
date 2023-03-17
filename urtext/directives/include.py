@@ -66,7 +66,7 @@ def _build_group_and(
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			if '"' not in value or value != "@parent":
+			if '"' not in value and value != "@parent":
 				print('NO READABLE VALUE in ', value)
 				continue
 			value = value.split('"')[1]

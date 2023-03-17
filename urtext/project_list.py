@@ -133,21 +133,20 @@ class ProjectList():
         project_title=None, 
         pointer=False, 
         include_project=False):
-        if node_id:
-            
+
+        if node_id:            
             if project_title == None:
                 project = self.current_project
             else:
                 project = self.get_project(project_title)
-            node_title = ''
             if node_id in project.nodes:
                 node_title = project.nodes[node_id].get_title()
-            link = syntax.link_opening_wrapper + node_title + syntax.link_closing_wrapper
-            if pointer:
-                link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
-            if include_project or project != self.current_project:
-                link = syntax.other_project_link_prefix+ '"' + project.settings['project_title'] +'"'+link
-            return link
+                link = syntax.link_opening_wrapper + node_title + syntax.link_closing_wrapper
+                if pointer:
+                    link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
+                if include_project or project != self.current_project:
+                    link = syntax.other_project_link_prefix+ '"' + project.settings['project_title'] +'"'+link
+                return link
 
     def nav_current(self):
         return self.current_project.nav_current()

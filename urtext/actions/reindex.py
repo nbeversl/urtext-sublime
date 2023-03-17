@@ -37,8 +37,7 @@ class ReindexFiles(UrtextAction):
                 print('%s is an empty file, nothing to use for filenaming' % old_filename)
                 continue
 
-            root_node_id = self.project.files[old_filename].root_node
-            root_node = self.project.nodes[root_node_id]
+            root_node = self.project.files[old_filename].root_node
             filename_template = list(self.project.settings['filenames'])
             
             for i in range(0,len(filename_template)):

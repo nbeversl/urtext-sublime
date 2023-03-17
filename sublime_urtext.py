@@ -571,8 +571,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
         if not self.window:
             self.window = self.view.window()
 
-        link = self.get_link(get_node_id(
-            self.window.active_view(), use_buffer=True))
+        link = self.get_link(get_node_id(self.window.active_view()))
         if link:
             sublime.set_clipboard(link)
             self.view.show_popup(link + '\ncopied to the clipboard', 
@@ -919,14 +918,10 @@ def open_external_file(filepath):
     elif sublime.platform() == "linux":
         subprocess.Popen(('xdg-open', filepath))
 
-def get_node_id(view, use_buffer=False):
+def get_node_id(view):
     global _UrtextProjectList
     if view.file_name():
         position = view.sel()[0].a
-        if use_buffer:            
-            return _UrtextProjectList.current_project.get_node_id_from_position_in_buffer(
-                view.substr(sublime.Region(0,view.size())), 
-                position)
         filename = view.file_name()
         position = view.sel()[0].a
         return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)

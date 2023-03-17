@@ -37,7 +37,7 @@ class UrtextFile(UrtextBuffer):
             self.lex_and_parse(self.contents)
             self.write_messages(project.settings)
             for node in self.nodes:
-                self.nodes[node].filename = filename
+                node.filename = filename
 
     def _get_file_contents(self):
         return self.file_contents
@@ -113,7 +113,6 @@ class UrtextFile(UrtextBuffer):
             ])
 
         self._set_file_contents(new_contents, compare=False)
-        self.nodes = {}
+        self.nodes = []
         self.root_node = None
-        self.parsed_items = {}
         self.lex_and_parse(new_contents)

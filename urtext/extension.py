@@ -9,6 +9,9 @@ class UrtextExtension:
     def on_node_visited(self, node_id):
         return
 
+    def on_node_added(self, node):
+        return
+
     def on_file_modified(self, filename):
         return
 
@@ -16,4 +19,7 @@ class UrtextExtension:
         return
 
     def on_file_renamed(self, old_filename, new_filename):
+        return
+
+    def on_node_title_changed(self, old_node_id, new_node_id):
         return

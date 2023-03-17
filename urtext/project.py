@@ -24,6 +24,7 @@ import random
 import time
 from time import strftime
 import concurrent.futures
+import pprint # development only
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -150,7 +151,7 @@ class UrtextProject:
 
         old_node_ids = []
         if filename in self.files:
-            old_node_ids = self.files[filename].get_ordered_nodes()
+            old_node_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
         self._drop_file(filename)
         
         new_file = self.urtext_file(filename, self)
@@ -161,13 +162,11 @@ class UrtextProject:
 
         self.messages[new_file.filename] = new_file.messages
 
-        file_should_be_dropped, should_re_parse = self._check_file_for_duplicates(new_file)
-        
-        if should_re_parse:
+        if self._check_file_for_duplicates(new_file):
             return self._parse_file(filename)
 
         if old_node_ids: # (if the file was already in the project)
-            new_node_ids = new_file.get_ordered_nodes()
+            new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
 
             added_ids = []
             for node_id in new_node_ids:
@@ -203,12 +202,12 @@ class UrtextProject:
                 self._rewrite_changed_links(changed_ids)
 
         self.files[new_file.filename] = new_file  
-        for node_id in new_file.nodes:
-            self._add_node(new_file.nodes[node_id])
+        for node in new_file.nodes:
+            self._add_node(node)
         
-        for node_title in new_file.nodes:
-            if new_file.nodes[node_title].parent:
-                new_file.nodes[node_title].parent.children.append(new_file.nodes[node_title])
+        for node in new_file.nodes:
+            if node.parent:
+                node.parent.children.append(node)
 
         for entry in new_file.meta_to_node:
             keyname = entry.group(1)
@@ -220,10 +219,9 @@ class UrtextProject:
                 is_node=True)
 
         for ext in self.extensions:
-             self.extensions[ext].on_file_modified(filename)
+            self.extensions[ext].on_file_modified(filename)
 
-        for node_id in new_file.nodes:            
-            node = self.nodes[node_id]
+        for node in new_file.nodes:            
             if node.title == 'project_settings':
                 self._get_settings_from(node)     
 
@@ -292,25 +290,59 @@ class UrtextProject:
     def _check_file_for_duplicates(self, file_obj):
 
         duplicate_nodes = {}
-        for node_id in file_obj.nodes:
-            if self._is_duplicate_id(node_id, file_obj.filename):
-                resolved_id = file_obj.nodes[node_id].resolve_duplicate_id()
-                if resolved_id:
-                    file_obj.nodes[node_id].apply_title(resolved_id)
-                    file_obj.nodes[resolved_id] = file_obj.nodes[node_id]
-                    del file_obj.nodes[node_id]
-                    for index in file_obj.parsed_items:
-                        if file_obj.parsed_items[index] == node_id:
-                            file_obj.parsed_items[index] = resolved_id
-                else:
-                    duplicate_nodes[node_id] = file_obj.filename
         
-        file_should_be_dropped = False
+        # first resolve duplicates in file
+        file_node_ids = [n.id for n in file_obj.nodes]
+        for node in file_obj.nodes:
+            if file_node_ids.count(node.id) > 1:
+                resolved_new_id = node.resolve_duplicate_id()
+                if not resolved_new_id:
+                    duplicate_nodes[node.id] = file_obj.filename
+                    print('Cannot resolve duplicate ID %s' % node.id)
+                    continue
+                old_id = node.id
+                node.apply_title(resolved_new_id)
+                print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
+
+        for node in file_obj.nodes:
+            
+            duplicated_id = self._is_duplicate_id(node.id) # in project
+            if duplicated_id:
+                resolved_existing_id = None
+
+                if ' ^ ' not in duplicated_id:
+                    resolved_existing_id = self.nodes[duplicated_id].resolve_duplicate_id()
+                    if not resolved_existing_id:
+                        print('Cannot resolve duplicate ID %s' % node.id)
+                        continue
+                    self.nodes[duplicated_id].apply_title(resolved_existing_id)
+                    self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
+                    for ext in self.extensions:
+                        self.extensions[ext].on_node_title_changed(
+                            duplicated_id,
+                            resolved_existing_id)
+                    del self.nodes[duplicated_id]
+                    print('Existing ID %s was resolved to %s' % (duplicated_id, resolved_existing_id))
+
+                resolved_new_id = node.resolve_duplicate_id()
+                if not resolved_new_id:
+                    duplicate_nodes[node.id] = file_obj.filename
+                    print('Cannot resolve duplciate ID %s' % node.id)
+                    continue
+
+                if resolved_existing_id == resolved_new_id:
+                    print('Cannot resolve duplciate ID %s' % node.id)
+                    print('resolution was identical')
+                    continue           
+
+                old_id = node.id
+                node.apply_title(resolved_new_id)
+                print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
+        
         should_re_parse = False
 
         if duplicate_nodes:
             messages = []
-            
             self._log_item(file_obj.filename, 
                 'Duplicate node ID(s) found in ' + ''.join([
                     ''.join(['\n\t',
@@ -319,13 +351,12 @@ class UrtextProject:
                                 syntax.link_closing_wrapper,
                                 '\n(also in): ',
                                 syntax.file_link_opening_wrapper,
-                                self.nodes[n].filename,
+                                #self.nodes[n].filename,
                                 syntax.file_link_closing_wrapper,
                                 '\n'
                             ]) for n in duplicate_nodes]))
-            file_should_be_dropped = True
             
-        return file_should_be_dropped, should_re_parse
+        return should_re_parse
 
     def _target_id_defined(self, check_id):
         """ """
@@ -370,7 +401,9 @@ class UrtextProject:
         new_node.project = self
         self.nodes[new_node.id] = new_node  
         if self.compiled:
-            new_node.metadata.convert_node_links()     
+            new_node.metadata.convert_node_links()   
+        for ext in self.extensions:
+            self.extensions[ext].on_node_added(new_node)
         
     def get_source_node(self, filename, position):
         if filename not in self.files:
@@ -425,13 +458,13 @@ class UrtextProject:
                 for op in dd.operations:
                     op.on_file_removed(filename)
 
-            for node_id in self.files[filename].nodes:    
-                if node_id not in self.nodes:
+            for node in self.files[filename].nodes:    
+                if node.id not in self.nodes:
                     continue
-                self._remove_sub_tags(node_id)
-                self.remove_dynamic_defs(node_id)
-                self.remove_dynamic_metadata_entries(node_id)
-                del self.nodes[node_id]
+                self._remove_sub_tags(node.id)
+                self.remove_dynamic_defs(node.id)
+                self.remove_dynamic_metadata_entries(node.id)
+                del self.nodes[node.id]
             del self.files[filename]
 
         if filename in self.messages:
@@ -579,7 +612,7 @@ class UrtextProject:
         return new_node_contents, title, cursor_pos
 
     def add_compact_node(self,  
-            contents='', 
+            contents='',
             metadata={}):
             metadata_block = self.urtext_node.build_metadata(metadata, one_line=True)
             if metadata_block:
@@ -705,19 +738,10 @@ class UrtextProject:
 
     def get_node_id_from_position(self, filename, position):
         if filename in self.files:
-            for node_id in self.files[filename].nodes:
-                for r in self.files[filename].nodes[node_id].ranges:                   
+            for node in self.files[filename].nodes:
+                for r in node.ranges:                   
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                        return node_id
-        return None
-
-    def get_node_id_from_position_in_buffer(self, contents, position):
-        buffer = UrtextBuffer(self)
-        buffer.lex_and_parse(contents)
-        for node_id in buffer.nodes:
-            for r in buffer.nodes[node_id].ranges:
-                if position  >= r[0] and position < r[1]:
-                    return node_id
+                        return node.id
         return None
 
     def get_links_to(self, to_id):
@@ -831,10 +855,13 @@ class UrtextProject:
         if node_id in self.nodes:
             return self.nodes[node_id].contents()
             
-    def _is_duplicate_id(self, node_id, filename):
+    def _is_duplicate_id(self, node_id):
         """ private method to check if a node id is already in the project """
         if node_id in self.nodes:
-            return self.nodes[node_id].filename
+            return node_id
+        for nid in self.nodes:
+            if node_id == nid.split(' ^ ')[0]:
+                return nid
         return False
 
     def _log_item(self, filename, message):
@@ -1236,15 +1263,15 @@ class UrtextProject:
     def _compile_file(self, filename):
 
         modified = False
-        for node_id in self.files[filename].nodes:
-            for dd in self.dynamic_defs(target=node_id):
+        for node in self.files[filename].nodes:
+            for dd in self.dynamic_defs(target=node.id):
                 output = self._process_dynamic_def(dd)
                 if output: # omit 700 phase
                     if self._write_dynamic_def_output(dd, output):
                         modified = filename
             #TODO Refactor
             for dd in self.dynamic_defs():
-                if dd.target_file and dd.source_id == node_id:
+                if dd.target_file and dd.source_id == node.id:
                     output = self._process_dynamic_def(dd)
                     if output:
                         if self._write_dynamic_def_output(dd, output):

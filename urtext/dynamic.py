@@ -136,8 +136,7 @@ class UrtextDynamicDefinition:
 					if new_outcome != False:
 						outcome = new_outcome
 
-		
-		if self.target_id == self.source_id:
+		if self.target_id == self.source_id and self.returns_text:
 			outcome = outcome +  '\n' + ''.join([
 				syntax.dynamic_def_opening_wrapper,
 				self.contents,

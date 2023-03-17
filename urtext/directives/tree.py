@@ -47,6 +47,7 @@ class Tree(UrtextDirective):
                 start_point, 
                 style=ContStyle, 
                 maxlevel=self.depth):
+
             this_node.children = sorted(
                 this_node.children,
                 key=lambda n: self.project.nodes[n.name].start_position() if n.name in self.project.nodes else n.position)
@@ -57,8 +58,8 @@ class Tree(UrtextDirective):
                 this_node.children = []
                 continue
 
-            if not this_node.name in self.project.nodes:
-                if this_node.name[:5] == 'ALIA$' and this_node.name[5:] not in self.project.nodes:
+            if this_node.name[:5] == 'ALIA$':
+                if this_node.name[5:] not in self.project.nodes:
                     tree_render += "%s%s" % (
                         indented_pre, 
                         ''.join([
@@ -68,16 +69,20 @@ class Tree(UrtextDirective):
                             ' NOT IN PROJECT ',
                             syntax.urtext_message_closing_wrapper,
                             '\n']
-                            ))    
+                            ))
+                    continue
+                else:
+                    urtext_node = self.project.nodes[this_node.name[5:]]
+            else:
+
+                if this_node.name[:11] == '! RECURSION':
+                    tree_render += "%s%s" % (pre, this_node.name + '\n')    
+                    continue
+                    
+                if this_node.name not in self.project.nodes:
+                    tree_render += "%s | %s > <! not in project !>)\n" % (pre, this_node.name)    
                     continue
 
-            if this_node.name[:11] == '! RECURSION':
-                tree_render += "%s%s" % (pre, this_node.name + '\n')    
-                continue
-
-            if this_node.name[:5] == 'ALIA$':
-                urtext_node = self.project.nodes[this_node.name[5:]]
-            else:
                 urtext_node = self.project.nodes[this_node.name]
             
             next_content = DynamicOutput(self.dynamic_definition.show, self.project.settings)
