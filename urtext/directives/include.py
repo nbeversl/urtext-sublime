@@ -10,12 +10,12 @@ class NodeQuery(UrtextDirective):
 	phase = 100
 
 	def build_list(self, passed_nodes):
+
 		added_nodes = set([])
 		if self.have_flags('*'):
-			added_nodes = set([node_id for node_id in self.project.nodes])		
-		
-		added_nodes = added_nodes.union(
-			_build_group_and(
+			added_nodes = set([node_id for node_id in self.project.nodes])
+					
+		added_nodes = added_nodes.union(_build_group_and(
 				self.project, 
 				self.params, 
 				self.dynamic_definition,
@@ -28,6 +28,9 @@ class NodeQuery(UrtextDirective):
 		if self.have_flags('-untitled'): # ONLY IF blank
 			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
 		
+		if not self.have_flags('-include_dynamic'):		
+			added_nodes = [f for f in added_nodes if f in self.project.nodes and not self.project.nodes[f].dynamic]
+
 		passed_nodes = set(passed_nodes)
 		passed_nodes.discard(self.dynamic_definition.target_id)   
 		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
@@ -55,9 +58,9 @@ class Include(NodeQuery):
 def _build_group_and(
 	project, 
 	params, 
-	dd, 
+	dd,
 	include_dynamic=False):
-	
+
 	found_sets = []
 	new_group = set([])
 	for group in params:
@@ -76,9 +79,5 @@ def _build_group_and(
 	
 	for this_set in found_sets:
 		new_group = new_group.intersection(this_set)
-
-	if not include_dynamic:
-		new_group = [f for f in new_group if f in project.nodes and not project.nodes[f].dynamic]
 	
 	return new_group
-

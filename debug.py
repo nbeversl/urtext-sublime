@@ -16,7 +16,8 @@ class DebugCommand(sublime_plugin.TextCommand):
             return
         print('UNTITLED:')
         print(self._UrtextProjectList.current_project.nodes[node_id].untitled)
-
+        print('DYNAMIC:')
+        print(self._UrtextProjectList.current_project.nodes[node_id].dynamic)
         print('NODE ID')
         print(node_id)
         print('METADATA')
