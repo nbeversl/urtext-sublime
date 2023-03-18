@@ -91,7 +91,7 @@ class Interlinks(UrtextDirective):
     def render_tree(self):
         render = ''
         for pre, fill, node in RenderTree(self.backward_tree):          
-            render += ("%s%s" % (pre, self.project.nodes[node.name].get_title() +
+            render += ("%s%s" % (pre, self.project.nodes[node.name].title +
                              ' >' + node.name)) + '\n'
         render = render.replace('└', '┌')
         render = render.split('\n')
@@ -102,7 +102,7 @@ class Interlinks(UrtextDirective):
 
         render = ''
         for pre, fill, node in RenderTree(self.tree):
-            render += ("%s%s" % (pre, self.project.nodes[node.name].get_title() +
+            render += ("%s%s" % (pre, self.project.nodes[node.name].title +
                                  ' >' + node.name)) + '\n'
         render = render_upside_down + render
         render = render.split('\n')

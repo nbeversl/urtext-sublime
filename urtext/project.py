@@ -301,7 +301,7 @@ class UrtextProject:
                     print('Cannot resolve duplicate ID %s' % node.id)
                     continue
                 old_id = node.id
-                node.apply_title(resolved_new_id)
+                node.apply_id(resolved_new_id)
                 print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
 
         for node in file_obj.nodes:
@@ -315,7 +315,7 @@ class UrtextProject:
                     if not resolved_existing_id:
                         print('Cannot resolve duplicate ID %s' % node.id)
                         continue
-                    self.nodes[duplicated_id].apply_title(resolved_existing_id)
+                    self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
                     for ext in self.extensions:
                         self.extensions[ext].on_node_title_changed(
@@ -336,7 +336,7 @@ class UrtextProject:
                     continue           
 
                 old_id = node.id
-                node.apply_title(resolved_new_id)
+                node.apply_id(resolved_new_id)
                 print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
         
         should_re_parse = False
@@ -739,7 +739,7 @@ class UrtextProject:
     def get_node_id_from_position(self, filename, position):
         if filename in self.files:
             for node in self.files[filename].nodes:
-                for r in node.ranges:                   
+                for r in node.ranges:           
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                         return node.id
         return None
@@ -767,7 +767,7 @@ class UrtextProject:
             filename, 
             col_pos=col_pos,
             file_pos=file_pos)
-
+        
         if not link:
             return
                 
@@ -1106,7 +1106,14 @@ class UrtextProject:
         return filename
 
     def title_completions(self):
-        return [(self.nodes[n].get_title(), ''.join(['| ',self.nodes[n].get_title(),' >',self.nodes[n].id])) for n in list(self.nodes)]
+        return [
+            (self.nodes[n].id, 
+                ''.join(
+                    ['| ',
+                    self.nodes[n].id,
+                    ' >',
+                    self.nodes[n].id])) 
+            for n in list(self.nodes)]
 
     def get_first_value(self, node, keyname):
         value = node.metadata.get_first_value(keyname)

@@ -56,7 +56,8 @@ meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
 preformat =                             r'\`.*?\`'
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
-title_pattern =                         r'([^\|>\n\r])+'
+title_pattern =                         r'^([^\|\^>\n\r])+'
+id_pattern =                            r'([^\|>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 # Currently used for syntax highlighting only:
@@ -73,10 +74,10 @@ metadata_flags_c =                      re.compile(metadata_flags)
 compact_node =                          bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full =                  embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
-node_link =                             r'(\|\s)(' + title_pattern + ')\s>(?!>)'
-node_link_or_pointer =                  r'(\|\s)(' + title_pattern + ')\s>{1,2}(?!>)'
-node_pointer =                          r'(\|\s)(' + title_pattern + ')\s>>(?!>)'
-node_title =                            r'^'+ title_pattern +r'(?=\s_(\s|$))'
+node_link =                             r'(\|\s)(' + id_pattern + ')\s>(?!>)'
+node_link_or_pointer =                  r'(\|\s)(' + id_pattern + ')\s>{1,2}(?!>)'
+node_pointer =                          r'(\|\s)(' + id_pattern + ')\s>>(?!>)'
+node_title =                            r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 timestamp =                             r''.join([
                                             timestamp_opening_wrapper,
                                             r'([^-/<\s][^=<]+?)',

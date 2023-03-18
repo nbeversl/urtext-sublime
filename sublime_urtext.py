@@ -227,8 +227,8 @@ class UrtextCompletions(EventListener):
             if related_nodes:
                 for n in list(set(related_nodes)):
                     subl_completions.append([
-                        _UrtextProjectList.current_project.nodes[n].get_title(), 
-                        _UrtextProjectList.current_project.nodes[n].get_title()])
+                        _UrtextProjectList.current_project.nodes[n].id, 
+                        _UrtextProjectList.current_project.nodes[n].id])
                 return (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
         return []

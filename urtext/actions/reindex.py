@@ -46,7 +46,7 @@ class ReindexFiles(UrtextAction):
                     filename_length = int(self.project.settings['filename_title_length'])
                     if filename_length > 255:
                         filename_length = 255
-                    title = root_node.get_title()
+                    title = root_node.title
                     filename_template[i] = title[:filename_length]
                 
                 elif filename_template[i].lower() in self.project.settings['use_timestamp']:

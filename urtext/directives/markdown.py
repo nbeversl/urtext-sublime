@@ -30,7 +30,7 @@ class MarkdownExport(UrtextExport):
         return range_contents
         
     def wrap_title(self,node_id, nested):
-        title = self.project.nodes[node_id].get_title()      
+        title = self.project.nodes[node_id].title      
         return '\n\n' + '#' * nested + ' ' + title.strip()
 
 def strip_leading_space(text):

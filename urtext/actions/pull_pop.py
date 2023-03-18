@@ -61,7 +61,7 @@ class PopNode(UrtextAction):
                 self.project.settings['breadcrumb_key'],
                 syntax.metadata_assignment_operator,
                 syntax.link_opening_wrapper,
-                self.project.nodes[parent_id].get_title(),
+                self.project.nodes[parent_id].id,
                 syntax.link_closing_wrapper,
                 ' ',
                 self.project.timestamp().wrapped_string]);
@@ -70,7 +70,7 @@ class PopNode(UrtextAction):
             file_contents[0:start - 1],
             '\n',
             syntax.link_opening_wrapper,
-            self.project.nodes[popped_node_id].get_title(),
+            self.project.nodes[popped_node_id].id,
             syntax.pointer_closing_wrapper,
             file_contents[end + 1:]
             ])

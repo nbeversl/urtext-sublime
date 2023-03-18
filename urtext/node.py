@@ -62,7 +62,8 @@ class UrtextNode:
         self.compact = compact
         self.dynamic_definitions = []
         self.target_nodes = []
-        self.blank = False
+        self.untitled = False
+        self.title_only = False
         self.title = ''
         self.display_meta = ''
         self.parent = None
@@ -79,22 +80,20 @@ class UrtextNode:
 
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
-        if not contents:
-            self.blank = True 
     
-        self.title = self.set_title(contents)  
+        self.title = self.set_title(contents)
+        if not contents.strip().replace(self.title,'').strip(' _'):
+            self.title_only = True
         self.content_only_text = contents
-        self.apply_title(self.title)
+        self.apply_id(self.title)
         self.get_links(contents=contents)
 
-    def apply_title(self, title):
-        self.id = title
-        self.title = title
-        self.metadata.add_entry('title', title)
+    def apply_id(self, new_id):
+        self.id = new_id
         for d in self.dynamic_definitions:
-            d.source_id = title
+            d.source_id = new_id
         for entry in self.metadata.dynamic_entries:
-            entry.from_node = title
+            entry.from_node = new_id
 
     def start_position(self):
         if self.root_node:
@@ -158,16 +157,6 @@ class UrtextNode:
             if resolved_id not in self.project.nodes:
                 return resolved_id
 
-    def get_title(self):
-        if not self.title:
-            if self.metadata.get_entries('_oldest_timestamp'):
-                self.title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
-                self.metadata.add_entry('title', self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string)
-                return self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
-            return '(untitled)'
-        if self.project:
-            return self.title
-
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
         if contents == '':
@@ -212,25 +201,24 @@ class UrtextNode:
         contents_lines = contents.strip().split('\n')       
         for line in contents_lines:
             first_non_blank_line = line.strip()
-            if first_non_blank_line:
+            if first_non_blank_line and first_non_blank_line != '_':
                 break
 
         title = syntax.node_title_c.search(contents)
-        if title:            
+        if title:
             title = title.group().strip()
+            title = title.strip(syntax.title_marker).strip()
+        if title:
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-            title = title.strip(syntax.title_marker).strip()      
         else:
             if first_non_blank_line:
                 title = first_non_blank_line.strip()
                 self.first_line_title = True
-            elif self.metadata.get_entries('_oldest_timestamp'):
-                title = self.metadata.get_entries('_oldest_timestamp')[0].timestamps[0].unwrapped_string
             else:
                 title = '(untitled)'
-
+                self.untitled = True
         if len(title) > 255:
             title = title[:255]
         title = sanitize_escape(title)

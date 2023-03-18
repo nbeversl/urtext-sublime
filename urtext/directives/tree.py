@@ -159,7 +159,7 @@ class Tree(UrtextDirective):
                 if leaf.name not in ancestors:
                     alias_nodes.append(leaf)
                 else:
-                    leaf.name = '! RECURSION - (from pointer) : '+ self.project.nodes[leaf.name].get_title() + ' >'+leaf.name
+                    leaf.name = '! RECURSION - (from pointer) : '+ self.project.nodes[leaf.name].id + ' >'+leaf.name
 
         return alias_nodes
 
@@ -189,7 +189,7 @@ class Tree(UrtextDirective):
                         new_node.position = node.position
                         new_node.parent = new_root            
                 else:
-                    new_node = Node('! RECURSION (from tree duplication) : '+ self.project.nodes[node_id].get_title() + ' >'+node_id)
+                    new_node = Node('! RECURSION (from tree duplication) : '+ self.project.nodes[node_id].id + ' >'+node_id)
                     new_node.parent = new_root
                     new_node.position = node.position
                     

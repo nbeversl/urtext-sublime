@@ -1,5 +1,4 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
 else:
@@ -11,29 +10,28 @@ class NodeQuery(UrtextDirective):
 	phase = 100
 
 	def build_list(self, passed_nodes):
+		added_nodes = set([])
 		if self.have_flags('*'):
-			if self.have_flags('-include_dynamic'):
-				added_nodes = set([node_id for node_id in self.project.nodes])
-			else:
-				added_nodes = set([node_id for node_id in self.project.nodes if not self.project.nodes[node_id].dynamic])
-	
-		else: 
-			added_nodes = set([])
-			if self.have_flags('-blank'):
-				added_nodes = set([node_id for node_id in self.project.nodes if self.project.nodes[node_id].blank])
-			
-			added_nodes = added_nodes.union(
-				_build_group_and(
-					self.project, 
-					self.params, 
-					self.dynamic_definition,
-					include_dynamic=self.have_flags('-include_dynamic'))
-				)
+			added_nodes = set([node_id for node_id in self.project.nodes])		
+		
+		added_nodes = added_nodes.union(
+			_build_group_and(
+				self.project, 
+				self.params, 
+				self.dynamic_definition,
+				include_dynamic=self.have_flags('-include_dynamic'))
+			)
+
+		if self.have_flags('-title_only'): # ONLY IF blank
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
+
+		if self.have_flags('-untitled'): # ONLY IF blank
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
 		
 		passed_nodes = set(passed_nodes)
-		passed_nodes.discard(self.dynamic_definition.target_id)           
+		passed_nodes.discard(self.dynamic_definition.target_id)   
 		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
-		return list(self.dynamic_definition.included_nodes)
+		return self.dynamic_definition.included_nodes
 
 	def dynamic_output(self, nodes):
 		return self.build_list(nodes)
@@ -47,7 +45,6 @@ class Exclude(NodeQuery):
 		excluded_nodes = set(self.build_list([]))
 		if self.have_flags('-including_descendants'):
 			self.dynamic_definition.excluded_nodes = list(excluded_nodes)
-			print(excluded_nodes)
 		return list(set(nodes) - excluded_nodes)
 
 class Include(NodeQuery):

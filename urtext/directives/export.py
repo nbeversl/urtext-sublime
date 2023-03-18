@@ -98,7 +98,7 @@ class UrtextExport(UrtextDirective):
         ranges = self.project.nodes[root_node_id].ranges
         filename = self.project.nodes[root_node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
-        title = self.project.nodes[root_node_id].get_title()
+        title = self.project.nodes[root_node_id].title
 
         if root_node_id in exclude or root_node_id in visited_nodes:
             return '\n' + added_contents, points, visited_nodes
@@ -326,7 +326,7 @@ class UrtextExport(UrtextDirective):
                 contents = contents.replace(match.group(), '[ MISSING LINK : '+node_id+' ] ')
                 continue
 
-            title = self.project.nodes[node_id].get_title()
+            title = self.project.nodes[node_id].title
             contents = self.replace_link(contents, title)                                    
         
         return contents
@@ -359,7 +359,7 @@ class UrtextExport(UrtextDirective):
         return ''
 
     def wrap_title(self, node_id, nested):        
-        title = self.project.nodes[node_id].get_title()
+        title = self.project.nodes[node_id].title
         return '\n' + '\t' * nested + title
 
 def preformat_embedded_syntaxes(text):

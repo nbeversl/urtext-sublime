@@ -65,6 +65,7 @@ class ProjectList():
         link = project_link_r.search(string)
         project_name = link.group(2)
         node_id = link.group(4)
+
         """ If a project name has been specified, locate the project and node """
         if project_name:
             if not self.set_current_project(project_name):
@@ -140,8 +141,7 @@ class ProjectList():
             else:
                 project = self.get_project(project_title)
             if node_id in project.nodes:
-                node_title = project.nodes[node_id].get_title()
-                link = syntax.link_opening_wrapper + node_title + syntax.link_closing_wrapper
+                link = syntax.link_opening_wrapper + node_id + syntax.link_closing_wrapper
                 if pointer:
                     link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
                 if include_project or project != self.current_project:
@@ -241,7 +241,7 @@ class ProjectList():
         title_list = {}
         for project in self.projects:
             for node_id in project.nodes:
-                title_list[project.nodes[node_id].get_title()] = (project.settings['project_title'], node_id)
+                title_list[project.nodes[node_id].title] = (project.settings['project_title'], node_id)
         return title_list
 
     def is_in_export(self, filename, position):

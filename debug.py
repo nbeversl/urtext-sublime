@@ -14,6 +14,8 @@ class DebugCommand(sublime_plugin.TextCommand):
         if not node_id:
             print('No Node found here')
             return
+        print('UNTITLED:')
+        print(self._UrtextProjectList.current_project.nodes[node_id].untitled)
 
         print('NODE ID')
         print(node_id)
