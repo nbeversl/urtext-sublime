@@ -1258,32 +1258,35 @@ class UrtextProject:
     def _compile(self):
     
         self._add_all_sub_tags()
-        for dynamic_definition in self.dynamic_defs():
-            if dynamic_definition.target_id in self.nodes:
-                self.nodes[dynamic_definition.target_id].dynamic = True
-
         for file in self.files:
             self._compile_file(file)
-
         self._add_all_sub_tags()
 
     def _compile_file(self, filename):
 
-        modified = False
+        modified_files = []
+        dynamic_nodes = []
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id):
                 output = self._process_dynamic_def(dd)
                 if output: # omit 700 phase
-                    if self._write_dynamic_def_output(dd, output):
-                        modified = filename
+                    modified_file = self._write_dynamic_def_output(dd, output)
+                    dynamic_nodes.append(dd.target_id)
+                    if modified_file:
+                        modified_files.append(modified_file)
             #TODO Refactor
             for dd in self.dynamic_defs():
                 if dd.target_file and dd.source_id == node.id:
                     output = self._process_dynamic_def(dd)
                     if output:
-                        if self._write_dynamic_def_output(dd, output):
-                            modified = filename                    
-        return modified
+                        modified_file = self._write_dynamic_def_output(dd, output)
+                        if modified_file:
+                            modified_files.append(modified_file)
+
+        for target_id in dynamic_nodes:
+            self.nodes[target_id].dynamic = True
+
+        return modified_files
 
     def _process_dynamic_def(self, dynamic_definition):
                 
@@ -1317,11 +1320,11 @@ class UrtextProject:
     def _write_dynamic_def_output(self, dynamic_definition, final_output):
 
         changed_file = None
+        dynamic_nodes = []
         if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
             changed_file = self._set_node_contents(dynamic_definition.target_id, final_output) 
+            dynamic_nodes.append(dynamic_definition.target_id)
             if changed_file:
-                self.nodes[dynamic_definition.target_id].dynamic = True
-
                 # Dynamic nodes have blank title by default. Title can be set by header or title key.
                 if not self.nodes[dynamic_definition.target_id].metadata.get_first_value('title'):
                     self.nodes[dynamic_definition.target_id].title = ''
