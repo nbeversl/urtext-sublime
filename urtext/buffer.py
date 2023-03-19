@@ -58,7 +58,8 @@ class UrtextBuffer:
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
-
+                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
+        
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
@@ -102,7 +103,7 @@ class UrtextBuffer:
                 nested_levels[nested].append([last_position, position])
                 
                 compact_symbols = self.lex(
-                    symbols[position]['full_match'], 
+                    symbols[position]['contents'], 
                     start_position=position)
 
                 nested_levels, child_group, nested = self.parse(
