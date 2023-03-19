@@ -15,6 +15,7 @@ class UrtextAnyTree(UrtextExtension):
     def on_file_modified(self, filename):
         """ Build anytree elements """
         for node in self.project.files[filename].nodes:
+
             for pointer in node.pointers:
                 alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
                 alias_node.position = pointer['position']

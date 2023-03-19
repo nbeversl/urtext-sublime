@@ -109,7 +109,7 @@ class UrtextProject:
         elif os.path.exists(self.entry_point):
             self.entry_path = os.path.dirname(self.entry_point)            
             self._parse_file(self.entry_point)    
-        
+
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
@@ -120,7 +120,10 @@ class UrtextProject:
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()
             self.nodes[node_id].metadata.convert_node_links()
-   
+
+        self._mark_dynamic_nodes()
+        
+        self._compile() ## TODO fix
         if len(self.extensions) > 0 or len(self.actions) > 0 or len(self.directives) > 0:
             self._collect_extensions_directives_actions()
             self._compile()
@@ -405,7 +408,7 @@ class UrtextProject:
         for ext in self.extensions:
             self.extensions[ext].on_node_added(new_node)
         
-    def get_source_node(self, filename, position):
+    def get_source_node(self, filename, position): # future
         if filename not in self.files:
             return None, None
         exported_node_id = self.get_node_id_from_position(filename, position)
@@ -435,7 +438,7 @@ class UrtextProject:
                     return self.nodes[node_id].filename
         return False
 
-    def _adjust_ranges(self, filename, from_position, amount):
+    def _adjust_ranges(self, filename, from_position, amount): # future
         """ 
         adjust the ranges of all nodes in the given file 
         a given amount, from a given position
@@ -447,6 +450,11 @@ class UrtextProject:
                 if from_position >= this_range[0]:
                     self.nodes[node_id].ranges[index][0] -= amount
                     self.nodes[node_id].ranges[index][1] -= amount
+
+    def _mark_dynamic_nodes(self):
+        for dd in self.dynamic_defs():
+            if dd.target_id and dd.target_id in self.nodes:
+                self.nodes[dd.target_id].dynamic = True
 
     """
     Removing and renaming files
@@ -476,7 +484,7 @@ class UrtextProject:
     def _delete_file(self, filename, open_files=[]):
         """
         Deletes a file, removes it from the project,
-        and returns a future of modified files.
+        and returns modified files.
         """
         if filename in self.files:
             for node_id in list(self.files[filename].nodes):
@@ -540,7 +548,8 @@ class UrtextProject:
             f.write(contents)  
         self._parse_file(filename)
 
-        #TODO refactor so that UrtextFile rememebrs these as UrtextNodes, not titles
+        # TODO refactor so that UrtextFile rememebrs these as UrtextNodes, 
+        # not titles
         title = self.files[filename].root_node
 
         return { 
@@ -742,11 +751,10 @@ class UrtextProject:
                 for r in node.ranges:           
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                         return node.id
-        return None
 
     def get_links_to(self, to_id):
         return [i for i in self.nodes if to_id in self.nodes[i].links]
-       
+
     def get_links_from(self, from_id):
         if from_id in self.nodes:
             return self.nodes[from_id].links

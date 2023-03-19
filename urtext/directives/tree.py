@@ -31,17 +31,15 @@ class Tree(UrtextDirective):
         
         start_point = start_point.tree_node
 
-        alias_nodes = self._has_aliases(start_point)
-        while alias_nodes:  
-            for leaf in alias_nodes:
-                if leaf.name[:5] == 'ALIA$':
-                    node_id = leaf.name[5:]
-                    new_tree = self.duplicate_tree(self.project.nodes[node_id].tree_node, leaf)            
-                    leaf.children = new_tree.children
-            alias_nodes = self._has_aliases(start_point)
+        # alias_nodes = self._has_pointers(start_point)
+        # while alias_nodes:  
+        #     for leaf in alias_nodes:
+        #         new_tree = self.duplicate_tree(self.project.nodes[leaf.name].tree_node, leaf)            
+        #         leaf.children = new_tree.children
+        #     alias_nodes = self._has_pointers(start_point)
      
         tree_render = ''
-                
+
         level = 0
         for pre, _, this_node in RenderTree(
                 start_point, 
@@ -148,14 +146,13 @@ class Tree(UrtextDirective):
 
         return False
 
-    def _has_aliases(self, start_point):
+    def _has_pointers(self, start_point):
         
         alias_nodes = []
-        leaves = start_point.leaves  
 
-        for leaf in leaves:
+        for leaf in start_point.leaves:
             ancestors = [a.name for a in leaf.ancestors]
-            if 'ALIA$' in leaf.name and leaf.name[5:] in self.project.nodes and self.project.nodes[leaf.name[5:]].tree_node.children:
+            if leaf.name in self.project.nodes and self.project.nodes[leaf.name].tree_node.children:
                 if leaf.name not in ancestors:
                     alias_nodes.append(leaf)
                 else:
