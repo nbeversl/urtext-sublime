@@ -305,7 +305,7 @@ class UrtextProject:
                     continue
                 old_id = node.id
                 node.apply_id(resolved_new_id)
-                print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
+                #print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
 
         for node in file_obj.nodes:
             
@@ -316,7 +316,7 @@ class UrtextProject:
                 if ' ^ ' not in duplicated_id:
                     resolved_existing_id = self.nodes[duplicated_id].resolve_duplicate_id()
                     if not resolved_existing_id:
-                        print('Cannot resolve duplicate ID %s' % node.id)
+                        #print('Cannot resolve duplicate ID %s' % node.id)
                         continue
                     self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
@@ -325,22 +325,22 @@ class UrtextProject:
                             duplicated_id,
                             resolved_existing_id)
                     del self.nodes[duplicated_id]
-                    print('Existing ID %s was resolved to %s' % (duplicated_id, resolved_existing_id))
+                    #print('Existing ID %s was resolved to %s' % (duplicated_id, resolved_existing_id))
 
                 resolved_new_id = node.resolve_duplicate_id()
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
-                    print('Cannot resolve duplciate ID %s' % node.id)
+                    #print('Cannot resolve duplciate ID %s' % node.id)
                     continue
 
                 if resolved_existing_id == resolved_new_id:
-                    print('Cannot resolve duplciate ID %s' % node.id)
-                    print('resolution was identical')
+                    # print('Cannot resolve duplciate ID %s' % node.id)
+                    # print('resolution was identical')
                     continue           
 
                 old_id = node.id
                 node.apply_id(resolved_new_id)
-                print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
+                #print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
         
         should_re_parse = False
 
@@ -1266,7 +1266,7 @@ class UrtextProject:
     def _compile(self):
     
         self._add_all_sub_tags()
-        for file in self.files:
+        for file in list(self.files):
             self._compile_file(file)
         self._add_all_sub_tags()
 
