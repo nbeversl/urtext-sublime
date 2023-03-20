@@ -63,7 +63,6 @@ class UrtextDynamicDefinition:
 	def init_self(self, contents):
 
 		self.operations = []
-
 		self.contents = contents
 
 		for match in syntax.function_c.findall(contents):
@@ -71,6 +70,7 @@ class UrtextDynamicDefinition:
 			func, argument_string = match[0], match[1]
 			if func and func in self.project.directives:
 				op = self.project.directives[func](self.project)
+				op.argument_string = argument_string
 				op.set_dynamic_definition(self)
 				op.parse_argument_string(argument_string)	
 				self.operations.append(op)
