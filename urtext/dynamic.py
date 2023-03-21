@@ -20,11 +20,11 @@ import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	from .directive import UrtextDirective
-	from .utils import force_list
+	from .utils import force_list, get_id_from_link
 	import Urtext.urtext.syntax as syntax
 else:
 	from urtext.directive import UrtextDirective
-	from urtext.utils import force_list
+	from urtext.utils import force_list, get_id_from_link
 	import urtext.syntax as syntax
 
 phases = [
@@ -68,7 +68,7 @@ class UrtextDynamicDefinition:
 		for match in syntax.function_c.findall(contents):
 
 			func, argument_string = match[0], match[1]
-			if func and func in self.project.directives:
+			if func and func in self.project.directives:	
 				op = self.project.directives[func](self.project)
 				op.argument_string = argument_string
 				op.set_dynamic_definition(self)
@@ -76,9 +76,7 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func in ['TARGET', '>']:
-				self.target_id = argument_string.strip(
-					syntax.link_closing_wrapper).strip(
-					syntax.link_opening_wrapper).strip()
+				self.target_id = get_id_from_link(argument_string)
 				continue
 
 			if func == 'FILE':
@@ -149,4 +147,4 @@ def has_text_output(operations):
 	for op in operations:
 		if 300 <= op.phase < 400:
 			return True
-	return False 
+	return False

@@ -7,10 +7,12 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
 	from Urtext.urtext.directive import UrtextDirective
 	from Urtext.urtext.action import UrtextAction
 	from Urtext.urtext.extension import UrtextExtension
+	from Urtext.urtext.utils import force_list, get_id_from_link
 else:
 	from urtext.directive import UrtextDirective
 	from urtext.action import UrtextAction
 	from urtext.extension import UrtextExtension
+	from urtext.utils import force_list, get_id_from_link
 
 python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
 
@@ -20,8 +22,9 @@ class Exec(UrtextDirective):
 	phase = 350
 
 	def dynamic_output(self, input_contents):
-		if self.argument_string in self.project.nodes:
-			contents = self.project.nodes[self.argument_string].contents(
+		node_to_exec = get_id_from_link(self.argument_string)
+		if node_to_exec in self.project.nodes:
+			contents = self.project.nodes[node_to_exec].contents(
 				do_strip_embedded_syntaxes=False)
 			python_embed = python_code_regex.search(contents)
 			if python_embed:
@@ -45,4 +48,3 @@ class Exec(UrtextDirective):
 					return str(e)
 
 		return '(no Python code found)'
-

@@ -14,7 +14,7 @@ class NodeQuery(UrtextDirective):
 		added_nodes = set([])
 		if self.have_flags('*'):
 			added_nodes = set([node_id for node_id in self.project.nodes])
-					
+		
 		added_nodes = added_nodes.union(_build_group_and(
 				self.project, 
 				self.params, 
@@ -34,6 +34,7 @@ class NodeQuery(UrtextDirective):
 		passed_nodes = set(passed_nodes)
 		passed_nodes.discard(self.dynamic_definition.target_id)   
 		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
+
 		return self.dynamic_definition.included_nodes
 
 	def dynamic_output(self, nodes):
