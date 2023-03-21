@@ -52,7 +52,7 @@ class PopNode(UrtextAction):
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
-        popped_node_contents = file_contents[start + 1:end].strip()  # omit opening bracket
+        popped_node_contents = file_contents[start:end].strip()
         parent_id = self.project.nodes[node_id].parent.id
         
         if self.project.settings['breadcrumb_key']:
@@ -67,7 +67,7 @@ class PopNode(UrtextAction):
                 self.project.timestamp().wrapped_string]);
 
         remaining_node_contents = ''.join([
-            file_contents[0:start - 1],
+            file_contents[:start - 1],
             '\n',
             syntax.link_opening_wrapper,
             self.project.nodes[popped_node_id].id,
