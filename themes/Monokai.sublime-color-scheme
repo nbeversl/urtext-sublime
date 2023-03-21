@@ -7,19 +7,21 @@
 				 
 		 // main syntax
 
-	 		 // metadata
-			 "meta-key" : "var(blue-grey)",
-			 "value-separator" : "var(grey)",
-			 "meta-value" : "var(blue-brighter)",
-			 "meta-separator" : "var(grey)",
+ 		 // metadata
+		 "meta-key" : "var(blue-grey)",
+		 "value-separator" : "var(grey)",
+		 "meta-value" : "var(blue-brighter)",
+		 "meta-separator" : "var(grey)",
+		 "plus-sign" : "var(blue-brighter)",
+		 "asterisk" : "var(yellow)",
 
-			 // Links
-			 "link": "var(bright-green)",
-			 "other-project-link" : "var(reg-text-white)",
-			 "file-link" : "var(blue-grey)",
-			 "link-title" : "var(reg-text-white)",
-			 "datestamp" : "var(blue-brighter)",
-			 "link-prefix" : "var(reg-text-white)",
+		 // Links
+		 "link": "var(bright-green)",
+		 "other-project-link" : "var(reg-text-white)",
+		 "file-link" : "var(blue-grey)",
+		 "link-title" : "var(reg-text-white)",
+		 "datestamp" : "var(blue-brighter)",
+		 "link-prefix" : "var(reg-text-white)",
 
 		 // wrappers
 		 "wrapper1" : "var(dark1)",
@@ -123,6 +125,12 @@
 	        { 
 		        "scope" : "meta_separator.urtext",
 	  			"foreground": "var(meta-separator)",
+	        },
+	        {	"scope" : "tag_self.urtext",
+	  			"foreground": "var(plus-sign)",
+	        },
+	        {	"scope" : "tag_descendants.urtext",
+	  			"foreground": "var(asterisk)",
 	        },
 
 

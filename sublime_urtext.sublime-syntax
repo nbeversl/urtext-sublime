@@ -33,8 +33,11 @@ contexts:
         3: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
 
-    - match: \w+?(?=::)
-      scope: meta_key.urtext
+    - match: (\+)?(\*{1,2})?(\w+?)(?=::)
+      captures:
+        1: tag_self.urtext
+        2: tag_descendants.urtext
+        3: meta_key.urtext
       push: metadata-entry
 
     - match: ^\s*(•|-)
