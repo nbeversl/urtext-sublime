@@ -205,7 +205,6 @@ class UrtextCompletions(EventListener):
         
         if not _UrtextProjectList or not _UrtextProjectList.current_project:
             return
-
         current_path = os.path.dirname(view.file_name())
         if _UrtextProjectList.get_project(current_path):
             subl_completions = []
@@ -236,51 +235,6 @@ class UrtextCompletions(EventListener):
     def on_hover(self, view, point, hover_zone):
         
         if _UrtextProjectList:
-
-            #TODO refactor
-            region = view.line(point)
-            file_pos = region.a
-            full_line_region = view.full_line(region)
-            full_line = view.substr(full_line_region) 
-            link = _UrtextProjectList.get_link_and_set_project(full_line, view.file_name())
-            
-            if link and 'node_id' in link:
-                node_id = link['node_id']
-                if node_id not in _UrtextProjectList.current_project.nodes:
-                    return
-                filename = _UrtextProjectList.current_project.nodes[node_id].filename
-                scratch_view = view.window().open_file(
-                    filename,
-                    flags=sublime.TRANSIENT + sublime.FORCE_CLONE)
-                view.window().focus_view(view)
-
-                def show_preview(current_view, scratch_view):
-                    if not scratch_view.is_loading():   
-                        contents = scratch_view.export_to_html(
-                        sublime.Region(
-                               _UrtextProjectList.current_project.nodes[node_id].start_position(),                                
-                               _UrtextProjectList.current_project.nodes[node_id].end_position(),
-                            ),
-                        minihtml=True)
-                        scratch_view.close()
-                        
-                        def open_node_from_this_view(node_id):
-                            open_urtext_node(current_view, node_id)
-                            current_view.hide_popup()
-
-                        contents += '<div><a href="%s">open</a></div>' % node_id.replace('"',"''")
-
-                        current_view.show_popup(contents,
-                            max_width=800, 
-                            max_height=512, 
-                            location=file_pos,
-                            on_navigate=open_node_from_this_view)
-
-                    else:
-                        sublime.set_timeout(lambda: show_preview(current_view, scratch_view), 10) 
-
-                return show_preview(view, scratch_view)
-
             region = sublime.Region(point, point)
             if view.is_folded(region):
                 for r in view.folded_regions():
