@@ -40,6 +40,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.directives     
     import Urtext.urtext.actions
     import Urtext.urtext.extensions
+    from Urtext.urtext.utils import get_id_from_link
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -54,6 +55,8 @@ else:
     import urtext.directives     
     import urtext.actions
     import urtext.extensions
+    from urtext.utils import get_id_from_link
+
 
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
@@ -819,7 +822,7 @@ class UrtextProject:
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
             full_match = link.group().strip()
-            link = link.group(2).strip()
+            link = get_id_from_link(full_match)
             if link in self.nodes:
                 result = link
             else:
