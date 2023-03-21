@@ -31,12 +31,14 @@ class Tree(UrtextDirective):
         
         start_point = start_point.tree_node
 
-        # alias_nodes = self._has_pointers(start_point)
-        # while alias_nodes:  
-        #     for leaf in alias_nodes:
-        #         new_tree = self.duplicate_tree(self.project.nodes[leaf.name].tree_node, leaf)            
-        #         leaf.children = new_tree.children
-        #     alias_nodes = self._has_pointers(start_point)
+        pointers = self._has_pointers(start_point)
+        while pointers:  
+            for leaf in pointers:
+                if leaf.name[:5] == 'ALIA$':
+                    node_id = leaf.name[5:]
+                    new_tree = self.duplicate_tree(self.project.nodes[node_id].tree_node, leaf)            
+                    leaf.children = new_tree.children
+            pointers = self._has_pointers(start_point)
      
         tree_render = ''
 
@@ -148,17 +150,17 @@ class Tree(UrtextDirective):
 
     def _has_pointers(self, start_point):
         
-        alias_nodes = []
-
+        pointers = []
         for leaf in start_point.leaves:
             ancestors = [a.name for a in leaf.ancestors]
-            if leaf.name in self.project.nodes and self.project.nodes[leaf.name].tree_node.children:
-                if leaf.name not in ancestors:
-                    alias_nodes.append(leaf)
-                else:
-                    leaf.name = '! RECURSION - (from pointer) : '+ self.project.nodes[leaf.name].id + ' >'+leaf.name
-
-        return alias_nodes
+            if 'ALIA$' in leaf.name:
+                pointer_id = leaf.name[5:]
+                if pointer_id in self.project.nodes and self.project.nodes[pointer_id].tree_node.children:
+                    if leaf.name not in ancestors:
+                        pointers.append(leaf)
+                    else:
+                        leaf.name = '! RECURSION - (from pointer) : '+ pointer_id + ' >'+leaf.name
+        return pointers
 
     def duplicate_tree(self, original_node, leaf):
 
@@ -186,7 +188,7 @@ class Tree(UrtextDirective):
                         new_node.position = node.position
                         new_node.parent = new_root            
                 else:
-                    new_node = Node('! RECURSION (from tree duplication) : '+ self.project.nodes[node_id].id + ' >'+node_id)
+                    new_node = Node('! RECURSION (from tree duplication) : '+ node_id + ' >')
                     new_node.parent = new_root
                     new_node.position = node.position
                     
