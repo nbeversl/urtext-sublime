@@ -148,7 +148,6 @@ class UrtextProject:
                 offset_position -= range_length
             file_position = r[0] + offset_position
             return file_position
-        return None
 
     def _parse_file(self, filename):
     
@@ -168,29 +167,14 @@ class UrtextProject:
 
         self.messages[new_file.filename] = new_file.messages
 
-        if self._check_file_for_duplicates(new_file):
-            return self._parse_file(filename)
+        changed_ids = self._check_file_for_duplicates(new_file)
 
-        if old_node_ids: # (if the file was already in the project)
+        if old_node_ids:
             new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
-
-            added_ids = []
-            for node_id in new_node_ids:
-                if node_id not in old_node_ids:
-                    added_ids.append(node_id)
-
-            removed_ids = []
-            for node_id in old_node_ids:
-                if node_id not in new_node_ids:
-                    removed_ids.append(node_id)
-
-            changed_ids = {}
-            
             if len(old_node_ids) == len(new_node_ids):
                 for index in range(0, len(old_node_ids)): # existing links are all we care about
                     if old_node_ids[index] == new_node_ids[index]:
-                        # the id stayed the same
-                        continue
+                        continue # id stayed the same
                     else:
                         if new_node_ids[index] in old_node_ids:
                             # proably only the order changed.
@@ -198,19 +182,14 @@ class UrtextProject:
                             continue
                         else:
                             # check each new id for similarity to the old one
-                            if len(added_ids) == 1:
-                                # only one node id changed. simple.
-                                changed_ids[old_node_ids[index]] = added_ids[0]
-                            else:
-                                # try to map old to new. This is the hard part
-                                pass
-            if self.compiled:
-                self._rewrite_changed_links(changed_ids)
-
+                            changed_ids[old_node_ids[index]] = new_node_ids[index]
+                            # else:
+                            # try to map old to new. This is the hard part
+        
         self.files[new_file.filename] = new_file  
         for node in new_file.nodes:
             self._add_node(node)
-        
+
         for node in new_file.nodes:
             if node.parent:
                 node.parent.children.append(node)
@@ -241,8 +220,43 @@ class UrtextProject:
                 entry.from_node = node.id
                 self._add_sub_tags(entry)
                 self.dynamic_metadata_entries.append(entry)
-        
+
+        if self.compiled and changed_ids:
+            self._rewrite_changed_links(changed_ids)
+
         return new_file.messages
+
+    def _verify_links_globally(self):
+        links = self.get_all_links()
+        for filename in links:
+            self._reverify_links(filename)
+
+    def _reverify_links(self, filename):
+        
+        links = []
+        for node in self.files[filename].nodes:
+            links.extend(node.links)
+        
+        rewrites = {}
+        for link in links:
+            node_id = get_id_from_link(link)
+            if node_id not in self.nodes:
+                id_only = node_id.split(' ^ ')[0]
+                if id_only not in self.nodes and link not in rewrites:
+                    rewrites[link] = '|? ' + id_only + ' >'
+                elif link not in rewrites:
+                    rewrites[link] = '| ' + id_only + ' >'
+            elif '|? ' in link:
+                rewrites[link] = '| ' + node_id + ' >'
+
+        if rewrites:
+            contents = self.files[filename]._get_file_contents()
+            for old_link in rewrites:
+                new_link = rewrites[old_link]
+                contents = contents.replace(old_link, new_link)
+            self.files[filename]._set_file_contents(contents)
+            if self.compiled:
+                self._parse_file(filename)
 
     def _collect_extensions_directives_actions(self):
         
@@ -268,91 +282,83 @@ class UrtextProject:
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
             self._add_sub_tags(entry)
-        
-    def _rewrite_changed_links(self, changed_ids):
 
-        old_ids = list(changed_ids.keys())
-        nodes = list(self.nodes)
-        for node_id in list(nodes):
-            if node_id in self.nodes:
-                changed_links = {}
-                for link in self.nodes[node_id].links:
-                    for old_id in old_ids:
-                        if old_id.startswith(link):
-                            changed_links[link] = changed_ids[old_id]
-                if changed_links:
-                    filename = self.nodes[node_id].filename
-                    contents = self.files[filename]._get_file_contents()
-                    replaced_contents = contents
-                    for node_id in list(changed_ids.keys()):
-                        if make_link(node_id) in contents:
-                             replaced_contents = replaced_contents.replace(
-                                make_link(node_id), 
-                                make_link(changed_ids[node_id]))
-                    if replaced_contents != contents:
-                        self.files[filename]._set_file_contents(replaced_contents)
-                        self._parse_file(filename)
+    def _rewrite_changed_links(self, changed_ids):
+        for old_id in list(changed_ids.keys()):
+            new_id = changed_ids[old_id]
+            if new_id in self.nodes:
+                for project_node in self.nodes:
+                    links_to_change = {}
+                    for link in self.nodes[project_node].links:
+                        link = get_id_from_link(link)
+                        if link == old_id:
+                            links_to_change[link] = new_id
+                    if links_to_change:
+                        filename = self.nodes[project_node].filename
+                        contents = self.files[filename]._get_file_contents()
+                        for node_id in list(links_to_change.keys()):
+                            replaced_contents = contents
+                            node_id_regex = re.escape(node_id)
+                            replaced_contents = re.sub(                        
+                                syntax.link_opening_wrapper_match + node_id_regex + syntax.link_closing_wrapper,
+                                make_link(links_to_change[node_id]),
+                                replaced_contents)
+                            if replaced_contents != contents:
+                                self.files[filename]._set_file_contents(replaced_contents)
+                                self._parse_file(filename)
 
     def _check_file_for_duplicates(self, file_obj):
 
         duplicate_nodes = {}
+        changed_ids = {}
         
         # first resolve duplicates in file
         file_node_ids = [n.id for n in file_obj.nodes]
-        for node in file_obj.nodes:
+        for node in list(file_obj.nodes):
             if file_node_ids.count(node.id) > 1:
                 resolved_new_id = node.resolve_duplicate_id()
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
                     print('Cannot resolve duplicate ID %s' % node.id)
                     continue
-                old_id = node.id
+                changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
-                #print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
 
         for node in file_obj.nodes:
             
             duplicated_id = self._is_duplicate_id(node.id) # in project
             if duplicated_id:
                 resolved_existing_id = None
-
-                if ' ^ ' not in duplicated_id:
+                if syntax.parent_identifier not in duplicated_id:
                     resolved_existing_id = self.nodes[duplicated_id].resolve_duplicate_id()
                     if not resolved_existing_id:
-                        #print('Cannot resolve duplicate ID %s' % node.id)
                         continue
                     self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
+                    changed_ids[duplicated_id] = resolved_existing_id
                     for ext in self.extensions:
                         self.extensions[ext].on_node_title_changed(
                             duplicated_id,
                             resolved_existing_id)
                     del self.nodes[duplicated_id]
-                    #print('Existing ID %s was resolved to %s' % (duplicated_id, resolved_existing_id))
 
                 resolved_new_id = node.resolve_duplicate_id()
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
-                    #print('Cannot resolve duplciate ID %s' % node.id)
                     continue
 
                 if resolved_existing_id == resolved_new_id:
-                    # print('Cannot resolve duplciate ID %s' % node.id)
-                    # print('resolution was identical')
                     continue           
 
-                old_id = node.id
+                changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
-                #print('New ID %s was resolved to %s' % (old_id, resolved_new_id))
-        
-        should_re_parse = False
 
         if duplicate_nodes:
             messages = []
             self._log_item(file_obj.filename, 
                 'Duplicate node ID(s) found in ' + ''.join([
                     ''.join(['\n\t',
-                                syntax.link_opening_wrapper, 
+                                syntax.node_link_opening_wrapper, 
                                 n,
                                 syntax.link_closing_wrapper,
                                 '\n(also in): ',
@@ -361,8 +367,8 @@ class UrtextProject:
                                 syntax.file_link_closing_wrapper,
                                 '\n'
                             ]) for n in duplicate_nodes]))
-            
-        return should_re_parse
+
+        return changed_ids
 
     def _target_id_defined(self, check_id):
         """ """
@@ -390,15 +396,15 @@ class UrtextProject:
                 if defined and defined != new_node.id:
 
                     message = ''.join(['Dynamic node ', 
-                                syntax.link_opening_wrapper,
+                                syntax.node_link_opening_wrapper,
                                 definition.target_id,
                                 syntax.link_closing_wrapper,
                                 ' has duplicate definition in ', 
-                                syntax.link_opening_wrapper,
+                                syntax.node_link_opening_wrapper,
                                 new_node.id,
                                 syntax.link_closing_wrapper,
                                 '; Keeping the definition in ',
-                                syntax.link_opening_wrapper,
+                                syntax.node_link_opening_wrapper,
                                 defined,
                                 syntax.link_closing_wrapper])
 
@@ -756,12 +762,19 @@ class UrtextProject:
                         return node.id
 
     def get_links_to(self, to_id):
-        return [i for i in self.nodes if to_id in self.nodes[i].links]
+        return [get_id_from_link(i) for i in self.nodes if to_id in self.nodes[i].links]
 
     def get_links_from(self, from_id):
         if from_id in self.nodes:
             return self.nodes[from_id].links
         return []
+
+    def get_all_links(self):
+        links = {}
+        for node in self.nodes.values():
+            links.setdefault(node.filename, [])
+            links[node.filename].extend(node.links)
+        return links
 
     def get_link(self, 
         string, 
@@ -870,8 +883,8 @@ class UrtextProject:
         """ private method to check if a node id is already in the project """
         if node_id in self.nodes:
             return node_id
-        for nid in self.nodes:
-            if node_id == nid.split(' ^ ')[0]:
+        for nid in list(self.nodes):
+            if node_id == nid.split(syntax.parent_identifier)[0]:
                 return nid
         return False
 
@@ -1036,6 +1049,8 @@ class UrtextProject:
             for f in filenames:
                 if self._parse_file(f):
                     modified_files.append(f)
+                if self.compiled:
+                   self._reverify_links(f)
                 if f in self.files:
                     modified_file = self._compile_file(f)
                     if modified_file:
@@ -1267,7 +1282,8 @@ class UrtextProject:
     """ Project Compile """
 
     def _compile(self):
-    
+
+        self._verify_links_globally()
         self._add_all_sub_tags()
         for file in list(self.files):
             self._compile_file(file)
@@ -1304,7 +1320,7 @@ class UrtextProject:
         if dynamic_definition.target_id == None and not dynamic_definition.target_file: 
             self._log_item(None, ''.join([
                     'Dynamic definition in ',
-                    syntax.link_opening_wrapper,
+                    syntax.node_link_opening_wrapper,
                     dynamic_definition.source_id,
                     syntax.link_closing_wrapper,
                     ' has no target']))
@@ -1313,11 +1329,11 @@ class UrtextProject:
         if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
             return self._log_item(None, ''.join([
                         'Dynamic node definition in',
-                        syntax.link_opening_wrapper,
+                        syntax.node_link_opening_wrapper,
                         dynamic_definition.source_id,
                         syntax.link_closing_wrapper,
                         ' points to nonexistent node ',
-                        syntax.link_opening_wrapper,
+                        syntax.node_link_opening_wrapper,
                         dynamic_definition.target_id,
                         syntax.link_closing_wrapper]))
 
@@ -1464,7 +1480,7 @@ Helpers
 
 def make_link(string):
     return ''.join([
-        syntax.link_opening_wrapper,
+        syntax.node_link_opening_wrapper,
         string,
         syntax.link_closing_wrapper])
 
@@ -1472,7 +1488,6 @@ def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
 
 def indent(contents, spaces=4):
-  
     content_lines = contents.split('\n')
     content_lines[0] = content_lines[0].strip()
     for index, line in enumerate(content_lines):

@@ -10,7 +10,9 @@ file_link_opening_wrapper =             '|f> '
 file_link_closing_wrapper =             ' >'
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
-link_opening_wrapper =                  '| '
+node_link_opening_wrapper =             '| '
+file_link_opening_wrapper =             '|f '
+web_link_opening_wrapper =              '|w '
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!'
@@ -24,6 +26,7 @@ metadata_separator =                    '-'
 other_project_link_prefix =             '=>'
 dynamic_def_opening_wrapper =           '[['
 dynamic_def_closing_wrapper =           ']]'
+parent_identifier =                     ' ^ '
 
 # Base Patterns
 
@@ -37,6 +40,7 @@ embedded_syntax_open =                  r'%%\w+'
 embedded_syntax_close =                 r'%%'+pattern_break
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
+link_opening_wrapper_match =            r'\|[\?fw]? '
 metadata_arg_delimiter =                r';|\r'
 metadata_op_before =                    r'before'
 metadata_op_after =                     r'after'
@@ -76,7 +80,7 @@ hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b
 node_link =                             r'(\|\s)(' + id_pattern + ')\s>(?!>)'
 function =                              r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 
-node_link_or_pointer =                  r'(\|\s)(' + id_pattern + ')\s>{1,2}(?!>)'
+node_link_or_pointer =                  link_opening_wrapper_match + '(' + id_pattern + ')\s>{1,2}(?!>)'
 node_pointer =                          r'(\|\s)(' + id_pattern + ')\s>>(?!>)'
 node_title =                            r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 timestamp =                             r''.join([

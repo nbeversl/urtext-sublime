@@ -20,6 +20,8 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].dynamic)
         print('NODE ID')
         print(node_id)
+        print('LINKS')
+        print(self._UrtextProjectList.current_project.nodes[node_id].links)
         print('METADATA')
         self._UrtextProjectList.current_project.nodes[node_id].metadata.log()
         print('Ranges')

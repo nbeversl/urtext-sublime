@@ -60,7 +60,7 @@ class PopNode(UrtextAction):
                 '\n',
                 self.project.settings['breadcrumb_key'],
                 syntax.metadata_assignment_operator,
-                syntax.link_opening_wrapper,
+                syntax.node_link_opening_wrapper,
                 self.project.nodes[parent_id].id,
                 syntax.link_closing_wrapper,
                 ' ',
@@ -69,7 +69,7 @@ class PopNode(UrtextAction):
         remaining_node_contents = ''.join([
             file_contents[:start - 1],
             '\n',
-            syntax.link_opening_wrapper,
+            syntax.node_link_opening_wrapper,
             self.project.nodes[popped_node_id].id,
             syntax.pointer_closing_wrapper,
             file_contents[end + 1:]

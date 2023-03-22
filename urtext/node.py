@@ -29,7 +29,6 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape
     import Urtext.urtext.syntax as syntax
-
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
@@ -145,7 +144,7 @@ class UrtextNode:
                     ' ^ ',
                     self.parent.title
                 ]) 
-            if resolved_id not in self.project.nodes:
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
@@ -154,7 +153,7 @@ class UrtextNode:
                 ' ^ ',
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in self.project.nodes:
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
 
     def strip_inline_nodes(self, contents='', preserve_length=False):
@@ -171,9 +170,9 @@ class UrtextNode:
  
         if contents == None:
             contents = self.content_only()
-        nodes = syntax.node_link_or_pointer_c.findall(contents)  # link RegEx
-        for node in nodes:
-            self.links.append(node[1].strip())
+        links = syntax.node_link_or_pointer_c.finditer(contents)
+        for link in links:
+            self.links.append(link.group())
 
     def content_only(self, 
         contents=None, 
@@ -322,7 +321,7 @@ def get_extended_values(urtext_node, meta_keys):
                 if index == len(meta_keys) - 1:
 
                     return ''.join([
-                            syntax.link_opening_wrapper,
+                            syntax.node_link_opening_wrapper,
                             e.value.title,
                             syntax.link_closing_wrapper
                         ])
@@ -389,7 +388,7 @@ def strip_dynamic_definitions(contents, preserve_length=False):
 def strip_nested_links(title):
     nested_link = syntax.node_link_or_pointer_c.search(title)
     while nested_link:
-        title = title.replace(nested_link.group(), '(' + nested_link.group(2) + ')' )
+        title = title.replace(nested_link.group(), '(' + nested_link.group(1) + ')' )
         nested_link = syntax.node_link_or_pointer_c.search(title)
     return title
 

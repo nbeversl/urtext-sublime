@@ -96,7 +96,7 @@ class Tree(UrtextDirective):
                 if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
                     link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
                 else:
-                    link.append(syntax.link_opening_wrapper)
+                    link.append(syntax.node_link_opening_wrapper)
                 link.append(urtext_node.id + syntax.link_closing_wrapper)
                 next_content.link = ''.join(link)
 

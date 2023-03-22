@@ -276,13 +276,13 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(\|\s)([^>]+)>'
+    - match: '(\|[\?fw]?\s)([^>]+)>'
       captures: 
         1: link_prefix.urtext
         2: link_id.urtext
 
   node_pointer:
-    - match: '(\|\s)([^>]+)>>{1,2}'
+    - match: '(\|[\?]?\s)([^>]+)>>{1,2}'
       captures:
         1: pointer_prefix.urtext
         2: pointer_id.urtext

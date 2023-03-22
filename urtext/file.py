@@ -38,6 +38,7 @@ class UrtextFile(UrtextBuffer):
             self.write_messages(project.settings)
             for node in self.nodes:
                 node.filename = filename
+                node.file = self
 
     def _get_file_contents(self):
         return self.file_contents
