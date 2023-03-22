@@ -30,11 +30,8 @@ class Sort(UrtextDirective):
 				k, ext = k.split('.')
 			value = node.metadata.get_first_value(k, return_type=True)	
 			if isinstance(value, str):
-				value=value.lower()
-				t.append(value)
-			if isinstance(value, datetime.datetime):
-				t.append(value)
-			# else it's type UrtextNode()
+				value=value.lower()			
+			t.append(value)
 		if self.have_flags('-num'):
 			try:
 				nt = [int(n) for n in t]
