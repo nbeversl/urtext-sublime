@@ -65,10 +65,11 @@ class UrtextDynamicDefinition:
 		self.operations = []
 		self.contents = contents
 
-		for match in syntax.function_c.findall(contents):
-
-			func, argument_string = match[0], match[1]
-			if func and func in self.project.directives:	
+		for match in syntax.function_c.finditer(contents):
+			#TODO fix this hack
+			func, argument_string = match.group(1), match.group().strip(match.group(1)).strip(')(')
+			argument_string = match.group(2)
+			if func and func in self.project.directives:
 				op = self.project.directives[func](self.project)
 				op.argument_string = argument_string
 				op.set_dynamic_definition(self)
