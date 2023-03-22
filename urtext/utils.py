@@ -17,6 +17,4 @@ def force_list(thing):
 def get_id_from_link(target):
     target = target.strip(syntax.link_closing_wrapper)
     target = target.strip(syntax.link_opening_wrapper)
-    target = target.replace('\\(', '(')
-    target = target.replace('\\)', ')')
     return target.strip()
