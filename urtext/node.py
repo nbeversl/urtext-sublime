@@ -27,7 +27,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .metadata import NodeMetadata
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
-    from .utils import strip_backtick_escape
+    from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
 else:
     from anytree import Node, PreOrderIter
@@ -35,7 +35,7 @@ else:
     from urtext.metadata import NodeMetadata
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
-    from urtext.utils import strip_backtick_escape
+    from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
 
 class UrtextNode:
@@ -76,6 +76,9 @@ class UrtextNode:
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
+        
+        self.get_links(contents=contents)
+        contents = strip_links(contents)
 
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
@@ -85,8 +88,7 @@ class UrtextNode:
             self.title_only = True
         self.content_only_text = contents
         self.apply_id(self.title)
-        self.get_links(contents=contents)
-
+        
     def apply_id(self, new_id):
         self.id = new_id
         for d in self.dynamic_definitions:
@@ -133,6 +135,9 @@ class UrtextNode:
             node_contents = self.strip_first_line_title(node_contents)
         return node_contents
 
+    def links_ids(self):
+        return [get_id_from_link(link) for link in self.links]        
+
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
@@ -178,7 +183,6 @@ class UrtextNode:
         contents=None, 
         preserve_length=False):
         return self.content_only_text
-
 
         if contents == None:
             contents = self.contents(preserve_length=preserve_length)
@@ -391,6 +395,10 @@ def strip_nested_links(title):
         title = title.replace(nested_link.group(), '(' + nested_link.group(1) + ')' )
         nested_link = syntax.node_link_or_pointer_c.search(title)
     return title
+
+
+def strip_links(contents):
+    return re.sub(syntax.node_link_or_pointer, '', contents)
 
 #TODO refactor
 def strip_embedded_syntaxes(

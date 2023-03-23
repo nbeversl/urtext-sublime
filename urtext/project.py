@@ -758,11 +758,11 @@ class UrtextProject:
                         return node.id
 
     def get_links_to(self, to_id):
-        return [get_id_from_link(i) for i in self.nodes if to_id in self.nodes[i].links]
+        return [i for i in self.nodes if to_id in self.nodes[i].links_ids()]
 
     def get_links_from(self, from_id):
         if from_id in self.nodes:
-            return self.nodes[from_id].links
+            return self.nodes[from_id].links_ids()
         return []
 
     def get_all_links(self):

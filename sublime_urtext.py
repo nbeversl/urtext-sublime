@@ -373,7 +373,8 @@ class BacklinksBrowser(NodeBrowserCommand):
 
     @refresh_project_text_command()
     def run(self):
-        backlinks = self._UrtextProjectList.current_project.get_links_to(get_node_id(self.view))
+        backlinks = self._UrtextProjectList.current_project.get_links_to(
+            get_node_id(self.view))
 
         if backlinks:
             self.menu = NodeBrowserMenu(
