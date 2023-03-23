@@ -624,11 +624,12 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
         link = _UrtextProjectList.get_link_and_set_project(
             full_line,
             self.view.file_name())
-        if link['kind'] != 'NODE':
-            return
-        node_id = link['link']
-        open_files = [f.file_name() for f in self.view.window().views()]
-        _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
+        if link:
+            if link['kind'] != 'NODE':
+                return
+            node_id = link['link']
+            open_files = [f.file_name() for f in self.view.window().views()]
+            _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
         
 class ReIndexFilesCommand(UrtextTextCommand):
     
