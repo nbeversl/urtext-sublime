@@ -286,7 +286,7 @@ class UrtextProject:
     def _rewrite_changed_links(self, changed_ids):
         for old_id in list(changed_ids.keys()):
             new_id = changed_ids[old_id]
-            if new_id in self.nodes:
+            if new_id in list(self.nodes):
                 for project_node in self.nodes:
                     links_to_change = {}
                     for link in self.nodes[project_node].links:
@@ -543,7 +543,7 @@ class UrtextProject:
 
         filename = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        contents, title, cursor_pos = self._new_node(
+        contents, node_id, cursor_pos = self._new_node(
             date=date,
             contents=contents,
             contents_format=contents_format,
@@ -557,13 +557,9 @@ class UrtextProject:
             f.write(contents)  
         self._parse_file(filename)
 
-        # TODO refactor so that UrtextFile rememebrs these as UrtextNodes, 
-        # not titles
-        title = self.files[filename].root_node
-
         return { 
                 'filename' : filename, 
-                'id' : title,
+                'id' : self.files[filename].root_node.id,
                 'cursor_pos' : cursor_pos
                 }
 
@@ -831,7 +827,6 @@ class UrtextProject:
                         action_span=result.span(),
                         col_pos=col_pos,
                         file_pos=file_pos)
-
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
             full_match = link.group().strip()
