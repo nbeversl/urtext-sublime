@@ -48,6 +48,14 @@ class Tree(UrtextDirective):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
+            # DEBUGGING ONLY
+            for n in this_node.children:
+                if n.name not in self.project.nodes:                
+                    try:
+                        print(n.position)
+                    except:
+                        print(n, ' has no position')
+
             this_node.children = sorted(
                 this_node.children,
                 key=lambda n: self.project.nodes[n.name].start_position() if n.name in self.project.nodes else n.position)
