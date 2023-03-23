@@ -203,34 +203,33 @@ class UrtextCompletions(EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         
-        if not _UrtextProjectList or not _UrtextProjectList.current_project:
-            return
-        current_path = os.path.dirname(view.file_name())
-        if _UrtextProjectList.get_project(current_path):
-            subl_completions = []
-            proj_completions = _UrtextProjectList.get_all_meta_pairs()
-            for c in proj_completions:
-                t = c.split('::')
-                if len(t) > 1:
-                    subl_completions.append([t[1]+'\t'+c, c])
-            for t in _UrtextProjectList.current_project.title_completions():
-                subl_completions.append([t[0],t[1]])
+        if _UrtextProjectList and _UrtextProjectList.current_project:
+            current_path = os.path.dirname(view.file_name())
+            if _UrtextProjectList.get_project(current_path):
+                subl_completions = []
+                proj_completions = _UrtextProjectList.get_all_meta_pairs()
+                for c in proj_completions:
+                    t = c.split('::')
+                    if len(t) > 1:
+                        subl_completions.append([t[1]+'\t'+c, c])
+                for t in _UrtextProjectList.current_project.title_completions():
+                    subl_completions.append([t[0],t[1]])
+                file_pos = view.sel()[0].a
+                full_line = view.substr(view.line(view.sel()[0]))
 
-            file_pos = view.sel()[0].a
-            full_line = view.substr(view.line(view.sel()[0]))
-
-            related_nodes =_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
+                related_nodes =_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
                     full_line, 
                     view.file_name(), 
                     file_pos)
-            if related_nodes:
-                for n in list(set(related_nodes)):
-                    subl_completions.append([
-                        _UrtextProjectList.current_project.nodes[n].id, 
-                        _UrtextProjectList.current_project.nodes[n].id])
-                return (subl_completions, sublime.INHIBIT_WORD_COMPLETIONS)
-
-        return []
+                if related_nodes:
+                    for n in list(set(related_nodes)):
+                        subl_completions.append([
+                            _UrtextProjectList.current_project.nodes[n].id, 
+                            _UrtextProjectList.current_project.nodes[n].id])
+                return (subl_completions, 
+                    sublime.INHIBIT_WORD_COMPLETIONS,
+                    sublime.DYNAMIC_COMPLETIONS
+                    )
 
     def on_hover(self, view, point, hover_zone):
         

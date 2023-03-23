@@ -1135,11 +1135,11 @@ class UrtextProject:
         return [
             (self.nodes[n].id, 
                 ''.join(
-                    ['| ',
+                    [syntax.node_link_opening_wrapper,
                     self.nodes[n].id,
-                    ' >',
-                    self.nodes[n].id])) 
-            for n in list(self.nodes)]
+                    syntax.link_closing_wrapper,
+                    ])) 
+                for n in list(self.nodes)]
 
     def get_first_value(self, node, keyname):
         value = node.metadata.get_first_value(keyname)
