@@ -513,8 +513,8 @@ class UrtextProject:
     def _handle_renamed(self, old_filename, new_filename):
         if new_filename != old_filename:
             self.files[new_filename] = self.files[old_filename]
-            for node_id in self.files[new_filename].nodes:
-                self.nodes[node_id].filename = new_filename
+            for node in self.files[new_filename].nodes:
+                self.nodes[node.id].filename = new_filename
                 self.files[new_filename].filename = new_filename
             del self.files[old_filename]
             for ext in self.extensions:
