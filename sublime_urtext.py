@@ -257,15 +257,16 @@ class UrtextCompletions(EventListener):
 
 def urtext_on_modified(view):
     
-    if _UrtextProjectList != None and view.file_name() and view.window() and view.window().views():
+    if view.file_name() and view.window() and view.window().views():
         other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
-        modified_file = _UrtextProjectList.on_modified(view.file_name())
-        for f in other_open_files:
-            _UrtextProjectList.visit_file(f)
-        if modified_file:
-                for f in modified_file:
-                   if _UrtextProjectList.current_project.is_async:
-                        f = f.result()
+        if _UrtextProjectList: 
+            modified_file = _UrtextProjectList.on_modified(view.file_name())
+            for f in other_open_files:
+                _UrtextProjectList.visit_file(f)
+            if modified_file:
+                    for f in modified_file:
+                       if _UrtextProjectList.current_project.is_async:
+                            f = f.result()
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
