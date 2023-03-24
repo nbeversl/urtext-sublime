@@ -820,11 +820,11 @@ def open_urtext_node(
 def preview_urtext_node(window, node_id):
     if window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        if node_position == None or not filename:
-            print('(DEBUGGING ONLY, sublime_urtext.py line 870):')
-            print(node_position)
-            print(filename)
-            return
+        # if node_position == None or not filename:
+        #     print('(DEBUGGING ONLY, sublime_urtext.py line 870):')
+        #     print(node_position)
+        #     print(filename)
+        #     return
         window.open_file(filename, flags=sublime.TRANSIENT)
         preview = window.active_sheet().view()
 
