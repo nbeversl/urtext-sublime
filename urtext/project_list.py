@@ -139,7 +139,7 @@ class ProjectList():
             else:
                 project = self.get_project(project_title)
             if node_id in project.nodes:
-                link = syntax.node_link_opening_wrapper + node_id + syntax.link_closing_wrapper
+                link = syntax.link_opening_wrapper + node_id + syntax.link_closing_wrapper
                 if pointer:
                     link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
                 if include_project or project != self.current_project:

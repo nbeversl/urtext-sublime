@@ -27,7 +27,7 @@ class AccessHistory(UrtextDirective):
                         '\n',
                         self.project.timestamp(as_string=True), 
                         ' ',
-                        syntax.node_link_opening_wrapper, 
+                        syntax.link_opening_wrapper, 
                         self.project.nodes[node_id].id, 
                         syntax.link_closing_wrapper, 
                         contents

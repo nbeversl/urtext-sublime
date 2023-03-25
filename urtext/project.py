@@ -359,7 +359,7 @@ class UrtextProject:
             self._log_item(file_obj.filename, 
                 'Duplicate node ID(s) found in ' + ''.join([
                     ''.join(['\n\t',
-                                syntax.node_link_opening_wrapper, 
+                                syntax.link_opening_wrapper, 
                                 n,
                                 syntax.link_closing_wrapper,
                                 '\n(also in): ',
@@ -1301,12 +1301,14 @@ class UrtextProject:
 
         return modified_files
 
-    def _process_dynamic_def(self, dynamic_definition):
-                
+    def _process_dynamic_def(self, dynamic_definition, flags=[]):
+        
+        dynamic_definition.flags = flags
+
         if dynamic_definition.target_id == None and not dynamic_definition.target_file: 
             self._log_item(None, ''.join([
                     'Dynamic definition in ',
-                    syntax.node_link_opening_wrapper,
+                    syntax.link_opening_wrapper,
                     dynamic_definition.source_id,
                     syntax.link_closing_wrapper,
                     ' has no target']))
@@ -1315,15 +1317,15 @@ class UrtextProject:
         if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
             return self._log_item(None, ''.join([
                         'Dynamic node definition in',
-                        syntax.node_link_opening_wrapper,
+                        syntax.link_opening_wrapper,
                         dynamic_definition.source_id,
                         syntax.link_closing_wrapper,
                         ' points to nonexistent node ',
-                        syntax.node_link_opening_wrapper,
+                        syntax.link_opening_wrapper,
                         dynamic_definition.target_id,
                         syntax.link_closing_wrapper]))
 
-        output = dynamic_definition.process_output() 
+        output = dynamic_definition.process_output()
 
         if not output:
             return
@@ -1474,7 +1476,7 @@ Helpers
 
 def make_link(string):
     return ''.join([
-        syntax.node_link_opening_wrapper,
+        syntax.link_opening_wrapper,
         string,
         syntax.link_closing_wrapper])
 

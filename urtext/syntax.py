@@ -10,9 +10,15 @@ file_link_opening_wrapper =             '|f> '
 file_link_closing_wrapper =             ' >'
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
-node_link_opening_wrapper =             '| '
-file_link_opening_wrapper =             '|f '
-web_link_opening_wrapper =              '|w '
+link_opening_wrapper =                  '| '
+link_opening_character =                r'\|'
+link_modifiers = {
+    'file_link_modifier'    : r'\/',
+    'web_link_modifer'      : r'\/\/',    
+    'action_link_modifier'  : r'\!',
+    'no_modifier'           : '',
+}
+link_modifier_group = r'(' + '|'.join(['(' + m + ')' for m in link_modifiers.values()]) + ')'
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!'
@@ -30,7 +36,6 @@ parent_identifier =                     ' ^ '
 
 # Base Patterns
 
-action =                                r'>>>([A-Z_\-\+]+)\((.*)\)'
 bullet =                                r'^([^\S\n]*?)•'
 closing_wrapper =                       r'(?<!\\)' + re.escape(node_closing_wrapper)
 dd_flag =                               r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
@@ -40,7 +45,7 @@ embedded_syntax_open =                  r'%%\w+'
 embedded_syntax_close =                 r'%%'+pattern_break
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
-link_opening_wrapper_match =            r'\|[\?fw]? '
+link_opening_wrapper_match =            link_opening_character + link_modifier_group + '\s'
 metadata_arg_delimiter =                r';|\r'
 metadata_op_before =                    r'before'
 metadata_op_after =                     r'after'
@@ -81,6 +86,8 @@ node_link =                             r'(\|\s)(' + id_pattern + ')\s>(?!>)'
 function =                              r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 
 node_link_or_pointer =                  link_opening_wrapper_match + '(' + id_pattern + ')\s>{1,2}(?!>)'
+node_action_link =                      link_opening_character + link_modifiers['action_link_modifier'] + '\s' '(' + id_pattern + ')\s>{1,2}(?!>)'
+
 node_pointer =                          r'(\|\s)(' + id_pattern + ')\s>>(?!>)'
 node_title =                            r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 timestamp =                             r''.join([
@@ -100,7 +107,6 @@ urtext_messages =                       r''.join([
                                             ])
 # Compiled Patterns
 
-action_c =                      re.compile(action, flags=re.DOTALL)
 bullet_c =                      re.compile(bullet)
 compact_node_c =                re.compile(compact_node, flags=re.MULTILINE)
 closing_wrapper_c =             re.compile(closing_wrapper)
@@ -132,6 +138,7 @@ metadata_separator_pattern_c =  re.compile(metadata_separator_pattern)
 meta_to_node_c =                re.compile(meta_to_node, flags=re.DOTALL)
 metadata_tag_self_c =           re.compile(metadata_tag_self)
 metadata_tag_desc_c =           re.compile(metadata_tag_desc)
+node_action_link_c =            re.compile(node_action_link, flags=re.DOTALL)
 node_pointer_c =                re.compile(node_pointer)
 node_title_c =                  re.compile(node_title, flags=re.MULTILINE)
 metadata_assigner_c =           re.compile(metadata_assigner)
