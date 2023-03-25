@@ -288,7 +288,7 @@ class UrtextProject:
         for old_id in list(changed_ids.keys()):
             new_id = changed_ids[old_id]
             if new_id in list(self.nodes):
-                for project_node in self.nodes:
+                for project_node in list(self.nodes):
                     links_to_change = {}
                     for link in self.nodes[project_node].links:
                         link = get_id_from_link(link)
@@ -811,7 +811,6 @@ class UrtextProject:
                     if dd.source_id == link['node_id']:
                         output = self._process_dynamic_def(dd, flags=['-link_clicked'])
                         if output:
-                            print(output)
                             modified_file = self._write_dynamic_def_output(dd, output)
                             # TODO
                             # if modified_file:
@@ -843,8 +842,6 @@ class UrtextProject:
         action_only = syntax.node_action_link_c.search(string)
         if action_only:
             node_id = get_id_from_link(action_only.group())
-            print(node_id)
-            print('IS ACTION')
             return {
                 'kind' : 'ACTION', 
                 'link' : link, 
@@ -1306,7 +1303,6 @@ class UrtextProject:
 
         modified_files = []
         dynamic_nodes = []
-        print(events)
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id):
                 output = self._process_dynamic_def(dd, flags=events)
