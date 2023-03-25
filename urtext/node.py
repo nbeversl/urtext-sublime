@@ -64,7 +64,6 @@ class UrtextNode:
         self.untitled = False
         self.title_only = False
         self.title = ''
-        self.display_meta = ''
         self.parent = None
         self.children = []
         self.first_line_title = False
@@ -325,7 +324,7 @@ def get_extended_values(urtext_node, meta_keys):
                 if index == len(meta_keys) - 1:
 
                     return ''.join([
-                            syntax.node_link_opening_wrapper,
+                            syntax.link_opening_wrapper,
                             e.value.title,
                             syntax.link_closing_wrapper
                         ])
