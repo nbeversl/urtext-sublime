@@ -1,4 +1,4 @@
-from .sublime_urtext import refresh_project_text_command, UrtextTextCommand, open_urtext_node, NodeBrowserMenu, show_panel
+from .sublime_urtext import refresh_project_text_command, UrtextTextCommand, NodeBrowserMenu, show_panel
 
 class KeywordsCommand(UrtextTextCommand):
 
@@ -20,11 +20,7 @@ class KeywordsCommand(UrtextTextCommand):
                 self.chosen_keyphrase = keyphrases[i]
                 result = self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_by_keyword(self.chosen_keyphrase)
                 if len(result) == 1:
-                    open_urtext_node(
-                        self.view,     
-                        result[0],
-                        position=self._UrtextProjectList.current_project.nodes[result[0]].position,
-                        highlight=self.chosen_keyphrase)
+                    self._UrtextProjectList.current_project.open_node(result[0])
                 else:
                     self.second_menu = NodeBrowserMenu(
                         self._UrtextProjectList, 
@@ -52,7 +48,7 @@ class RakeAssociateCommand(UrtextTextCommand):
             )
 
         def open_selection(selection):
-            open_urtext_node(self.view, menu.display_menu[selection][0])
+            self._UrtextProjectList.current_project.open_node(menu.display_menu[selection][0])
 
         show_panel(
             window, 
