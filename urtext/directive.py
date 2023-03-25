@@ -37,6 +37,9 @@ class UrtextDirective():
     def execute(self):
         return
 
+    def should_continue(self):
+        return True
+
     """ hooks """
     def on_node_modified(self, node):
         return
@@ -63,6 +66,11 @@ class UrtextDirective():
     def dynamic_output(self, input_contents):
         # return string, or False leaves existing content unmodified
         return ''
+
+    def _dynamic_output(self, input_contents):
+        if self.should_continue():
+            return self.dynamic_output(input_contents)
+        return False
     
     def set_dynamic_definition(self, dynamic_definition):
         self.dynamic_definition = dynamic_definition

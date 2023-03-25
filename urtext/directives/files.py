@@ -7,7 +7,7 @@ else:
 class UrtextFiles(UrtextDirective):
 
 	name = ["FILES"]
-	phase = 200
+	phase = 300
 
 	def dynamic_output(self, nodes):
 		file_list = os.listdir(os.path.join(self.project.path, self.argument_string))

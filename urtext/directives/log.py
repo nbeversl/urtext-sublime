@@ -9,7 +9,7 @@ else:
 class Log(UrtextDirective):
 
 	name = ["LOG"]    
-	phase = 500
+	phase = 300
 			
 	def dynamic_output(self, node_list):
 		output = []

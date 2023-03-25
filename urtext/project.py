@@ -397,15 +397,15 @@ class UrtextProject:
                 if defined and defined != new_node.id:
 
                     message = ''.join(['Dynamic node ', 
-                                syntax.node_link_opening_wrapper,
+                                syntax.link_opening_wrapper,
                                 definition.target_id,
                                 syntax.link_closing_wrapper,
                                 ' has duplicate definition in ', 
-                                syntax.node_link_opening_wrapper,
+                                syntax.link_opening_wrapper,
                                 new_node.id,
                                 syntax.link_closing_wrapper,
                                 '; Keeping the definition in ',
-                                syntax.node_link_opening_wrapper,
+                                syntax.link_opening_wrapper,
                                 defined,
                                 syntax.link_closing_wrapper])
 
@@ -782,7 +782,7 @@ class UrtextProject:
         col_pos=0,
         file_pos=0):
 
-        link = self._find_link(
+        link = self._parse_link(
             string, 
             col_pos=col_pos,
             file_pos=file_pos)
@@ -801,6 +801,22 @@ class UrtextProject:
                return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
+        if link['kind'] == 'ACTION':
+            if link['node_id'] not in self.nodes:
+                if not self.compiled:
+                   return print('Project is still compiling')
+                return print('Node ' + link['node_id'] + ' is not in the project')
+            else:
+                for dd in self.dynamic_defs(source=link['node_id']):
+                    if dd.source_id == link['node_id']:
+                        output = self._process_dynamic_def(dd, flags=['-link_clicked'])
+                        if output:
+                            print(output)
+                            modified_file = self._write_dynamic_def_output(dd, output)
+                            # TODO
+                            # if modified_file:
+                            #     modified_files.append(modified_file)
+
         if link['kind'] == 'NODE':
             if link['link'] not in self.nodes:
                 if not self.compiled:
@@ -813,7 +829,7 @@ class UrtextProject:
                         link['filename'], link['dest_position'])
         return link
 
-    def _find_link(self, 
+    def _parse_link(self, 
         string, 
         col_pos=0,
         file_pos=0):
@@ -824,6 +840,17 @@ class UrtextProject:
         link_match = None
         result = None
         
+        action_only = syntax.node_action_link_c.search(string)
+        if action_only:
+            node_id = get_id_from_link(action_only.group())
+            print(node_id)
+            print('IS ACTION')
+            return {
+                'kind' : 'ACTION', 
+                'link' : link, 
+                'node_id' : node_id,
+                }
+
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
             link = get_id_from_link(link.group())
@@ -1040,7 +1067,7 @@ class UrtextProject:
                 if self.compiled:
                    self._reverify_links(f)
                 if f in self.files:
-                    modified_file = self._compile_file(f)
+                    modified_file = self._compile_file(f, events=['-file_update'])
                     if modified_file:
                         modified_files.append(modified_file)
             self._sync_file_list()
@@ -1064,7 +1091,7 @@ class UrtextProject:
         Call whenever a file requires dynamic updating
         """        
         if filename in self.files and self.compiled:
-            return self._compile_file(filename)
+            return self._compile_file(filename, events=['-file_visited'])
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
@@ -1123,7 +1150,7 @@ class UrtextProject:
         return [
             (self.nodes[n].id, 
                 ''.join(
-                    [syntax.node_link_opening_wrapper,
+                    [syntax.link_opening_wrapper,
                     self.nodes[n].id,
                     syntax.link_closing_wrapper,
                     ])) 
@@ -1267,30 +1294,31 @@ class UrtextProject:
 
     """ Project Compile """
 
-    def _compile(self):
+    def _compile(self, events=['-project_compiled']):
 
         self._verify_links_globally()
         self._add_all_sub_tags()
         for file in list(self.files):
-            self._compile_file(file)
+            self._compile_file(file, events=events)
         self._add_all_sub_tags()
 
-    def _compile_file(self, filename):
+    def _compile_file(self, filename, events=[]):
 
         modified_files = []
         dynamic_nodes = []
+        print(events)
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id):
-                output = self._process_dynamic_def(dd)
+                output = self._process_dynamic_def(dd, flags=events)
                 if output: # omit 700 phase
                     modified_file = self._write_dynamic_def_output(dd, output)
                     dynamic_nodes.append(dd.target_id)
                     if modified_file:
                         modified_files.append(modified_file)
-            #TODO Refactor
+            #TODO Refactor and DRY
             for dd in self.dynamic_defs():
                 if dd.target_file and dd.source_id == node.id:
-                    output = self._process_dynamic_def(dd)
+                    output = self._process_dynamic_def(dd, flags=events)
                     if output:
                         modified_file = self._write_dynamic_def_output(dd, output)
                         if modified_file:
@@ -1389,7 +1417,7 @@ class UrtextProject:
     def _tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
         """adds a metadata tag to a node programmatically"""
         
-        link = self._find_link(full_line, col_pos=cursor)
+        link = self._parse_link(full_line, col_pos=cursor)
         if not link: return
 
         if metadata == {}:

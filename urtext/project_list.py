@@ -76,7 +76,6 @@ class ProjectList():
             if not self.set_current_project(project_name): return None
             return self.current_project.handle_link(
                 string, 
-                filename,
                 col_pos=col_pos,
                 file_pos=file_pos)
          
@@ -86,7 +85,6 @@ class ProjectList():
             if self.current_project:
                 return self.current_project.handle_link( 
                     string,
-                    filename, 
                     col_pos=col_pos,
                     file_pos=file_pos)
 
