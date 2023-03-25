@@ -258,6 +258,7 @@ class UrtextCompletions(EventListener):
                     location=file_pos,
                     on_navigate=unfold_region)
 
+# TODO update/fix
 def urtext_on_modified(view):
     
     if view.file_name() and view.window() and view.window().views():
@@ -276,7 +277,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         line, cursor = get_line_and_cursor(self.view)
-        link = _UrtextProjectList.current_project.handle_link(line, col_pos=cursor)
+        link = _UrtextProjectList.handle_link(line, self.view.file_name(), col_pos=cursor)
 
         if link: # future: possibly refactor into Urtext library using editor methods
         
@@ -303,8 +304,9 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         row, col_pos = self.view.rowcol(click_position)
         full_line = self.view.substr(sublime.Region(full_line_region.a-1, full_line_region.b))
 
-        link = _UrtextProjectList.current_project.handle_link(
+        link = _UrtextProjectList.handle_link(
             full_line,
+            self.view.file_name(),
             col_pos=col_pos,
             file_pos=file_pos)
 
@@ -721,17 +723,18 @@ def preview_urtext_node(node_id):
     window = sublime.active_window()
     if window and window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        window.open_file(filename, flags=sublime.TRANSIENT)
-        preview = window.active_sheet().view()
+        if filename:
+            window.open_file(filename, flags=sublime.TRANSIENT)
+            preview = window.active_sheet().view()
 
-        def focus_position(focus_view, position):
-            if not focus_view.is_loading():
-                if focus_view.window():
-                    position_node(position, focus=False, view=focus_view)
-            else:
-                sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
-        
-        focus_position(preview, node_position)
+            def focus_position(focus_view, position):
+                if not focus_view.is_loading():
+                    if focus_view.window():
+                        position_node(position, focus=False, view=focus_view)
+                else:
+                    sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+            
+            focus_position(preview, node_position)
 
 def position_node(position, focus=True, view=None): 
     if not view:
