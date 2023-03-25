@@ -30,13 +30,16 @@ project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
 
 class ProjectList():
 
-    def __init__(self, entry_point):
+    def __init__(self, 
+        entry_point,
+        editor_methods={}):
     
         self.entry_point = entry_point
         self.projects = []
         self.current_project = None
         self.navigation = []
         self.nav_index = -1
+        self.editor_methods = editor_methods
         self.add_project(entry_point)
 
     def add_project(self, path):
@@ -46,10 +49,12 @@ class ProjectList():
             paths.extend([entry['path'] for entry in p.settings['paths']])
         if path not in paths:
             if os.path.basename(path) not in ['urtext_files']:
-                project = UrtextProject(path, project_list=self)
+                project = UrtextProject(path, 
+                    project_list=self,
+                    editor_methods=self.editor_methods)
                 self.projects.append(project)
 
-    def get_link_and_set_project(self, 
+    def handle_link(self, 
             string, 
             filename, 
             col_pos=0,
@@ -68,26 +73,19 @@ class ProjectList():
 
         """ If a project name has been specified, locate the project and node """
         if project_name:
-            if not self.set_current_project(project_name):
-                return None
-            if node_id and node_id in self.current_project.nodes:
-                    return {
-                        'kind' : "OTHER_PROJECT", 
-                        'link' : node_id, 
-                        'dest_position' : 0,
-                    }
-            return {
-                'kind': 'NODE', 
-                'link': self.current_project.nav_current(), 
-                'dest_position' : 0,
-                }
-        
+            if not self.set_current_project(project_name): return None
+            return self.current_project.handle_link(
+                string, 
+                filename,
+                col_pos=col_pos,
+                file_pos=file_pos)
+         
         """ Otherwise, set the project, search the link for a link in the current project """
         if filename:
             self.set_current_project(os.path.dirname(filename))
             if self.current_project:
-                return self.current_project.get_link( 
-                    string, 
+                return self.current_project.handle_link( 
+                    string,
                     filename, 
                     col_pos=col_pos,
                     file_pos=file_pos)

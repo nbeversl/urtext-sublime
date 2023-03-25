@@ -19,8 +19,6 @@ import sublime
 import sublime_plugin
 import os
 import re
-import time
-import concurrent.futures
 import subprocess
 import webbrowser
 import Urtext.urtext.syntax as syntax
@@ -34,6 +32,28 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
     def __init__(self, view):
         self.view = view
         self.window = view.window()
+
+def open_file_to_position(filename, position):
+
+    if sublime.active_window():
+        new_view = sublime.active_window().open_file(filename)
+
+        def focus_position(focus_view, position):
+            if not focus_view.is_loading():
+                if focus_view.window():
+                    focus_view.window().focus_view(focus_view)
+                    position_node(position, view=focus_view)
+            else:
+                sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+
+        focus_position(new_view, position)
+
+        return new_view
+
+editor_methods = {
+    'open_file_to_position' : open_file_to_position,
+    'error_message' : sublime.error_message,
+}
 
 def refresh_project_text_command(change_project=True):
     """ 
@@ -132,31 +152,18 @@ def initialize_project_list(view, reload_projects=False):
         if _UrtextProjectList:
             _UrtextProjectList.add_project(folder)
         else:
-            _UrtextProjectList = ProjectList(folder)    
+            _UrtextProjectList = ProjectList(
+                folder,
+                editor_methods=editor_methods)    
     elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
             _UrtextProjectList.add_project(current_path)
         else:
-            _UrtextProjectList = ProjectList(current_path) 
+            _UrtextProjectList = ProjectList(
+                current_path,
+                editor_methods=editor_methods) 
     return _UrtextProjectList
-
-def get_path(view):
-    """ 
-    given a view or None, establishes the current active path,
-    either from the view or from the current active window.
-    """
-    current_path = None
-    if view and view.file_name():
-        return os.path.dirname(view.file_name())
-    window = sublime.active_window()
-    if not window:
-        print('No active window')
-        return None
-    window_variables = window.extract_variables()
-    if 'folder' in window_variables:
-        return window.extract_variables()['folder']
-    return None
 
 class ListProjectsCommand(UrtextTextCommand):
     
@@ -167,11 +174,10 @@ class ListProjectsCommand(UrtextTextCommand):
             self._UrtextProjectList.project_titles(), 
             self.set_window_project)
 
-    def set_window_project(self, title):
-        self._UrtextProjectList.set_current_project(title)
-        node_id = self._UrtextProjectList.nav_current()
-        self._UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id)
+    def set_window_project(self, index):
+        title = self._UrtextProjectList.project_titles()[index]
+        self._UrtextProjectList.set_current_project(title)        
+        self._UrtextProjectList.current_project.open_home()
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
@@ -190,10 +196,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
             new_project_title)
 
         self.view.window().run_command('close_file')
-
-        last_node = _UrtextProjectList.nav_reverse()
-        if last_node:
-            open_urtext_node(self.view, last_node)
+        _UrtextProjectList.nav_reverse()
 
 class UrtextCompletions(EventListener):
 
@@ -271,68 +274,50 @@ def urtext_on_modified(view):
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
-    def run(self):    
+    def run(self):
+        line, cursor = get_line_and_cursor(self.view)
+        link = _UrtextProjectList.current_project.handle_link(line, col_pos=cursor)
+
+        if link: # future: possibly refactor into Urtext library using editor methods
         
-        link = get_urtext_link(self.view)
+            if link['kind'] == 'SYSTEM':
+                open_external_file(link['link'])
 
-        if link == None:   
-            if not _UrtextProjectList.current_project.compiled:
-                sublime.error_message("Project is still compiling")
-            else:
-                return print('NO LINK') 
-        
-        if link['kind'] == 'SYSTEM':
-            open_external_file(link['link'])
+            if link['kind'] == 'EDITOR_LINK':
+                file_view = self.view.window().open_file(link['link'])
 
-        if link['kind'] == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link['link'])
-
-        if link['kind'] in ['NODE','OTHER_PROJECT']:
-            _UrtextProjectList.nav_new(link['link'])   
-            open_urtext_node(self.view, link['link'], position=link['dest_position'])
-
-        if link['kind'] == 'HTTP':
-            success = webbrowser.get().open(link['link'])
-            if not success:
-                self.log('Could not open tab using your "web_browser_path" setting')       
+            if link['kind'] == 'HTTP':
+                success = webbrowser.get().open(link['link'])
+                if not success:
+                    self.log('Could not open tab using your "web_browser_path" setting')       
 
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, **kwargs):
 
-        if not _UrtextProjectList:
-            return
+        if not _UrtextProjectList: return
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
         file_pos = region.a
         full_line_region = self.view.full_line(region)
         row, col_pos = self.view.rowcol(click_position)
-        contents = self.view.substr(sublime.Region(full_line_region.a -1, full_line_region.b))
+        full_line = self.view.substr(sublime.Region(full_line_region.a-1, full_line_region.b))
 
-        link = _UrtextProjectList.get_link_and_set_project(
-            contents, 
-            self.view.file_name(), 
+        link = _UrtextProjectList.current_project.handle_link(
+            full_line,
             col_pos=col_pos,
             file_pos=file_pos)
 
-        if link == None:   
-            if not _UrtextProjectList.current_project.compiled:
-                return sublime.error_message("Project is still compiling")
-            else:
-                return print('NO LINK') 
-            return
+        if link:   
 
-        if link['kind'] == 'EDITOR_LINK':
-            file_view = self.view.window().open_file(link['link'])
-        if link['kind'] in ['NODE','OTHER_PROJECT']:
-            _UrtextProjectList.nav_new(link['link'])   
-            open_urtext_node(self.view, link['link'], position=link['dest_position'])
-        if link['kind'] == 'HTTP':
-            success = webbrowser.get().open(link['link'])
-            if not success:
-                self.log('Could not open tab using your "web_browser_path" setting')       
-        if link['kind'] == 'SYSTEM':
-            open_external_file(link['link'])
+            if link['kind'] == 'EDITOR_LINK':
+                file_view = self.view.window().open_file(link['link'])
+            if link['kind'] == 'HTTP':
+                success = webbrowser.get().open(link['link'])
+                if not success:
+                    self.log('Could not open tab using your "web_browser_path" setting')       
+            if link['kind'] == 'SYSTEM':
+                open_external_file(link['link'])
 
     def want_event(self):
         return True
@@ -341,14 +326,11 @@ class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command(change_project=False)
     def run(self):
-        
-        #rough estimate of how many characters wide the viewport is
-        characters_wide = int(self.view.viewport_extent()[0] / self.view.em_width())
+                
         self.window = self.view.window()
         self.menu = NodeBrowserMenu(
             _UrtextProjectList, 
-            project=_UrtextProjectList.current_project,
-            characters=characters_wide)
+            project=_UrtextProjectList.current_project)
 
         self.selection_has_changed = False
         show_panel(
@@ -359,16 +341,15 @@ class NodeBrowserCommand(UrtextTextCommand):
 
     def on_highlight(self, index):
         if self.selection_has_changed:
-            preview_urtext_node(self.window, self.menu.menu[index].node_id)
+            preview_urtext_node(self.menu.menu[index].id)
         else:
             self.selection_has_changed = True
             #workaround for Sublime text bug
 
-    def open_the_file(self, selected_option):        
-        selected_item = self.menu.get_selection_from_index(selected_option)
-        self._UrtextProjectList.set_current_project(selected_item.project_title)
-        self._UrtextProjectList.nav_new(selected_item.node_id)   
-        open_urtext_node(self.view, selected_item.node_id)
+    def open_the_file(self, index):
+        node = self.menu.menu[index]
+        self._UrtextProjectList.set_current_project(node.project.title())
+        self._UrtextProjectList.current_project.open_node(node.id)   
 
 class BacklinksBrowser(NodeBrowserCommand):
 
@@ -426,75 +407,45 @@ class WrapSelectionCommand(sublime_plugin.TextCommand):
         self.view.sel().add(region)
 
 class NodeBrowserMenu:
-    """ custom class to store more information on menu items than is displayed """
 
     def __init__(self, 
         project_list, 
         project=None, 
-        nodes=None,
-        characters=255):
+        nodes=None):
 
-        menu = []
+        # rough estimate of character width
+        view = sublime.active_window().active_view()
+        characters = int(view.viewport_extent()[0] / view.em_width())
+
+        self.menu = []
+        self.display_menu = []
 
         projects = project_list.projects
         if project:
             projects = [project]
 
         if nodes != None:
-            for node_id in nodes:
-                menu.append(
-                      NodeInfo(
-                        node_id,
-                        project_list))
+            self.menu = [project.nodes[node_id] for node_id in nodes]
         else:
             for single_project in projects:
-                for node_id in single_project.all_nodes():
-                    menu.append(
-                        NodeInfo(
-                            node_id, 
-                            project_list, 
-                            project=single_project))
-        self.menu = menu
-        self.display_menu = []
-        for item in menu:  # there is probably a better way to copy this list.
-            display_meta = item.display_meta
-            if display_meta:
-                display_meta = ' - ' + str(display_meta)
-            new_item = [
-                item.title[:characters],
-                item.project_title + display_meta,            
-            ]
-            self.display_menu.append(new_item)
+                self.menu.extend(single_project.nodes.values())
 
-    def get_selection_from_index(self, selected_option):
-        index = self.display_menu.index(selected_option)
-        return self.menu[index]
+        for node in self.menu:  # there is probably a better way to copy this list.
+            timestamp = node.metadata.get_oldest_timestamp()
+            if timestamp:
+                timestamp = timestamp.wrapped_string
+            else:
+                timestamp = ''
+            self.display_menu.append(
+                (node.id[:characters],
+                ' - '.join([node.project.title(),timestamp])))
 
-class NodeInfo():
-
-    def __init__(self, node_id, project_list, project=None):    
-        if not project:
-            project = project_list.current_project
-        self.title = node_id
-        if self.title.strip() == '':
-            self.title = '(no title)'
-        self.date = project.nodes[node_id].date
-        self.filename = project.nodes[node_id].filename
-        self.node_id = node_id
-        self.project_title = project.settings['project_title']
-        self.display_meta = project.nodes[node_id].display_meta
-
-def show_panel(window, menu, main_callback, on_highlight=None, return_index=False):
+def show_panel(window, menu, main_callback, on_highlight=None):
     """ shows a quick panel with an option to cancel if -1 """
     def on_selected(index):
         if index == -1:
             return
-
-        # otherwise return the main callback with the index of the selected item
-        if return_index:
-            return main_callback(index)
-        
-        main_callback(menu[index])
+        main_callback(index)
     
     window.show_quick_panel(menu, 
         on_selected, 
@@ -506,13 +457,16 @@ class LinkToNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.menu = NodeBrowserMenu(self._UrtextProjectList, project=None)
-        show_panel(self.view.window(), self.menu.display_menu, self.link_to_the_node)
+        show_panel(
+            self.view.window(), 
+            self.menu.display_menu,
+            self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
-        selected_option = self.menu.get_selection_from_index(selected_option)
+        node = self.menu.menu[selected_option]
         link = self._UrtextProjectList.build_contextual_link(
-            selected_option.node_id,
-            project_title=selected_option.project_title)    
+            node.id,
+            project_title=node.project.title())    
         self.view.run_command("insert", {"characters": link})
 
 class CopyLinkToHereCommand(UrtextTextCommand):
@@ -531,23 +485,13 @@ class CopyLinkToHereCommand(UrtextTextCommand):
             sublime.set_clipboard(link)
             self.view.show_popup(link + '\ncopied to the clipboard', 
                 max_width=1800, 
-                max_height=1000 
-                    # max_height does not work correctly. 
-                    # workaround for now using max_width
-                    # FUTURE: Could also hard wrap.
-                    # https://github.com/sublimehq/sublime_text/issues/2854
-                    # https://github.com/SublimeLinter/SublimeLinter/pull/1609
-                    # https://github.com/SublimeLinter/SublimeLinter/issues/1601
-                )
+                max_height=1000)
 
     def get_link(self, node_id):
         return self._UrtextProjectList.build_contextual_link(node_id)       
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
-    """
-    Copy a link to the node containing the cursor to the clipboard.
-    Does not include project title.
-    """
+
     def get_link(self, node_id):
         return self._UrtextProjectList.build_contextual_link(
             node_id, 
@@ -613,25 +557,19 @@ class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         target_id = get_node_id(self.view)
-        source = _UrtextProjectList.current_project.get_dynamic_definition(target_id)
-        if source:
-            open_urtext_node(self.view, source['id'], position = source['location'])
-             
+        source = _UrtextProjectList.current_project.go_to_dynamic_definition(target_id)
+
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
         # save the current file first
-        full_line = self.view.substr(self.view.line(self.view.sel()[0]))
-        link = _UrtextProjectList.get_link_and_set_project(
-            full_line,
-            self.view.file_name())
-        if link:
-            if link['kind'] != 'NODE':
-                return
-            node_id = link['link']
-            open_files = [f.file_name() for f in self.view.window().views()]
-            _UrtextProjectList.current_project.tag_other_node(node_id, open_files=open_files)
+        line, cursor = get_line_and_cursor(self.view)
+        _UrtextProjectList.current_project.tag_other_node(
+            line,
+            cursor,
+            #open_files=open_files ?
+            )            
         
 class ReIndexFilesCommand(UrtextTextCommand):
     
@@ -752,10 +690,7 @@ class RandomNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        node_id = self._UrtextProjectList.current_project.random_node()
-        self._UrtextProjectList.nav_new(node_id)
-        open_urtext_node(self.view, node_id)
-
+        self._UrtextProjectList.current_project.random_node()
 
 class ToNextNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
@@ -766,7 +701,7 @@ class ToNextNodeCommand(UrtextTextCommand):
         if next_wrapper:
             self.view.sel().clear()
             self.view.sel().add(next_wrapper.a) 
-            position_node(self.view, next_wrapper.a)
+            position_node(next_wrapper.a)
 
 class ToPreviousNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
@@ -776,74 +711,38 @@ class ToPreviousNodeCommand(UrtextTextCommand):
         if all_previous_opening_wrappers:
             self.view.sel().clear()
             self.view.sel().add(all_previous_opening_wrappers[-1])
-            position_node(self.view, all_previous_opening_wrappers[-1])
+            position_node(all_previous_opening_wrappers[-1])
 
 """
 Utility functions
 """
-def open_urtext_node(
-    view, 
-    node_id, 
-    project=None, 
-    position=0):
-   
-    if project and _UrtextProjectList: 
-        _UrtextProjectList.set_current_project(project.entry_path)
-    filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-    if filename and view.window():
 
-        _UrtextProjectList.visit_file(filename)
-        file_view = view.window().open_file(filename)
-
-        if not position:
-            position = node_position
-        position = int(position)
-
-        def focus_position(focus_view, position):
-            if not focus_view.is_loading():
-                if view.window():
-                    view.window().focus_view(focus_view)
-                    position_node(focus_view, position)
-            else:
-                sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
-
-        focus_position(file_view, position)
-
-        return file_view
- 
-    return None
-    """
-    Note we do not involve this function with navigation, since it is
-    called from forward/backward navigation and shouldn't duplicate/override 
-    any of the operations of the methods that call it.
-    """
-
-def preview_urtext_node(window, node_id):
-    if window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
+def preview_urtext_node(node_id):
+    window = sublime.active_window()
+    if window and window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
-        # if node_position == None or not filename:
-        #     print('(DEBUGGING ONLY, sublime_urtext.py line 870):')
-        #     print(node_position)
-        #     print(filename)
-        #     return
         window.open_file(filename, flags=sublime.TRANSIENT)
         preview = window.active_sheet().view()
 
         def focus_position(focus_view, position):
             if not focus_view.is_loading():
                 if focus_view.window():
-                    position_node(focus_view, position, focus=False)
+                    position_node(position, focus=False, view=focus_view)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
         
         focus_position(preview, node_position)
 
-def position_node(new_view, position, focus=True): 
-    if focus:
-        new_view.sel().clear()
-        new_view.sel().add(sublime.Region(position, position))
-    r = new_view.text_to_layout(position)
-    new_view.set_viewport_position(r)
+def position_node(position, focus=True, view=None): 
+    if not view:
+        window = sublime.active_window()
+        if window: view = window.active_view()
+    if view:
+        if focus:
+            view.sel().clear()
+            view.sel().add(sublime.Region(position, position))
+        r = view.text_to_layout(position)
+        view.set_viewport_position(r)
     
 def refresh_open_file(changed_files, view):
     window = view.window()
@@ -853,20 +752,14 @@ def refresh_open_file(changed_files, view):
             if v.file_name() and v.file_name() in changed_files:
                 view.run_command('revert') # undocumented
 
-def get_urtext_link(view):
+def get_line_and_cursor(view):
     file_pos = view.sel()[0].a
     col_pos = view.rowcol(file_pos)[1]
     full_line_region = view.line(view.sel()[0])
     full_line = view.substr(full_line_region)
-
-    return _UrtextProjectList.get_link_and_set_project(
-        full_line, 
-        view.file_name(), 
-        col_pos=col_pos,
-        file_pos=file_pos)
+    return full_line, col_pos
 
 def open_external_file(filepath):
-
     if sublime.platform() == "osx":
         subprocess.Popen(('open', filepath))
     elif sublime.platform() == "windows":

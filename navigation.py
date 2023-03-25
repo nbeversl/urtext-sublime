@@ -1,4 +1,4 @@
-from .sublime_urtext import refresh_project_text_command, open_urtext_node
+from .sublime_urtext import refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand
 
 class UrtextHomeCommand(UrtextTextCommand):

@@ -67,13 +67,14 @@ class UrtextProject:
     urtext_file = UrtextFile
     urtext_node = UrtextNode
 
-    def __init__(self, entry_point, project_list=None):
+    def __init__(self, entry_point, project_list=None, editor_methods={}):
 
         self.settings = default_project_settings()
         self.project_list = project_list
         self.entry_point = entry_point
         self.entry_path = None
         self.settings['project_title'] = self.entry_point # default
+        self.editor_methods = editor_methods
         self.is_async = True
         self.is_async = False # development
         self.time = time.time()
@@ -692,7 +693,7 @@ class UrtextProject:
         self.nav_index -= 1
         last_node = self.navigation[self.nav_index]
         self.visit_node(last_node)
-        return last_node
+        return self.open_node(last_node)
 
     def nav_current(self):
         if self.navigation and self.nav_index > -1:
@@ -702,6 +703,20 @@ class UrtextProject:
             alternative = self.random_node()
         return alternative
 
+
+    def open_node(self, node_id):
+        if node_id not in self.nodes:
+            return print('%s not in project' % node_id)
+        if 'open_file_to_position' in self.editor_methods:
+             return self.editor_methods['open_file_to_position'](
+                self.nodes[node_id].filename,
+                self.nodes[node_id].start_position()
+                )
+        return 'no editor method available'
+
+    def open_home(self):
+        self.open_node(self.settings['home'])
+ 
     def all_nodes(self):
 
         def sort(nid, return_type=False):
@@ -716,17 +731,7 @@ class UrtextProject:
             use_timestamp= k in self.settings['use_timestamp']
             as_int = k in self.settings['numerical_keys']
             k = k.lower()
-
             node_group = [r for r in remaining_nodes if r in self.nodes and self.nodes[r].metadata.get_first_value(k)]
-            for r in node_group:
-                if use_timestamp:
-                    self.nodes[r].display_meta = self.timestamp(
-                        self.nodes[r].metadata.get_first_value(
-                            k, 
-                            use_timestamp=use_timestamp),
-                        as_string=True)
-                else:
-                    self.nodes[r].display_meta = str(self.nodes[r].metadata.get_first_value(k))
             node_group = sorted(node_group, key=lambda nid: sort(nid, return_type=True), reverse=k in self.settings['use_timestamp'] )
             sorted_nodes.extend(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
@@ -772,40 +777,44 @@ class UrtextProject:
             links[node.filename].extend(node.links)
         return links
 
-    def get_link(self, 
+    def handle_link(self, 
         string, 
-        filename, 
         col_pos=0,
         file_pos=0):
-        """ 
-        Given a line of text passed from an editor, 
-        opens a web link, file, or returns a node,
-        in that order. Returns a tuple of type and success/failure or node ID
-        """
-        link = self.find_link(
+
+        link = self._find_link(
             string, 
-            filename, 
             col_pos=col_pos,
             file_pos=file_pos)
         
         if not link:
-            return
-                
+            if not self.compiled:
+                message = "Project is still compiling"
+            else:
+                message = "No link"
+            if 'error_message' in self.editor_methods:                
+                return self.editor_methods['error_message'](message)
+            return message
+
         if not link['kind']:
             if not self.compiled:
                return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
-        if link['kind'] == 'NODE' and link['link'] not in self.nodes:
-            if not self.compiled:
-               return print('Project is still compiling')
-            return print('Node ' + link['link'] + ' is not in the project')
-
+        if link['kind'] == 'NODE':
+            if link['link'] not in self.nodes:
+                if not self.compiled:
+                   return print('Project is still compiling')
+                return print('Node ' + link['link'] + ' is not in the project')
+            else:
+                if 'open_file_to_position' in self.editor_methods:
+                    self.visit_node(link['link'])
+                    self.editor_methods['open_file_to_position'](
+                        link['filename'], link['dest_position'])
         return link
 
-    def find_link(self, 
-        string,
-        filename, 
+    def _find_link(self, 
+        string, 
         col_pos=0,
         file_pos=0):
       
@@ -813,26 +822,12 @@ class UrtextProject:
         link = ''
         dest_position = None
         link_match = None
-        link_location = None
-
-        result = syntax.action_c.search(string)
-        if result:
-            action = result.group(1)
-            for name in self.actions:
-                if name == action:
-                    r = self.actions[name](self)
-                    return r.execute(
-                        result.group(2),
-                        filename,
-                        action_span=result.span(),
-                        col_pos=col_pos,
-                        file_pos=file_pos)
+        result = None
+        
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
-            full_match = link.group().strip()
-            link = get_id_from_link(full_match)
-            if link in self.nodes:
-                result = link
+            link = get_id_from_link(link.group())
+            if link in self.nodes: result = link
             else:
                 for node_id in self.nodes:
                     if node_id.startswith(link):
@@ -842,13 +837,12 @@ class UrtextProject:
         if result:
             kind = 'NODE'
             node_id = result
-            link_location = file_pos + len(result)
+            filename = self.nodes[node_id].filename
             link = result # node id
-            dest_position = self.get_file_position(link, 0)
+            dest_position = self.nodes[node_id].start_position()
         else:
             result = syntax.editor_file_link_c.search(string)            
             if result:
-                full_match = result.group().strip()
                 link = result.group(2).strip()
                 kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
@@ -858,15 +852,13 @@ class UrtextProject:
                 if result:
                     kind ='HTTP'
                     link = result.group().strip()
-                    full_match = link
         if result:
             return {
                 'kind' : kind, 
                 'link' : link, 
-                'full_match' : full_match,
+                'filename' : filename,
                 'node_id' : node_id,
                 'file_pos': file_pos, 
-                'link_location' : link_location, 
                 'dest_position' : dest_position 
                 }
 
@@ -983,7 +975,8 @@ class UrtextProject:
             file_pos=file_pos)
             
     def get_home(self):
-        return self.settings['home']
+        if self.settings['home'] in self.nodes:
+            return self.settings['home']
 
     def get_all_meta_pairs(self):
         pairs = []
@@ -1000,7 +993,7 @@ class UrtextProject:
     def random_node(self):
         if self.nodes:
             node_id = random.choice(list(self.nodes))
-            return node_id
+            self.open_node(node_id)
         return None
     
     def replace_links(self, original_id, new_id='', new_project=''):
@@ -1163,13 +1156,11 @@ class UrtextProject:
             return list(set([v.lower() for v in values]))
         return list(set(values))
 
-    def get_dynamic_definition(self, target_id):
+    def go_to_dynamic_definition(self, target_id):
         for dd in self.dynamic_definitions:
             if dd.target_id == target_id:
-                position = self.get_file_position(dd.source_id, dd.location)
-                return { 
-                    'id' : dd.source_id,
-                    'location' : position}
+                self.open_node(dd.source_id)
+                return dd.source_id
 
     def get_by_meta(self, key, values, operator):
         
@@ -1333,6 +1324,9 @@ class UrtextProject:
                         syntax.link_closing_wrapper]))
 
         output = dynamic_definition.process_output() 
+
+        if not output:
+            return
         
         if not dynamic_definition.returns_text and not dynamic_definition.target_file:
             return
@@ -1382,30 +1376,32 @@ class UrtextProject:
 
     """ Metadata Handling """
 
-    def tag_other_node(self, node_id, open_files=[], metadata={}):
+    def tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
         return self.execute(
             self._tag_other_node, 
-            node_id, 
+            full_line,
+            cursor, 
             metadata=metadata, 
             open_files=open_files)
         
-    def _tag_other_node(self, node_id, metadata={}, open_files=[]):
+    def _tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
         """adds a metadata tag to a node programmatically"""
         
+        link = self._find_link(full_line, col_pos=cursor)
+        if not link: return
+
         if metadata == {}:
-            if len(self.settings['tag_other']) < 2:
-                return None            
+            if len(self.settings['tag_other']) < 2: return None
             metadata = { self.settings['tag_other'][0] : self.settings['tag_other'][1] + ' ' + self.timestamp().wrapped_string }
-        territory = self.nodes[node_id].ranges
+        territory = self.nodes[link['node_id']].ranges
         metadata_contents = UrtextNode.build_metadata(metadata)
 
-        filename = self.nodes[node_id].filename
-
+        filename = self.nodes[link['node_id']].filename
         full_file_contents = self.files[filename]._get_file_contents()
         tag_position = territory[-1][1]
 
         separator = '\n'
-        if self.nodes[node_id].compact:
+        if self.nodes[link['node_id']].compact:
             separator = ' '
 
         new_contents = ''.join([
@@ -1462,7 +1458,10 @@ class UrtextProject:
     def _remove_sub_tags(self, source_id):
         for target_id in self.nodes[source_id].target_nodes:
              if target_id in self.nodes:
-                 self.nodes[target_id].metadata.clear_from_source(source_id)  
+                 self.nodes[target_id].metadata.clear_from_source(source_id) 
+
+    def title(self):
+        return self.settings['project_title'] 
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
