@@ -50,9 +50,50 @@ def open_file_to_position(filename, position):
 
         return new_view
 
+def insert_text(text):
+    if sublime.active_window() and sublime.active_window().active_view():
+        view = sublime.active_window().active_view()
+        view.run_command("insert", {"characters": text})
+
+def save_current():
+    if sublime.active_window() and sublime.active_window().active_view():
+        view = sublime.active_window().active_view()
+        view.run_command('save')
+
+def set_clipboard(text):
+    sublime.set_clipboard(text)
+    if sublime.active_window() and sublime.active_window().active_view():
+        view = sublime.active_window().active_view()
+        view.show_popup(text + '\ncopied to the clipboard', 
+            max_width=1800, 
+            max_height=1000)
+
+def open_external_file(filepath):
+    if sublime.platform() == "osx":
+        subprocess.Popen(('open', filepath))
+    elif sublime.platform() == "windows":
+        os.startfile(filepath)
+    elif sublime.platform() == "linux":
+        subprocess.Popen(('xdg-open', filepath))
+
+def open_file_in_editor(filepath):
+    if sublime.active_window():
+        sublime.active_window().open_file(filepath)
+
+def open_http_link(link):
+    success = webbrowser.get().open(link)
+    if not success:
+        self.log('Could not open tab using your "web_browser_path" setting')       
+
 editor_methods = {
     'open_file_to_position' : open_file_to_position,
     'error_message' : sublime.error_message,
+    'insert_text' : insert_text,
+    'save_current' : save_current,
+    'set_clipboard' : set_clipboard,
+    'open_external_file' : open_external_file,
+    'open_file_in_editor' : open_file_in_editor,
+    'open_http_link' : open_http_link,
 }
 
 def refresh_project_text_command(change_project=True):
@@ -278,20 +319,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     def run(self):
         line, cursor = get_line_and_cursor(self.view)
         link = _UrtextProjectList.handle_link(line, self.view.file_name(), col_pos=cursor)
-
-        if link: # future: possibly refactor into Urtext library using editor methods
-        
-            if link['kind'] == 'SYSTEM':
-                open_external_file(link['link'])
-
-            if link['kind'] == 'EDITOR_LINK':
-                file_view = self.view.window().open_file(link['link'])
-
-            if link['kind'] == 'HTTP':
-                success = webbrowser.get().open(link['link'])
-                if not success:
-                    self.log('Could not open tab using your "web_browser_path" setting')       
-
+                            
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, **kwargs):
@@ -309,17 +337,6 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
             self.view.file_name(),
             col_pos=col_pos,
             file_pos=file_pos)
-
-        if link:   
-
-            if link['kind'] == 'EDITOR_LINK':
-                file_view = self.view.window().open_file(link['link'])
-            if link['kind'] == 'HTTP':
-                success = webbrowser.get().open(link['link'])
-                if not success:
-                    self.log('Could not open tab using your "web_browser_path" setting')       
-            if link['kind'] == 'SYSTEM':
-                open_external_file(link['link'])
 
     def want_event(self):
         return True
@@ -465,11 +482,10 @@ class LinkToNodeCommand(UrtextTextCommand):
             self.link_to_the_node)
 
     def link_to_the_node(self, selected_option):
-        node = self.menu.menu[selected_option]
-        link = self._UrtextProjectList.build_contextual_link(
-            node.id,
-            project_title=node.project.title())    
-        self.view.run_command("insert", {"characters": link})
+        self._UrtextProjectList.editor_insert_link_to_node(
+            self.menu.menu[selected_option],
+            project_title=node.project.title()
+            )
 
 class CopyLinkToHereCommand(UrtextTextCommand):
     """
@@ -481,16 +497,8 @@ class CopyLinkToHereCommand(UrtextTextCommand):
 
         if not self.window:
             self.window = self.view.window()
-
-        link = self.get_link(get_node_id(self.window.active_view()))
-        if link:
-            sublime.set_clipboard(link)
-            self.view.show_popup(link + '\ncopied to the clipboard', 
-                max_width=1800, 
-                max_height=1000)
-
-    def get_link(self, node_id):
-        return self._UrtextProjectList.build_contextual_link(node_id)       
+        node_id = get_node_id(self.window.active_view())
+        self._UrtextProjectList.current_project.editor_copy_link_to_node(node_id)
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
@@ -548,12 +556,7 @@ class InsertTimestampCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        datestamp = self._UrtextProjectList.current_project.timestamp(as_string=True)
-        for s in self.view.sel():
-            if s.empty():
-                self.view.insert(self.edit, s.a, datestamp)
-            else:
-                self.view.replace(self.edit, s, datestamp)
+        self._UrtextProjectList.current_project.editor_insert_timestamp()
 
 class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
@@ -761,14 +764,6 @@ def get_line_and_cursor(view):
     full_line_region = view.line(view.sel()[0])
     full_line = view.substr(full_line_region)
     return full_line, col_pos
-
-def open_external_file(filepath):
-    if sublime.platform() == "osx":
-        subprocess.Popen(('open', filepath))
-    elif sublime.platform() == "windows":
-        os.startfile(filepath)
-    elif sublime.platform() == "linux":
-        subprocess.Popen(('xdg-open', filepath))
 
 def get_node_id(view):
     global _UrtextProjectList

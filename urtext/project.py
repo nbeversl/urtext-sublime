@@ -290,6 +290,7 @@ class UrtextProject:
             if new_id in list(self.nodes):
                 for project_node in list(self.nodes):
                     links_to_change = {}
+                    if project_node not in self.nodes: continue
                     for link in self.nodes[project_node].links:
                         link = get_id_from_link(link)
                         if link == old_id:
@@ -788,23 +789,19 @@ class UrtextProject:
             file_pos=file_pos)
         
         if not link:
-            if not self.compiled:
-                message = "Project is still compiling"
-            else:
-                message = "No link"
+            if not self.compiled: message = "Project is still compiling"
+            else: message = "No link"
             if 'error_message' in self.editor_methods:                
                 return self.editor_methods['error_message'](message)
             return message
 
         if not link['kind']:
-            if not self.compiled:
-               return print('Project is still compiling')
+            if not self.compiled: return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
         if link['kind'] == 'ACTION':
             if link['node_id'] not in self.nodes:
-                if not self.compiled:
-                   return print('Project is still compiling')
+                if not self.compiled: return print('Project is still compiling')
                 return print('Node ' + link['node_id'] + ' is not in the project')
             else:
                 for dd in self.dynamic_defs(source=link['node_id']):
@@ -815,6 +812,17 @@ class UrtextProject:
                             # TODO
                             # if modified_file:
                             #     modified_files.append(modified_file)
+        if link['kind'] == 'SYSTEM':
+            if 'open_external_file' in self.editor_methods:
+                return self.editor_methods['open_external_file'](link['link'])
+
+        if link['kind'] == 'EDITOR_LINK':
+            if 'open_file_in_editor' in self.editor_methods:
+                return self.editor_methods['open_file_in_editor'](link['link'])
+        
+        if link['kind'] == 'HTTP':
+            if 'open_http_link' in self.editor_methods:
+                return self.editor_methods['open_http_link'](link['link'])
 
         if link['kind'] == 'NODE':
             if link['link'] not in self.nodes:
@@ -824,7 +832,7 @@ class UrtextProject:
             else:
                 if 'open_file_to_position' in self.editor_methods:
                     self.visit_node(link['link'])
-                    self.editor_methods['open_file_to_position'](
+                    return self.editor_methods['open_file_to_position'](
                         link['filename'], link['dest_position'])
         return link
 
@@ -1488,6 +1496,17 @@ class UrtextProject:
 
     def title(self):
         return self.settings['project_title'] 
+
+    """ Editor Methods """
+
+    def editor_insert_timestamp(self):
+        if 'insert_text' in self.editor_methods:
+            self.editor_methods['insert_text'](self.timestamp(as_string=True))
+
+    def editor_copy_link_to_node(self, node_id):
+        link = self.project_list.build_contextual_link(node_id) 
+        if 'set_clipboard' in self.editor_methods:
+            self.editor_methods['set_clipboard'](link)
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """

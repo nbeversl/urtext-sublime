@@ -5,10 +5,7 @@ class UrtextHomeCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        home = self._UrtextProjectList.current_project.get_home()
-        if home:
-            self._UrtextProjectList.nav_new(home)
-            open_urtext_node(self.view, home)
+        self._UrtextProjectList.current_project.open_home()
 
 class NavigateBackwardCommand(UrtextTextCommand):
 

@@ -245,6 +245,16 @@ class ProjectList():
             return None
         return self.current_project.is_in_export(filename, position)
 
+    def editor_insert_link_to_node(self, node_id, project_title=None):
+        if project_title == None:
+            project_title = self.current_project.title
+        if project_title:
+            link = self.build_contextual_link(
+                node.id,
+                project_title=project)    
+            if 'insert_text' in self.editor_methods:
+                self.editor_methods['insert_text'](link)
+
     """
     Project List Navigation
     """
