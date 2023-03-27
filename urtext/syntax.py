@@ -32,7 +32,7 @@ dynamic_def_opening_wrapper =           '[['
 dynamic_def_closing_wrapper =           ']]'
 parent_identifier =                     ' ^ '
 virtual_target_marker =                 '@'
-file_link_opening_wrapper =             link_opening_character + link_modifiers['file_link'] + ' '
+file_link_opening_wrapper =             link_opening_character + link_modifiers['file_link_modifier'] + ' '
 # Base Patterns
 
 bullet =                                r'^([^\S\n]*?)•'
