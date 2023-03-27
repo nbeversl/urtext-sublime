@@ -212,9 +212,7 @@ class UrtextProject:
                 self._get_settings_from(node)     
 
             for dd in node.dynamic_definitions:
-                dd.source_id = node.id
-                if dd.target_id == '@self':
-                    dd.target_id = node.id
+                dd.source_id = node.id                
                 self.dynamic_definitions.append(dd)
 
             for entry in node.metadata.dynamic_entries:
@@ -373,10 +371,10 @@ class UrtextProject:
         return changed_ids
 
     def _target_id_defined(self, check_id):
-        """ """
-        for nid in list(self.nodes):
-            if nid in self.nodes and check_id in [t.target_id for t in self.nodes[nid].dynamic_definitions]:
-                return nid
+        if check_id in self.nodes:
+            for dd in self.dynamic_defs():
+                if check_id in dd.target_ids:
+                    return nid
 
     def _target_file_defined(self, file):
         for nid in list(self.nodes):
@@ -392,25 +390,29 @@ class UrtextProject:
         """ Adds a node to the project object """
         for definition in new_node.dynamic_definitions:
             
-            if definition.target_id:
-                defined = self._target_id_defined(definition.target_id)
+            already_defined = []
+            for target_id in definition.target_ids:
+                if self._target_id_defined(target_id):
+                    already_defined.append(target_id)
                 
-                if defined and defined != new_node.id:
+                for node_id in already_defined:
 
-                    message = ''.join(['Dynamic node ', 
-                                syntax.link_opening_wrapper,
-                                definition.target_id,
-                                syntax.link_closing_wrapper,
-                                ' has duplicate definition in ', 
-                                syntax.link_opening_wrapper,
-                                new_node.id,
-                                syntax.link_closing_wrapper,
-                                '; Keeping the definition in ',
-                                syntax.link_opening_wrapper,
-                                defined,
-                                syntax.link_closing_wrapper])
+                    if node_id != new_node.id:
 
-                    self._log_item(new_node.filename, message)
+                        message = ''.join(['Dynamic node ', 
+                                    syntax.link_opening_wrapper,
+                                    definition.target_id,
+                                    syntax.link_closing_wrapper,
+                                    ' has duplicate definition in ', 
+                                    syntax.link_opening_wrapper,
+                                    new_node.id,
+                                    syntax.link_closing_wrapper,
+                                    '; Keeping the definition in ',
+                                    syntax.link_opening_wrapper,
+                                    defined,
+                                    syntax.link_closing_wrapper])
+
+                        self._log_item(new_node.filename, message)
 
         new_node.project = self
         self.nodes[new_node.id] = new_node  
@@ -464,8 +466,9 @@ class UrtextProject:
 
     def _mark_dynamic_nodes(self):
         for dd in self.dynamic_defs():
-            if dd.target_id and dd.target_id in self.nodes:
-                self.nodes[dd.target_id].dynamic = True
+            for node_id in dd.target_ids:
+                if node_id in self.nodes:
+                    self.nodes[node_id].dynamic = True
 
     """
     Removing and renaming files
@@ -637,7 +640,7 @@ class UrtextProject:
 
     def dynamic_defs(self, target=None, source=None):
         if target or source:
-            return [dd for dd in self.dynamic_definitions if dd.target_id == target or dd.source_id == source]
+            return [dd for dd in self.dynamic_definitions if target in dd.target_ids or dd.source_id == source]
         return self.dynamic_definitions
 
     def remove_dynamic_defs(self, node_id):
@@ -809,7 +812,8 @@ class UrtextProject:
                         output = dd.process(flags=['-link_clicked'])
                         if output:
                             for target in dd.targets:
-                                self._direct_output(output, target)
+                                target_output = self.preserve_title_if_present(target) + output
+                                self._direct_output(target_output, target, dd)
                             # TODO
                             # if modified_file:
                             #     modified_files.append(modified_file)
@@ -1191,7 +1195,7 @@ class UrtextProject:
 
     def go_to_dynamic_definition(self, target_id):
         for dd in self.dynamic_definitions:
-            if dd.target_id == target_id:
+            if target_id in dd.target_ids:
                 self.open_node(dd.source_id)
                 return dd.source_id
 
@@ -1317,7 +1321,7 @@ class UrtextProject:
             output = dd.process(flags=events)                
             if output:
                 for target in dd.targets:
-                    modified_id = self._direct_output(output, target)
+                    modified_id = self._direct_output(output, target, dd)
                     if modified_id:
                         modified_ids.append(modified_id)
 
@@ -1326,7 +1330,7 @@ class UrtextProject:
 
         return modified_files
 
-    def _direct_output(self, output, target):
+    def _direct_output(self, output, target, dd):
 
         node_link = syntax.node_link_or_pointer_c.match(target)
         if node_link:
@@ -1349,6 +1353,9 @@ class UrtextProject:
         virtual_target = syntax.virtual_target_match_c.match(target)
         if virtual_target:
             virtual_target = virtual_target.group()
+            if virtual_target == '@self':                
+                if self._set_node_contents(dd.source_id, output):
+                    return dd.source_id
             if virtual_target == '@clipboard':
                 if 'set_clipboard' in self.editor_methods:
                     return self.editor_methods['set_clipboard'](output)

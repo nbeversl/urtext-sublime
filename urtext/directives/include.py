@@ -32,7 +32,8 @@ class NodeQuery(UrtextDirective):
 			added_nodes = [f for f in added_nodes if f in self.project.nodes and not self.project.nodes[f].dynamic]
 
 		passed_nodes = set(passed_nodes)
-		passed_nodes.discard(self.dynamic_definition.target_id)   
+		for target_id in self.dynamic_definition.target_ids:
+			passed_nodes.discard(target_id)   
 		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
 
 		return self.dynamic_definition.included_nodes

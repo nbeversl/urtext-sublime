@@ -19,23 +19,24 @@ class AccessHistory(UrtextDirective):
         if len(self.project.navigation) > 1:
             last_visited = self.project.navigation[-2]
         if node_id in self.dynamic_definition.included_nodes and node_id != last_visited:
-            if self.dynamic_definition.target_id in self.project.nodes:
-                contents = self.project.nodes[self.dynamic_definition.target_id].contents(
-                    strip_first_line_title=True)
-                contents = ''.join([ 
-                        self.dynamic_definition.preserve_title_if_present(),
-                        '\n',
-                        self.project.timestamp(as_string=True), 
-                        ' ',
-                        syntax.link_opening_wrapper, 
-                        self.project.nodes[node_id].id, 
-                        syntax.link_closing_wrapper, 
-                        contents
-                    ])
-                self.project._set_node_contents(
-                    self.dynamic_definition.target_id, 
-                    contents,
-                    parse=False)
+            for target_id in self.dynamic_definition.target_ids:
+                if target_id in self.project.nodes:
+                    contents = self.project.nodes[target_id].contents(
+                        strip_first_line_title=True)
+                    contents = ''.join([ 
+                            self.dynamic_definition.preserve_title_if_present(),
+                            '\n',
+                            self.project.timestamp(as_string=True), 
+                            ' ',
+                            syntax.link_opening_wrapper, 
+                            self.project.nodes[node_id].id, 
+                            syntax.link_closing_wrapper, 
+                            contents
+                        ])
+                    self.project._set_node_contents(
+                        target_id, 
+                        contents,
+                        parse=False)
 
     def dynamic_output(self, input_contents):
         return False # do not change existing output.

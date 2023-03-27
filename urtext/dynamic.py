@@ -44,7 +44,7 @@ class UrtextDynamicDefinition:
 
 		self.location = location
 		self.contents = None
-		self.target_id = None
+		self.target_ids = []
 		self.targets = []
 		self.target_file = None
 		self.included_nodes = []
@@ -81,7 +81,7 @@ class UrtextDynamicDefinition:
 				if output_target:
 					self.targets.append(output_target.group())
 				else:
-					self.target_id = get_id_from_link(argument_string)
+					self.target_ids.append(get_id_from_link(argument_string))
 					self.targets.append(argument_string)
 				continue
 
@@ -105,10 +105,10 @@ class UrtextDynamicDefinition:
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
-	def preserve_title_if_present(self):
+	def preserve_title_if_present(self, node_id):
 
-		if self.target_id and self.project.nodes[self.target_id].first_line_title:
-			return ' ' + self.project.nodes[self.target_id].title + syntax.title_marker +'\n'
+		if node_id in self.target_ids and self.project.nodes[node_id].first_line_title:
+			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
 	def process_output(self, max_phase=800):
@@ -140,7 +140,7 @@ class UrtextDynamicDefinition:
 						return False
 					outcome = new_outcome
 
-		if self.target_id == self.source_id and self.returns_text:
+		if self.source_id in self.target_ids and self.returns_text:
 			outcome = outcome +  '\n' + ''.join([
 				syntax.dynamic_def_opening_wrapper,
 				self.contents,
@@ -170,23 +170,23 @@ class UrtextDynamicDefinition:
 		# 			syntax.link_closing_wrapper,
 		# 			' has no target']))
 
-		if self.target_id and self.target_id not in self.project.nodes:
-			return self.project._log_item(None, ''.join([
-						'Dynamic node definition in',
-						syntax.link_opening_wrapper,
-						self.source_id,
-						syntax.link_closing_wrapper,
-						' points to nonexistent node ',
-						syntax.link_opening_wrapper,
-						self.target_id,
-						syntax.link_closing_wrapper]))
+		for target_id in self.target_ids:
+
+			if target_id not in self.project.nodes:
+				self.project._log_item(None, ''.join([
+							'Dynamic node definition in',
+							syntax.link_opening_wrapper,
+							self.source_id,
+							syntax.link_closing_wrapper,
+							' points to nonexistent node ',
+							syntax.link_opening_wrapper,
+							target_id,
+							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
 
 		if not output: return        
 		if not self.returns_text and not self.target_file: return
-
-		output = self.preserve_title_if_present() + output
 		if self.spaces: output = indent(output, spaces=self.spaces)
 		return output
 

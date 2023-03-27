@@ -246,6 +246,19 @@ class UrtextBuffer:
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)
 
+    def update_node_contents(self, node_id, replacement_text):
+        node = None
+        for node in self.nodes:
+            if node.id == node_id:
+                break
+        if node:
+            self.project.editor_methods['replace'](
+                filename=self.project.nodes[node_id].filename,
+                start=node.start_position(),
+                end=node.end_position(),
+                replacement_text=replacement_text
+                )
+
     def log_error(self, message, position):
 
         self.nodes = {}
