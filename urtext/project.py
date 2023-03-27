@@ -806,7 +806,7 @@ class UrtextProject:
             else:
                 for dd in self.dynamic_defs(source=link['node_id']):
                     if dd.source_id == link['node_id']:
-                        output = self._process_dynamic_def(dd, flags=['-link_clicked'])
+                        output = dd.process(flags=['-link_clicked'])
                         if output:
                             modified_file = self._write_dynamic_def_output(dd, output)
                             # TODO
@@ -1313,7 +1313,7 @@ class UrtextProject:
         dynamic_nodes = []
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id):
-                output = self._process_dynamic_def(dd, flags=events)
+                output = dd.process(flags=events)
                 if output: # omit 700 phase
                     modified_file = self._write_dynamic_def_output(dd, output)
                     dynamic_nodes.append(dd.target_id)
@@ -1322,7 +1322,7 @@ class UrtextProject:
             #TODO Refactor and DRY
             for dd in self.dynamic_defs():
                 if dd.target_file and dd.source_id == node.id:
-                    output = self._process_dynamic_def(dd, flags=events)
+                    output = dd.process(flags=events)
                     if output:
                         modified_file = self._write_dynamic_def_output(dd, output)
                         if modified_file:
@@ -1332,40 +1332,6 @@ class UrtextProject:
             self.nodes[target_id].dynamic = True
 
         return modified_files
-
-    def _process_dynamic_def(self, dynamic_definition, flags=[]):
-        
-        dynamic_definition.flags = flags
-
-        if dynamic_definition.target_id == None and not dynamic_definition.target_file: 
-            self._log_item(None, ''.join([
-                    'Dynamic definition in ',
-                    syntax.link_opening_wrapper,
-                    dynamic_definition.source_id,
-                    syntax.link_closing_wrapper,
-                    ' has no target']))
-            return
-
-        if dynamic_definition.target_id and dynamic_definition.target_id not in self.nodes:
-            return self._log_item(None, ''.join([
-                        'Dynamic node definition in',
-                        syntax.link_opening_wrapper,
-                        dynamic_definition.source_id,
-                        syntax.link_closing_wrapper,
-                        ' points to nonexistent node ',
-                        syntax.link_opening_wrapper,
-                        dynamic_definition.target_id,
-                        syntax.link_closing_wrapper]))
-
-        output = dynamic_definition.process_output()
-
-        if not output:
-            return
-        
-        if not dynamic_definition.returns_text and not dynamic_definition.target_file:
-            return
-
-        return self._build_final_output(dynamic_definition, output) 
 
     def _write_dynamic_def_output(self, dynamic_definition, final_output):
 
@@ -1390,23 +1356,6 @@ class UrtextProject:
             # when parsed so duplicate titles can be avoided
 
         return changed_file
-
-    def _build_final_output(self, dynamic_definition, contents):
-        metadata_values = {}
-        
-        built_metadata = UrtextNode.build_metadata(
-            metadata_values, 
-            one_line = not dynamic_definition.multiline_meta)
-        final_contents = ''.join([
-            ' ', ## TODO: Make leading space an option.
-            dynamic_definition.preserve_title_if_present(),
-            contents,
-            built_metadata,
-            ])
-        
-        if dynamic_definition.spaces:
-            final_contents = indent(final_contents, dynamic_definition.spaces)
-        return final_contents
 
     """ Metadata Handling """
 
@@ -1526,10 +1475,3 @@ def make_link(string):
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
 
-def indent(contents, spaces=4):
-    content_lines = contents.split('\n')
-    content_lines[0] = content_lines[0].strip()
-    for index, line in enumerate(content_lines):
-        if line.strip() != '':
-            content_lines[index] = '\t' * spaces + line
-    return '\n'+'\n'.join(content_lines)

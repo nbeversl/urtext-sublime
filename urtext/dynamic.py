@@ -154,8 +154,48 @@ class UrtextDynamicDefinition:
 			return True
 		return False
 
+	def process(self, dynamic_definition, flags=[]):
+        
+        self.flags = flags
+
+        if self.target_id == None and not self.target_file: 
+            return self.project._log_item(None, ''.join([
+                    'Dynamic definition in ',
+                    syntax.link_opening_wrapper,
+                    dynamic_definition.source_id,
+                    syntax.link_closing_wrapper,
+                    ' has no target']))
+            
+        if self.target_id and self.target_id not in self.project.nodes:
+            return self.project._log_item(None, ''.join([
+                        'Dynamic node definition in',
+                        syntax.link_opening_wrapper,
+                        dynamic_definition.source_id,
+                        syntax.link_closing_wrapper,
+                        ' points to nonexistent node ',
+                        syntax.link_opening_wrapper,
+                        dynamic_definition.target_id,
+                        syntax.link_closing_wrapper]))
+
+        output = self.process_output()
+
+        if not output: return        
+        if not self.returns_text and not self.target_file: return
+
+        output = self.preserve_title_if_present() + output
+        if self.spaces: output = indent(output, spaces=self.spaces)
+        return output
+
 def has_text_output(operations):
 	for op in operations:
 		if 300 <= op.phase < 400:
 			return True
 	return False
+
+def indent(contents, spaces=4):
+    content_lines = contents.split('\n')
+    content_lines[0] = content_lines[0].strip()
+    for index, line in enumerate(content_lines):
+        if line.strip() != '':
+            content_lines[index] = '\t' * spaces + line
+    return '\n'+'\n'.join(content_lines)
