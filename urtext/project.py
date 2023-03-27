@@ -808,8 +808,8 @@ class UrtextProject:
                     if dd.source_id == link['node_id']:
                         output = dd.process(flags=['-link_clicked'])
                         if output:
-
-                            modified_file = self._write_dynamic_def_output(dd, output)
+                            for target in dd.targets:
+                                self._direct_output(output, target)
                             # TODO
                             # if modified_file:
                             #     modified_files.append(modified_file)
