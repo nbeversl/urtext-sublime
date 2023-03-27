@@ -68,6 +68,37 @@ def set_clipboard(text):
             max_width=1800, 
             max_height=1000)
 
+def get_buffer(node_id):
+    global _UrtextProjectList
+    if _UrtextProjectList:
+        if node_id in _UrtextProjectList.current_project.nodes:
+            filename = _UrtextProjectList.current_project.nodes[node_id].filename
+            target_view = None
+            for view in sublime.active_window().views():
+                if view.file_name() == filename:
+                    target_view = view
+                    break
+            if target_view:
+                return target_view.substr(sublime.Region(0, view.size()))
+
+def set_buffer(filename):    
+    if sublime.active_window() and sublime.active_window().active_view():
+        view = sublime.active_window().active_view()
+        return view.substr(sublime.Region(0, view.size()))
+
+def replace(filename='', start=0, end=0, replacement_text=''):
+    target_view = None
+    for view in sublime.active_window().views():
+        if view.file_name() == filename:
+            target_view = view
+            break
+    if target_view:
+        target_view.run_command('urtext_replace', {
+            'start' : start,
+            'end' :end,
+            'replacement_text' : replacement_text
+            })
+
 def open_external_file(filepath):
     if sublime.platform() == "osx":
         subprocess.Popen(('open', filepath))
@@ -94,6 +125,8 @@ editor_methods = {
     'open_external_file' : open_external_file,
     'open_file_in_editor' : open_file_in_editor,
     'open_http_link' : open_http_link,
+    'get_buffer' : get_buffer,
+    'replace' : replace
 }
 
 def refresh_project_text_command(change_project=True):
@@ -109,8 +142,7 @@ def refresh_project_text_command(change_project=True):
             edit = args[1]
 
             _UrtextProjectList = initialize_project_list(view)
-            if not _UrtextProjectList:
-                return None
+            if not _UrtextProjectList: return None
             
             if not change_project:
                 args[0].edit = edit
@@ -118,9 +150,7 @@ def refresh_project_text_command(change_project=True):
                 return function(args[0])
             
             window = sublime.active_window()
-            if not window:
-                print('NO ACTIVE WINDOW')
-                return
+            if not window: return print('NO ACTIVE WINDOW')
             
             view = window.active_view()
             window_id = window.id()
@@ -131,8 +161,7 @@ def refresh_project_text_command(change_project=True):
            
             # then try the window
             for folder in window.folders():
-                if _UrtextProjectList.set_current_project(folder):
-                    break
+                if _UrtextProjectList.set_current_project(folder): break
             
             # If there is a current project, return it
             if _UrtextProjectList.current_project:
@@ -152,12 +181,10 @@ def refresh_project_event_listener(function):
         view = args[1]
 
         #  only run if Urtext project list is initialized
-        if not _UrtextProjectList:
-            return None
+        if not _UrtextProjectList: return None
         
         window = sublime.active_window()
-        if not window:
-            return
+        if not window: return
         
         view = window.active_view()
         window_id = window.id()
@@ -169,8 +196,7 @@ def refresh_project_event_listener(function):
             return function(args[0], view)
 
         for folder in window.folders():
-            if _UrtextProjectList.set_current_project(folder):
-                break
+            if _UrtextProjectList.set_current_project(folder): break
 
         if _UrtextProjectList.current_project:
             args[0]._UrtextProjectList = _UrtextProjectList
@@ -206,6 +232,13 @@ def initialize_project_list(view, reload_projects=False):
                 editor_methods=editor_methods) 
     return _UrtextProjectList
 
+
+class UrtextReplace(sublime_plugin.TextCommand):
+
+    def run(self, edit, start=0, end=0, replacement_text=''):
+        self.view.replace(edit, sublime.Region(start, end), replacement_text)
+        
+        
 class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
