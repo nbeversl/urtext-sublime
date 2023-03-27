@@ -116,6 +116,12 @@ def open_http_link(link):
     if not success:
         self.log('Could not open tab using your "web_browser_path" setting')       
 
+def insert_at_next_line(contents):
+    pass
+
+def popup(contents):
+    pass
+
 editor_methods = {
     'open_file_to_position' : open_file_to_position,
     'error_message' : sublime.error_message,
@@ -126,7 +132,9 @@ editor_methods = {
     'open_file_in_editor' : open_file_in_editor,
     'open_http_link' : open_http_link,
     'get_buffer' : get_buffer,
-    'replace' : replace
+    'replace' : replace,
+    'insert_at_next_line' : insert_at_next_line,
+    'popup' : popup,
 }
 
 def refresh_project_text_command(change_project=True):

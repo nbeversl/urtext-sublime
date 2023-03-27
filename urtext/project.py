@@ -364,9 +364,9 @@ class UrtextProject:
                                 n,
                                 syntax.link_closing_wrapper,
                                 '\n(also in): ',
-                                syntax.file_link_opening_wrapper,
+                                syntax.link_opening_wrapper,
                                 #self.nodes[n].filename,
-                                syntax.file_link_closing_wrapper,
+                                syntax.link_closing_wrapper,
                                 '\n'
                             ]) for n in duplicate_nodes]))
 
@@ -808,6 +808,7 @@ class UrtextProject:
                     if dd.source_id == link['node_id']:
                         output = dd.process(flags=['-link_clicked'])
                         if output:
+
                             modified_file = self._write_dynamic_def_output(dd, output)
                             # TODO
                             # if modified_file:
@@ -873,7 +874,7 @@ class UrtextProject:
             link = result # node id
             dest_position = self.nodes[node_id].start_position()
         else:
-            result = syntax.editor_file_link_c.search(string)            
+            result = syntax.file_link_c.search(string)            
             if result:
                 link = result.group(2).strip()
                 kind = 'EDITOR_LINK'
@@ -1309,54 +1310,72 @@ class UrtextProject:
 
     def _compile_file(self, filename, events=[]):
 
+        modified_ids = []
         modified_files = []
-        dynamic_nodes = []
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id):
                 output = dd.process(flags=events)
-                if output: # omit 700 phase
-                    modified_file = self._write_dynamic_def_output(dd, output)
-                    dynamic_nodes.append(dd.target_id)
-                    if modified_file:
-                        modified_files.append(modified_file)
+                if output:
+                    for target in dd.targets:
+                        modified_id = self._direct_output(output, target)
+                        if modified_id:
+                            modified_ids.append(modified_file)
+                    
             #TODO Refactor and DRY
             for dd in self.dynamic_defs():
                 if dd.target_file and dd.source_id == node.id:
                     output = dd.process(flags=events)
                     if output:
-                        modified_file = self._write_dynamic_def_output(dd, output)
+                        modified_file = self._direct_output(output, dd.target_file)
                         if modified_file:
                             modified_files.append(modified_file)
 
-        for target_id in dynamic_nodes:
+        for target_id in modified_ids:
             self.nodes[target_id].dynamic = True
 
         return modified_files
 
-    def _write_dynamic_def_output(self, dynamic_definition, final_output):
+    def _direct_output(self, output, target):
+        
+        node_link = syntax.node_link_or_pointer_c.match(target)
+        if node_link:
+            node_id = get_id_from_link(node_link)
+            if node_id in self.nodes:
+                return self._set_node_contents(dynamic_definition.target_id, final_output), None
 
-        changed_file = None
-        dynamic_nodes = []
-        if dynamic_definition.target_id and dynamic_definition.target_id in self.nodes:
-            changed_file = self._set_node_contents(dynamic_definition.target_id, final_output) 
-            dynamic_nodes.append(dynamic_definition.target_id)
-            if changed_file:
-                # Dynamic nodes have blank title by default. Title can be set by header or title key.
-                if not self.nodes[dynamic_definition.target_id].metadata.get_first_value('title'):
-                    self.nodes[dynamic_definition.target_id].title = ''
-
-        if dynamic_definition.target_file:
-            filename = os.path.join(self.entry_point, dynamic_definition.target_file)
-            self.exports[dynamic_definition.target_file] = dynamic_definition
-            with open(filename, 'w', encoding='utf-8' ) as f:
-                f.write(final_output)
-            changed_file = dynamic_definition.target_file
-
-            #TODO -- If the file is an export, need to make sure it is remembered
+        target_file = syntax.file_link_c.match(target)
+        if target_file:
+            #? TODO -- If the file is an export, need to make sure it is remembered
             # when parsed so duplicate titles can be avoided
+            filename = get_id_from_link(target_file)
+            filename = os.path.join(self.entry_point, filename)
+            self.exports[filename] = dynamic_definition
+            with open(filename, 'w', encoding='utf-8' ) as f:
+                f.write(output)
+            return filename, None
 
-        return changed_file
+        virtual_target = syntax.virtual_target_match(target)
+        if virtual_target:
+            virtual_target = virtual_target_match.group()
 
+            if virtual_target == '@clipboard':
+                if 'set_clipboard' in self.editor_methods:
+                    return self.editor_methods['set_clipboard'](output)
+            if virtual_target == '@next_line':
+                if 'insert_at_next_line' in self.editor_methods:
+                    return self.editor_methods['insert_at_next_line'](output)
+            if virtual_target == '@log':
+                return self._log_item(output)
+            if virtual_target == '@console':
+                if 'write_to_console' in self.editor_methods:
+                    return self.editor_methods['write_to_console'](output)
+            if virtual_target == '@popup':
+                if 'popup' in self.editor_methods:
+                    return self.editor_methods['popup'](output)
+        
+        if target in self.nodes: #fallback
+            return self._set_node_contents(target, output) 
+        
     """ Metadata Handling """
 
     def tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):

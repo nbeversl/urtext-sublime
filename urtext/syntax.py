@@ -6,8 +6,6 @@ pattern_break =                         r'($|(?=[\s|\r|]))'
 
 # Syntax Elements
 
-file_link_opening_wrapper =             '|f> '
-file_link_closing_wrapper =             ' >'
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
 link_opening_wrapper =                  '| '
@@ -18,7 +16,7 @@ link_modifiers = {
     'action_link_modifier'  : r'\!',
     'no_modifier'           : '',
 }
-link_modifier_group = r'(' + '|'.join(['(' + m + ')' for m in link_modifiers.values()]) + ')'
+link_modifier_group =                   r'(' + '|'.join(['(' + m + ')' for m in link_modifiers.values()]) + ')'
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!'
@@ -33,6 +31,7 @@ other_project_link_prefix =             '=>'
 dynamic_def_opening_wrapper =           '[['
 dynamic_def_closing_wrapper =           ']]'
 parent_identifier =                     ' ^ '
+virtual_target_marker =                 '@'
 
 # Base Patterns
 
@@ -64,6 +63,7 @@ meta_to_node =                          r'(\w+)\:\:\{'
 opening_wrapper =                       r'(?<!\\)' + re.escape(node_opening_wrapper)
 preformat =                             r'\`.*?\`'
 sub_node =                              r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
+virtual_target =                        r'' + virtual_target_marker + '[\w_]+'
 title_pattern =                         r'^([^\|\^>\n\r])+'
 id_pattern =                            r'([^\|>\n\r])+'
 url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
@@ -94,12 +94,12 @@ timestamp =                             r''.join([
                                             timestamp_opening_wrapper,
                                             r'([^-/<\s][^=<]+?)',
                                             timestamp_closing_wrapper])
-editor_file_link =                      r''.join([
-                                            '(',
-                                            re.escape(file_link_opening_wrapper),
-                                            ')([^;]+)(',
-                                            file_link_closing_wrapper,
-                                            ')'])
+file_link =                             r''.join([
+                                            link_opening_character,
+                                            link_modifiers['file_link_modifier'],
+                                            ' '
+                                            r'([^;]+)',
+                                            link_closing_wrapper])
 urtext_messages =                       r''.join([
                                             urtext_message_opening_wrapper,
                                             '.*?',
@@ -113,7 +113,7 @@ closing_wrapper_c =             re.compile(closing_wrapper)
 dd_flag_c =                     re.compile(dd_flag)
 dd_key_c =                      re.compile(dd_key)
 dynamic_def_c =                 re.compile(dynamic_def, flags=re.DOTALL)
-editor_file_link_c =            re.compile(editor_file_link)
+file_link_c =                   re.compile(file_link)
 embedded_syntax_open_c =        re.compile(embedded_syntax_open, flags=re.DOTALL)
 embedded_syntax_c =             re.compile(embedded_syntax_full, flags=re.DOTALL)
 embedded_syntax_close_c =       re.compile(embedded_syntax_close, flags=re.DOTALL)
@@ -151,7 +151,7 @@ subnode_regexp_c =              re.compile(sub_node, flags=re.DOTALL)
 timestamp_c =                   re.compile(timestamp)
 title_regex_c =                 re.compile(title_pattern)
 url_c =                         re.compile(url)                       
-
+virtual_target_match =          re.compile(virtual_target)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)',        # timestamp
     r'\*{2}\w+\:\:([^\n};]+);?',            # inline_meta

@@ -336,7 +336,7 @@ class UrtextExport(UrtextDirective):
 
     def replace_file_links(self, contents, escaped_regions):
         to_replace = []
-        for link in syntax.editor_file_link_c.finditer(contents):
+        for link in syntax.file_link_c.finditer(contents):
             if not self.is_escaped(escaped_regions, (link.start(), link.end())):
                 to_replace.append(link)
         for link in to_replace:

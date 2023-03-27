@@ -45,6 +45,7 @@ class UrtextDynamicDefinition:
 		self.location = location
 		self.contents = None
 		self.target_id = None
+		self.targets = []
 		self.target_file = None
 		self.included_nodes = []
 		self.excluded_nodes = []
@@ -52,14 +53,12 @@ class UrtextDynamicDefinition:
 		self.project = project
 		self.preformat = False
 		self.show = None
-		self.multiline_meta = False
 		self.returns_text = True
 		self.param_string = param_string
 		self.init_self(param_string)	
 		self.source_id = None # set by node once compiled
-		if not self.show:
-			self.show = '$link\n'
-			
+		if not self.show: self.show = '$link\n'
+
 	def init_self(self, contents):
 
 		self.operations = []
@@ -78,7 +77,11 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func in ['TARGET', '>']:
-				self.target_id = get_id_from_link(argument_string)
+				output_target = syntax.virtual_target_match.match(argument_string)
+				if output_target:
+					self.targets.append(output_target.group())
+				else:
+					self.target_id = get_id_from_link(argument_string)
 				continue
 
 			if func == 'FILE':
@@ -154,37 +157,37 @@ class UrtextDynamicDefinition:
 			return True
 		return False
 
-	def process(self, dynamic_definition, flags=[]):
-        
-        self.flags = flags
+	def process(self, flags=[]):
+		
+		self.flags = flags
 
-        if self.target_id == None and not self.target_file: 
-            return self.project._log_item(None, ''.join([
-                    'Dynamic definition in ',
-                    syntax.link_opening_wrapper,
-                    dynamic_definition.source_id,
-                    syntax.link_closing_wrapper,
-                    ' has no target']))
-            
-        if self.target_id and self.target_id not in self.project.nodes:
-            return self.project._log_item(None, ''.join([
-                        'Dynamic node definition in',
-                        syntax.link_opening_wrapper,
-                        dynamic_definition.source_id,
-                        syntax.link_closing_wrapper,
-                        ' points to nonexistent node ',
-                        syntax.link_opening_wrapper,
-                        dynamic_definition.target_id,
-                        syntax.link_closing_wrapper]))
+		if self.target_id == None and not self.target_file: 
+			return self.project._log_item(None, ''.join([
+					'Dynamic definition in ',
+					syntax.link_opening_wrapper,
+					dynamic_definition.source_id,
+					syntax.link_closing_wrapper,
+					' has no target']))
+			
+		if self.target_id and self.target_id not in self.project.nodes:
+			return self.project._log_item(None, ''.join([
+						'Dynamic node definition in',
+						syntax.link_opening_wrapper,
+						dynamic_definition.source_id,
+						syntax.link_closing_wrapper,
+						' points to nonexistent node ',
+						syntax.link_opening_wrapper,
+						dynamic_definition.target_id,
+						syntax.link_closing_wrapper]))
 
-        output = self.process_output()
+		output = self.process_output()
 
-        if not output: return        
-        if not self.returns_text and not self.target_file: return
+		if not output: return        
+		if not self.returns_text and not self.target_file: return
 
-        output = self.preserve_title_if_present() + output
-        if self.spaces: output = indent(output, spaces=self.spaces)
-        return output
+		output = self.preserve_title_if_present() + output
+		if self.spaces: output = indent(output, spaces=self.spaces)
+		return output
 
 def has_text_output(operations):
 	for op in operations:
@@ -193,9 +196,9 @@ def has_text_output(operations):
 	return False
 
 def indent(contents, spaces=4):
-    content_lines = contents.split('\n')
-    content_lines[0] = content_lines[0].strip()
-    for index, line in enumerate(content_lines):
-        if line.strip() != '':
-            content_lines[index] = '\t' * spaces + line
-    return '\n'+'\n'.join(content_lines)
+	content_lines = contents.split('\n')
+	content_lines[0] = content_lines[0].strip()
+	for index, line in enumerate(content_lines):
+		if line.strip() != '':
+			content_lines[index] = '\t' * spaces + line
+	return '\n'+'\n'.join(content_lines)
