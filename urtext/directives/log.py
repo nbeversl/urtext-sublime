@@ -15,7 +15,7 @@ class Log(UrtextDirective):
 		output = []
 		for k in self.project.messages:
 			if k:
-				file = syntax.file_link_opening_wrapper + k + syntax.file_link_closing_wrapper
+				file = syntax.file_link_opening_wrapper + k + syntax.link_closing_wrapper
 			else:
 				file = '(no file) '
 			for message in self.project.messages[k]:
