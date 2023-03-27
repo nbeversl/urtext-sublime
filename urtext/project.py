@@ -213,7 +213,7 @@ class UrtextProject:
 
             for dd in node.dynamic_definitions:
                 dd.source_id = node.id
-                if dd.target_id == '@self' :
+                if dd.target_id == '@self':
                     dd.target_id = node.id
                 self.dynamic_definitions.append(dd)
 
@@ -636,8 +636,8 @@ class UrtextProject:
             return '• ' + contents.strip() + metadata_block
 
     def dynamic_defs(self, target=None, source=None):
-        if target:
-            return [dd for dd in self.dynamic_definitions if dd.target_id == target or dd.target_id == '@self']
+        if target or source:
+            return [dd for dd in self.dynamic_definitions if dd.target_id == target or dd.source_id == source]
         return self.dynamic_definitions
 
     def remove_dynamic_defs(self, node_id):
@@ -1312,23 +1312,14 @@ class UrtextProject:
 
         modified_ids = []
         modified_files = []
-        for node in self.files[filename].nodes:
-            for dd in self.dynamic_defs(target=node.id):
-                output = dd.process(flags=events)
-                if output:
-                    for target in dd.targets:
-                        modified_id = self._direct_output(output, target)
-                        if modified_id:
-                            modified_ids.append(modified_file)
-                    
-            #TODO Refactor and DRY
-            for dd in self.dynamic_defs():
-                if dd.target_file and dd.source_id == node.id:
-                    output = dd.process(flags=events)
-                    if output:
-                        modified_file = self._direct_output(output, dd.target_file)
-                        if modified_file:
-                            modified_files.append(modified_file)
+        # for node in self.files[filename].nodes:
+        for dd in self.dynamic_defs():
+            output = dd.process(flags=events)                
+            if output:
+                for target in dd.targets:
+                    modified_id = self._direct_output(output, target)
+                    if modified_id:
+                        modified_ids.append(modified_id)
 
         for target_id in modified_ids:
             self.nodes[target_id].dynamic = True
@@ -1336,36 +1327,36 @@ class UrtextProject:
         return modified_files
 
     def _direct_output(self, output, target):
-        
+
         node_link = syntax.node_link_or_pointer_c.match(target)
         if node_link:
-            node_id = get_id_from_link(node_link)
+            node_id = get_id_from_link(node_link.group())
             if node_id in self.nodes:
-                return self._set_node_contents(dynamic_definition.target_id, final_output), None
+                if self._set_node_contents(node_id, output):
+                    return node_id
 
         target_file = syntax.file_link_c.match(target)
         if target_file:
-            #? TODO -- If the file is an export, need to make sure it is remembered
-            # when parsed so duplicate titles can be avoided
             filename = get_id_from_link(target_file)
             filename = os.path.join(self.entry_point, filename)
-            self.exports[filename] = dynamic_definition
+            #? TODO -- If the file is an export, need to make sure it is remembered
+            # when parsed so duplicate titles can be avoided
+            #self.exports[filename] = dynamic_definition
             with open(filename, 'w', encoding='utf-8' ) as f:
                 f.write(output)
-            return filename, None
+            return filename
 
-        virtual_target = syntax.virtual_target_match(target)
+        virtual_target = syntax.virtual_target_match_c.match(target)
         if virtual_target:
-            virtual_target = virtual_target_match.group()
-
+            virtual_target = virtual_target.group()
             if virtual_target == '@clipboard':
                 if 'set_clipboard' in self.editor_methods:
                     return self.editor_methods['set_clipboard'](output)
             if virtual_target == '@next_line':
                 if 'insert_at_next_line' in self.editor_methods:
                     return self.editor_methods['insert_at_next_line'](output)
-            if virtual_target == '@log':
-                return self._log_item(output)
+            # if virtual_target == '@log':
+            #     return self._log_item(output)
             if virtual_target == '@console':
                 if 'write_to_console' in self.editor_methods:
                     return self.editor_methods['write_to_console'](output)

@@ -66,7 +66,7 @@ class UrtextDynamicDefinition:
 		self.contents = contents
 
 		for match in syntax.function_c.finditer(contents):
-			#TODO fix this hack
+			
 			func, argument_string = match.group(1), match.group().strip(match.group(1)).strip(')(')
 			argument_string = match.group(2)
 			if func and func in self.project.directives:
@@ -77,11 +77,12 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 
 			if func in ['TARGET', '>']:
-				output_target = syntax.virtual_target_match.match(argument_string)
+				output_target = syntax.virtual_target_match_c.match(argument_string)
 				if output_target:
 					self.targets.append(output_target.group())
 				else:
 					self.target_id = get_id_from_link(argument_string)
+					self.targets.append(argument_string)
 				continue
 
 			if func == 'FILE':
@@ -110,8 +111,8 @@ class UrtextDynamicDefinition:
 			return ' ' + self.project.nodes[self.target_id].title + syntax.title_marker +'\n'
 		return ''
 
-	def process_output(self, flags=[], max_phase=800):
-		
+	def process_output(self, max_phase=800):
+
 		outcome = []
 		phases_to_process = [p for p in phases if p <= max_phase]
 		all_operations = sorted(list(self.operations), key = lambda op: op.phase)
@@ -160,24 +161,24 @@ class UrtextDynamicDefinition:
 	def process(self, flags=[]):
 		
 		self.flags = flags
+		
+		# if self.target_id == None and not self.target_file: 
+		# 	return self.project._log_item(None, ''.join([
+		# 			'Dynamic definition in ',
+		# 			syntax.link_opening_wrapper,
+		# 			self.source_id,
+		# 			syntax.link_closing_wrapper,
+		# 			' has no target']))
 
-		if self.target_id == None and not self.target_file: 
-			return self.project._log_item(None, ''.join([
-					'Dynamic definition in ',
-					syntax.link_opening_wrapper,
-					dynamic_definition.source_id,
-					syntax.link_closing_wrapper,
-					' has no target']))
-			
 		if self.target_id and self.target_id not in self.project.nodes:
 			return self.project._log_item(None, ''.join([
 						'Dynamic node definition in',
 						syntax.link_opening_wrapper,
-						dynamic_definition.source_id,
+						self.source_id,
 						syntax.link_closing_wrapper,
 						' points to nonexistent node ',
 						syntax.link_opening_wrapper,
-						dynamic_definition.target_id,
+						self.target_id,
 						syntax.link_closing_wrapper]))
 
 		output = self.process_output()

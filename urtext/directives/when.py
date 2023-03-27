@@ -14,7 +14,6 @@ class When(UrtextDirective):
 	def should_continue(self):
 		if self.have_flags('-never'):
 			return False
-		print(self.dynamic_definition.flags)
 		for flag in self.flags:
 			if flag in self.dynamic_definition.flags:
 				return True
