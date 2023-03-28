@@ -34,8 +34,9 @@ phases = [
 	300, # Build text. Expects list of node objects. Convert selected nodes to text output
 	400, # Adding header/footer, preserving other elements as needed
 	500, # Transform built text further (exports, etc.)
-	600, # (currently unused)
+	600, # currently unused
 	700, # custom operations
+	800, # post-process (formatting per target, preserving title/definition, etc.)
 ]
 
 class UrtextDynamicDefinition:
@@ -93,8 +94,11 @@ class UrtextDynamicDefinition:
 				self.show = argument_string
 		
 		self.phases = list(set([op.phase for op in self.operations]))
-		is_custom_output = max(self.phases) >= 700 if self.phases else False
-		if not is_custom_output and not has_text_output(self.operations):
+		
+		#TODO rewrite -- 
+		#is_custom_output = max(self.phases) >= 700 if self.phases else False
+		#if not is_custom_output and not has_text_output(self.operations):
+		if not has_text_output(self.operations):
 			# add simple list output if none supplied
 			op = self.project.directives['TREE'](self.project)
 			op.parse_argument_string('1')	
@@ -113,7 +117,7 @@ class UrtextDynamicDefinition:
 			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
-	def process_output(self, max_phase=800):
+	def process_output(self, max_phase=700):
 
 		outcome = []
 		phases_to_process = [p for p in phases if p <= max_phase]
@@ -153,7 +157,7 @@ class UrtextDynamicDefinition:
 	def get_definition_text(self):
 		return  '\n' + ''.join([
 			syntax.dynamic_def_opening_wrapper,
-			self.contents,
+			'\n'.join([line.strip() for line in self.contents.split('\n')]),
 			syntax.dynamic_def_closing_wrapper
 			])
 
@@ -186,6 +190,16 @@ class UrtextDynamicDefinition:
 		if not self.returns_text and not self.target_file: return
 		if self.spaces: output = indent(output, spaces=self.spaces)
 		return output
+
+	def post_process(self, target, output):
+		output = self.preserve_title_if_present(target) + output
+		if target == '@self':
+			output += self.get_definition_text()
+		post_process_ops = [op for op in list(self.operations) if op.phase >= 800]
+		for op in post_process_ops:
+			output = op._dynamic_output(output)
+		return output
+
 
 def has_text_output(operations):
 	for op in operations:

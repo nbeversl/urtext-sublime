@@ -1318,14 +1318,16 @@ class UrtextProject:
                 output = dd.process(flags=events)
                 if output:
                     for target in dd.targets:
-                        target_output = dd.preserve_title_if_present(target) + output
-                        modified_target = self._direct_output(target_output, target, dd)
-                        if modified_target:
+                        targeted_output = dd.post_process(target, output)
+                        modified_target = self._direct_output(targeted_output, target, dd)
+                        if modified_target: 
                             modified_targets.append(modified_target)
 
         for target in modified_targets:
             if target in self.nodes:
-               self.nodes[target].dynamic = True
+                self.nodes[target].dynamic = True
+                if self.nodes[target].filename not in modified_files:
+                    modified_files.append(self.nodes[target].filename)
 
         return modified_files
 
@@ -1350,10 +1352,8 @@ class UrtextProject:
             return filename
         virtual_target = syntax.virtual_target_match_c.match(target)
         if virtual_target:
-            
             virtual_target = virtual_target.group()
             if virtual_target == '@self':
-                output += dd.get_definition_text()
                 if self._set_node_contents(dd.source_id, output):
                     return dd.source_id
             if virtual_target == '@clipboard':
