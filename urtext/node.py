@@ -225,6 +225,7 @@ class UrtextNode:
             title = title[:255]
         title = sanitize_escape(title)
         title = strip_nested_links(title)
+        title = strip_disallowed_characters(title)
         self.metadata.add_entry('title', title)
         return title
    
@@ -434,3 +435,8 @@ def sanitize_escape(string):
     if string.count('`') == 1:
         return string.replace('`','')
     return string
+
+def strip_disallowed_characters(title):
+    for character in syntax.disallowed_title_characters:
+        title = re.sub(character, ' ', title)
+    return title.strip()
