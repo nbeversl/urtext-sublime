@@ -62,12 +62,14 @@
 	     "blue-brighter" : "hsl(225, 80%, 60%)",
 	     "blue-grey" : "hsl(225, 10%, 50%)",
 	     "yellow":"hsl(54, 95%, 67%)",
+	     "bright-green2":"hsl(113, 40%, 70%)",
 	     "bright-yellow" : "hsl(60, 100%, 75%)",
 	     "black3": "hsl(70, 8%, 15%)",
 	     "red": "hsl(0, 100%, 50%)",
 	     "white-ish": "hsla(0, 0%, 67%, 1)",
 	     "bright-green":"hsl(225, 80%, 60%)",
 	     "reg-text-white" : "hsl(300, 4%, 100%)",
+	     "lime2" : "hsl(164, 40%, 46%)",
 	     /* color definitions - - - - - - - - - */
 		 "blue-bright" : "#0661EE",
 		 "blue-gray": "#E2E1EF",	 
@@ -342,7 +344,16 @@
 	  			"scope" : "url_link.urtext",
 	  			"foreground" : "var(blue-bright)"
 	  		},
-
+	  		{ 
+	  			"scope" : "missing_node.urtext",
+	  			"foreground" : "var(yellow)",
+	  			"font_style":"bold",
+	  		},
+	  		{ 
+	  			"scope" : "action_node.urtext",
+	  			"foreground" : "var(lime2)",
+	  			"font_style":"bold",
+	  		},
 	  		
 	/* system message */
 

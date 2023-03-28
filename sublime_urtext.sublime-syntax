@@ -276,10 +276,12 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(\|[\?fw]?\s)([^>]+)>'
-      captures: 
-        1: link_prefix.urtext
-        2: link_id.urtext
+    - match: '(\|)(\?\s)?(\!\s)?([^>]+)>'
+      captures:
+        1: link_opening_wrapper.urtext 
+        2: missing_node.urtext
+        3: action_node.urtext
+        4: link_id.urtext
 
   node_pointer:
     - match: '(\|[\?]?\s)([^>]+)>>{1,2}'
@@ -357,3 +359,4 @@ contexts:
       push: inline-node-1
     - match: '[\r|\n]'
       pop: true
+
