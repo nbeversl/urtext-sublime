@@ -1309,7 +1309,7 @@ class UrtextProject:
 
     def _compile_file(self, filename, events=[]):
 
-        modified_ids = []
+        modified_targets = []
         modified_files = []
 
         for node in self.files[filename].nodes:
@@ -1318,12 +1318,13 @@ class UrtextProject:
                 if output:
                     for target in dd.targets:
                         target_output = dd.preserve_title_if_present(target) + output
-                        modified_id = self._direct_output(target_output, target, dd)
-                        if modified_id:
-                            modified_ids.append(modified_id)
+                        modified_target = self._direct_output(target_output, target, dd)
+                        if modified_target:
+                            modified_targets.append(modified_target)
 
-        for target_id in modified_ids:
-            self.nodes[target_id].dynamic = True
+        for target in modified_targets:
+            if target in self.nodes:
+               self.nodes[target].dynamic = True
 
         return modified_files
 
