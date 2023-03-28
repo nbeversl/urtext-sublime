@@ -727,14 +727,15 @@ class UrtextProject:
         remaining_nodes = list(self.nodes)
         sorted_nodes = []
         for k in self.settings['node_browser_sort']:
-            use_timestamp= k in self.settings['use_timestamp']
+            use_timestamp = k in self.settings['use_timestamp']
             as_int = k in self.settings['numerical_keys']
-            k = k.lower()
             node_group = [r for r in remaining_nodes if r in self.nodes and self.nodes[r].metadata.get_first_value(k)]
             node_group = sorted(node_group, key=lambda nid: sort(nid, return_type=True), reverse=k in self.settings['use_timestamp'] )
             sorted_nodes.extend(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
+        if as_nodes:
+            sorted_nodes = [self.project.nodes[nid] for nid in sorted_nodes]
         return sorted_nodes
 
     def all_files(self):
