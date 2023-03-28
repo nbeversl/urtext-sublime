@@ -374,7 +374,7 @@ class UrtextProject:
         if check_id in self.nodes:
             for dd in self.dynamic_defs():
                 if check_id in dd.target_ids:
-                    return nid
+                    return dd.source_id
 
     def _target_file_defined(self, file):
         for nid in list(self.nodes):
@@ -390,18 +390,13 @@ class UrtextProject:
         """ Adds a node to the project object """
         for definition in new_node.dynamic_definitions:
             
-            already_defined = []
             for target_id in definition.target_ids:
-                if self._target_id_defined(target_id):
-                    already_defined.append(target_id)
-                
-                for node_id in already_defined:
-
-                    if node_id != new_node.id:
+                defined_in = self._target_id_defined(target_id)
+                if defined_in and defined_in != new_node.id:
 
                         message = ''.join(['Dynamic node ', 
                                     syntax.link_opening_wrapper,
-                                    definition.target_id,
+                                    target_id,
                                     syntax.link_closing_wrapper,
                                     ' has duplicate definition in ', 
                                     syntax.link_opening_wrapper,
@@ -409,7 +404,7 @@ class UrtextProject:
                                     syntax.link_closing_wrapper,
                                     '; Keeping the definition in ',
                                     syntax.link_opening_wrapper,
-                                    defined,
+                                    defined_in,
                                     syntax.link_closing_wrapper])
 
                         self._log_item(new_node.filename, message)
@@ -812,7 +807,7 @@ class UrtextProject:
                         output = dd.process(flags=['-link_clicked'])
                         if output:
                             for target in dd.targets:
-                                target_output = self.preserve_title_if_present(target) + output
+                                target_output = dd.preserve_title_if_present(target) + output
                                 self._direct_output(target_output, target, dd)
                             # TODO
                             # if modified_file:
@@ -1316,14 +1311,15 @@ class UrtextProject:
 
         modified_ids = []
         modified_files = []
-        # for node in self.files[filename].nodes:
-        for dd in self.dynamic_defs():
-            output = dd.process(flags=events)                
-            if output:
-                for target in dd.targets:
-                    modified_id = self._direct_output(output, target, dd)
-                    if modified_id:
-                        modified_ids.append(modified_id)
+
+        for node in self.files[filename].nodes:
+            for dd in self.dynamic_defs(target=node.id, source=node.id):
+                output = dd.process(flags=events)                
+                if output:
+                    for target in dd.targets:
+                        modified_id = self._direct_output(output, target, dd)
+                        if modified_id:
+                            modified_ids.append(modified_id)
 
         for target_id in modified_ids:
             self.nodes[target_id].dynamic = True
