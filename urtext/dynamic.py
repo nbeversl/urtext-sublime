@@ -105,9 +105,9 @@ class UrtextDynamicDefinition:
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
-	def preserve_title_if_present(self, node_id):
-
-		if node_id in self.target_ids and self.project.nodes[node_id].first_line_title:
+	def preserve_title_if_present(self, target):
+		node_id = get_id_from_link(target)
+		if (node_id in self.target_ids) and (node_id in self.project.nodes) and (self.project.nodes[node_id].first_line_title):
 			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
@@ -184,7 +184,6 @@ class UrtextDynamicDefinition:
 							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
-
 		if not output: return        
 		if not self.returns_text and not self.target_file: return
 		if self.spaces: output = indent(output, spaces=self.spaces)

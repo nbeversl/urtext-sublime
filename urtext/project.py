@@ -1317,7 +1317,8 @@ class UrtextProject:
                 output = dd.process(flags=events)                
                 if output:
                     for target in dd.targets:
-                        modified_id = self._direct_output(output, target, dd)
+                        target_output = dd.preserve_title_if_present(target) + output
+                        modified_id = self._direct_output(target_output, target, dd)
                         if modified_id:
                             modified_ids.append(modified_id)
 
