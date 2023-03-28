@@ -862,7 +862,7 @@ class UrtextProject:
             if link in self.nodes: result = link
             else:
                 for node_id in self.nodes:
-                    if node_id.startswith(link):
+                    if node_id == link:
                         result = node_id
                         break
         node_id = ''
@@ -1351,7 +1351,8 @@ class UrtextProject:
         if virtual_target:
             
             virtual_target = virtual_target.group()
-            if virtual_target == '@self':    
+            if virtual_target == '@self':
+                output += dd.get_definition_text()
                 if self._set_node_contents(dd.source_id, output):
                     return dd.source_id
             if virtual_target == '@clipboard':

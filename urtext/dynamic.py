@@ -107,10 +107,10 @@ class UrtextDynamicDefinition:
 
 	def preserve_title_if_present(self, target):
 		if target == '@self':
-			return ' ' + self.source_id + syntax.title_marker +'\n'
+			return ' ' + self.project.nodes[self.source_id].title + syntax.title_marker +'\n'
 		node_id = get_id_from_link(target)
 		if node_id in self.target_ids and node_id in self.project.nodes and self.project.nodes[node_id].first_line_title:
-			return ' ' + node_id + syntax.title_marker +'\n'
+			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
 	def process_output(self, max_phase=800):
@@ -141,13 +141,7 @@ class UrtextDynamicDefinition:
 					if new_outcome == False:
 						return False
 					outcome = new_outcome
-		
-		if self.source_id in self.target_ids:
-			outcome = outcome +  '\n' + ''.join([
-				syntax.dynamic_def_opening_wrapper,
-				self.contents,
-				syntax.dynamic_def_closing_wrapper
-				])
+
 		self.flags = []
 		return outcome		
 
@@ -155,6 +149,13 @@ class UrtextDynamicDefinition:
 		if flag in self.flags:
 			return True
 		return False
+
+	def get_definition_text(self):
+		return  '\n' + ''.join([
+			syntax.dynamic_def_opening_wrapper,
+			self.contents,
+			syntax.dynamic_def_closing_wrapper
+			])
 
 	def process(self, flags=[]):
 		self.flags = flags
