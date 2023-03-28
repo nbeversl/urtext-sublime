@@ -485,10 +485,10 @@ class NodeBrowserMenu:
             projects = [project]
 
         if nodes != None:
-            self.menu = project.all_nodes(as_nodes=True)
+            self.menu = [project.nodes[node_id] for node_id in nodes]
         else:
             for single_project in projects:
-                self.menu.extend(single_project.nodes.values())
+                self.menu.extend(single_project.all_nodes(as_nodes=True))
 
         for node in self.menu:  # there is probably a better way to copy this list.
             timestamp = node.metadata.get_oldest_timestamp()
