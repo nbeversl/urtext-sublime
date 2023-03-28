@@ -703,7 +703,7 @@ class UrtextProject:
         return alternative
 
 
-    def open_node(self, node_id):
+    def open_node(self, node_id, as_nodes=False):
         if node_id not in self.nodes:
             return print('%s not in project' % node_id)
         if 'open_file_to_position' in self.editor_methods:
@@ -716,7 +716,7 @@ class UrtextProject:
     def open_home(self):
         self.open_node(self.settings['home'])
  
-    def all_nodes(self):
+    def all_nodes(self, as_nodes=False):
 
         def sort(nid, return_type=False):
             return self.nodes[nid].metadata.get_first_value(
@@ -735,7 +735,7 @@ class UrtextProject:
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
         if as_nodes:
-            sorted_nodes = [self.project.nodes[nid] for nid in sorted_nodes]
+            sorted_nodes = [self.nodes[nid] for nid in sorted_nodes]
         return sorted_nodes
 
     def all_files(self):
