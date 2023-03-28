@@ -212,7 +212,7 @@ class UrtextProject:
                 self._get_settings_from(node)     
 
             for dd in node.dynamic_definitions:
-                dd.source_id = node.id                
+                dd.source_id = node.id   
                 self.dynamic_definitions.append(dd)
 
             for entry in node.metadata.dynamic_entries:
@@ -1314,7 +1314,7 @@ class UrtextProject:
 
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id, source=node.id):
-                output = dd.process(flags=events)                
+                output = dd.process(flags=events)
                 if output:
                     for target in dd.targets:
                         target_output = dd.preserve_title_if_present(target) + output
@@ -1347,11 +1347,11 @@ class UrtextProject:
             with open(filename, 'w', encoding='utf-8' ) as f:
                 f.write(output)
             return filename
-
         virtual_target = syntax.virtual_target_match_c.match(target)
         if virtual_target:
+            
             virtual_target = virtual_target.group()
-            if virtual_target == '@self':                
+            if virtual_target == '@self':    
                 if self._set_node_contents(dd.source_id, output):
                     return dd.source_id
             if virtual_target == '@clipboard':

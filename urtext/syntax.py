@@ -151,7 +151,7 @@ subnode_regexp_c =              re.compile(sub_node, flags=re.DOTALL)
 timestamp_c =                   re.compile(timestamp)
 title_regex_c =                 re.compile(title_pattern)
 url_c =                         re.compile(url)                       
-virtual_target_match_c =        re.compile(virtual_target)
+virtual_target_match_c =        re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)',        # timestamp
     r'\*{2}\w+\:\:([^\n};]+);?',            # inline_meta
