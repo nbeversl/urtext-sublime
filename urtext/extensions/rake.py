@@ -65,6 +65,11 @@ class AddRakeKeywords(UrtextExtension):
                     assoc_nodes.remove(node_id)
             return assoc_nodes
 
+    def on_node_id_changed(self, old_node_id, new_node_id):
+        if old_node_id in self.nodes:
+            self.nodes[new_node_id] = self.nodes[old_node_id]
+            del self.nodes[old_node_id]
+
 class Rake():
 
     def __init__(self, contents):
