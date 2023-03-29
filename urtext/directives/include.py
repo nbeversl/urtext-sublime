@@ -19,23 +19,27 @@ class NodeQuery(UrtextDirective):
 				self.project, 
 				self.params, 
 				self.dynamic_definition,
-				include_dynamic=self.have_flags('-include_dynamic'))
+				include_dynamic=self.have_flags('-dynamic'))
 			)
 
-		if self.have_flags('-title_only'): # ONLY IF blank
+		# flags specify how to LIMIT the query, whether it is + or -
+		if self.have_flags('-title_only'):
 			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
 
-		if self.have_flags('-untitled'): # ONLY IF blank
+		if self.have_flags('-untitled'):
 			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
+
+		if self.have_flags('-is_meta'):
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
 		
-		if not self.have_flags('-include_dynamic'):		
-			added_nodes = [f for f in added_nodes if f in self.project.nodes and not self.project.nodes[f].dynamic]
+		if self.have_flags('-dynamic'):		
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].dynamic])
 
 		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
 			passed_nodes.discard(target_id)   
 		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
-
+		
 		return self.dynamic_definition.included_nodes
 
 	def dynamic_output(self, nodes):

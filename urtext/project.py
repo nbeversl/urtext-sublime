@@ -203,6 +203,7 @@ class UrtextProject:
                 keyname,
                 self.nodes[target_node],
                 is_node=True)
+            self.nodes[target_node].is_meta = True
 
         for ext in self.extensions:
             self.extensions[ext].on_file_modified(filename)
@@ -464,6 +465,7 @@ class UrtextProject:
             for node_id in dd.target_ids:
                 if node_id in self.nodes:
                     self.nodes[node_id].dynamic = True
+
 
     """
     Removing and renaming files
@@ -806,7 +808,7 @@ class UrtextProject:
                 for dd in self.dynamic_defs(source=link['node_id']):
                     if dd.source_id == link['node_id']:
                         output = dd.process(flags=['-link_clicked'])
-                        if output:
+                        if output not in [False, None]:
                             for target in dd.targets:
                                 target_output = dd.preserve_title_if_present(target) + output
                                 self._direct_output(target_output, target, dd)
@@ -1316,12 +1318,11 @@ class UrtextProject:
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id, source=node.id):
                 output = dd.process(flags=events)
-                if output:
+                if output not in [False, None]:
                     for target in dd.targets:
                         targeted_output = dd.post_process(target, output)
                         modified_target = self._direct_output(targeted_output, target, dd)
-                        if modified_target: 
-                            modified_targets.append(modified_target)
+                        modified_targets.append(modified_target)
 
         for target in modified_targets:
             if target in self.nodes:
@@ -1337,8 +1338,8 @@ class UrtextProject:
         if node_link:
             node_id = get_id_from_link(node_link.group())
             if node_id in self.nodes:
-                if self._set_node_contents(node_id, output):
-                    return node_id
+                self._set_node_contents(node_id, output)
+                return node_id
 
         target_file = syntax.file_link_c.match(target)
         if target_file:
@@ -1372,7 +1373,8 @@ class UrtextProject:
                     return self.editor_methods['popup'](output)
         
         if target in self.nodes: #fallback
-            return self._set_node_contents(target, output) 
+            self._set_node_contents(target, output)
+            return target
         
     """ Metadata Handling """
 

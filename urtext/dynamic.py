@@ -186,7 +186,7 @@ class UrtextDynamicDefinition:
 							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
-		if not output: return
+		if output == False: return
 		if not self.returns_text and not self.target_file: return
 		if self.spaces: output = indent(output, spaces=self.spaces)
 		return output
