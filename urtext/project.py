@@ -782,13 +782,17 @@ class UrtextProject:
     def handle_link(self, 
         string, 
         col_pos=0,
-        file_pos=0):
+        file_pos=0,
+        return_target_only=False):
 
         link = self._parse_link(
             string, 
             col_pos=col_pos,
             file_pos=file_pos)
         
+        if return_target_only: # for manual handling, e.g. Sublime Traverse, etc.
+            return link
+
         if not link:
             if not self.compiled: message = "Project is still compiling"
             else: message = "No link"
@@ -800,7 +804,23 @@ class UrtextProject:
             if not self.compiled: return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
+        if link['kind'] == 'NODE':
+            if link['link'] not in self.nodes:
+                if not self.compiled:
+                    return print('Project is still compiling')
+                else:
+                    return print('Node ' + link['link'] + ' is not in the project')
+            else:
+                if 'open_file_to_position' in self.editor_methods:
+                    self.visit_node(link['link'])
+                    return self.editor_methods['open_file_to_position'](
+                        link['filename'], link['dest_position'])
+
+        if return_target_only:
+            return link
+
         if link['kind'] == 'ACTION':
+
             if link['node_id'] not in self.nodes:
                 if not self.compiled: return print('Project is still compiling')
                 return print('Node ' + link['node_id'] + ' is not in the project')
@@ -827,16 +847,7 @@ class UrtextProject:
             if 'open_http_link' in self.editor_methods:
                 return self.editor_methods['open_http_link'](link['link'])
 
-        if link['kind'] == 'NODE':
-            if link['link'] not in self.nodes:
-                if not self.compiled:
-                   return print('Project is still compiling')
-                return print('Node ' + link['link'] + ' is not in the project')
-            else:
-                if 'open_file_to_position' in self.editor_methods:
-                    self.visit_node(link['link'])
-                    return self.editor_methods['open_file_to_position'](
-                        link['filename'], link['dest_position'])
+        
         return link
 
     def _parse_link(self, 

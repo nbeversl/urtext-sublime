@@ -148,9 +148,10 @@ class TraverseFileTree(EventListener):
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
 
-			link = self._UrtextProjectList.get_link_and_set_project(
+			link = self._UrtextProjectList.handle_link(
 	            full_line, 
-	            tree_view.file_name())
+	            tree_view.file_name(),
+	            return_target_only=True)
 
 			# if there are no links on this line:
 			if not link or link['kind'] != 'NODE':  
