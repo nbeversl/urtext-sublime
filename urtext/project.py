@@ -264,15 +264,15 @@ class UrtextProject:
         num_directives = len(self.directives)
 
         for c in all_subclasses(UrtextExtension):
-            for n in c.name:
+            for n in [x for x in c.name if x not in self.extensions]:
                 self.extensions[n] = c(self)
 
         for c in all_subclasses(UrtextAction):
-            for n in c.name:
+            for n in [x for x in c.name if x not in self.actions]:
                 self.actions[n] = c
 
         for c in all_subclasses(UrtextDirective):
-            for n in c.name:
+            for n in [x for x in c.name if x not in self.directives]:
                 self.directives[n] = c
 
         if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
