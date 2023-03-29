@@ -483,7 +483,9 @@ class NodeBrowserMenu:
         projects = project_list.projects
         if project:
             projects = [project]
-
+        else:
+            project = project_list.current_project
+        
         if nodes != None:
             self.menu = [project.nodes[node_id] for node_id in nodes]
         else:
