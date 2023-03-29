@@ -31,10 +31,10 @@ class UrtextAnyTree(UrtextExtension):
     def on_node_id_changed(self, old_node_id, new_node_id):
         self.project.nodes[new_node_id].tree_node.name = new_node_id
 
-    def on_file_removed(self, filename):
-        for node_id in self.project.files[filename].nodes:
-            self.project.nodes[node_id].tree_node.parent = None
-            del self.project.nodes[node_id].tree_node
+    def on_file_dropped(self, filename):
+        for node in self.project.files[filename].nodes:
+            node.tree_node.parent = None
+            del node.tree_node
         for a in self.project.files[filename].alias_nodes:
             a.parent = None
             a.children = []

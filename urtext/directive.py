@@ -1,15 +1,3 @@
-"""
-Phases:
-100s: Queries, building and sorting list of nodes included/excluded
-200s: convert selected nodes to text output
-300s: Transforming text (multiples permitted)
-400s: unused currently
-500s: Adding header/footer
-600s: do some customized action outside of this order
-700s: custom output, bypasses 300
-"""
-
-import re
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
@@ -53,7 +41,7 @@ class UrtextDirective():
     def on_any_file_modified(self, file_name):
         return
 
-    def on_file_removed(self, file_name):
+    def on_file_dropped(self, file_name):
         return
 
     def on_project_init(self):

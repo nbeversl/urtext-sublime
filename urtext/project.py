@@ -83,8 +83,6 @@ class UrtextProject:
         self.files = {}
         self.exports = {}
         self.messages = {}
-        self.navigation = []  # Stores, in order, the path of navigation
-        self.nav_index = -1  # pointer to the CURRENT position in the navigation list
         self.dynamic_definitions = []
         self.dynamic_metadata_entries = []
         self.extensions = {}
@@ -475,7 +473,10 @@ class UrtextProject:
         if filename in self.files:
             for dd in self.dynamic_defs():
                 for op in dd.operations:
-                    op.on_file_removed(filename)
+                    op.on_file_dropped(filename)
+
+            for ext in self.extensions.values():
+                ext.on_file_dropped(filename)
 
             for node in self.files[filename].nodes:    
                 if node.id not in self.nodes:
@@ -497,13 +498,7 @@ class UrtextProject:
         Deletes a file, removes it from the project,
         and returns modified files.
         """
-        if filename in self.files:
-            for node_id in list(self.files[filename].nodes):
-                while node_id in self.navigation:
-                    index = self.navigation.index(node_id)
-                    del self.navigation[index]
-                    if self.nav_index >= index:
-                        self.nav_index -= 1            
+        if filename in self.files:         
             self._drop_file(filename)
             os.remove(filename)
         if filename in self.messages:
@@ -650,64 +645,10 @@ class UrtextProject:
             if entry.from_node == node_id:
                 self.dynamic_metadata_entries.remove(entry)
 
-    """
-    Project Navigation
-    """
-
-    def nav_advance(self):
-        if not self.navigation:
-            return None
-        
-        # return if the index is already at the end
-        if self.nav_index == len(self.navigation) - 1:
-            print('project index is at the end.')
-            return None
-        
-        self.nav_index += 1
-        next_node = self.navigation[self.nav_index]
-        self.visit_node(next_node)
-        return next_node
-
-    def nav_new(self, node_id):
-        """
-        Should be called from the wrapper on focus of any new file or
-        node_id and before calling on_modified() or visit_file()
-        """
-        if node_id in self.nodes:
-            # don't re-remember consecutive duplicate links
-            if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
-                return     
-            # add the newly opened file as the new "HEAD"
-            self.nav_index += 1
-            del self.navigation[self.nav_index:]
-            self.navigation.append(node_id)
-            self.visit_node(node_id)
-               
-    def nav_reverse(self):
-        if not self.navigation:
-            return None
-
-        if self.nav_index == 0:
-            print('project index is already at the beginning.')
-            return None
-
-        self.nav_index -= 1
-        last_node = self.navigation[self.nav_index]
-        self.visit_node(last_node)
-        return self.open_node(last_node)
-
-    def nav_current(self):
-        if self.navigation and self.nav_index > -1:
-            return self.navigation[self.nav_index]
-        alternative = self.get_home()
-        if not alternative:
-            alternative = self.random_node()
-        return alternative
-
-
-    def open_node(self, node_id, as_nodes=False):
+    def open_node(self, node_id):
         if node_id not in self.nodes:
             return print('%s not in project' % node_id)
+        self.visit_node(node_id)
         if 'open_file_to_position' in self.editor_methods:
              return self.editor_methods['open_file_to_position'](
                 self.nodes[node_id].filename,
@@ -1098,8 +1039,8 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        for ext in list(self.extensions):
-            self.extensions[ext].on_node_visited(node_id)
+        for ext in list(self.extensions.values()):
+            ext.on_node_visited(node_id)
         for dd in list(self.dynamic_definitions):
             for op in dd.operations:
                 op.on_node_visited(node_id)

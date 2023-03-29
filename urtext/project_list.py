@@ -36,9 +36,8 @@ class ProjectList():
     
         self.entry_point = entry_point
         self.projects = []
+        self.extensions = {}
         self.current_project = None
-        self.navigation = []
-        self.nav_index = -1
         self.editor_methods = editor_methods
         self.add_project(entry_point)
 
@@ -146,9 +145,6 @@ class ProjectList():
                 if include_project or project != self.current_project:
                     link = syntax.other_project_link_prefix+ '"' + project.settings['project_title'] +'"'+link
                 return link
-
-    def nav_current(self):
-        return self.current_project.nav_current()
         
     def project_titles(self):
         titles = []
@@ -258,25 +254,6 @@ class ProjectList():
             if 'insert_text' in self.editor_methods:
                 self.editor_methods['insert_text'](link)
 
-    """
-    Project List Navigation
-    """
-
-    def nav_advance(self):
-
-        if not self.navigation:
-            return None
-            
-        if self.nav_index == len(self.navigation) - 1:
-            print('index is already at the end')
-            return
-
-        self.nav_index += 1
-        project, next_node = self.navigation[self.nav_index]
-        self.set_current_project(project)
-        next_node = self.current_project.nav_advance()
-        return next_node
-
     def delete_file(self, file_name, project=None, open_files=[]):
         if not project:
             project = self.current_project
@@ -290,35 +267,3 @@ class ProjectList():
                 del self.navigation[index]
                 if self.nav_index > index: # >= ?
                     self.nav_index -= 1
-
-    def nav_new(self, node_id, project=None):
-        
-        if not project:
-            project = self.current_project
-
-        # don't re-remember consecutive duplicate links
-        if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
-            return
-
-        # add the newly opened file as the new "HEAD"
-        self.nav_index += 1
-        del self.navigation[self.nav_index:]
-        self.navigation.append((project.settings['project_title'], node_id))
-        self.current_project.nav_new(node_id)
-
-    def nav_reverse(self):
-        
-        if not self.navigation:
-            print('no nav history')
-            return None
-            
-        if self.nav_index == 0:
-            print('index is already at the beginning.')
-            return None
-        
-        self.nav_index -= 1
-
-        project, last_node = self.navigation[self.nav_index]
-        self.set_current_project(project)
-        self.current_project.nav_reverse()   
-        return last_node
