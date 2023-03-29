@@ -847,8 +847,8 @@ class UrtextProject:
         kind = ''
         link = ''
         dest_position = None
-        link_match = None
         result = None
+        full_match = None
         
         action_only = syntax.node_action_link_c.search(string)
         if action_only:
@@ -861,7 +861,8 @@ class UrtextProject:
 
         link = syntax.node_link_or_pointer_c.search(string)
         if link:
-            link = get_id_from_link(link.group())
+            full_match = link.group()
+            link = get_id_from_link(full_match)
             if link in self.nodes: result = link
             else:
                 for node_id in self.nodes:
@@ -894,7 +895,8 @@ class UrtextProject:
                 'filename' : filename,
                 'node_id' : node_id,
                 'file_pos': file_pos, 
-                'dest_position' : dest_position 
+                'dest_position' : dest_position,
+                'full_match' : full_match,
                 }
 
     def get_node_contents(self, node_id):

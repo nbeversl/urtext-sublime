@@ -110,9 +110,8 @@ class PullNode(UrtextAction):
         
         replacement_contents = None
 
-        link = self.project.get_link(
+        link = self.project._parse_link(
             string,
-            destination_filename,
             file_pos=file_pos,
             col_pos=col_pos)
         
