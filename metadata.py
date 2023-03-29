@@ -26,14 +26,6 @@ class FindByMetaCommand(UrtextTextCommand):
                    self.open_the_node)
 
     def open_the_node(self, selected_option):
-        # TODO refactor from below
-        if selected_option == -1:
-            return
-        path = get_path(self.view)
-        new_view = self.view.window().open_file(
-            os.path.join(
-                path,
-                self.menu.get_selection_from_index(selected_option).filename))
-        if len(selected_option) > 3 and selected_option[3] != None:
-            self.locate_node(selected_option[3], new_view)
-
+        if selected_option == -1: return
+        node_id = self.menu.menu[selected_option].id
+        self._UrtextProjectList.current_project.open_node(node_id)
