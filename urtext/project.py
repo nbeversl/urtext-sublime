@@ -337,7 +337,7 @@ class UrtextProject:
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
                     changed_ids[duplicated_id] = resolved_existing_id
                     for ext in self.extensions:
-                        self.extensions[ext].on_node_title_changed(
+                        self.extensions[ext].on_node_id_changed(
                             duplicated_id,
                             resolved_existing_id)
                     del self.nodes[duplicated_id]
@@ -763,7 +763,7 @@ class UrtextProject:
                         return node.id
 
     def get_links_to(self, to_id):
-        return [i for i in self.nodes if to_id in self.nodes[i].links_ids()]
+        return [i for i in list(self.nodes) if to_id in self.nodes[i].links_ids()]
 
     def get_links_from(self, from_id):
         if from_id in self.nodes:

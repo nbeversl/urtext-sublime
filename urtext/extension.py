@@ -21,5 +21,5 @@ class UrtextExtension:
     def on_file_renamed(self, old_filename, new_filename):
         return
 
-    def on_node_title_changed(self, old_node_id, new_node_id):
+    def on_node_id_changed(self, old_node_id, new_node_id):
         return

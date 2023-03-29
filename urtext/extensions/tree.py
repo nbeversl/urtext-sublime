@@ -28,7 +28,7 @@ class UrtextAnyTree(UrtextExtension):
     def on_node_added(self, node):
         node.tree_node = Node(node.id)
 
-    def on_node_title_changed(self, old_node_id, new_node_id):
+    def on_node_id_changed(self, old_node_id, new_node_id):
         self.project.nodes[new_node_id].tree_node.name = new_node_id
 
     def on_file_removed(self, filename):
