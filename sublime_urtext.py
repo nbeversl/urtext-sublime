@@ -527,7 +527,7 @@ class LinkToNodeCommand(UrtextTextCommand):
     def link_to_the_node(self, selected_option):
         self._UrtextProjectList.editor_insert_link_to_node(
             self.menu.menu[selected_option],
-            project_title=node.project.title()
+            project_title=self.menu.menu[selected_option].project.title()
             )
 
 class CopyLinkToHereCommand(UrtextTextCommand):
@@ -582,7 +582,7 @@ class InsertLinkToNewNodeCommand(UrtextTextCommand):
             path=os.path.dirname(self.view.file_name()))
         self.view.run_command("insert", {"characters":'| ' + new_node['id'] + ' >'})
         self.view.run_command('save')  # TODO insert notification
-        
+
 class DeleteThisNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
