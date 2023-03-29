@@ -9,13 +9,13 @@ import re
 import operator
 import concurrent.futures
 import os
+import pprint # development only
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.node import strip_contents
     from Urtext.urtext.extension import UrtextExtension
 else:
     from urtext.node import strip_contents
     from urtext.extension import UrtextExtension
-
 
 class AddRakeKeywords(UrtextExtension):
 
@@ -28,17 +28,17 @@ class AddRakeKeywords(UrtextExtension):
         
     def on_file_modified(self, filename):
         self.executor.submit(self.parse_keywords, filename)
-        
+    
     def parse_keywords(self, filename):
-        for node_id in self.project.files[filename].nodes:
-            if not self.project.nodes[node_id].dynamic:
-                self.nodes[node_id] = Rake(self.project.nodes[node_id].content_only())
+        for node in self.project.files[filename].nodes:
+            if not node.dynamic:
+                self.nodes[node.id] = Rake(node.content_only())
 
     def get_keywords(self):
         keywords = []
-        for i in self.project.nodes:
-            if i in self.nodes:
-                keywords.extend(self.nodes[i].keywords)
+        for node_id in self.project.nodes:
+            if node_id in self.nodes:
+                keywords.extend(self.nodes[node_id].keywords)
         return list(set(keywords))
 
     def get_by_keyword(self, keyword):
@@ -55,8 +55,9 @@ class AddRakeKeywords(UrtextExtension):
             keywords = [t[0] for t in r.run(string)]
             assoc_nodes = []
             for k in keywords:
-                 assoc_nodes.extend(self.project.extensions['RAKE_KEYWORDS'].get_by_keyword(k))
+                 assoc_nodes.extend(self.get_by_keyword(k))
             assoc_nodes = list(set(assoc_nodes))
+            
             if node_id in assoc_nodes:
                 assoc_nodes.remove(node_id)
             for node_id in assoc_nodes:
