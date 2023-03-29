@@ -9,11 +9,8 @@ class KeywordsCommand(UrtextTextCommand):
         self.chosen_keyphrase = ''
 
         def multiple_selections(selection):
-
-            open_urtext_node(self.view, 
-                self.second_menu.full_menu[selection].node_id,
-                position=self.second_menu.full_menu[selection].position,
-                highlight=self.chosen_keyphrase)
+            self._UrtextProjectList.current_project.open_node(
+                self.second_menu.menu[selection].id)
 
         def result(i):
             if i > -1:
@@ -28,8 +25,7 @@ class KeywordsCommand(UrtextTextCommand):
                     show_panel(
                         window, 
                         self.second_menu.display_menu, 
-                        multiple_selections,
-                        return_index=True)
+                        multiple_selections)
         
         window.show_quick_panel(keyphrases, result)
 
@@ -41,17 +37,17 @@ class RakeAssociateCommand(UrtextTextCommand):
         file_pos = self.view.sel()[0].a
         full_line = self.view.substr(self.view.line(self.view.sel()[0]))
 
+        assoc_nodes = self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
+                full_line, self.view.file_name(), file_pos)
+        
         menu = NodeBrowserMenu(
             self._UrtextProjectList,
-            nodes=self._UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
-                full_line, self.view.file_name(), file_pos)
-            )
+            nodes=assoc_nodes)
 
         def open_selection(selection):
-            self._UrtextProjectList.current_project.open_node(menu.display_menu[selection][0])
+            self._UrtextProjectList.current_project.open_node(menu.menu[selection].id)
 
         show_panel(
             window, 
             menu.display_menu, 
-            open_selection,
-            return_index=True)
+            open_selection)
