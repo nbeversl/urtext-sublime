@@ -354,7 +354,34 @@
 	  			"foreground" : "var(lime2)",
 	  			"font_style":"bold",
 	  		},
-	  		
+	  		{ 
+	  			"scope" : "dynamic_key.urtext",
+	  			"foreground" : "var(lime2)",
+	  		},
+	  		{ 
+	  			"scope" : "dynamnic_operator.urtext",
+	  			"foreground" : "var(lime2)",
+	  			"font_style":"bold italic",
+	  		},
+	  		{ 
+	  			"scope" : "dynamic_value.urtext",
+	  			"foreground" : "var(lime2)",
+	  		},
+	  		{ 
+	  			"scope" : "dynamic_arg_separator.urtext",
+	  			"foreground" : "var(lime2)",
+	  		},
+	  		{ 
+	  			"scope" : "virtual_target_indicator.urtext",
+	  			"foreground" : "var(blue-bright)",
+	  			"font_style":"bold italic",
+	  		},
+	  		{ 
+	  			"scope" : "virtual_target_name.urtext",
+	  			"foreground" : "var(lime2)",
+	  		},
+
+
 	/* system message */
 
 	  		{ 	"scope" : "entity.name.struct.system-message.urtext",

@@ -187,10 +187,26 @@ contexts:
 
   at-marker:
     - match: '@\w+'
+
+  dynamic-key-value:
+    - match: '(\w+)\s*(\=|\?|before|after)\s*([^;\(\)]*)(;?)'
+      captures:
+        1: dynamic_key.urtext
+        2: dynamnic_operator.urtext
+        3: dynamic_value.urtext
+        4: dynamic_arg_separator.urtext
+
+  virtual-target:
+    - match: '(@)(\w+)'
+      captures: 
+        1: virtual_target_indicator.urtext
+        2: virtual_target_name.urtext
    
   function:
     - match: (\()
       scope: dynamic-definition-parens
+    - include: dynamic-key-value
+    - include: virtual-target
     - include: node_link
     - include: file_link
     - include: dynamic-flag
@@ -211,7 +227,7 @@ contexts:
         3: dynamic-delimiter.urtext  
 
   dynamic-flag:
-    - match: '(\s)\-[a-z_]+\b'
+    - match: '\-[a-z_]+\b'
       scope: dynamic-flag.urtext
 
   asterisk:
