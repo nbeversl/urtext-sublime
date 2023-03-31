@@ -11,14 +11,12 @@ class NavigateBackwardCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        last_node = self._UrtextProjectList.nav_reverse()
-        if last_node:
-            open_urtext_node(self.view, last_node)
+        if 'NAVIGATION' in self._UrtextProjectList.extensions:
+            self._UrtextProjectList.extensions['NAVIGATION'].reverse()
 
 class NavigateForwardCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        next_node = self._UrtextProjectList.nav_advance()
-        if next_node:
-            open_urtext_node(self.view, next_node)
+        if 'NAVIGATION' in self._UrtextProjectList.extensions:
+            self._UrtextProjectList.extensions['NAVIGATION'].forward()
