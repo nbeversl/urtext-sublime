@@ -3,13 +3,11 @@
 # Rose, S., D. Engel, N. Cramer, and W. Cowley (2010). 
 # Automatic keyword extraction from indi-vidual documents. 
 # In M. W. Berry and J. Kogan (Eds.), Text Mining: Applications and Theory.unknown: John Wiley and Sons, Ltd.
-
-
 import re
 import operator
 import concurrent.futures
 import os
-import pprint # development only
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.node import strip_contents
     from Urtext.urtext.extension import UrtextExtension
