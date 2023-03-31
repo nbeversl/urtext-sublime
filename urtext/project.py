@@ -33,12 +33,10 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .dynamic import UrtextDynamicDefinition
     from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from .directive import UrtextDirective
-    from .action import UrtextAction
     from .extension import UrtextExtension
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.directives     
-    import Urtext.urtext.actions
     import Urtext.urtext.extensions
     from Urtext.urtext.utils import get_id_from_link
 else:
@@ -48,12 +46,10 @@ else:
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from urtext.directive import UrtextDirective
-    from urtext.action import UrtextAction
     from urtext.extension import UrtextExtension
     import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.directives     
-    import urtext.actions
     import urtext.extensions
     from urtext.utils import get_id_from_link
 
@@ -86,7 +82,6 @@ class UrtextProject:
         self.dynamic_definitions = []
         self.dynamic_metadata_entries = []
         self.extensions = {}
-        self.actions = {}
         self.directives = {}
         self.compiled = False
         self.excluded_files = []
@@ -95,7 +90,7 @@ class UrtextProject:
     
     def _initialize_project(self):
 
-        self._collect_extensions_directives_actions()
+        self._collect_extensions_directives()
 
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
@@ -126,8 +121,8 @@ class UrtextProject:
         self._mark_dynamic_nodes()
         
         self._compile() ## TODO fix
-        if len(self.extensions) > 0 or len(self.actions) > 0 or len(self.directives) > 0:
-            self._collect_extensions_directives_actions()
+        if len(self.extensions) > 0 or len(self.directives) > 0:
+            self._collect_extensions_directives()
             self._compile()
 
         self.compiled = True
@@ -256,26 +251,21 @@ class UrtextProject:
             if self.compiled:
                 self._parse_file(filename)
 
-    def _collect_extensions_directives_actions(self):
+    def _collect_extensions_directives(self):
         
         num_extensions = len(self.extensions)
-        num_actions = len(self.actions)
         num_directives = len(self.directives)
 
         for c in all_subclasses(UrtextExtension):
             for n in [x for x in c.name if x not in self.extensions]:
                 self.extensions[n] = c(self)
 
-        for c in all_subclasses(UrtextAction):
-            for n in [x for x in c.name if x not in self.actions]:
-                self.actions[n] = c
-
         for c in all_subclasses(UrtextDirective):
             for n in [x for x in c.name if x not in self.directives]:
                 self.directives[n] = c
 
-        if len(self.extensions) > num_extensions or len(self.actions) > num_actions or len(self.directives) > num_directives:
-            self._collect_extensions_directives_actions()
+        if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
+            self._collect_extensions_directives()
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -952,16 +942,6 @@ class UrtextProject:
                 self.settings[k] = replacements[k][0]
             else:
                 self.settings[k] = replacements[k]
-
-    def run_action(self, action, string, filename, col_pos=0, file_pos=0):
-        instance = self.actions[action](self)
-        if not filename:
-            return None
-        return self.execute(instance.execute,            
-            string, 
-            filename=filename, 
-            col_pos=col_pos,
-            file_pos=file_pos)
             
     def get_home(self):
         if self.settings['home'] in self.nodes:
