@@ -679,10 +679,14 @@ class UrtextProject:
         for k in self.settings['file_index_sort']:
             k = k.lower()
             use_timestamp = True if k in self.settings['use_timestamp'] else False
-            file_group = [f for f in files if self.files[f].root_node and self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp)]
-            file_group = sorted(file_group, 
-                key=lambda f:  self.nodes[self.files[f].root_node].metadata.get_first_value(k, use_timestamp=use_timestamp),
-                reverse=use_timestamp)
+            file_group = [f for f in files if self.files[f].root_node and (
+                    self.files[f].root_node.id in self.nodes) and (
+                    self.nodes[self.files[f].root_node.id].metadata.get_first_value(
+                        k, use_timestamp=use_timestamp))]
+            file_group = sorted(file_group,
+                key=lambda f: self.files[f].root_node.metadata.get_first_value(
+                            k, use_timestamp=use_timestamp),
+                            reverse=use_timestamp)
             sorted_files.extend(file_group)
             files = list(set(files) - set(sorted_files))
         sorted_files.extend(files)
