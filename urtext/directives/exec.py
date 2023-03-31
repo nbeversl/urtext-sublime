@@ -5,12 +5,10 @@ import sys
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
-	from Urtext.urtext.action import UrtextAction
 	from Urtext.urtext.extension import UrtextExtension
 	from Urtext.urtext.utils import force_list, get_id_from_link
 else:
 	from urtext.directive import UrtextDirective
-	from urtext.action import UrtextAction
 	from urtext.extension import UrtextExtension
 	from urtext.utils import force_list, get_id_from_link
 
@@ -34,7 +32,6 @@ class Exec(UrtextDirective):
 				localsParameter = {
 					'ThisProject' : self.project,
 					'UrtextDirective' : UrtextDirective,
-					'UrtextAction' : UrtextAction,
 					'UrtextExtension' : UrtextExtension,
 				}
 				try:
