@@ -716,7 +716,7 @@ class UrtextProject:
         file_pos=0,
         return_target_only=False):
 
-        link = self._parse_link(
+        link = self.parse_link(
             string, 
             col_pos=col_pos,
             file_pos=file_pos)
@@ -781,7 +781,7 @@ class UrtextProject:
         
         return link
 
-    def _parse_link(self, 
+    def parse_link(self, 
         string, 
         col_pos=0,
         file_pos=0):
@@ -1323,7 +1323,7 @@ class UrtextProject:
     def _tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
         """adds a metadata tag to a node programmatically"""
         
-        link = self._parse_link(full_line, col_pos=cursor)
+        link = self.parse_link(full_line, col_pos=cursor)
         if not link: return
 
         if metadata == {}:
