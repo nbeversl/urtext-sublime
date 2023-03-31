@@ -342,17 +342,14 @@ class UrtextCompletions(EventListener):
 
 # TODO update/fix
 def urtext_on_modified(view):
-    
+    global _UrtextProjectList
     if view.file_name() and view.window() and view.window().views():
-        other_open_files = [v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
-        if _UrtextProjectList: 
-            modified_file = _UrtextProjectList.on_modified(view.file_name())
+        other_open_files = [
+            v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
+        if _UrtextProjectList:
+            modified_files = _UrtextProjectList.on_modified(view.file_name())
             for f in other_open_files:
                 _UrtextProjectList.visit_file(f)
-            if modified_file:
-                    for f in modified_file:
-                       if _UrtextProjectList.current_project.is_async:
-                            f = f.result()
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
@@ -617,45 +614,7 @@ class TagFromOtherNodeCommand(UrtextTextCommand):
             line,
             cursor,
             #open_files=open_files ?
-            )            
-        
-class ReIndexFilesCommand(UrtextTextCommand):
-    
-    @refresh_project_text_command()
-    def run(self):
-
-        renamed_files = self._UrtextProjectList.current_project.run_action(
-            "REINDEX",
-            self.view.substr(self.view.line(self.view.sel()[0])),
-            self.view.file_name()
             )
-        if self._UrtextProjectList.current_project.is_async:
-            renamed_files=renamed_files.result()
-        if renamed_files:
-            for view in self.view.window().views():
-                if view.file_name() == None:
-                    continue
-                if view.file_name() in renamed_files:               
-                    view.retarget(renamed_files[view.file_name()])
-
-class RenameFileCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.view.run_command('save')
-        urtext_on_modified(self.view)
-        filename = self.view.file_name()
-        renamed_files = self._UrtextProjectList.current_project.run_action(
-            "RENAME_SINGLE_FILE",
-            self.view.substr(self.view.line(self.view.sel()[0])),
-            filename=filename
-            )
-
-        if self._UrtextProjectList.current_project.is_async:
-            renamed_files=renamed_files.result()
-
-        if renamed_files:
-            self.view.retarget(renamed_files[filename])
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
@@ -693,46 +652,7 @@ class CompactNodeCommand(UrtextTextCommand):
             self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
             new_cursor_position = sublime.Region(next_line_down+4, next_line_down+4) 
             self.view.sel().clear()
-            self.view.sel().add(new_cursor_position) 
-
-class PopNodeCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.view.run_command('save')
-        urtext_on_modified(self.view)
-        file_pos = self.view.sel()[0].a + 1
-        r = self._UrtextProjectList.current_project.run_action(
-            'POP_NODE',
-            self.view.substr(self.view.line(self.view.sel()[0])),
-            self.view.file_name(),
-            file_pos = file_pos,
-            col_pos = self.view.rowcol(file_pos)[1]
-            )
-
-class PullNodeCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        self.view.run_command('save')  # TODO insert notification
-        urtext_on_modified(self.view)
-        if self.view.file_name():
-            file_pos = self.view.sel()[0].a
-            file_to_close = self._UrtextProjectList.current_project.run_action(
-                'PULL_NODE',
-                self.view.substr(self.view.line(self.view.sel()[0])),
-                self.view.file_name(),
-                file_pos = file_pos,
-                col_pos = self.view.rowcol(file_pos)[1]
-                )
-            if file_to_close:
-                if self._UrtextProjectList.current_project.is_async:
-                    file_to_close=file_to_close.result()
-                for view in self.window.views():
-                    if view.file_name() == file_to_close:
-                        view.set_scratch(True)
-                        view.close()
-                        return
+            self.view.sel().add(new_cursor_position)
 
 class RandomNodeCommand(UrtextTextCommand):
 
