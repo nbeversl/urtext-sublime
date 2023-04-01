@@ -26,14 +26,14 @@ contexts:
     - include: node_title
     - include: trigger
     
-    - match: (\w+?)(::)(\{)
+    - match: '[\w_\?\!#\d]+?(?=::)(::)(\{)'
       captures:
         1: meta_key.urtext
         2: tagvalue-separator.urtext  
         3: punctuation.section.braces.begin.inline_node_1.urtext
       push: inline-node-1
 
-    - match: (\+)?(\*{1,2})?(\w+?)(?=::)
+    - match: (\+)?(\*{1,2})?([\w_\?\!#\d-]+?)(?=::)
       captures:
         1: tag_self.urtext
         2: tag_descendants.urtext
@@ -366,7 +366,7 @@ contexts:
     - match: '(?<=::)[^\s\{]'
       push: metadata-value
     
-    - match: \w+?(?=::)
+    - match: '[\w_\?\!#\d]+?(?=::)'
       scope: meta_key.urtext
       push: metadata-entry
   

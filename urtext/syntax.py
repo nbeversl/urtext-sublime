@@ -56,7 +56,15 @@ metadata_op_is_like =                   r'~'
 metadata_ops_or =                       r'\|'
 metadata_assigner =                     r''+metadata_assignment_operator
 metadata_end_marker =                   r';'
-metadata_entry =                        r'[+]?\*{0,2}\w+\:\:[^\n;]*[\n;]?'
+metadata_entry_modifiers =              r'[+]?\*{0,2}'
+metadata_key =                          r'[\w_\?\!\#\d-]+?'
+metadata_values =                       r'[^\n;]*[\n;]?'
+metadata_entry =                        r''.join([
+                                            metadata_entry_modifiers, 
+                                            metadata_key,
+                                            metadata_assigner,
+                                            metadata_values
+                                            ])                                           
 metadata_separator_pattern =            r'\s' + metadata_separator + r'\s|$'
 metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
@@ -78,10 +86,9 @@ url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&
 
 # Currently used for syntax highlighting only:
 
-metadata_key =                          r'\w+?(?=' + metadata_assigner + ')'
-metadata_values =                       r'(?<=::)[^\n};@\s]+;?'
+#metadata_values =                       r'(?<=::)[^\n};@\s]+;?'
 metadata_key_c =                        re.compile(metadata_key)
-metadata_values_c =                     re.compile(metadata_values)
+#metadata_values_c =                     re.compile(metadata_values)
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
 metadata_flags_c =                      re.compile(metadata_flags)
 
