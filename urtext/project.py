@@ -429,7 +429,7 @@ class UrtextProject:
         if parse and self._parse_file(self.nodes[node_id].filename) == -1:
             return
         if node_id in self.nodes:
-             if self.nodes[node_id].set_content(contents, preserve_metadata=True):
+             if self.nodes[node_id].set_content(contents):
                 self._parse_file(self.nodes[node_id].filename)
                 if node_id in self.nodes:
                     return self.nodes[node_id].filename

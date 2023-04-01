@@ -99,7 +99,7 @@ class UrtextNode:
     def start_position(self):
         if self.root_node:
             return self.ranges[0][0]
-        return self.ranges[0][0] + 1
+        return self.ranges[0][0] + 1 # omit opening bracket
 
     def end_position(self):
         return self.ranges[-1][1]
@@ -164,7 +164,9 @@ class UrtextNode:
     def strip_inline_nodes(self, contents='', preserve_length=False):
         r = ' ' if preserve_length else ''
         if contents == '':
-            contents = self.contents()
+            contents = self.contents(
+                do_strip_embedded_syntaxes=False
+                )
         
         stripped_contents = contents
         for inline_node in syntax.subnode_regexp.finditer(stripped_contents):
@@ -189,12 +191,12 @@ class UrtextNode:
         return strip_contents(contents, preserve_length=preserve_length)
 
     def set_title(self, contents):
-
         """
-        - title metadata key overrides any _ marker.
-        - Then the first _ marker overrides any subsequent one.
-            - If it is on the first line, we need to remember this for dynamic nodes.
-        - it nothing else found, it is the first non-blank line
+        - `title` metadata key overrides any _ marker.
+        - Then the first ` _` marker overrides any subsequent one.
+            - If it is on the first line, 
+            we need to remember this for dynamic nodes.
+        - if nothing else found, titel is the first non-blank line
         """
         t = self.metadata.get_first_value('title')
         if t:
@@ -280,22 +282,53 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def set_content(self, contents, preserve_metadata=False, bypass_check=False):
-        
+    def set_content(self, contents):        
         file_contents = self.get_file_contents()
-        start_range = self.start_position()
-        end_range = self.end_position()
         new_file_contents = ''.join([
-            file_contents[0:start_range],
+            file_contents[0:self.start_position()],
             contents,
-            file_contents[end_range:]]) 
+            file_contents[self.end_position():]]) 
+        return self.set_file_contents(new_file_contents)
+
+    def append_content(self, appended_content):
+        file_contents = self.get_file_contents()
+        new_file_contents = ''.join([
+            file_contents[0:self.start_position()],
+            contents,
+            appended_content,
+            file_contents[self.end_position():]])         
+        return self.set_file_contents(new_file_contents)
+
+    def prepend_content(self, prepended_content, preserve_title=True):
+        node_contents = self.contents(strip_first_line_title=True)
+        file_contents = self.get_file_contents()
         
+        if preserve_title and self.first_line_title:
+            new_node_contents = ''.join([ 
+                ' ',
+                self.title,
+                prepended_content,
+                node_contents,
+                ])
+        else: 
+            new_node_contents = ''.join([
+                prepended_content,
+                node_contents
+                ])
+        new_file_contents = ''.join([
+            file_contents[:self.start_position()], # omit opening
+            new_node_contents,
+            file_contents[self.end_position():]])         
         return self.set_file_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents, dynamic_definitions): 
         for d in syntax.dynamic_def_c.finditer(contents):
             param_string = d.group(0)[2:-2]
-            dynamic_definitions.append(UrtextDynamicDefinition(param_string, self.project, d.start()))
+            dynamic_definitions.append(
+                UrtextDynamicDefinition(
+                    param_string, 
+                    self.project, 
+                    d.start()))
         return contents
 
     def strip_first_line_title(self, contents):
