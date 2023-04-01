@@ -380,7 +380,15 @@
 	  			"scope" : "virtual_target_name.urtext",
 	  			"foreground" : "var(lime2)",
 	  		},
-
+	  		{ 
+	  			"scope" : "link_uniquifier_marker.urtext",
+	  			"foreground" : "var(lime2)",
+	  		},
+	  		{ 
+	  			"scope" : "link_uniquifier.urtext",
+	  			"foreground" : "var(lime2)",
+	  			"font_style":"italic"
+	  		},
 
 	/* system message */
 

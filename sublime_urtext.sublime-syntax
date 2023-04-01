@@ -292,12 +292,15 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(\|)(\?\s)?(\!\s)?([^>]+)>'
+    - match: '(\|)(\?\s)?(\!\s)?([^>\^]+)( \^ )?([^>\^]+)?( >)'
       captures:
         1: link_opening_wrapper.urtext 
         2: missing_node.urtext
         3: action_node.urtext
         4: link_id.urtext
+        5: link_uniquifier_marker.urtext
+        6: link_uniquifier.urtext
+        7: link_closing_wrapper.urtext
 
   node_pointer:
     - match: '(\|[\?]?\s)([^>]+)>>{1,2}'
