@@ -21,24 +21,16 @@ class AccessHistory(UrtextDirective):
         if node_id in self.dynamic_definition.included_nodes and node_id != self.last_visited:
             for target_id in self.dynamic_definition.target_ids:
                 if target_id in self.project.nodes:
-                    contents = self.project.nodes[target_id].contents(
-                        strip_first_line_title=True)
-                    contents = ''.join([ 
-                            self.dynamic_definition.preserve_title_if_present(target_id),
+                    self.project.nodes[target_id].prepend_content(''.join([
                             '\n',
                             self.project.timestamp(as_string=True), 
                             ' ',
                             syntax.link_opening_wrapper, 
-                            self.project.nodes[node_id].id, 
-                            syntax.link_closing_wrapper, 
-                            contents
-                        ])
-                    self.project._set_node_contents(
-                        target_id, 
-                        contents,
-                        parse=False)
-
+                            node_id, 
+                            syntax.link_closing_wrapper,
+                        ]))
         self.last_visited = node_id
 
     def dynamic_output(self, input_contents):
-        return False # do not change existing output.
+        return False
+
