@@ -1301,15 +1301,17 @@ class UrtextProject:
             if virtual_target == '@next_line':
                 if 'insert_at_next_line' in self.editor_methods:
                     return self.editor_methods['insert_at_next_line'](output)
-            # if virtual_target == '@log':
-            #     return self._log_item(output)
+            if virtual_target == '@log':
+                return self._log_item(
+                    None, 
+                    output)
             if virtual_target == '@console':
                 if 'write_to_console' in self.editor_methods:
                     return self.editor_methods['write_to_console'](output)
             if virtual_target == '@popup':
                 if 'popup' in self.editor_methods:
                     return self.editor_methods['popup'](output)
-        
+
         if target in self.nodes: #fallback
             self._set_node_contents(target, output)
             return target
