@@ -289,7 +289,7 @@ class UrtextProject:
                             replaced_contents = contents
                             node_id_regex = re.escape(node_id)
                             replaced_contents = re.sub(                        
-                                syntax.link_opening_wrapper_match + node_id_regex + syntax.link_closing_wrapper,
+                                syntax.node_link_opening_wrapper_match + node_id_regex + syntax.link_closing_wrapper,
                                 make_link(links_to_change[node_id]),
                                 replaced_contents)
                             if replaced_contents != contents:
@@ -795,6 +795,7 @@ class UrtextProject:
         dest_position = None
         result = None
         full_match = None
+        filename = None
         
         action_only = syntax.node_action_link_c.search(string)
         if action_only:
@@ -830,10 +831,11 @@ class UrtextProject:
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'              
             else:
-                result = syntax.url_c.search(string)                
+                result = syntax.http_link_c.search(string)
                 if result:
                     kind ='HTTP'
-                    link = result.group().strip()
+                    link = result.group(1).strip()
+                    full_match = result.group()
         if result:
             return {
                 'kind' : kind, 

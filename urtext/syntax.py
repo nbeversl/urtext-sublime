@@ -12,12 +12,17 @@ link_opening_wrapper =                  '| '
 link_opening_character =                r'\|'
 link_modifiers = {
     'file'          : r'\/',
-    'web'           : r'\/\/',    
+    'http'          : r'\/\/',    
     'action'        : r'\!',
     'no_modifier'   : '',
     'missing'       : r'\?'
 }
 link_modifier_group =                   r'(' + '|'.join(['(' + m + ')' for m in link_modifiers.values()]) + ')'
+node_link_modifier_group =              r'(' + '|'.join(['(' + m + ')' for m in [
+                                            link_modifiers['action'],
+                                            link_modifiers['missing'],
+                                            link_modifiers['no_modifier']
+                                            ]]) + ')'
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
 urtext_message_opening_wrapper =        '<!'
@@ -34,6 +39,7 @@ dynamic_def_closing_wrapper =           ']]'
 parent_identifier =                     ' ^ '
 virtual_target_marker =                 '@'
 file_link_opening_wrapper =             link_opening_character + link_modifiers['file'] + ' '
+http_link_opening_wrapper =             link_opening_character + link_modifiers['http'] + ' '
 # Base Patterns
 
 bullet =                                r'^([^\S\n]*?)•'
@@ -45,7 +51,11 @@ embedded_syntax_open =                  r'%%\w+'
 embedded_syntax_close =                 r'%%'+pattern_break
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
-link_opening_wrapper_match =            link_opening_character + link_modifier_group + r'\s'
+node_link_opening_wrapper_match =       r''.join([
+                                            link_opening_character,
+                                            node_link_modifier_group,
+                                            r'\s'
+                                            ])
 metadata_arg_delimiter =                r';|\r'
 metadata_op_before =                    r'before'
 metadata_op_after =                     r'after'
@@ -82,7 +92,6 @@ disallowed_title_characters = [
 ]
 title_pattern =                         r'^([^' + r''.join(disallowed_title_characters) + ']+)'
 id_pattern =                            r'([^\|>\n\r]+)'
-url =                                   r'http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 # Currently used for syntax highlighting only:
 
@@ -100,7 +109,7 @@ hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b
 node_link =                             r'(\|\s)(' + id_pattern + ')\s>(?!>)'
 function =                              r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 
-node_link_or_pointer =                  link_opening_wrapper_match + '(' + id_pattern + ')\s>{1,2}(?!>)'
+node_link_or_pointer =                  node_link_opening_wrapper_match + '(' + id_pattern + ')\s>{1,2}(?!>)'
 node_action_link =                      link_opening_character + link_modifiers['action'] + '\s' '(' + id_pattern + ')\s>{1,2}(?!>)'
 
 node_pointer =                          r'(\|\s)(' + id_pattern + ')\s>>(?!>)'
@@ -115,6 +124,12 @@ file_link =                             r''.join([
                                             ' '
                                             r'([^;]+)',
                                             link_closing_wrapper])
+
+http_link =                             r''.join([
+                                            http_link_opening_wrapper,
+                                            r'([^>]+)',
+                                            link_closing_wrapper
+                                            ])
 urtext_messages =                       r''.join([
                                             urtext_message_opening_wrapper,
                                             '.*?',
@@ -165,7 +180,7 @@ preformat_c =                   re.compile(preformat, flags=re.DOTALL)
 subnode_regexp_c =              re.compile(sub_node, flags=re.DOTALL)
 timestamp_c =                   re.compile(timestamp)
 title_regex_c =                 re.compile(title_pattern)
-url_c =                         re.compile(url)                       
+http_link_c =                   re.compile(http_link)             
 virtual_target_match_c =        re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)',        # timestamp
