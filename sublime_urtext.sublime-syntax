@@ -22,7 +22,6 @@ contexts:
     - include: other-project-link
     - include: file_link
     - include: shorthand_meta
-    - include: url
     - include: node_title
     - include: trigger
     
@@ -309,7 +308,7 @@ contexts:
         2: pointer_id.urtext
 
   file_link:
-    - match: '(\|f>\s)[^\s][^;]*\s>'
+    - match: '(\|\/\s)[^\s][^;]*\s>'
       scope: file_link.urtext
 
   raw:
@@ -324,10 +323,6 @@ contexts:
         4: title_marker.urtext
     - match: '`'
       push: raw 
-
-  url:
-    - match: '(http(s)?://)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'
-      scope: url_link.urtext
 
   meta-key-terminator:
     - match: ';'
@@ -353,7 +348,6 @@ contexts:
     - include: other-project-link
     - include: file_link
     - include: shorthand_meta
-    - include: url
     - include: node_title
     - include: trigger
     - include: bold-text

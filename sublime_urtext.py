@@ -112,6 +112,10 @@ def open_file_in_editor(filepath):
         sublime.active_window().open_file(filepath)
 
 def open_http_link(link):
+
+    #TODO : possibly refactor into Urtext library
+    if link[:8] != 'https://' and link [:7] != 'http://':
+        link = 'https://' + link
     success = webbrowser.get().open(link)
     if not success:
         self.log('Could not open tab using your "web_browser_path" setting')       
