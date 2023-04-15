@@ -260,10 +260,3 @@ class ProjectList():
         removed_node_ids = project.delete_file(file_name, open_files=open_files)
         if project.is_async:
             removed_node_ids = removed_node_ids.result()
-        for node_id in removed_node_ids:
-            navigation_entry = (project.settings['project_title'], node_id)
-            while navigation_entry in self.navigation:
-                index = self.navigation.index(navigation_entry)
-                del self.navigation[index]
-                if self.nav_index > index: # >= ?
-                    self.nav_index -= 1
