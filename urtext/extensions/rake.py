@@ -22,6 +22,7 @@ class AddRakeKeywords(UrtextExtension):
     def __init__(self, project):
         super().__init__(project);
         self.nodes = {}
+        self.rake = Rake()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         
     def on_node_added(self, node):
@@ -29,7 +30,8 @@ class AddRakeKeywords(UrtextExtension):
     
     def parse_keywords(self, node):
         if not node.dynamic:
-            self.nodes[node.id] = Rake(node.content_only())
+            self.nodes[node.id] = self.rake.parse_keywords(
+                node.content_only())
 
     def get_keywords(self):
         keywords = []
@@ -69,17 +71,23 @@ class AddRakeKeywords(UrtextExtension):
 
 class Rake():
 
-    def __init__(self, contents):
+    def __init__(self):
         self.__stop_words_pattern = build_stop_word_regex()
         self.keywords = []
-        self.parse_keywords(contents)
 
     def run(self, text):
         sentence_list = split_sentences(text)
-        phrase_list = generate_candidate_keywords(sentence_list, self.__stop_words_pattern)
+        phrase_list = generate_candidate_keywords(
+            sentence_list,
+            self.__stop_words_pattern)
         word_scores = calculate_word_scores(phrase_list)
-        keyword_candidates = generate_candidate_keyword_scores(phrase_list, word_scores)
-        return sorted(keyword_candidates.items(), key=operator.itemgetter(1), reverse=True)
+        keyword_candidates = generate_candidate_keyword_scores(
+            phrase_list, 
+            word_scores)
+        return sorted(
+            keyword_candidates.items(), 
+            key=operator.itemgetter(1), 
+            reverse=True)
 
     def parse_keywords(self, parsed_contents):
         self.keywords = [t[0] for t in self.run(parsed_contents)]
