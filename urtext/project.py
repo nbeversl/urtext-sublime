@@ -53,7 +53,6 @@ else:
     import urtext.extensions
     from urtext.utils import get_id_from_link
 
-
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
@@ -197,9 +196,6 @@ class UrtextProject:
                 self.nodes[target_node],
                 is_node=True)
             self.nodes[target_node].is_meta = True
-
-        for ext in self.extensions:
-            self.extensions[ext].on_file_modified(filename)
 
         for node in new_file.nodes:            
             if node.title == 'project_settings':
@@ -1020,6 +1016,8 @@ class UrtextProject:
                     if modified_file:
                         modified_files.append(modified_file)
                 self._sync_file_list()
+                for ext in self.extensions:
+                    self.extensions[ext].on_file_modified(f)
             return modified_files
 
     def visit_node(self, node_id):

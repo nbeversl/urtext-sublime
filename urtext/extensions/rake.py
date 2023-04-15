@@ -24,13 +24,12 @@ class AddRakeKeywords(UrtextExtension):
         self.nodes = {}
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         
-    def on_file_modified(self, filename):
-        self.executor.submit(self.parse_keywords, filename)
+    def on_node_added(self, node):
+        self.executor.submit(self.parse_keywords, node)
     
-    def parse_keywords(self, filename):
-        for node in self.project.files[filename].nodes:
-            if not node.dynamic:
-                self.nodes[node.id] = Rake(node.content_only())
+    def parse_keywords(self, node):
+        if not node.dynamic:
+            self.nodes[node.id] = Rake(node.content_only())
 
     def get_keywords(self):
         keywords = []
