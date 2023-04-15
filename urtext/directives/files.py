@@ -10,8 +10,8 @@ class UrtextFiles(UrtextDirective):
 	phase = 300
 
 	def dynamic_output(self, nodes):
-		file_list = os.listdir(os.path.join(self.project.path, self.argument_string))
+		file_list = os.listdir(self.argument_string)
 		output = []
 		for f in file_list:
-			output.append(join(['>f',f,'\n']))
+			output.append(''.join(['|/ ',f,' >\n']))
 		return ''.join(output)
