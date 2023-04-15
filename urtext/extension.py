@@ -6,6 +6,9 @@ class UrtextExtension:
     def __init__(self, project):
         self.project = project
 
+    def after_project_initialized(self):
+        return
+
     def on_node_visited(self, node_id):
         return
 

@@ -26,24 +26,29 @@ class AddRakeKeywords(UrtextExtension):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
         
     def on_node_added(self, node):
-        self.executor.submit(self.parse_keywords, node)
+        if self.project.compiled:
+            self.executor.submit(self.parse_keywords, node)
     
+    def after_project_initialized(self):
+        for node in self.project.nodes.values():
+            #self.executor.submit(self.parse_keywords, node)
+            self.parse_keywords(node)
+            
     def parse_keywords(self, node):
         if not node.dynamic:
             self.nodes[node.id] = self.rake.parse_keywords(
                 node.content_only())
 
     def get_keywords(self):
-        keywords = []
-        for node_id in self.project.nodes:
-            if node_id in self.nodes:
-                keywords.extend(self.nodes[node_id].keywords)
-        return list(set(keywords))
+        keyword_list = []
+        for keywords in self.nodes.values():
+            keyword_list.extend(keywords)
+        return list(set(keyword_list))
 
     def get_by_keyword(self, keyword):
         nodes = []
         for i in list(self.nodes):
-            if self.nodes[i].has_keyword(keyword):
+            if keyword in self.nodes[i]:
                 nodes.append(i)
         return nodes
 
@@ -90,7 +95,7 @@ class Rake():
             reverse=True)
 
     def parse_keywords(self, parsed_contents):
-        self.keywords = [t[0] for t in self.run(parsed_contents)]
+        return [t[0] for t in self.run(parsed_contents)]
 
     def has_keyword(self, keyword):
         return True if keyword in self.keywords else False
