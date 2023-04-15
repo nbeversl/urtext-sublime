@@ -826,10 +826,10 @@ class UrtextProject:
         else:
             result = syntax.file_link_c.search(string)            
             if result:
-                link = result.group(2).strip()
+                link = result.group(1).strip()
                 kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
-                    kind = 'SYSTEM'              
+                    kind = 'SYSTEM'           
             else:
                 result = syntax.http_link_c.search(string)
                 if result:
@@ -995,7 +995,7 @@ class UrtextProject:
                     new_contents = new_contents.replace(link, replacement, 1)
             if contents != new_contents:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
-                return self.execute(self._file_update, filename)
+                return self.execute(self._on_modified, filename)
 
     def on_modified(self, filenames):
         """
@@ -1004,21 +1004,22 @@ class UrtextProject:
         if not isinstance(filenames, list):
             filenames = [filenames]
 
-        return self.execute(self._file_update, filenames)
+        return self.execute(self._on_modified, filenames)
     
-    def _file_update(self, filenames):
+    def _on_modified(self, filenames):
         if self.compiled:
             modified_files = []
             for f in filenames:
                 if self._parse_file(f):
                     modified_files.append(f)
-                if self.compiled:
-                   self._reverify_links(f)
+                    self._reverify_links(f)
                 if f in self.files:
-                    modified_file = self._compile_file(f, events=['-file_update'])
+                    modified_file = self._compile_file(
+                        f, 
+                        events=['-file_update'])
                     if modified_file:
                         modified_files.append(modified_file)
-            self._sync_file_list()
+                self._sync_file_list()
             return modified_files
 
     def visit_node(self, node_id):
@@ -1039,7 +1040,9 @@ class UrtextProject:
         Call whenever a file requires dynamic updating
         """        
         if filename in self.files and self.compiled:
-            return self._compile_file(filename, events=['-file_visited'])
+            return self._compile_file(
+                filename, 
+                events=['-file_visited'])
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
