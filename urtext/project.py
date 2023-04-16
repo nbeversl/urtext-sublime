@@ -1015,8 +1015,9 @@ class UrtextProject:
                     if modified_file:
                         modified_files.append(modified_file)
                 self._sync_file_list()
-                for ext in self.extensions.values():
-                    ext.on_file_modified(f)
+                if f in self.files:
+                    for ext in self.extensions.values():
+                        ext.on_file_modified(f)
             return modified_files
 
     def visit_node(self, node_id):
