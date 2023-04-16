@@ -31,8 +31,7 @@ class AddRakeKeywords(UrtextExtension):
     
     def after_project_initialized(self):
         for node in self.project.nodes.values():
-            #self.executor.submit(self.parse_keywords, node)
-            self.parse_keywords(node)
+            self.executor.submit(self.parse_keywords, node)
             
     def parse_keywords(self, node):
         if not node.dynamic:
