@@ -323,8 +323,8 @@ class UrtextProject:
                     self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
                     changed_ids[duplicated_id] = resolved_existing_id
-                    for ext in self.extensions:
-                        self.extensions[ext].on_node_id_changed(
+                    for ext in self.extensions.values():
+                        ext.on_node_id_changed(
                             duplicated_id,
                             resolved_existing_id)
                     del self.nodes[duplicated_id]
@@ -397,8 +397,8 @@ class UrtextProject:
         self.nodes[new_node.id] = new_node  
         if self.compiled:
             new_node.metadata.convert_node_links()   
-        for ext in self.extensions:
-            self.extensions[ext].on_node_added(new_node)
+        for ext in self.extensions.values():
+            ext.on_node_added(new_node)
         
     def get_source_node(self, filename, position): # future
         if filename not in self.files:
@@ -499,8 +499,8 @@ class UrtextProject:
                 self.nodes[node.id].filename = new_filename
                 self.files[new_filename].filename = new_filename
             del self.files[old_filename]
-            for ext in self.extensions:
-                self.extensions[ext].on_file_renamed(old_filename, new_filename)
+            for ext in self.extensions.values():
+                ext.on_file_renamed(old_filename, new_filename)
     
     """ 
     filtering files to skip 
@@ -1015,8 +1015,8 @@ class UrtextProject:
                     if modified_file:
                         modified_files.append(modified_file)
                 self._sync_file_list()
-                for ext in self.extensions:
-                    self.extensions[ext].on_file_modified(f)
+                for ext in self.extensions.values():
+                    ext.on_file_modified(f)
             return modified_files
 
     def visit_node(self, node_id):
