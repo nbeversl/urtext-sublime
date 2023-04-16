@@ -127,6 +127,8 @@ class UrtextProject:
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
+        for ext in self.extensions.values():
+            ext.after_project_initialized()
         print('"'+self.settings['project_title']+'" compiled')
     
     def get_file_position(self, node_id, position): 
@@ -368,9 +370,6 @@ class UrtextProject:
                     if file in r.to_files:
                         return nid
 
-    """
-    Parsing helpers
-    """
     def _add_node(self, new_node):
         """ Adds a node to the project object """
         for definition in new_node.dynamic_definitions:
