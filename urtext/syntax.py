@@ -93,11 +93,12 @@ disallowed_title_characters = [
 title_pattern =                         r'^([^' + r''.join(disallowed_title_characters) + ']+)'
 id_pattern =                            r'([^\|>\n\r]+)'
 
-# Currently used for syntax highlighting only:
+# for syntax highlighting only:
 
-#metadata_values =                       r'(?<=::)[^\n};@\s]+;?'
-metadata_key_c =                        re.compile(metadata_key)
-#metadata_values_c =                     re.compile(metadata_values)
+sh_metadata_key =                       metadata_key + '(?='+metadata_assigner+')'
+sh_metadata_values =                    r'(?<=::)[^\n};@\s]+;?'
+sh_metadata_key_c =                     re.compile(sh_metadata_key)
+sh_metadata_values_c =                  re.compile(sh_metadata_values)
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
 metadata_flags_c =                      re.compile(metadata_flags)
 
