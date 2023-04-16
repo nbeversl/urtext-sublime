@@ -1117,15 +1117,15 @@ class UrtextProject:
         keys = []
         exclude = self.settings['exclude_from_star']
         exclude.extend(self.settings.keys())
-        for nid in list(self.nodes):
-            keys.extend(self.nodes[nid].metadata.get_keys(exclude=exclude)
+        for node in list(self.nodes.values()):
+            keys.extend(node.metadata.get_keys(exclude=exclude)
             )
         return list(set(keys))
 
     def get_all_values_for_key(self, key, lower=False):
         entries = []
-        for nid in self.nodes:
-            entries.extend(self.nodes[nid].metadata.get_entries(key))
+        for node in self.nodes.values():
+            entries.extend(node.metadata.get_entries(key))
         values = [e.value_as_string() for e in entries]
         if lower:
             return list(set([v.lower() for v in values]))
@@ -1149,25 +1149,25 @@ class UrtextProject:
             
             if compare_date:
                 if operator == 'before':
-                    results = [n for n in self.nodes if default_date != self.nodes[n].metadata.get_date(key) < compare_date]
+                    results = [n for n in self.nodes.values() if default_date != n.metadata.get_date(key) < compare_date]
                 if operator == 'after':
-                    results = [n for n in self.nodes if self.nodes[n].metadata.get_date(key) > compare_date != default_date ]
+                    results = [n for n in self.nodes.values() if n.metadata.get_date(key) > compare_date != default_date ]
 
                 return set(results)
 
             return set([])
 
         if key == '_contents' and operator == '?': # `=` not currently implemented
-            for node_id in list(self.nodes):
-                if self.nodes[node_id].dynamic:
+            for node in list(self.nodes.values()):
+                if node.dynamic:
                     continue
                 matches = []
-                contents = self.nodes[node_id].content_only()
+                contents = node.content_only()
                 lower_contents = contents.lower()           
 
                 for v in values:
                     if v.lower() in lower_contents:
-                        results.append(node_id)
+                        results.append(node.id)
 
             return results
 
