@@ -215,6 +215,9 @@ class UrtextProject:
         if self.compiled and changed_ids:
             self._rewrite_changed_links(changed_ids)
 
+        for ext in self.extensions.values():
+            ext.on_file_parsed(filename)
+            
         return new_file.messages
 
     def _verify_links_globally(self):

@@ -9,6 +9,9 @@ class UrtextExtension:
     def after_project_initialized(self):
         return
 
+    def on_file_parsed(self, filename):
+        return
+
     def on_node_visited(self, node_id):
         return
 

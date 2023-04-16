@@ -12,16 +12,13 @@ class UrtextAnyTree(UrtextExtension):
 
     name = ["TREE_EXTENSION"]
 
-    def on_file_modified(self, filename):
-        """ Build anytree elements """
+    def on_file_parsed(self, filename):
         for node in self.project.files[filename].nodes:
-
             for pointer in node.pointers:
                 alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
                 alias_node.position = pointer['position']
                 alias_node.parent = node.tree_node
                 self.project.files[filename].alias_nodes.append(alias_node)
-
             if node.parent:
                 node.tree_node.parent = node.parent.tree_node
 
