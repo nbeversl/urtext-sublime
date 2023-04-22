@@ -62,9 +62,13 @@ def save_current():
 
 def set_clipboard(text):
     sublime.set_clipboard(text)
+    show_popup(text + '\ncopied to the clipboard')
+
+def show_popup(text):
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
-        view.show_popup(text + '\ncopied to the clipboard', 
+        view.show_popup(
+            text, 
             max_width=1800, 
             max_height=1000)
 
@@ -123,9 +127,6 @@ def open_http_link(link):
 def insert_at_next_line(contents):
     pass
 
-def popup(contents):
-    pass
-
 editor_methods = {
     'open_file_to_position' : open_file_to_position,
     'error_message' : sublime.error_message,
@@ -138,7 +139,7 @@ editor_methods = {
     'get_buffer' : get_buffer,
     'replace' : replace,
     'insert_at_next_line' : insert_at_next_line,
-    'popup' : popup,
+    'popup' : show_popup,
 }
 
 def refresh_project_text_command(change_project=True):
