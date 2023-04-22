@@ -484,7 +484,10 @@ class UrtextProject:
             del self.messages[filename]
 
     def delete_file(self, filename, open_files=[]):
-        return self.execute(self._delete_file, filename, open_files=open_files)
+        return self.execute(
+            self._delete_file, 
+            filename, 
+            open_files=open_files)
 
     def _delete_file(self, filename, open_files=[]):
         """
@@ -496,8 +499,10 @@ class UrtextProject:
             os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
+        for ext in list(self.extensions.values()):
+            ext.on_file_deleted(filename)
         if open_files:
-            return self.on_modified(open_files)
+            return self._on_modified(open_files)
         return []
     
     def _handle_renamed(self, old_filename, new_filename):
@@ -546,6 +551,9 @@ class UrtextProject:
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
+        for ext in self.extensions.values():
+            ext.on_new_file_node(
+                self.files[filename].root_node.id)
 
         return { 
                 'filename' : filename, 
@@ -640,7 +648,7 @@ class UrtextProject:
 
     def open_node(self, node_id):
         if node_id not in self.nodes:
-            if self._UrtextProjectList.current_project.compiled:
+            if self.compiled:
                 message = node_id + ' not in current project'
             else:
                 message = 'Project is still compiling' 

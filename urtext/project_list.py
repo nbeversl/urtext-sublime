@@ -125,7 +125,8 @@ class ProjectList():
         project = self.get_project(title_or_path) 
         if not project:
             return
-        if ( not self.current_project ) or ( project.settings['project_title'] != self.current_project.settings['project_title'] ) :
+        if ( not self.current_project ) or ( 
+            project.settings['project_title'] != self.current_project.settings['project_title'] ) :
            self.current_project = project
            print('Switched to project: ' + self.current_project.settings['project_title'])
         return project
@@ -260,6 +261,6 @@ class ProjectList():
     def delete_file(self, file_name, project=None, open_files=[]):
         if not project:
             project = self.current_project
-        removed_node_ids = project.delete_file(file_name, open_files=open_files)
-        if project.is_async:
-            removed_node_ids = removed_node_ids.result()
+        project.delete_file(
+            file_name, 
+            open_files=open_files)

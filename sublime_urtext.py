@@ -590,12 +590,16 @@ class DeleteThisNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         if self.view.file_name():
-            open_files = [f.file_name() for f in self.view.window().views() if f.file_name() != self.view.file_name()]
+            open_files = [
+                f.file_name() for f in self.view.window().views() if (
+                    f.file_name() != self.view.file_name())]
             file_name = self.view.file_name()
             if self.view.is_dirty():
                 self.view.set_scratch(True)
             self.view.window().run_command('close_file')            
-            self._UrtextProjectList.delete_file(file_name, open_files=open_files)
+            self._UrtextProjectList.delete_file(
+                file_name, 
+                open_files=open_files)
 
 class InsertTimestampCommand(UrtextTextCommand):
 

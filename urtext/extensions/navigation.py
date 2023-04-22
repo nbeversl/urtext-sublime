@@ -25,28 +25,26 @@ class UrtextNavigation(UrtextExtension):
 			if self.project_list_instance.nav_index == len(
 				self.project_list_instance.navigation) - 1:
 					return print('index is already at the end')
-
 			self.project_list_instance.nav_index += 1
 			project, next_node = self.project_list_instance.navigation[
 				self.project_list_instance.nav_index]
 			self.project_list.set_current_project(project)
-			self.project_list_instance.riggered_node_visit = True
+			self.project_list_instance.triggered_node_visit = True
 			self.project_list.current_project.open_node(next_node)
 
 	def reverse(self):
-		
 		if not self.project_list_instance.navigation:
 			return print('no nav history')
-			
 		if self.project_list_instance.nav_index > -1:
 			self.project_list_instance.nav_index -= 1
 		if self.project_list_instance.nav_index == -1:
 			return print('index is already at the beginning.')
-		project, last_node = self.project_list_instance.navigation[
+
+		project, previous_node = self.project_list_instance.navigation[
 			self.project_list_instance.nav_index]
 		self.project_list.set_current_project(project)
 		self.project_list_instance.triggered_node_visit = True
-		self.project_list.current_project.open_node(last_node)
+		self.project_list.current_project.open_node(previous_node)
 
 	def on_node_visited(self, node_id):
 		if self.project_list_instance.triggered_node_visit:
@@ -73,3 +71,11 @@ class UrtextNavigation(UrtextExtension):
 			self.project_list_instance.navigation.append((
 				self.project_list.current_project.settings['project_title'],
 				node_id))
+
+	def on_file_deleted(self, filename):
+		return self.reverse()
+
+	def on_new_file_node(self, node_id):
+		self.on_node_visited(node_id)
+
+

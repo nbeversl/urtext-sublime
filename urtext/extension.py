@@ -15,6 +15,9 @@ class UrtextExtension:
     def on_node_visited(self, node_id):
         return
 
+    def on_new_file_node(self, node_id):
+        return
+
     def on_node_added(self, node):
         return
 
@@ -22,6 +25,9 @@ class UrtextExtension:
         return
 
     def on_file_dropped(self, filename):
+        return
+
+    def on_file_deleted(self, filename):
         return
 
     def on_init(self, project):
