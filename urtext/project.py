@@ -86,7 +86,7 @@ class UrtextProject:
         self.excluded_files = []
         self.home_requested = False
         self.executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=50)        
+            max_workers=1)        
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1) 
         self.execute(self._initialize_project)
@@ -1045,12 +1045,11 @@ class UrtextProject:
     
     def _on_modified(self, filename):
         if self.compiled:
-            modified_files = []
             if self._parse_file(filename):
                 modified_files.append(filename)
                 self._reverify_links(filename)
             if filename in self.files:
-                modified_files.extend(
+                modified_files = (
                     self._compile_file(
                     filename, 
                     events=['-file_update']))
