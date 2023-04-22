@@ -1044,12 +1044,13 @@ class UrtextProject:
         return self.execute(self._on_modified, filename)
     
     def _on_modified(self, filename):
+        modified_files = []
         if self.compiled:
             if self._parse_file(filename):
                 modified_files.append(filename)
                 self._reverify_links(filename)
             if filename in self.files:
-                modified_files = (
+                modified_files.extend(
                     self._compile_file(
                     filename, 
                     events=['-file_update']))
