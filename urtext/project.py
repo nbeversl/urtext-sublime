@@ -1041,25 +1041,26 @@ class UrtextProject:
                 return self.execute(self._on_modified, filename)
 
     def on_modified(self, filename):
-        return self.execute(self._on_modified, filename)
+        if self.compiled:
+            return self.execute(self._on_modified, filename)
+        return []
     
     def _on_modified(self, filename):
         modified_files = []
-        if self.compiled:
-            if self._parse_file(filename):
-                modified_files.append(filename)
-                self._reverify_links(filename)
-            if filename in self.files:
-                modified_files.extend(
-                    self._compile_file(
-                    filename, 
-                    events=['-file_update']))
-            self._sync_file_list()
-            if filename in self.files:
-                for ext in self.extensions.values():
-                    ext.on_file_modified(filename)
-            return modified_files
-        return []
+        if self._parse_file(filename):
+            modified_files.append(filename)
+            self._reverify_links(filename)
+        if filename in self.files:
+            modified_files.extend(
+                self._compile_file(
+                filename, 
+                events=['-file_update']))
+        self._sync_file_list()
+        if filename in self.files:
+            for ext in self.extensions.values():
+                ext.on_file_modified(filename)
+        return modified_files
+        
 
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
