@@ -97,7 +97,7 @@ class ProjectList():
         for f in filenames:
             project = self._get_project_from_path(os.path.dirname(f))
             if project:
-                modified_files.append(project.on_modified(f))
+                modified_files.extend(project.on_modified(f))
         return modified_files
 
     def _get_project_from_path(self, path):

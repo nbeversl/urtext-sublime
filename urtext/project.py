@@ -1012,16 +1012,16 @@ class UrtextProject:
                     modified_files.append(f)
                     self._reverify_links(f)
                 if f in self.files:
-                    modified_file = self._compile_file(
+                    modified_files.extend(
+                        self._compile_file(
                         f, 
-                        events=['-file_update'])
-                    if modified_file:
-                        modified_files.append(modified_file)
+                        events=['-file_update']))
                 self._sync_file_list()
                 if f in self.files:
                     for ext in self.extensions.values():
                         ext.on_file_modified(f)
             return modified_files
+        return []
 
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
