@@ -24,7 +24,7 @@ import random
 import time
 from time import strftime
 import concurrent.futures
-import pprint # development only
+import threading
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -71,7 +71,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -84,7 +84,11 @@ class UrtextProject:
         self.directives = {}
         self.compiled = False
         self.excluded_files = []
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)        
+        self.home_requested = False
+        self.executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=50)        
+        self.message_executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=1) 
         self.execute(self._initialize_project)
     
     def _initialize_project(self):
@@ -129,7 +133,8 @@ class UrtextProject:
         self.time = time.time()
         for ext in self.extensions.values():
             ext.after_project_initialized()
-        print('"'+self.settings['project_title']+'" compiled')
+        self.handle_message(
+            '"'+self.settings['project_title']+'" compiled')
     
     def get_file_position(self, node_id, position): 
         if node_id in self.nodes:
@@ -635,7 +640,12 @@ class UrtextProject:
 
     def open_node(self, node_id):
         if node_id not in self.nodes:
-            return print('%s not in project' % node_id)
+            if self._UrtextProjectList.current_project.compiled:
+                message = node_id + ' not in current project'
+            else:
+                message = 'Project is still compiling' 
+            return self.handle_message(message)
+
         self.visit_node(node_id)
         if 'open_file_to_position' in self.editor_methods:
              return self.editor_methods['open_file_to_position'](
@@ -645,8 +655,27 @@ class UrtextProject:
         return 'no editor method available'
 
     def open_home(self):
+        if not self.get_home():
+            if not self.compiled:
+                if not self.home_requested:
+                    self.message_executor.submit(
+                        self.handle_message,
+                        'Project is compiling. Home will be shown when found.')
+                    self.home_requested = True
+                timer = threading.Timer(.5, self.open_home)
+                return timer.start()
+            else:
+                self.home_requested = False
+                return self.handle_message(
+                    'Project compiled. No home node for this project')
+        self.home_requested = False
         self.open_node(self.settings['home'])
  
+    def handle_message(self, message):
+        print(message)
+        if 'popup' in self.editor_methods:
+            self.editor_methods['popup'](message)
+
     def all_nodes(self, as_nodes=False):
 
         def sort(nid, return_type=False):
@@ -660,13 +689,21 @@ class UrtextProject:
         for k in self.settings['node_browser_sort']:
             use_timestamp = k in self.settings['use_timestamp']
             as_int = k in self.settings['numerical_keys']
-            node_group = [r for r in remaining_nodes if r in self.nodes and self.nodes[r].metadata.get_first_value(k)]
-            node_group = sorted(node_group, key=lambda nid: sort(nid, return_type=True), reverse=k in self.settings['use_timestamp'] )
+            node_group = [
+                r for r in remaining_nodes if (
+                    r in self.nodes and self.nodes[r].metadata.get_first_value(k))]
+            node_group = sorted(
+                node_group, 
+                key=lambda nid: sort(
+                    nid, 
+                    return_type=True), 
+                reverse=k in self.settings['use_timestamp'])
             sorted_nodes.extend(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
         if as_nodes:
-            sorted_nodes = [self.nodes[nid] for nid in sorted_nodes]
+            sorted_nodes = [
+            self.nodes[nid] for nid in sorted_nodes if nid in self.nodes]
         return sorted_nodes
 
     def all_files(self):

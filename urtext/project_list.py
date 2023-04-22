@@ -97,7 +97,10 @@ class ProjectList():
         for f in filenames:
             project = self._get_project_from_path(os.path.dirname(f))
             if project:
-                modified_files.extend(project.on_modified(f))
+                future = project.on_modified(f)
+                if project.is_async:
+                    future = future.result()
+                modified_files.extend(future)
         return modified_files
 
     def _get_project_from_path(self, path):
