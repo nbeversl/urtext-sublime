@@ -502,8 +502,8 @@ class UrtextProject:
         for ext in list(self.extensions.values()):
             ext.on_file_deleted(filename)
         if open_files:
-            return self._on_modified(open_files)
-        return []
+            for f in open_files:
+                self._on_modified(f)
     
     def _handle_renamed(self, old_filename, new_filename):
         if new_filename != old_filename:
@@ -1040,31 +1040,24 @@ class UrtextProject:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
                 return self.execute(self._on_modified, filename)
 
-    def on_modified(self, filenames):
-        """
-        Call whenever a file is known to have changed contents
-        """        
-        if not isinstance(filenames, list):
-            filenames = [filenames]
-
-        return self.execute(self._on_modified, filenames)
+    def on_modified(self, filename):
+        return self.execute(self._on_modified, filename)
     
-    def _on_modified(self, filenames):
+    def _on_modified(self, filename):
         if self.compiled:
             modified_files = []
-            for f in filenames:
-                if self._parse_file(f):
-                    modified_files.append(f)
-                    self._reverify_links(f)
-                if f in self.files:
-                    modified_files.extend(
-                        self._compile_file(
-                        f, 
-                        events=['-file_update']))
-                self._sync_file_list()
-                if f in self.files:
-                    for ext in self.extensions.values():
-                        ext.on_file_modified(f)
+            if self._parse_file(filename):
+                modified_files.append(filename)
+                self._reverify_links(filename)
+            if filename in self.files:
+                modified_files.extend(
+                    self._compile_file(
+                    filename, 
+                    events=['-file_update']))
+            self._sync_file_list()
+            if filename in self.files:
+                for ext in self.extensions.values():
+                    ext.on_file_modified(filename)
             return modified_files
         return []
 

@@ -90,18 +90,12 @@ class ProjectList():
                     file_pos=file_pos,
                     return_target_only=return_target_only)
 
-    def on_modified(self, filenames):
-        modified_files = []
-        if not isinstance(filenames, list):
-            filenames = [filenames]
-        for f in filenames:
-            project = self._get_project_from_path(os.path.dirname(f))
-            if project:
-                future = project.on_modified(f)
-                if project.is_async:
-                    future = future.result()
-                modified_files.extend(future)
-        return modified_files
+    def on_modified(self, filename):
+        project = self._get_project_from_path(
+            os.path.dirname(filename))
+        if project:
+            future = project.on_modified(filename)
+            return future
 
     def _get_project_from_path(self, path):
         for project in self.projects:

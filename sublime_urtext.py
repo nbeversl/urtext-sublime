@@ -352,7 +352,7 @@ def urtext_on_modified(view):
         other_open_files = [
             v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
         if _UrtextProjectList:
-            modified_files = _UrtextProjectList.on_modified(view.file_name())
+            _UrtextProjectList.on_modified(view.file_name())
             for f in other_open_files:
                 _UrtextProjectList.visit_file(f)
 
@@ -598,7 +598,7 @@ class DeleteThisNodeCommand(UrtextTextCommand):
                 self.view.set_scratch(True)
             self.view.window().run_command('close_file')            
             self._UrtextProjectList.delete_file(
-                file_name, 
+                file_name,
                 open_files=open_files)
 
 class InsertTimestampCommand(UrtextTextCommand):
