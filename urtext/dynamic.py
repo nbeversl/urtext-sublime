@@ -41,9 +41,9 @@ phases = [
 
 class UrtextDynamicDefinition:
 
-	def __init__(self, param_string, project, location):
+	def __init__(self, param_string, project, position):
 
-		self.location = location
+		self.position = position
 		self.contents = None
 		self.target_ids = []
 		self.targets = []

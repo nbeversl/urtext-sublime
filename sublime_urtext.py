@@ -124,6 +124,13 @@ def open_http_link(link):
     if not success:
         self.log('Could not open tab using your "web_browser_path" setting')       
 
+def refresh_open_file(filename):
+    window = sublime.active_window()
+    if window:
+        for v in window.views():
+            if v.file_name() and v.file_name() == filename:
+                v.run_command('revert') # undocumented
+
 def insert_at_next_line(contents):
     pass
 
@@ -140,6 +147,7 @@ editor_methods = {
     'replace' : replace,
     'insert_at_next_line' : insert_at_next_line,
     'popup' : show_popup,
+    'refresh_open_file' : refresh_open_file,
 }
 
 def refresh_project_text_command(change_project=True):
@@ -611,7 +619,7 @@ class GoToDynamicDefinitionCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         target_id = get_node_id(self.view)
-        source = _UrtextProjectList.current_project.go_to_dynamic_definition(target_id)
+        self._UrtextProjectList.current_project.go_to_dynamic_definition(target_id)
 
 class TagFromOtherNodeCommand(UrtextTextCommand):
 
@@ -721,14 +729,6 @@ def position_node(position, focus=True, view=None):
             view.sel().add(sublime.Region(position, position))
         r = view.text_to_layout(position)
         view.set_viewport_position(r)
-    
-def refresh_open_file(changed_files, view):
-    window = view.window()
-    if changed_files and window:
-        open_views = window.views()
-        for v in open_views:
-            if v.file_name() and v.file_name() in changed_files:
-                view.run_command('revert') # undocumented
 
 def get_line_and_cursor(view):
     file_pos = view.sel()[0].a

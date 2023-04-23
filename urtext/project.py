@@ -242,7 +242,7 @@ class UrtextProject:
         for link in links:
             node_id = get_id_from_link(link)
             if node_id not in self.nodes:
-                id_only = node_id.split(' ^ ')[0]
+                id_only = node_id.split(syntax.parent_identifier)[0]
                 if id_only not in self.nodes and link not in rewrites:
                     rewrites[link] = '|? ' + id_only + ' >'
                 elif link not in rewrites:
@@ -253,8 +253,7 @@ class UrtextProject:
         if rewrites:
             contents = self.files[filename]._get_file_contents()
             for old_link in rewrites:
-                new_link = rewrites[old_link]
-                contents = contents.replace(old_link, new_link)
+                contents = contents.replace(old_link, rewrites[old_link])
             self.files[filename]._set_file_contents(contents)
             if self.compiled:
                 self._parse_file(filename)
@@ -1049,9 +1048,9 @@ class UrtextProject:
     
     def _on_modified(self, filename):
         modified_files = []
-        if self._parse_file(filename):
-            modified_files.append(filename)
-            self._reverify_links(filename)
+        modified_files.append(filename)
+        self._parse_file(filename)
+        self._reverify_links(filename)
         if filename in self.files:
             modified_files.extend(
                 self._compile_file(
@@ -1063,7 +1062,6 @@ class UrtextProject:
                 ext.on_file_modified(filename)
         return modified_files
         
-
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
 
@@ -1179,8 +1177,13 @@ class UrtextProject:
     def go_to_dynamic_definition(self, target_id):
         for dd in self.dynamic_definitions:
             if target_id in dd.target_ids:
-                self.open_node(dd.source_id)
-                return dd.source_id
+                if 'open_file_to_position' in self.editor_methods:
+                    self.editor_methods[
+                        'open_file_to_position'](
+                            self.nodes[dd.source_id].filename, 
+                            self.get_file_position(
+                                dd.source_id,
+                                dd.position))
 
     def get_by_meta(self, key, values, operator):
         
