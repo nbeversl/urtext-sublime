@@ -196,8 +196,12 @@ class UrtextProject:
 
         for entry in new_file.meta_to_node:
             keyname = entry.group(1)
-            source_node = self.get_node_id_from_position(filename, entry.span()[0])
-            target_node = self.get_node_id_from_position(filename, entry.span()[1])
+            source_node = self.get_node_id_from_position(
+                filename, 
+                entry.span()[0])
+            target_node = self.get_node_id_from_position(
+                filename, 
+                entry.span()[1])
             self.nodes[source_node].metadata.add_entry(
                 keyname,
                 self.nodes[target_node],
@@ -222,8 +226,6 @@ class UrtextProject:
 
         for ext in self.extensions.values():
             ext.on_file_parsed(filename)
-            
-        return new_file.messages
 
     def _verify_links_globally(self):
         links = self.get_all_links()
