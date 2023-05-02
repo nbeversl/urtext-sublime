@@ -552,9 +552,10 @@ class UrtextProject:
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
-        for ext in self.extensions.values():
-            ext.on_new_file_node(
-                self.files[filename].root_node.id)
+        if filename in self.files:
+            for ext in self.extensions.values():
+                ext.on_new_file_node(
+                    self.files[filename].root_node.id)
 
         return { 
                 'filename' : filename, 
