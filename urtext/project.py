@@ -583,7 +583,7 @@ class UrtextProject:
     
     def _new_node(self, 
             date=None, 
-            contents='',
+            contents=None,
             title='',
             contents_format=None,
             metadata=None,
@@ -591,6 +591,8 @@ class UrtextProject:
             include_timestamp=False):
 
         cursor_pos = 0
+        if contents == None:
+            contents = ''
 
         if contents_format:
             new_node_contents = contents_format.replace('$timestamp', self.timestamp().wrapped_string)
@@ -607,7 +609,7 @@ class UrtextProject:
             if not metadata:
                 metadata = {}
 
-            if  self.settings['device_keyname']:
+            if self.settings['device_keyname']:
                 metadata[self.settings['device_keyname']] = platform.node()
 
             new_node_contents = contents
