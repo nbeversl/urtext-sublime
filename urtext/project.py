@@ -530,12 +530,15 @@ class UrtextProject:
         date=None,
         path=None,
         contents=None,
-        metadata = {}, 
+        metadata={}, 
         one_line=None):
 
         contents_format = None
         if contents == None:
-            contents_format = bytes(self.settings['new_file_node_format'], "utf-8").decode("unicode_escape")
+            contents_format = bytes(
+                self.settings['new_file_node_format'], 
+                "utf-8"
+                ).decode("unicode_escape")
 
         filename = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -552,10 +555,9 @@ class UrtextProject:
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
-        if filename in self.files:
-            for ext in self.extensions.values():
-                ext.on_new_file_node(
-                    self.files[filename].root_node.id)
+        for ext in self.extensions.values():
+            ext.on_new_file_node(
+                self.files[filename].root_node.id)
 
         return { 
                 'filename' : filename, 
@@ -583,13 +585,13 @@ class UrtextProject:
         }
     
     def _new_node(self, 
-            date=None, 
-            contents=None,
-            title='',
-            contents_format=None,
-            metadata=None,
-            one_line=None,
-            include_timestamp=False):
+        date=None, 
+        contents=None,
+        title='',
+        contents_format=None,
+        metadata=None,
+        one_line=None,
+        include_timestamp=False):
 
         cursor_pos = 0
         if contents == None:

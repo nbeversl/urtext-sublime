@@ -40,6 +40,7 @@ parent_identifier =                     ' ^ '
 virtual_target_marker =                 '@'
 file_link_opening_wrapper =             link_opening_character + link_modifiers['file'] + ' '
 http_link_opening_wrapper =             link_opening_character + link_modifiers['http'] + ' '
+
 # Base Patterns
 
 bullet =                                r'^([^\S\n]*?)•'
@@ -75,7 +76,7 @@ metadata_entry =                        r''.join([
                                             metadata_assigner,
                                             metadata_values
                                             ])                                           
-metadata_separator_pattern =            r'\s' + metadata_separator + r'\s|$'
+metadata_separator_pattern =            r'\s' + metadata_separator + r'\s'
 metadata_tag_self =                     r'\+'
 metadata_tag_desc =                     r'\*'
 meta_to_node =                          r'(\w+)\:\:\{'
