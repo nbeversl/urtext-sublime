@@ -71,7 +71,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -920,9 +920,9 @@ class UrtextProject:
         Returns a timestamp in the format set in project_settings, or the default 
         """
         if date == None:
-            date = datetime.datetime.now()
-        if date.tzinfo == None:
-            date = date.replace(tzinfo=datetime.timezone.utc)
+            date = datetime.datetime.now(
+                datetime.timezone.utc
+                ).astimezone()
         if as_string:
             return ''.join([
                 syntax.timestamp_opening_wrapper,
@@ -930,7 +930,8 @@ class UrtextProject:
                 syntax.timestamp_closing_wrapper,
                 ])
 
-        return UrtextTimestamp(date.strftime(self.settings['timestamp_format']))
+        return UrtextTimestamp(
+            date.strftime(self.settings['timestamp_format']))
 
     def _get_settings_from(self, node):
       
