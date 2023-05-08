@@ -1,12 +1,14 @@
-from .sublime_urtext import refresh_project_text_command, urtext_on_modified
+from .sublime_urtext import refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand
 
 class PopNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        self.view.run_command('save')
-        urtext_on_modified(self.view)
+        self.view.run_command('save')        
+        if self.view.file_name():
+            self._UrtextProjectList.on_modified(view.file_name())
+
         file_pos = self.view.sel()[0].a + 1
         r = self._UrtextProjectList.current_project.extensions[
             'POP_NODE'
@@ -21,8 +23,9 @@ class PullNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')  # TODO insert notification
-        urtext_on_modified(self.view)
+
         if self.view.file_name():
+            self._UrtextProjectList.on_modified(view.file_name())
             file_pos = self.view.sel()[0].a
             file_to_close = self._UrtextProjectList.current_project.extensions[
                 'PULL_NODE'

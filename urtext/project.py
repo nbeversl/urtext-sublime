@@ -660,12 +660,13 @@ class UrtextProject:
                 message = 'Project is still compiling' 
             return self.handle_message(message)
 
-        self.visit_node(node_id)
         if 'open_file_to_position' in self.editor_methods:
-             return self.editor_methods['open_file_to_position'](
+            self.editor_methods['open_file_to_position'](
                 self.nodes[node_id].filename,
                 self.nodes[node_id].start_position()
                 )
+            return self.visit_node(node_id)
+
         return 'no editor method available'
 
     def open_home(self):
@@ -683,7 +684,7 @@ class UrtextProject:
                 return self.handle_message(
                     'Project compiled. No home node for this project')
         self.home_requested = False
-        self.open_node(self.settings['home'])
+        return self.open_node(self.settings['home'])
  
     def handle_message(self, message):
         print(message)
@@ -796,9 +797,9 @@ class UrtextProject:
                     return print('Node ' + link['link'] + ' is not in the project')
             else:
                 if 'open_file_to_position' in self.editor_methods:
-                    self.visit_node(link['link'])
-                    return self.editor_methods['open_file_to_position'](
+                    self.editor_methods['open_file_to_position'](
                         link['filename'], link['dest_position'])
+                    return self.visit_node(link['link'])
 
         if return_target_only:
             return link
@@ -1060,12 +1061,13 @@ class UrtextProject:
         if filename in self.files:
             modified_files.extend(
                 self._compile_file(
-                filename, 
+                filename,
                 events=['-file_update']))
         self._sync_file_list()
         if filename in self.files:
             for ext in self.extensions.values():
                 ext.on_file_modified(filename)
+        self._refresh_modified_files(modified_files)
         return modified_files
         
     def visit_node(self, node_id):
@@ -1076,7 +1078,10 @@ class UrtextProject:
             ext.on_node_visited(node_id)
         for dd in list(self.dynamic_definitions):
             for op in dd.operations:
-                op.on_node_visited(node_id)
+                op.on_node_visited(node_id)        
+        modified_files = self.visit_file(self.nodes[node_id].filename)
+        self._refresh_modified_files(modified_files)
+        return modified_files
 
     def visit_file(self, filename):
         return self.execute(self._visit_file, filename)
@@ -1086,9 +1091,11 @@ class UrtextProject:
         Call whenever a file requires dynamic updating
         """        
         if filename in self.files and self.compiled:
-            return self._compile_file(
+            modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
+            self._refresh_modified_files(modified_files)
+            return modified_files
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
@@ -1190,6 +1197,7 @@ class UrtextProject:
                             self.get_file_position(
                                 dd.source_id,
                                 dd.position))
+                    return self.visit_node(dd.source_id)
 
     def get_by_meta(self, key, values, operator):
         
@@ -1325,6 +1333,11 @@ class UrtextProject:
                     modified_files.append(self.nodes[target].filename)
 
         return modified_files
+
+    def _refresh_modified_files(self, files):
+        if 'refresh_open_file' in self.editor_methods:
+            for file in files:
+                self.editor_methods['refresh_open_file'](file)
 
     def _direct_output(self, output, target, dd):
 

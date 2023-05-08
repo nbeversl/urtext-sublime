@@ -1,4 +1,4 @@
-from .sublime_urtext import refresh_project_text_command, urtext_on_modified
+from .sublime_urtext import refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand
 
 class ReIndexFilesCommand(UrtextTextCommand):
@@ -23,7 +23,8 @@ class RenameFileCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')
-        urtext_on_modified(self.view)
+        if view.file_name() and self._UrtextProjectList:
+            self._UrtextProjectList.on_modified(view.file_name())
         filename = self.view.file_name()
         renamed_files = self._UrtextProjectList.current_project.extensions[
             'RENAME_SINGLE_FILE'

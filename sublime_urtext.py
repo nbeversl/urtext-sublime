@@ -129,7 +129,7 @@ def refresh_open_file(filename):
     if window:
         for v in window.views():
             if v.file_name() and v.file_name() == filename:
-                v.run_command('revert') # undocumented
+                v.run_command('reopen') # undocumented
 
 def insert_at_next_line(contents):
     pass
@@ -297,7 +297,8 @@ class UrtextCompletions(EventListener):
 
     @refresh_project_event_listener
     def on_post_save_async(self, view):
-        urtext_on_modified(view)
+        if view.file_name():
+            _UrtextProjectList.on_modified(view.file_name())
 
     def on_query_completions(self, view, prefix, locations):
         
@@ -352,17 +353,6 @@ class UrtextCompletions(EventListener):
                     max_height=512, 
                     location=file_pos,
                     on_navigate=unfold_region)
-
-# TODO update/fix
-def urtext_on_modified(view):
-    global _UrtextProjectList
-    if view.file_name() and view.window() and view.window().views():
-        other_open_files = [
-            v.file_name() for v in view.window().views() if v.file_name() != view.file_name()]
-        if _UrtextProjectList:
-            _UrtextProjectList.on_modified(view.file_name())
-            for f in other_open_files:
-                _UrtextProjectList.visit_file(f)
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
