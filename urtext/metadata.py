@@ -57,7 +57,7 @@ class NodeMetadata:
             else:
                 if syntax.metadata_tag_self_c.match(keyname[0]):
                     tag_self = True
-                    keyname = keyname[1:]            
+                    keyname = keyname[1:]
                 if syntax.metadata_tag_desc_c.match(keyname[0]):
                     tag_children = True
                     keyname = keyname[1:]

@@ -71,7 +71,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -216,7 +216,7 @@ class UrtextProject:
                 self._get_settings_from(node)     
 
             for dd in node.dynamic_definitions:
-                dd.source_id = node.id   
+                dd.source_id = node.id
                 self.dynamic_definitions.append(dd)
 
             for entry in node.metadata.dynamic_entries:
@@ -472,7 +472,7 @@ class UrtextProject:
             for ext in self.extensions.values():
                 ext.on_file_dropped(filename)
 
-            for node in self.files[filename].nodes:    
+            for node in list(self.files[filename].nodes):    
                 if node.id not in self.nodes:
                     continue
                 self._remove_sub_tags(node.id)
@@ -1313,7 +1313,6 @@ class UrtextProject:
         self._add_all_sub_tags()
 
     def _compile_file(self, filename, events=[]):
-
         modified_targets = []
         modified_files = []
 
