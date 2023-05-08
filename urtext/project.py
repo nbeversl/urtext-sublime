@@ -186,9 +186,12 @@ class UrtextProject:
                             # else:
                             # try to map old to new. This is the hard part
         
-        self.files[new_file.filename] = new_file  
         for node in new_file.nodes:
             self._add_node(node)
+
+        self.files[new_file.filename] = new_file
+        for ext in self.extensions.values():
+            ext.on_file_added(filename)
 
         for node in new_file.nodes:
             if node.parent:
@@ -223,9 +226,6 @@ class UrtextProject:
 
         if self.compiled and changed_ids:
             self._rewrite_changed_links(changed_ids)
-
-        for ext in self.extensions.values():
-            ext.on_file_parsed(filename)
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -1417,25 +1417,26 @@ class UrtextProject:
         next_node=None,
         visited_nodes=None):
 
-        
         if visited_nodes == None:
             visited_nodes = []
         if next_node:
-            source_tree_node = next_node
+            source_node_id = next_node
         else:
-            source_tree_node = self.nodes[entry.from_node].tree_node
-        if source_tree_node.name.replace('ALIA$','') not in self.nodes:
+            source_node_id = entry.from_node
+
+        if source_node_id not in self.nodes:
             return
 
-        for child in self.nodes[source_tree_node.name.replace('ALIA$','')].tree_node.children:
+        for child in self.nodes[source_node_id].children:
             
-            uid = source_tree_node.name + child.name
+            uid = source_node_id + child.id
             if uid in visited_nodes:
                 continue
-            node_to_tag = child.name.replace('ALIA$','')
+            node_to_tag = child.id
             if node_to_tag not in self.nodes:
                 visited_nodes.append(uid)
                 continue
+
             if uid not in visited_nodes and not self.nodes[node_to_tag].dynamic:
                 self.nodes[node_to_tag].metadata.add_entry(
                     entry.keyname, 
@@ -1450,8 +1451,11 @@ class UrtextProject:
             if entry.recursive:
                 self._add_sub_tags(
                     entry,
-                    next_node=self.nodes[node_to_tag].tree_node, 
+                    next_node=node_to_tag, 
                     visited_nodes=visited_nodes)
+
+        for ext in self.extensions.values():
+            ext.on_sub_tags_added(source_node_id, entry)
 
     def _remove_sub_tags(self, source_id):
         for target_id in self.nodes[source_id].target_nodes:

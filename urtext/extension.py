@@ -24,10 +24,16 @@ class UrtextExtension:
     def on_file_modified(self, filename):
         return
 
+    def on_file_added(self, filename):
+        return
+
     def on_file_dropped(self, filename):
         return
 
     def on_file_deleted(self, filename):
+        return
+
+    def on_sub_tags_added(self, tree_node_id, entry, visited_nodes=None):
         return
 
     def on_init(self, project):
