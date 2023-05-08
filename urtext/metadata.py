@@ -47,7 +47,7 @@ class NodeMetadata:
         for m in syntax.metadata_entry_c.finditer(full_contents):
             keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)                 
             value_list = syntax.metadata_separator_pattern_c.split(contents)
-
+            
             tag_self=False
             tag_children=False
             tag_descendants=False

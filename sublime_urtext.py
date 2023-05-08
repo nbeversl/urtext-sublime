@@ -300,6 +300,11 @@ class UrtextCompletions(EventListener):
         if view.file_name():
             _UrtextProjectList.on_modified(view.file_name())
 
+    @refresh_project_event_listener
+    def on_activated_async(self, view):
+        if view.file_name():
+            _UrtextProjectList.visit_file(view.file_name())
+
     def on_query_completions(self, view, prefix, locations):
         
         if _UrtextProjectList and _UrtextProjectList.current_project:
