@@ -33,7 +33,11 @@ class UrtextExtension:
     def on_file_deleted(self, filename):
         return
 
-    def on_sub_tags_added(self, tree_node_id, entry, visited_nodes=None):
+    def on_sub_tags_added(self,
+        node_id, 
+        entry, 
+        next_node=None,
+        visited_nodes=None):
         return
 
     def on_init(self, project):

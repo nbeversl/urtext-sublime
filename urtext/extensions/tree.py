@@ -35,33 +35,37 @@ class UrtextAnyTree(UrtextExtension):
             a.parent = None
             a.children = []
 
-    def on_sub_tags_added(self, node_id, entry, visited_nodes=None):
-
+    def on_sub_tags_added(self, 
+        node_id,
+        entry, 
+        next_node=None, 
+        visited_nodes=None):
+    
         visited_nodes = []
 
         for pointer in self.project.nodes[node_id].pointers:
-            
             uid = node_id + pointer['id']
             if uid in visited_nodes:
                 continue
             node_to_tag = pointer['id']
-            if node_to_tag not in self.nodes:
+            if node_to_tag not in self.project.nodes:
                 visited_nodes.append(uid)
                 continue
 
-            if uid not in visited_nodes and not self.nodes[node_to_tag].dynamic:
-                self.nodes[node_to_tag].metadata.add_entry(
+            if uid not in visited_nodes and not self.project.nodes[node_to_tag].dynamic:
+                self.project.nodes[node_to_tag].metadata.add_entry(
                     entry.keyname, 
                     entry.value, 
                     from_node=entry.from_node, 
                     recursive=entry.recursive)
-                if node_to_tag not in self.nodes[entry.from_node].target_nodes:
-                    self.nodes[entry.from_node].target_nodes.append(node_to_tag)
-            
+                if node_to_tag not in self.project.nodes[entry.from_node].target_nodes:
+                    self.project.nodes[entry.from_node].target_nodes.append(node_to_tag)
+
             visited_nodes.append(uid)        
             
             if entry.recursive:
                 self.on_sub_tags_added(
+                    pointer['id'],
                     entry,
                     next_node=node_to_tag, 
                     visited_nodes=visited_nodes)
