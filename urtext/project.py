@@ -316,6 +316,7 @@ class UrtextProject:
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
                     print('Cannot resolve duplicate ID %s' % node.id)
+                    print(file_obj.filename)
                     continue
                 changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
