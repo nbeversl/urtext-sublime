@@ -25,7 +25,6 @@ class Tree(UrtextDirective):
         self.depth = 1
 
     def dynamic_output(self, start_point):
-        
         if self.have_flags('*'):
             self.depth = 999999
         
@@ -94,7 +93,9 @@ class Tree(UrtextDirective):
 
                 urtext_node = self.project.nodes[this_node.name]
             
-            next_content = DynamicOutput(self.dynamic_definition.show, self.project.settings)
+            next_content = DynamicOutput(
+                self.dynamic_definition.show, 
+                self.project.settings)
           
             if next_content.needs_title:
                 next_content.title = urtext_node.title
@@ -143,7 +144,7 @@ class Tree(UrtextDirective):
 
         if self.dynamic_definition.excluded_nodes:
 
-            node_id = tree_node.name
+            node_id = tree_node.name.strip('ALIA$')
 
             if node_id in self.dynamic_definition.excluded_nodes:
                 return True
