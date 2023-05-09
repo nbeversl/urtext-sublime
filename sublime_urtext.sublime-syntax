@@ -137,7 +137,7 @@ contexts:
     - include: node_link
     - include: file_link  
     - match: ;|\r|(?=\})|$
-      pop: 2
+      pop: 1
 
   shorthand_meta:
     - match: '(?:^|\s)#[A-Z,a-z].*?\b'
