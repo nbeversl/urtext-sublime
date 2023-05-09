@@ -54,7 +54,7 @@ class PopNode(UrtextExtension):
             file_contents[:start - 1],
             '\n',
             syntax.link_opening_wrapper,
-            self.project.nodes[popped_node_id].id,
+            popped_node_id,
             syntax.pointer_closing_wrapper,
             file_contents[end + 1:]
             ])
@@ -121,7 +121,8 @@ class PullNode(UrtextExtension):
 
         root = False
         if not self.project.nodes[source_id].root_node:
-            self.project.files[source_filename]._set_file_contents(updated_source_file_contents)
+            self.project.files[source_filename]._set_file_contents(
+                updated_source_file_contents)
             self.project._parse_file(source_filename)
         else:
             self.project._delete_file(source_filename)
