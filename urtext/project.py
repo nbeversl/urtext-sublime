@@ -1273,8 +1273,12 @@ class UrtextProject:
                 
                 if k in self.settings['case_sensitive']:
                     results = results.union(set(
-                        n for n in list(self.nodes) if value in self.nodes[n].metadata.get_values(
-                            k, use_timestamp=use_timestamp)))
+                        n for n in list(self.nodes) if (
+                            n in self.nodes) and (
+                            value in self.nodes[n].metadata.get_values(
+                                k,
+                                use_timestamp=use_timestamp))
+                        ))
                 else:
                     if isinstance(value, str):
                         value = value.lower()
