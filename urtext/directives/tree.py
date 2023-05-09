@@ -58,7 +58,8 @@ class Tree(UrtextDirective):
 
             this_node.children = sorted(
                 this_node.children,
-                key=lambda n: self.project.nodes[n.name].start_position() if n.name in self.project.nodes else n.position)
+                key=lambda n: self.project.nodes[n.name].start_position() if (
+                    n.name in self.project.nodes ) else 0)
 
             indented_pre = '  ' + pre
             
