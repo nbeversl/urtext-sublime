@@ -127,7 +127,10 @@ class UrtextDynamicDefinition:
 			if p == 200: 
 				# convert node_id list to node objects for remaining processing
 				self.included_nodes = outcome
-				outcome = [self.project.nodes[nid] for nid in outcome]
+				outcome = [
+					self.project.nodes[nid] for nid in outcome if (
+						nid in self.project.nodes)
+					]
 
 			next_phase = p + 100
 			ops_this_phase = [op for op in all_operations if p <= op.phase < next_phase]
