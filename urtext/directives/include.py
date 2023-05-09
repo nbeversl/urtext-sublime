@@ -1,8 +1,10 @@
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
+	import Urtext.urtext.syntax as syntax
 else:
 	from urtext.directive import UrtextDirective
+	import urtext.syntax as syntax
 
 class NodeQuery(UrtextDirective):
 
@@ -11,29 +13,33 @@ class NodeQuery(UrtextDirective):
 
 	def build_list(self, passed_nodes):
 
-		added_nodes = set([])
-		if self.have_flags('*'):
-			added_nodes = set([node_id for node_id in self.project.nodes])
-		
-		added_nodes = added_nodes.union(_build_group_and(
-				self.project, 
-				self.params, 
-				self.dynamic_definition,
-				include_dynamic=self.have_flags('-dynamic'))
-			)
+		link = syntax.node_link_c.match(self.argument_string)
+		if link:
+			added_nodes = [link.group(2).strip()]
+		else:	
+			added_nodes = set([])
+			if self.have_flags('*'):
+				added_nodes = set([node_id for node_id in self.project.nodes])
+			
+			added_nodes = added_nodes.union(_build_group_and(
+					self.project, 
+					self.params, 
+					self.dynamic_definition,
+					include_dynamic=self.have_flags('-dynamic'))
+				)
 
-		# flags specify how to LIMIT the query, whether it is + or -
-		if self.have_flags('-title_only'):
-			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
+			# flags specify how to LIMIT the query, whether it is + or -
+			if self.have_flags('-title_only'):
+				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
 
-		if self.have_flags('-untitled'):
-			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
+			if self.have_flags('-untitled'):
+				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
 
-		if self.have_flags('-is_meta'):
-			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
-		
-		if self.have_flags('-dynamic'):		
-			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].dynamic])
+			if self.have_flags('-is_meta'):
+				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
+			
+			if self.have_flags('-dynamic'):		
+				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].dynamic])
 
 		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
