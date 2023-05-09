@@ -12,11 +12,10 @@ class NodeQuery(UrtextDirective):
 	phase = 100
 
 	def build_list(self, passed_nodes):
-
-		link = syntax.node_link_c.match(self.argument_string)
-		if link:
-			added_nodes = [link.group(2).strip()]
-		else:	
+		added_nodes = []
+		for match in syntax.node_link_c.finditer(self.argument_string):
+			added_nodes.append(match.group(2))
+		if not added_nodes:	
 			added_nodes = set([])
 			if self.have_flags('*'):
 				added_nodes = set([node_id for node_id in self.project.nodes])
@@ -58,7 +57,7 @@ class Exclude(NodeQuery):
 
 	def dynamic_output(self, nodes):
 		excluded_nodes = set(self.build_list([]))
-		if self.have_flags('-including_descendants'):
+		if self.have_flags('-including_as_descendants'):
 			self.dynamic_definition.excluded_nodes = list(excluded_nodes)
 		return list(set(nodes) - excluded_nodes)
 
