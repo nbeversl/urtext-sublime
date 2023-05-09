@@ -23,22 +23,8 @@ contexts:
     - include: file_link
     - include: shorthand_meta
     - include: node_title
-    - include: trigger
+    - include: metadata-entry
     
-    - match: '[\w_\?\!#\d]+?(?=::)(::)(\{)'
-      captures:
-        1: meta_key.urtext
-        2: tagvalue-separator.urtext  
-        3: punctuation.section.braces.begin.inline_node_1.urtext
-      push: inline-node-1
-
-    - match: (\+)?(\*{1,2})?([\w_\?\!#\d-]+?)(?=::)
-      captures:
-        1: tag_self.urtext
-        2: tag_descendants.urtext
-        3: meta_key.urtext
-      push: metadata-entry
-
     - match: ^\s*(•|-)
       scope: compact_node_opener.urtext 
       push: compact-node
@@ -52,8 +38,6 @@ contexts:
 
     - match: '(?<=::)<'
       push: metadata-timestamp
-    
-   
 
     - match: <[^!\s-]
       push: datestamp
@@ -119,19 +103,31 @@ contexts:
       escape_captures:
         0: escape_marker.urtext
 
-  trigger:
-    - match: '(>>>[A-Z_]+)(?=\()'
-      scope: trigger_name.urtext
-      push: trigger-with-args
-
-  trigger-with-args:
-    - match: \(
-      scope: dynamic-definition-parens
-      push: function
-    - match: (?<=\))
-      pop: true
-
   # Metadata  
+  metadata-assigner:
+    - meta_content_scope: metadata_assigner.urtext
+    - match: '(::)(?!\{)'
+      captures:
+        1: metadata_assigner.urtext
+      push: metadata-value
+
+  node-as-metadata-assigner:
+    - match: '(::)(\{)'
+      captures:
+        1: metadata_assigner.urtext
+        2: punctuation.section.braces.begin.inline_node_1.urtext
+      push: inline-node-as-metadata-1
+
+  metadata-entry:
+    - meta_scope: metadata_entry.urtext
+    - match: (\+)?(\*{1,2})?([\w_\?\!#\d-]+)(?=::)
+      captures:
+        1: tag_self.urtext
+        2: tag_descendants.urtext
+        3: meta_key.urtext
+    - include: node-as-metadata-assigner
+    - include: metadata-assigner
+
   metadata-value:
     - meta_scope: meta_value.urtext
     - match: <
@@ -142,13 +138,6 @@ contexts:
     - include: file_link  
     - match: ;|\r|(?=\})|$
       pop: 2
-
-  metadata-entry:
-    - meta_scope: metadata_entry.urtext
-    - match: '(?<=::)[^\s]'
-      push: metadata-value
-    - match: ;|\r|(?=\})|$
-      pop: 1
 
   shorthand_meta:
     - match: '(?:^|\s)#[A-Z,a-z].*?\b'
@@ -239,6 +228,15 @@ contexts:
       scope: dynamic-def-format-var.urtext
 
   # Node Nesting
+  inline-node-as-metadata-1:
+    - meta_scope: inline_node_as_metadata_1
+    - include: syntax-main
+    - match: '(?<!\\){'
+      scope: punctuation.section.braces.begin.inline_node_2.urtext
+      push: inline-node-2
+    - match: '(?<!\\)}'
+      scope: punctuation.section.braces.end.inline_node_1.urtext
+      pop: true
 
   inline-node-1: 
     - meta_scope: inline_node_1
@@ -349,16 +347,13 @@ contexts:
     - include: file_link
     - include: shorthand_meta
     - include: node_title
-    - include: trigger
     - include: bold-text
+
     - match: '`'
       push: raw 
     
     - match: <[^!\s-]
       push: datestamp
-
-    - match: '(?<=::){'
-      push: inline-node-1
 
     - match: '(?<=::)[^\s\{]'
       push: metadata-value
@@ -372,4 +367,3 @@ contexts:
       push: inline-node-1
     - match: '[\r|\n]'
       pop: true
-

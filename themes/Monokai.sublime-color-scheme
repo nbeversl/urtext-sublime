@@ -328,11 +328,6 @@
 	  			"font_style" : "bold",
 	  		},
 
-	  		{
-	  			"scope" : "trigger_name.urtext",
-	  			"foreground": "var(trigger)",
-	  			"font_style" : "bold",
-	  		},
 	  		{ 	"scope" : "dynamic-definition-reference.urtext",
 	  			"foreground": "var(unobtrusive)",
 	  		},
@@ -388,6 +383,12 @@
 	  			"scope" : "link_uniquifier.urtext",
 	  			"foreground" : "var(lime2)",
 	  			"font_style":"italic"
+	  		},
+	  		{
+	  			"scope": "metadata_assigner.urtext",
+	  			"foreground" : "var(grey)",
+	  			"font_style": "bold",
+
 	  		},
 
 	/* system message */

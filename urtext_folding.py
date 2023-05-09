@@ -10,6 +10,7 @@ folding_margins = {
     'inline_node_3' : [1,1],
     'inline_node_2' : [1,1],
     'inline_node_1' : [1,1],
+    'inline_node_as_metadata_1' : [3,1],
     'compact_node.urtext' : [1,0], }
 
 scopes_to_fold = [
@@ -21,7 +22,9 @@ scopes_to_fold = [
     'inline_node_4',
     'inline_node_3',
     'inline_node_2',
-    'inline_node_1',]
+    'inline_node_as_metadata_1',
+    'inline_node_1',    
+    ]
 
 class ToggleFoldSingleCommand(UrtextTextCommand):
 
