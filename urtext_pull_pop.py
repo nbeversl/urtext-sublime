@@ -7,7 +7,7 @@ class PopNodeCommand(UrtextTextCommand):
     def run(self):
         self.view.run_command('save')        
         if self.view.file_name():
-            self._UrtextProjectList.on_modified(view.file_name())
+            self._UrtextProjectList.on_modified(self.view.file_name())
 
         file_pos = self.view.sel()[0].a + 1
         r = self._UrtextProjectList.current_project.extensions[
@@ -25,7 +25,7 @@ class PullNodeCommand(UrtextTextCommand):
         self.view.run_command('save')  # TODO insert notification
 
         if self.view.file_name():
-            self._UrtextProjectList.on_modified(view.file_name())
+            self._UrtextProjectList.on_modified(self.view.file_name())
             file_pos = self.view.sel()[0].a
             file_to_close = self._UrtextProjectList.current_project.extensions[
                 'PULL_NODE'
