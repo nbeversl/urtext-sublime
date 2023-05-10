@@ -23,7 +23,7 @@ class RenameFileCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self.view.run_command('save')
-        if view.file_name() and self._UrtextProjectList:
+        if self.view.file_name() and self._UrtextProjectList:
             self._UrtextProjectList.on_modified(view.file_name())
         filename = self.view.file_name()
         renamed_files = self._UrtextProjectList.current_project.extensions[
