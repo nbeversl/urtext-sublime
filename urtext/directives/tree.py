@@ -1,6 +1,6 @@
-import os
+from ..context import CONTEXT
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+if CONTEXT == 'Sublime Text':
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
     from ..dynamic_output import DynamicOutput

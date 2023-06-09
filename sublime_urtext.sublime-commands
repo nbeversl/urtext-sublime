@@ -26,6 +26,7 @@
     { "caption": "Urtext: Pop Node", "command" :"pop_node"},
     { "caption": "Urtext: Pull Node", "command" :"pull_node"},
     { "caption": "Urtext: Move File to Other Project", "command" :"move_file_to_another_project"},
+    { "caption": "Urtext: Lint", "command" :"urtext_lint"},
 
     /* Development and Debugging */
     { "caption": "Urtext: Debug", "command" :"debug"},
