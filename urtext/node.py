@@ -21,7 +21,9 @@ import os
 import re
 import logging
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+from .context import CONTEXT
+
+if CONTEXT == 'Sublime Text':    
     from Urtext.anytree import Node, PreOrderIter
     from .metadata import MetadataEntry
     from .metadata import NodeMetadata
@@ -46,7 +48,8 @@ class UrtextNode:
         contents,
         project,
         root=False,
-        compact=False):
+        compact=False,
+        nested=None):
 
         self.project = project
         self.position = 0
@@ -69,6 +72,7 @@ class UrtextNode:
         self.children = []
         self.first_line_title = False
         self.title_from_marker = False
+        self.nested = nested
     
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
         contents = strip_dynamic_definitions(contents)

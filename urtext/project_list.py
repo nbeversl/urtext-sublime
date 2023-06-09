@@ -19,7 +19,9 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import re
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+from .context import CONTEXT
+
+if CONTEXT == 'Sublime Text':
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
 else:

@@ -1,7 +1,7 @@
-import os
 import re
+from .context import CONTEXT
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+if CONTEXT == 'Sublime Text':
     from .node import UrtextNode
     from .utils import strip_backtick_escape
     import Urtext.urtext.syntax as syntax
@@ -17,10 +17,9 @@ class UrtextBuffer:
     def __init__(self, project):
         
         self.nodes = []
-        self.node_tree = {}
         self.root_node = None
-        self.alias_nodes = []
-        self.messages = []     
+        self.alias_nodes = [] #todo should be in tree extension
+        self.messages = []
         self.project = project
         self.meta_to_node = []
 
@@ -129,7 +128,8 @@ class UrtextBuffer:
                     return self.lex_and_parse(contents)
 
                 node = self.add_node(
-                    nested_levels[nested], 
+                    nested_levels[nested],
+                    nested, 
                     unstripped_contents,
                     position,
                     start_position=start_position)
@@ -146,14 +146,16 @@ class UrtextBuffer:
                 
                 child_group.setdefault(nested,[])
                 child_group[nested].append(node)
-                del nested_levels[nested]
+                if nested in nested_levels:
+                    del nested_levels[nested]
                 nested -= 1
 
             if symbols[position]['type'] == 'EOB':
                 # handle closing of buffer
                 nested_levels[nested].append([last_position, position])
                 root_node = self.add_node(
-                    nested_levels[nested], 
+                    nested_levels[nested],
+                    nested,
                     unstripped_contents,
                     position,
                     root=True if not from_compact else False,
@@ -194,6 +196,7 @@ class UrtextBuffer:
 
     def add_node(self, 
         ranges, 
+        nested,
         contents,
         position,
         root=None,
@@ -212,7 +215,8 @@ class UrtextBuffer:
             node_contents,
             self.project,
             root=root,
-            compact=compact)
+            compact=compact,
+            nested=nested)
         
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents

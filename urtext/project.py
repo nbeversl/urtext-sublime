@@ -25,8 +25,9 @@ import time
 from time import strftime
 import concurrent.futures
 import threading
+from .context import CONTEXT
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+if CONTEXT == 'Sublime Text':
     from ..anytree import Node, PreOrderIter, RenderTree
     from .file import UrtextFile, UrtextBuffer
     from .node import UrtextNode
@@ -1320,6 +1321,7 @@ class UrtextProject:
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
+        print(filename)
 
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id, source=node.id):

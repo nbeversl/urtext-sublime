@@ -1,7 +1,8 @@
-import os
 import sys
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+from ..context import CONTEXT
+
+if CONTEXT == 'Sublime Text':
 	from Urtext.urtext.directive import UrtextDirective
 else:
 	from urtext.directive import UrtextDirective

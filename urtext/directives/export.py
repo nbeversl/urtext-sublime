@@ -17,10 +17,10 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-import os
 import re
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+from ..context import CONTEXT
+if CONTEXT == 'Sublime Text':
     from Urtext.urtext.directive import UrtextDirective
     import Urtext.urtext.node
     import Urtext.urtext.syntax as syntax
@@ -36,6 +36,7 @@ class UrtextExport(UrtextDirective):
 
     def dynamic_output(self, input):
         if 'root' in self.params_dict:
+            print(self.params_dict)
             return self.export_from(
                self.params_dict['root'][0],
                 )

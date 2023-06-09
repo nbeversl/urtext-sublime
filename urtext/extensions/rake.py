@@ -6,9 +6,9 @@
 import re
 import operator
 import concurrent.futures
-import os
+from ..context import CONTEXT
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
+if CONTEXT == 'Sublime Text':
     from Urtext.urtext.node import strip_contents
     from Urtext.urtext.extension import UrtextExtension
 else:
