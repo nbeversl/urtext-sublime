@@ -21,8 +21,6 @@ class UrtextDirective():
         self.argument_string = None
         self.dynamic_definition = None
 
-    """ command """
-
     def execute(self):
         return
 
@@ -65,7 +63,7 @@ class UrtextDirective():
         self.dynamic_definition = dynamic_definition
 
     def parse_argument_string(self, argument_string):
-        self.argument_string = argument_string
+        self.argument_string = argument_string.strip()
         self._parse_flags(argument_string)
         self._parse_keys(argument_string)
         

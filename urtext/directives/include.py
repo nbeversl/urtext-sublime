@@ -16,11 +16,16 @@ class NodeQuery(UrtextDirective):
 		added_nodes = []
 		for match in syntax.node_link_c.finditer(self.argument_string):
 			added_nodes.append(match.group(2))
+		if self.argument_string == ''.join([
+			syntax.virtual_target_marker,
+			'self'
+			]):
+			added_nodes.append(self.dynamic_definition.source_id)
 		if not added_nodes:	
 			added_nodes = set([])
 			if self.have_flags('*'):
 				added_nodes = set([node_id for node_id in self.project.nodes])
-			
+
 			added_nodes = added_nodes.union(_build_group_and(
 					self.project, 
 					self.params, 
