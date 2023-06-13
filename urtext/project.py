@@ -1321,7 +1321,6 @@ class UrtextProject:
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
-        print(filename)
 
         for node in self.files[filename].nodes:
             for dd in self.dynamic_defs(target=node.id, source=node.id):

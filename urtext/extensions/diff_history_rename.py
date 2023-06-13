@@ -1,4 +1,5 @@
 from ..context import CONTEXT
+import os
 
 if CONTEXT == 'Sublime Text':
     from Urtext.urtext.extension import UrtextExtension
