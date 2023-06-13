@@ -301,7 +301,12 @@ class UrtextProject:
                                 make_link(links_to_change[node_id]),
                                 replaced_contents)
                             if replaced_contents != contents:
-                                self.files[filename]._set_file_contents(replaced_contents)
+                                for ext in self.extensions.values():
+                                    ext.on_node_id_changed(
+                                        node_id,
+                                        links_to_change[node_id])
+                                self.files[filename]._set_file_contents(
+                                    replaced_contents)
                                 self._parse_file(filename)
 
     def _check_file_for_duplicates(self, file_obj):

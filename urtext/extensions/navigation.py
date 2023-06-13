@@ -26,7 +26,10 @@ class UrtextNavigation(UrtextExtension):
 			if self.project_list_instance.nav_index == len(
 				self.project_list_instance.navigation) - 1:
 					return print('index is already at the end')
-			self.project_list_instance.nav_index += 1
+			if self.project_list_instance.nav_index == -1:
+				self.project_list_instance.nav_index = 1
+			else: self.project_list_instance.nav_index += 1
+	
 			project, next_node = self.project_list_instance.navigation[
 				self.project_list_instance.nav_index]
 			self.project_list.set_current_project(project)
@@ -53,7 +56,6 @@ class UrtextNavigation(UrtextExtension):
 			return
 	
 		if node_id in self.project_list.current_project.nodes:
-			
 			if self.project_list_instance.navigation:
 				project, last_id = self.project_list_instance.navigation[
 					self.project_list_instance.nav_index]
@@ -79,4 +81,10 @@ class UrtextNavigation(UrtextExtension):
 	def on_new_file_node(self, node_id):
 		self.on_node_visited(node_id)
 
-
+	def on_node_id_changed(self, old_id, new_id):
+		for index, item in enumerate(self.project_list_instance.navigation):
+			project = item[0]
+			node_id = item[1]
+			if project == self.project_list.current_project.settings['project_title']:
+				if node_id == old_id:
+					self.project_list_instance.navigation[index] = (project, new_id)
