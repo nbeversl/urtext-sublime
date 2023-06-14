@@ -115,7 +115,13 @@ metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')'
 metadata_flags_c =                      re.compile(metadata_flags)
 
 # Composite match patterns
-
+any_link_or_pointer =                   r''.join([
+                                            link_opening_character_regex,
+                                            link_modifier_group,
+                                            '\s',
+                                            id_pattern,
+                                            '\s>{1,2}(?!>)'
+                                            ])
 compact_node =                          bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full =                  embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
@@ -154,7 +160,7 @@ urtext_messages =                       r''.join([
                                             urtext_message_closing_wrapper
                                             ])
 # Compiled Patterns
-
+any_link_or_pointer_c =         re.compile(any_link_or_pointer)
 bullet_c =                      re.compile(bullet)
 compact_node_c =                re.compile(compact_node, flags=re.MULTILINE)
 closing_wrapper_c =             re.compile(closing_wrapper)

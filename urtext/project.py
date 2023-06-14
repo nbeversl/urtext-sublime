@@ -853,6 +853,13 @@ class UrtextProject:
         full_match = None
         filename = None
         
+        links = syntax.any_link_or_pointer_c.finditer(string)
+        if links:
+            for f in links:
+                if col_pos < f.end():
+                    string = f.group()
+                    break
+
         action_only = syntax.node_action_link_c.search(string)
         if action_only:
             node_id = get_id_from_link(action_only.group())

@@ -364,7 +364,10 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         line, cursor = get_line_and_cursor(self.view)
-        link = _UrtextProjectList.handle_link(line, self.view.file_name(), col_pos=cursor)
+        link = _UrtextProjectList.handle_link(
+            line, 
+            self.view.file_name(), 
+            col_pos=cursor)
                             
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
