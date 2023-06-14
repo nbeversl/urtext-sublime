@@ -360,11 +360,10 @@ class UrtextProject:
             messages = []
             self._log_item(file_obj.filename, 
                 'Duplicate node ID(s) found in ' + ''.join([
-                    ''.join(['\n\t',
-                                syntax.link_opening_wrapper, 
+                    ''.join([   syntax.link_opening_wrapper, 
                                 n,
                                 syntax.link_closing_wrapper,
-                                '\n(also in): ',
+                                ' (also in): ',
                                 syntax.link_opening_wrapper,
                                 #self.nodes[n].filename,
                                 syntax.link_closing_wrapper,
@@ -394,20 +393,20 @@ class UrtextProject:
                 defined_in = self._target_id_defined(target_id)
                 if defined_in and defined_in != new_node.id:
 
-                        message = ''.join(['Dynamic node ', 
-                                    syntax.link_opening_wrapper,
-                                    target_id,
-                                    syntax.link_closing_wrapper,
-                                    ' has duplicate definition in ', 
-                                    syntax.link_opening_wrapper,
-                                    new_node.id,
-                                    syntax.link_closing_wrapper,
-                                    '; Keeping the definition in ',
-                                    syntax.link_opening_wrapper,
-                                    defined_in,
-                                    syntax.link_closing_wrapper])
+                    message = ''.join(['Dynamic node ', 
+                                syntax.link_opening_wrapper,
+                                target_id,
+                                syntax.link_closing_wrapper,
+                                ' has duplicate definition in ', 
+                                syntax.link_opening_wrapper,
+                                new_node.id,
+                                syntax.link_closing_wrapper,
+                                '; Keeping the definition in ',
+                                syntax.link_opening_wrapper,
+                                defined_in,
+                                syntax.link_closing_wrapper])
 
-                        self._log_item(new_node.filename, message)
+                    self._log_item(new_node.filename, message)
 
         new_node.project = self
         self.nodes[new_node.id] = new_node  
@@ -489,7 +488,7 @@ class UrtextProject:
             del self.files[filename]
 
         if filename in self.messages:
-            del self.messages[filename]
+            self.messages[filename] = []
 
     def delete_file(self, filename, open_files=[]):
         return self.execute(
@@ -918,8 +917,8 @@ class UrtextProject:
         return False
 
     def _log_item(self, filename, message):
-        if filename and filename in self.files:
-            self.messages.setdefault(filename, [])
+        self.messages.setdefault(filename, [])
+        if message not in self.messages[filename]:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
         
@@ -1110,7 +1109,9 @@ class UrtextProject:
         for file in [f for f in included_files if f not in current_files]:
             self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
-            self._log_item(file, file+' no longer seen in project path. Dropping it from the project.')
+            self._log_item(
+                file, 
+                file+' no longer seen in project path. Dropping it from the project.')
             self._drop_file(file)
 
     def _get_included_files(self):

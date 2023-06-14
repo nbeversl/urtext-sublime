@@ -8,20 +8,25 @@ pattern_break =                         r'($|(?=[\s|\r|]))'
 
 node_opening_wrapper =                  '{'
 node_closing_wrapper =                  '}'
-link_opening_wrapper =                  '| '
-link_opening_character =                r'\|'
+link_opening_character =                '|'
+link_opening_character_regex =          re.escape(link_opening_character)
+link_opening_wrapper =                  link_opening_character + ' '
 link_modifiers = {
-    'file'          : r'\/',
-    'http'          : r'\/\/',    
-    'action'        : r'\!',
+    'file'          : '/',
+    'http'          : '//',    
+    'action'        : '!',
     'no_modifier'   : '',
-    'missing'       : r'\?'
+    'missing'       : '?'
 }
-link_modifier_group =                   r'(' + '|'.join(['(' + m + ')' for m in link_modifiers.values()]) + ')'
+link_modifiers_regex = {}
+for modifier in link_modifiers:
+    link_modifiers_regex[modifier] = re.escape(link_modifiers[modifier])
+
+link_modifier_group =                   r'(' + '|'.join(['(' + m + ')' for m in link_modifiers_regex.values()]) + ')'
 node_link_modifier_group =              r'(' + '|'.join(['(' + m + ')' for m in [
-                                            link_modifiers['action'],
-                                            link_modifiers['missing'],
-                                            link_modifiers['no_modifier']
+                                            link_modifiers_regex['action'],
+                                            link_modifiers_regex['missing'],
+                                            link_modifiers_regex['no_modifier']
                                             ]]) + ')'
 link_closing_wrapper =                  ' >'
 pointer_closing_wrapper =               ' >>'
@@ -38,8 +43,14 @@ dynamic_def_opening_wrapper =           '[['
 dynamic_def_closing_wrapper =           ']]'
 parent_identifier =                     ' ^ '
 virtual_target_marker =                 '@'
-file_link_opening_wrapper =             link_opening_character + link_modifiers['file'] + ' '
-http_link_opening_wrapper =             link_opening_character + link_modifiers['http'] + ' '
+file_link_opening_wrapper =             ''.join([
+                                            link_opening_character,
+                                            link_modifiers['file'],
+                                            ' '])
+http_link_opening_wrapper =             ''.join([
+                                            link_opening_character,
+                                            link_modifiers['http'],
+                                            ' '])
 
 # Base Patterns
 
@@ -53,7 +64,7 @@ embedded_syntax_close =                 r'%%'+pattern_break
 format_key =                            r'\$_?[\.A-Za-z0-9_-]*'
 hash_key =                              r'#'
 node_link_opening_wrapper_match =       r''.join([
-                                            link_opening_character,
+                                            link_opening_character_regex,
                                             node_link_modifier_group,
                                             r'\s'
                                             ])
@@ -103,17 +114,21 @@ sh_metadata_values_c =                  re.compile(sh_metadata_values)
 metadata_flags =                        r'\+?\*{1,2}(?=' + metadata_key + ')' 
 metadata_flags_c =                      re.compile(metadata_flags)
 
-# Composite patterns
+# Composite match patterns
 
 compact_node =                          bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full =                  embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta =                             r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link =                             r'(\|\s)(' + id_pattern + ')\s>(?!>)'
 function =                              r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
-
 node_link_or_pointer =                  node_link_opening_wrapper_match + '(' + id_pattern + ')\s>{1,2}(?!>)'
-node_action_link =                      link_opening_character + link_modifiers['action'] + '\s' '(' + id_pattern + ')\s>{1,2}(?!>)'
-
+node_action_link =                      r''.join([
+                                            link_opening_character_regex,
+                                            link_modifiers_regex['action'],
+                                            '\s',
+                                            '(',
+                                            id_pattern,
+                                            ')\s>{1,2}(?!>)'])
 node_pointer =                          r'(\|\s)(' + id_pattern + ')\s>>(?!>)'
 node_title =                            r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 timestamp =                             r''.join([
@@ -121,14 +136,15 @@ timestamp =                             r''.join([
                                             r'([^-/<\s][^=<]+?)',
                                             timestamp_closing_wrapper])
 file_link =                             r''.join([
-                                            link_opening_character,
-                                            link_modifiers['file'],
+                                            link_opening_character_regex,
+                                            link_modifiers_regex['file'],
                                             ' '
                                             r'([^;]+)',
                                             link_closing_wrapper])
-
 http_link =                             r''.join([
-                                            http_link_opening_wrapper,
+                                            link_opening_character_regex,
+                                            link_modifiers_regex['http'],
+                                            ' ',
                                             r'([^>]+)',
                                             link_closing_wrapper
                                             ])
