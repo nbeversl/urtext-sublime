@@ -86,10 +86,6 @@ class UrtextDynamicDefinition:
 					self.targets.append(argument_string)
 				continue
 
-			if func == 'FILE':
-				self.target_file = argument_string
-				continue
-
 			if func == "SHOW":
 				self.show = argument_string
 		
