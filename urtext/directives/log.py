@@ -21,7 +21,7 @@ class Log(UrtextDirective):
 				file = '(no file)'
 			for message in self.project.messages[k]:
 				output.append(''.join([
-	                'in file : ',
+	                'in file ',
 	                file,
 	                ' ',
 	                message,
