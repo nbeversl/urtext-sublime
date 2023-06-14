@@ -79,7 +79,7 @@ class UrtextProject:
         self.files = {}
         self.exports = {}
         self.messages = {}
-        self.dynamic_definitions = []
+        self.dynamic_definitions = {}
         self.dynamic_metadata_entries = []
         self.extensions = {}
         self.directives = {}
@@ -218,7 +218,7 @@ class UrtextProject:
 
             for dd in node.dynamic_definitions:
                 dd.source_id = node.id
-                self.dynamic_definitions.append(dd)
+                self._add_dynamic_definition(dd)
 
             for entry in node.metadata.dynamic_entries:
                 entry.from_node = node.id
@@ -373,10 +373,8 @@ class UrtextProject:
         return changed_ids
 
     def _target_id_defined(self, check_id):
-        if check_id in self.nodes:
-            for dd in self.dynamic_defs():
-                if check_id in dd.target_ids:
-                    return dd.source_id
+        if check_id in self.nodes and check_id in self.dynamic_definitions:
+            return self.dynamic_definitions[check_id].source_id
 
     def _target_file_defined(self, file):
         for nid in list(self.nodes):
@@ -385,29 +383,30 @@ class UrtextProject:
                     if file in r.to_files:
                         return nid
 
-    def _add_node(self, new_node):
-        """ Adds a node to the project object """
-        for definition in new_node.dynamic_definitions:
-            
-            for target_id in definition.target_ids:
-                defined_in = self._target_id_defined(target_id)
-                if defined_in and defined_in != new_node.id:
-
-                    message = ''.join(['Dynamic node ', 
+    def _add_dynamic_definition(self, definition):
+        for target_id in definition.target_ids:
+            if target_id in self.dynamic_definitions:
+                message = ''.join([
+                                'Dynamic node ', 
                                 syntax.link_opening_wrapper,
                                 target_id,
                                 syntax.link_closing_wrapper,
-                                ' has duplicate definition in ', 
+                                ' already has a definition in ', 
                                 syntax.link_opening_wrapper,
-                                new_node.id,
+                                self.dynamic_definitions[target_id].source_id,
                                 syntax.link_closing_wrapper,
-                                '; Keeping the definition in ',
+                                '; skipping the definition in ',
                                 syntax.link_opening_wrapper,
-                                defined_in,
-                                syntax.link_closing_wrapper])
+                                definition.source_id,
+                                syntax.link_closing_wrapper,
+                            ])
+                self._log_item(
+                    self.nodes[definition.source_id].filename, 
+                    message)
+            else:
+                self.dynamic_definitions[target_id] = definition        
 
-                    self._log_item(new_node.filename, message)
-
+    def _add_node(self, new_node):
         new_node.project = self
         self.nodes[new_node.id] = new_node  
         if self.compiled:
@@ -431,15 +430,13 @@ class UrtextProject:
                 offset = position - indexes[index]
                 return node, target_position+offset
 
-    def _set_node_contents(self, node_id, contents, parse=True):
+    def _set_node_contents(self, node_id, contents):
         """ 
         project-aware alias for the Node set_content() method 
         returns filename if contents has changed.
         """
-        if parse and self._parse_file(self.nodes[node_id].filename) == -1:
-            return
         if node_id in self.nodes:
-             if self.nodes[node_id].set_content(contents):
+            if self.nodes[node_id].set_content(contents):
                 self._parse_file(self.nodes[node_id].filename)
                 if node_id in self.nodes:
                     return self.nodes[node_id].filename
@@ -459,10 +456,9 @@ class UrtextProject:
                     self.nodes[node_id].ranges[index][1] -= amount
 
     def _mark_dynamic_nodes(self):
-        for dd in self.dynamic_defs():
-            for node_id in dd.target_ids:
-                if node_id in self.nodes:
-                    self.nodes[node_id].dynamic = True
+        for target in self.dynamic_definitions:
+            if target in self.nodes:
+                self.nodes[target].dynamic = True
 
 
     """
@@ -471,7 +467,7 @@ class UrtextProject:
     def _drop_file(self, filename):
 
         if filename in self.files:
-            for dd in self.dynamic_defs():
+            for dd in self.dynamic_definitions.values():
                 for op in dd.operations:
                     op.on_file_dropped(filename)
 
@@ -643,15 +639,20 @@ class UrtextProject:
                 metadata_block = ' ' + metadata_block
             return '• ' + contents.strip() + metadata_block
 
-    def dynamic_defs(self, target=None, source=None):
-        if target or source:
-            return [dd for dd in self.dynamic_definitions if target in dd.target_ids or dd.source_id == source]
-        return self.dynamic_definitions
+    def get_dynamic_defs(self, target=None, source=None):
+        defs = []
+        if target and target in self.dynamic_definitions:
+            defs.append(self.dynamic_definitions[target])
+        if source:
+            for dd in self.dynamic_definitions.values():        
+                if dd.source_id == source:
+                    defs.append(dd)
+        return defs
 
     def remove_dynamic_defs(self, node_id):
-        for dd in list(self.dynamic_definitions):
-            if dd.source_id == node_id:
-                self.dynamic_definitions.remove(dd)
+        for target in list(self.dynamic_definitions):
+            if self.dynamic_definitions[target].source_id == node_id: 
+                del self.dynamic_definitions[target]
 
     def remove_dynamic_metadata_entries(self, node_id):
         for entry in list(self.dynamic_metadata_entries):
@@ -816,7 +817,7 @@ class UrtextProject:
                 if not self.compiled: return print('Project is still compiling')
                 return print('Node ' + link['node_id'] + ' is not in the project')
             else:
-                for dd in self.dynamic_defs(source=link['node_id']):
+                for dd in self.get_dynamic_defs(source=link['node_id']):
                     if dd.source_id == link['node_id']:
                         output = dd.process(flags=['-link_clicked'])
                         if output not in [False, None]:
@@ -1089,7 +1090,7 @@ class UrtextProject:
     def _visit_node(self, node_id):
         for ext in list(self.extensions.values()):
             ext.on_node_visited(node_id)
-        for dd in list(self.dynamic_definitions):
+        for dd in list(self.dynamic_definitions.values()):
             for op in dd.operations:
                 op.on_node_visited(node_id)        
         modified_files = self.visit_file(self.nodes[node_id].filename)
@@ -1203,16 +1204,16 @@ class UrtextProject:
         return list(set(values))
 
     def go_to_dynamic_definition(self, target_id):
-        for dd in self.dynamic_definitions:
-            if target_id in dd.target_ids:
-                if 'open_file_to_position' in self.editor_methods:
-                    self.editor_methods[
-                        'open_file_to_position'](
-                            self.nodes[dd.source_id].filename, 
-                            self.get_file_position(
-                                dd.source_id,
-                                dd.position))
-                    return self.visit_node(dd.source_id)
+        if target_id in self.dynamic_definitions:
+            dd = self.dynamic_definitions[target_id]
+            if 'open_file_to_position' in self.editor_methods:
+                self.editor_methods[
+                    'open_file_to_position'](
+                        self.nodes[dd.source_id].filename, 
+                        self.get_file_position(
+                            dd.source_id,
+                            dd.position))
+                return self.visit_node(dd.source_id)
 
     def get_by_meta(self, key, values, operator):
         
@@ -1336,7 +1337,7 @@ class UrtextProject:
         modified_files = []
 
         for node in self.files[filename].nodes:
-            for dd in self.dynamic_defs(target=node.id, source=node.id):
+            for dd in self.get_dynamic_defs(target=node.id, source=node.id):
                 output = dd.process(flags=events)
                 if output not in [False, None]:
                     for target in dd.targets:
