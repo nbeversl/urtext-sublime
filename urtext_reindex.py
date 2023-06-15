@@ -1,5 +1,6 @@
 from .sublime_urtext import refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand
+import sublime
 
 class ReIndexFilesCommand(UrtextTextCommand):
     
@@ -21,17 +22,23 @@ class ReIndexFilesCommand(UrtextTextCommand):
 class RenameFileCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
-    def run(self):
-        self.view.run_command('save')
+    def run(self):        
         if self.view.file_name() and self._UrtextProjectList:
-            self._UrtextProjectList.on_modified(self.view.file_name())
-        filename = self.view.file_name()
-        renamed_files = self._UrtextProjectList.current_project.extensions[
-            'RENAME_SINGLE_FILE'
-            ].rename_single_file(filename=filename)
+            self.view.run_command('save')
+            filename = self.view.file_name()
 
-        if self._UrtextProjectList.current_project.is_async:
-            renamed_files=renamed_files.result()
+            def rename_file(view):
+                if not view.is_dirty():
+                    renamed_files = self._UrtextProjectList.current_project.extensions[
+                        'RENAME_SINGLE_FILE'
+                        ].rename_single_file(filename)
+                    if self._UrtextProjectList.current_project.is_async:
+                        renamed_files=renamed_files.result()
+                    if renamed_files:
+                        self.view.retarget(renamed_files[filename])
+                else:
+                    sublime.set_timeout(lambda: rename_file(self.view), 50) 
 
-        if renamed_files:
-            self.view.retarget(renamed_files[filename])
+            rename_file(self.view)
+            
+            

@@ -47,7 +47,7 @@ class UrtextFile(UrtextBuffer):
     def _read_file_contents(self):
         """ returns the file contents, filtering out Unicode Errors, directories, other errors """
         try:
-            with open(self.filename, 'r', encoding='utf-8',) as theFile:
+            with open(self.filename, 'r', encoding='utf-8') as theFile:
                 full_file_contents = theFile.read()
         except IsADirectoryError:
             return None
