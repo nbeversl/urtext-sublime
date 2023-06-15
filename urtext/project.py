@@ -1303,10 +1303,8 @@ class UrtextProject:
         if self.compiled and not self.nodes:
             return
         if self.is_async:
-            future = self.executor.submit(function, *args, **kwargs)
-            return future
-        else:    
-            return function(*args, **kwargs)
+            return self.executor.submit(function, *args, **kwargs)
+        return function(*args, **kwargs)
 
     """ Project Compile """
 

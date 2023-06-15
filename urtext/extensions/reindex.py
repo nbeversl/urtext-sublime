@@ -14,20 +14,15 @@ class ReindexFiles(UrtextExtension):
     name=['REINDEX']        
     
     def rename_all_files(self):
-        return self.project.execute( 
-            self.rename_file_nodes,            
-            self.project.all_files(),
-            reindex=True)
+        return self.rename_file_nodes(self.project.all_files())
 
-    def rename_file_nodes(self, filenames, reindex=False):
+    def rename_file_nodes(self, filenames):
         return self.project.execute(
             self._rename_file_nodes,
-            filenames,
-            reindex=reindex)
+            filenames)
 
-    def _rename_file_nodes(self, filenames, reindex=False):
+    def _rename_file_nodes(self, filenames):
         """ Rename a file or list of files by metadata """
-
         if isinstance(filenames, str):
             filenames = [filenames]
        
@@ -109,10 +104,7 @@ class RenameSingleFile(ReindexFiles):
     name=['RENAME_SINGLE_FILE']
 
     def rename_single_file(self, filename):
-        return self.project.execute(
-            self._rename_file_nodes,
-            filename,
-            reindex=True)
+        return self.rename_file_nodes(filename)
 
 def strip_illegal_characters(filename):
     for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:
