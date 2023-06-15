@@ -18,6 +18,19 @@ class PopNode(UrtextExtension):
         filename, 
         file_pos=None,  
         node_id=None):
+
+        self.project.execute(
+            self._pop_node,
+            param_string, 
+            filename, 
+            file_pos=file_pos,  
+            node_id=node_id)
+
+    def _pop_node(self,
+        param_string, 
+        filename, 
+        file_pos=None,  
+        node_id=None):
  
         if not node_id:
             node_id = self.project.get_node_id_from_position(
@@ -76,6 +89,19 @@ class PullNode(UrtextExtension):
     name=['PULL_NODE']
 
     def pull_node(self, 
+        string, 
+        destination_filename, 
+        file_pos=0,
+        col_pos=0):
+
+        self.project.execute(
+            self._pull_node,
+            string, 
+            destination_filename, 
+            file_pos=file_pos,
+            col_pos=col_pos)
+
+    def _pull_node(self, 
         string, 
         destination_filename, 
         file_pos=0,
