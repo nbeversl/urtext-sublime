@@ -47,7 +47,6 @@ class UrtextDynamicDefinition:
 		self.contents = None
 		self.target_ids = []
 		self.targets = []
-		self.target_file = None
 		self.included_nodes = []
 		self.excluded_nodes = []
 		self.spaces = 0
@@ -82,7 +81,9 @@ class UrtextDynamicDefinition:
 				if output_target:
 					self.targets.append(output_target.group())
 				else:
-					self.target_ids.append(get_id_from_link(argument_string))
+					target_id = get_id_from_link(argument_string)
+					if target_id:
+						self.target_ids.append(target_id)
 					self.targets.append(argument_string)
 				continue
 
@@ -163,31 +164,24 @@ class UrtextDynamicDefinition:
 	def process(self, flags=[]):
 		self.flags = flags
 
-		# if self.target_id == None and not self.target_file: 
-		# 	return self.project._log_item(None, ''.join([
-		# 			'Dynamic definition in ',
-		# 			syntax.link_opening_wrapper,
-		# 			self.source_id,
-		# 			syntax.link_closing_wrapper,
-		# 			' has no target']))
-
 		for target_id in self.target_ids:
 
 			if target_id not in self.project.nodes:
-				filename = self.project.nodes[self.source_id].filename
-				self.project._log_item(filename, ''.join([
-							'Dynamic node definition in node ',
-							syntax.link_opening_wrapper,
-							self.source_id,
-							syntax.link_closing_wrapper,
-							' pointing to nonexistent node ',
-							'|? ',
-							target_id,
-							syntax.link_closing_wrapper]))
+				if self.source_id in self.project.nodes:
+					filename = self.project.nodes[self.source_id].filename
+					self.project._log_item(filename, ''.join([
+								'Dynamic node definition in node ',
+								syntax.link_opening_wrapper,
+								self.source_id,
+								syntax.link_closing_wrapper,
+								' pointing to nonexistent node ',
+								'|? ',
+								target_id,
+								syntax.link_closing_wrapper]))
 
 		output = self.process_output()
 		if output == False: return
-		if not self.returns_text and not self.target_file: return
+		if not self.returns_text: return
 		if self.spaces: output = indent(output, spaces=self.spaces)
 		return output
 
