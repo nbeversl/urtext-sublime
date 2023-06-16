@@ -652,14 +652,25 @@ class CompactNodeCommand(UrtextTextCommand):
             contents = self._UrtextProjectList.current_project.add_compact_node()
         else:
             replace = True
-            contents = self._UrtextProjectList.current_project.add_compact_node(contents=line_contents)
+            contents = line_contents.strip()
+            indent = ''
+            pos = 0
+            while line_contents[pos].isspace() and pos < len(line_contents):
+                indent = ''.join([indent, line_contents[pos]])
+                pos = pos + 1
+            contents = self._UrtextProjectList.current_project.add_compact_node(
+                contents=contents)
         if replace:
             region = self.view.sel()[0]
             self.view.erase(self.edit, line_region)
-            self.view.run_command("insert_snippet",{"contents": contents})
+            self.view.run_command("insert_snippet",{"contents": indent + contents})
             self.view.sel().clear()
-            cursor_offset = len(line_contents) - len(line_contents.strip())
-            self.view.sel().add(sublime.Region(region.a + 2 - cursor_offset, region.a  +2 - cursor_offset))
+            cursor_offset = len(contents) - len(contents.strip())
+            self.view.sel().add(
+                sublime.Region(
+                    region.a + 2 - cursor_offset, 
+                    region.a + 2 - cursor_offset)
+                )
         else:
             next_line_down = line_region.b + 1
             self.view.sel().clear()
