@@ -368,7 +368,7 @@ class UrtextProject:
                                 syntax.link_closing_wrapper,
                                 ' (also in): ',
                                 syntax.link_opening_wrapper,
-                                #self.nodes[n].filename,
+                                duplicate_nodes[n],
                                 syntax.link_closing_wrapper,
                                 '\n'
                             ]) for n in duplicate_nodes]))
