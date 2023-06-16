@@ -545,7 +545,6 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command()
     def run(self):
-
         if not self.window:
             self.window = self.view.window()
         node_id = get_node_id(self.window.active_view())
@@ -553,9 +552,13 @@ class CopyLinkToHereCommand(UrtextTextCommand):
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
-    def get_link(self, node_id):
-        return self._UrtextProjectList.build_contextual_link(
-            node_id, 
+    @refresh_project_text_command()
+    def run(self):
+        if not self.window:
+            self.window = self.view.window()
+        node_id = get_node_id(self.window.active_view())
+        self._UrtextProjectList.current_project.editor_copy_link_to_node(
+            node_id,
             include_project=True)
 
 class NewFileNodeCommand(UrtextTextCommand):

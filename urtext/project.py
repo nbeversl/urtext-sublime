@@ -1504,8 +1504,10 @@ class UrtextProject:
         if 'insert_text' in self.editor_methods:
             self.editor_methods['insert_text'](self.timestamp(as_string=True))
 
-    def editor_copy_link_to_node(self, node_id):
-        link = self.project_list.build_contextual_link(node_id) 
+    def editor_copy_link_to_node(self, node_id, include_project=False):
+        link = self.project_list.build_contextual_link(
+            node_id,
+            include_project=include_project) 
         if 'set_clipboard' in self.editor_methods:
             self.editor_methods['set_clipboard'](link)
 
