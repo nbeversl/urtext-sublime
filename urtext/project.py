@@ -242,14 +242,15 @@ class UrtextProject:
         rewrites = {}
         for link in links:
             node_id = get_id_from_link(link)
+            suffix = ' ' +link[-2:].strip()
             if node_id not in self.nodes:
-                id_only = node_id.split(syntax.parent_identifier)[0]
+                id_only = node_id.split(syntax.parent_identifier)[0]                
                 if id_only not in self.nodes and link not in rewrites:
-                    rewrites[link] = '|? ' + id_only + ' >'
+                    rewrites[link] = '|? ' + id_only + suffix
                 elif link not in rewrites:
-                    rewrites[link] = '| ' + id_only + ' >'
+                    rewrites[link] = '| ' + id_only + suffix
             elif '|? ' in link:
-                rewrites[link] = '| ' + node_id + ' >'
+                rewrites[link] = '| ' + node_id + suffix
 
         if rewrites:
             contents = self.files[filename]._get_file_contents()
