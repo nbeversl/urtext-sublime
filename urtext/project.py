@@ -109,7 +109,9 @@ class UrtextProject:
                 self._parse_file(file)
         elif os.path.exists(self.entry_point):
             self.entry_path = os.path.dirname(self.entry_point)            
-            self._parse_file(self.entry_point)    
+            self._parse_file(self.entry_point)
+        else:
+            return self.handle_message('%s does not exist' % self.entry_point)
 
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
