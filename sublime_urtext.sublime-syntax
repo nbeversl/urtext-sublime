@@ -348,19 +348,13 @@ contexts:
     - include: shorthand_meta
     - include: node_title
     - include: bold-text
+    - include: metadata-entry
 
     - match: '`'
       push: raw 
     
     - match: <[^!\s-]
       push: datestamp
-
-    - match: '(?<=::)[^\s\{]'
-      push: metadata-value
-    
-    - match: '[\w_\?\!#\d]+?(?=::)'
-      scope: meta_key.urtext
-      push: metadata-entry
   
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_1.urtext
