@@ -23,12 +23,15 @@ if CONTEXT == 'Sublime Text':
     from Urtext.anytree import Node, PreOrderIter, RenderTree
     from Urtext.urtext.timestamp import UrtextTimestamp, default_date
     from Urtext.urtext.directive import UrtextDirective
+    import Urtext.urtext.syntax as syntax
+
 else:
     from urtext.directive import UrtextDirective
     from urtext.dynamic_output import DynamicOutput
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.timestamp import UrtextTimestamp, default_date
     from urtext.directive import UrtextDirective
+    import urtext.syntax as syntax
 
 class Collect (UrtextDirective):
 
@@ -41,49 +44,36 @@ class Collect (UrtextDirective):
     def dynamic_output(self, nodes):
        
         m_format = self.dynamic_definition.show
-
         keys = {}
         
         for entry in self.params:
-
             k, v, operator = entry
             if operator == '!=' and k in keys:
                 keys[k].remove(v)
                 continue
-
             if k =='*':
                 for k in self.project.get_all_keys():
                     keys[k] = [v.lower()]
-                
             else:
                 keys[k] = [v.lower()]
 
         found_stuff = []
-
         for node in nodes:
-           
             for k in keys:
-
                 use_timestamp = k in self.project.settings['use_timestamp']
-
                 for v in keys[k]:
-                    
                     if v == '*':
                         entries = node.metadata.get_entries(k)
                     else:
                         entries = node.metadata.get_matching_entries(k, v)
 
                     for entry in entries:
-
                          found_item = {}
-
                          if v == '*':
-
                             if use_timestamp:
                                 value = entry.timestamps[0].datetime
                             else:
                                 value = entry.value
-
                          else:
                             if use_timestamp and entry.timestamps[0].datetime == v:
                                 value =entry.timestamps[0].datetime
@@ -121,15 +111,15 @@ class Collect (UrtextDirective):
                             length += len(line)
                             if entry.end_position < length:
                                 break
-                       
-                         found_item['context'] = line.strip().replace('_',' ')
 
-                         while '>>' in found_item['context']:
-                            found_item['context'] = found_item['context'].replace('>>','>')
+                         found_item['context'] = line.strip().replace('_',' ')
+                         while syntax.pointer_closing_wrapper in found_item['context']:
+                            found_item['context'] = found_item['context'].replace(
+                                syntax.pointer_closing_wrapper,
+                                syntax.node_closing_wrapper)
 
                          # this will be position in NODE, not FILE:
                          found_item['position'] = str(entry.position)                         
-                         
                          found_stuff.append(found_item)
     
         if not found_stuff:
@@ -160,7 +150,13 @@ class Collect (UrtextDirective):
                     next_content.values = item['value']
 
                  if next_content.needs_link:            
-                     next_content.link = '| '+item['node_id']+':'+item['position'] + '> '
+                     next_content.link =''.join([
+                        syntax.link_opening_wrapper,
+                        item['node_id'],
+                        #' :',
+                        #item['position'],
+                        syntax.link_closing_wrapper
+                        ])
 
                  if next_content.needs_date:
                      next_content.date = item['dt_string']
@@ -174,12 +170,17 @@ class Collect (UrtextDirective):
                          contents = contents.replace('\n\n', '\n')
                      next_content.contents = contents
 
-                 # for meta_key in next_content.needs_other_format_keys:
-                 #     values = self.project.nodes[item['node_id']].metadata.get_values(meta_key) #, substitute_timestamp=True)
-                 #     replacement = ''
-                 #     if values:
-                 #         replacement = ' - '.join(values)
-                 #     next_content.other_format_keys[meta_key] = replacement
+                 for meta_key in next_content.needs_other_format_keys:
+                     values = self.project.nodes[
+                        item['node_id']
+                        ].metadata.get_values(
+                            meta_key,
+                            convert_nodes_to_links=True
+                            ) #, substitute_timestamp=True)
+                     replacement = ''
+                     if values:
+                         replacement = ' - '.join(values)
+                     next_content.other_format_keys[meta_key] = replacement
 
                  collection.extend([next_content.output()])
 

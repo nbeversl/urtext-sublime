@@ -101,7 +101,10 @@ class DynamicOutput():
         if contents_match:
             self.needs_contents = True
 
-        all_format_keys = re.findall( self.shah+'\$[\.A-Za-z0-9_-]*', self.item_format, re.DOTALL)                   
+        all_format_keys = re.findall(
+            self.shah+'\$[\.A-Za-z0-9_-]*', 
+            self.item_format, 
+            re.DOTALL)                   
         for match in all_format_keys:
             meta_key = match.strip(self.shah+'$') 
             if meta_key not in defined_list:
@@ -142,7 +145,7 @@ class DynamicOutput():
         for meta_key in self.other_format_keys:
             token = self.shah+'$'+meta_key
             value = ''.join(self.other_format_keys[meta_key])
-            self.item_format = self.item_format.replace(token, value );    
+            self.item_format = self.item_format.replace(token, value );
 
         return self.item_format
 
