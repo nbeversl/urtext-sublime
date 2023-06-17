@@ -92,10 +92,12 @@ class UrtextFile(UrtextBuffer):
             self.messages = messages
 
         contents = self._get_file_contents()
-
+        timestamp = self.project.timestamp(as_string=True)
         messages = ''.join([ 
             syntax.urtext_message_opening_wrapper,
             '\n',
+            timestamp,
+            ' ',
             '\n'.join(self.messages),
             '\n',
             syntax.urtext_message_closing_wrapper,

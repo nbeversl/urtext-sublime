@@ -150,6 +150,8 @@ contexts:
 
   system-message:
     - meta_scope: entity.name.struct.system-message.urtext
+    - match: <
+      push: datestamp
     - match: '!>'
       pop: true
 
