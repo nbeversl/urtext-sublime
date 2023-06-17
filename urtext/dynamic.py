@@ -167,17 +167,16 @@ class UrtextDynamicDefinition:
 		for target_id in self.target_ids:
 
 			if target_id not in self.project.nodes:
-				if self.source_id in self.project.nodes:
-					filename = self.project.nodes[self.source_id].filename
-					self.project._log_item(filename, ''.join([
-								'Dynamic node definition in node ',
-								syntax.link_opening_wrapper,
-								self.source_id,
-								syntax.link_closing_wrapper,
-								' pointing to nonexistent node ',
-								'|? ',
-								target_id,
-								syntax.link_closing_wrapper]))
+				filename = self.project.nodes[self.source_id].filename
+				self.project._log_item(filename, ''.join([
+							'Dynamic node definition in node ',
+							syntax.link_opening_wrapper,
+							self.source_id,
+							syntax.link_closing_wrapper,
+							' pointing to nonexistent node ',
+							'|? ',
+							target_id,
+							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
 		if output == False: return
