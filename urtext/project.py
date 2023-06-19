@@ -259,8 +259,7 @@ class UrtextProject:
             for old_link in rewrites:
                 contents = contents.replace(old_link, rewrites[old_link])
             self.files[filename]._set_file_contents(contents)
-            if self.compiled:
-                self._parse_file(filename)
+            self._parse_file(filename)
 
     def _collect_extensions_directives(self):
         
