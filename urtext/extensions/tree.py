@@ -12,18 +12,16 @@ class UrtextAnyTree(UrtextExtension):
     name = ["TREE_EXTENSION"]
 
     def on_file_added(self, filename):
-        if filename in self.project.files:
-            for node in self.project.files[filename].nodes:
-                for pointer in node.pointers:
-                    alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
-                    alias_node.position = pointer['position']
-                    alias_node.parent = node.tree_node
-                    self.project.files[filename].alias_nodes.append(alias_node)
-                if node.parent:
-                    node.tree_node.parent = node.parent.tree_node
-
-    def on_node_added(self, node):
-        node.tree_node = Node(node.id)
+        for node in self.project.files[filename].nodes:
+            node.tree_node = Node(node.id)
+        for node in self.project.files[filename].nodes:
+            for pointer in node.pointers:
+                alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
+                alias_node.position = pointer['position']
+                alias_node.parent = node.tree_node
+                self.project.files[filename].alias_nodes.append(alias_node)
+            if node.parent:
+                node.tree_node.parent = node.parent.tree_node
 
     def on_node_id_changed(self, old_node_id, new_node_id):
         if new_node_id in self.project.nodes:
