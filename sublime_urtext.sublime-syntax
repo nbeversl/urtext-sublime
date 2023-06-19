@@ -8,6 +8,7 @@ scope: urtext
 
 contexts:
   main: 
+    - include: customizations
     - include: syntax-main
     - include: bold-text
     - match: '(?<!\\){'
@@ -242,6 +243,7 @@ contexts:
 
   inline-node-1: 
     - meta_scope: inline_node_1
+    - include: customizations 
     - include: syntax-main
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_2.urtext
@@ -252,6 +254,7 @@ contexts:
    
   inline-node-2: 
     - meta_scope: inline_node_2 
+    - include: customizations 
     - include: syntax-main
     - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_2.urtext
@@ -262,6 +265,7 @@ contexts:
 
   inline-node-3: 
     - meta_scope: inline_node_3
+    - include: customizations 
     - include: syntax-main
     - match: '(?<!\\)}'
       scope: punctuation.section.braces.end.inline_node_3.urtext
@@ -272,6 +276,7 @@ contexts:
 
   inline-node-4: 
     - meta_scope: inline_node_4
+    - include: customizations 
     - include: syntax-main
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_5.urtext
@@ -282,6 +287,7 @@ contexts:
 
   inline-node-5: 
     - meta_scope: inline_node_5
+    - include: customizations 
     - include: syntax-main
     - match: '(?<!\\){'
       scope: punctuation.section.braces.begin.inline_node_5.urtext
@@ -363,3 +369,6 @@ contexts:
       push: inline-node-1
     - match: '[\r|\n]'
       pop: true
+
+  customizations:
+    - meta_scope: customization.urtext
