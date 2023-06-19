@@ -235,39 +235,36 @@ class UrtextProject:
 
     def _reverify_links(self, filename):
         
-        links = []
         for node in self.files[filename].nodes:
-            links.extend(node.links)
-        
-        rewrites = {}
-        for link in links:
-            node_id = get_id_from_link(link)
-            suffix = ' ' +link[-2:].strip()
-            if node_id not in self.nodes:
-                id_only = node_id.split(syntax.parent_identifier)[0]                
-                if id_only not in self.nodes and link not in rewrites:
-                    rewrites[link] = ''.join([
-                            syntax.missing_link_opening_wrapper,
+            rewrites = {}
+            for link in list(node.links):
+                node_id = get_id_from_link(link)
+                suffix = ' ' +link[-2:].strip()
+                if node_id not in self.nodes:
+                    id_only = node_id.split(syntax.parent_identifier)[0]                
+                    if id_only not in self.nodes and link not in rewrites:
+                        rewrites[link] = ''.join([
+                                syntax.missing_link_opening_wrapper,
+                                id_only,
+                                suffix
+                            ])
+                    elif link not in rewrites:
+                        rewrites[link] = ''.join([
+                            syntax.link_opening_wrapper,
                             id_only,
+                            suffix])
+                elif syntax.missing_link_opening_wrapper in link:
+                    rewrites[link] = ''.join([
+                            link_opening_wrapper,
+                            node_id,
                             suffix
                         ])
-                elif link not in rewrites:
-                    rewrites[link] = ''.join([
-                        syntax.link_opening_wrapper,
-                        id_only,
-                        suffix])
-            elif syntax.missing_link_opening_wrapper in link:
-                rewrites[link] = ''.join([
-                        link_opening_wrapper,
-                        node_id,
-                        suffix
-                    ])
-        if rewrites:
-            contents = self.files[filename]._get_file_contents()
-            for old_link in rewrites:
-                contents = contents.replace(old_link, rewrites[old_link])
-            self.files[filename]._set_file_contents(contents)
-            self._parse_file(filename)
+            if rewrites:
+                contents = self.files[filename]._get_file_contents()
+                for old_link in rewrites:
+                    contents = contents.replace(old_link, rewrites[old_link])
+                self.files[filename]._set_file_contents(contents)
+                self._parse_file(filename)
 
     def _collect_extensions_directives(self):
         
@@ -769,7 +766,8 @@ class UrtextProject:
 
     def get_links_from(self, from_id):
         if from_id in self.nodes:
-            return self.nodes[from_id].links_ids()
+            links = self.nodes[from_id].links_ids()
+            return [l for l in links if l in self.nodes]
         return []
 
     def get_all_links(self):

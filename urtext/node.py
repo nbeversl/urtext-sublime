@@ -186,7 +186,6 @@ class UrtextNode:
         return stripped_contents
 
     def get_links(self, contents=None):
- 
         if contents == None:
             contents = self.content_only()
         links = syntax.node_link_or_pointer_c.finditer(contents)

@@ -441,7 +441,8 @@ class ForwardlinksBrowser(NodeBrowserCommand):
 
     @refresh_project_text_command()
     def run(self):
-        forward_links = self._UrtextProjectList.current_project.get_links_from(get_node_id(self.view))
+        forward_links = self._UrtextProjectList.current_project.get_links_from(
+            get_node_id(self.view))
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project,
