@@ -155,6 +155,14 @@ class UrtextNode:
                 ]) 
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
+            resolved_id = ''.join([
+                    title,
+                    ' ^ ',
+                    self.parent.metadata.get_oldest_timestamp().unwrapped_string
+                ])
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
+                return resolved_id
+
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
             resolved_id = ''.join([
