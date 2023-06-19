@@ -155,7 +155,7 @@ class UrtextDynamicDefinition:
 		return False
 
 	def get_definition_text(self):
-		return  '\n' + ''.join([
+		return '\n' + ''.join([
 			syntax.dynamic_def_opening_wrapper,
 			'\n'.join([line.strip() for line in self.contents.split('\n')]),
 			syntax.dynamic_def_closing_wrapper

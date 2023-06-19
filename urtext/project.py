@@ -134,8 +134,7 @@ class UrtextProject:
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
-        for ext in self.extensions.values():
-            ext.after_project_initialized()
+        self._run_hook('after_project_initialized')
         self.handle_message(
             '"'+self.settings['project_title']+'" compiled')
     
@@ -193,8 +192,9 @@ class UrtextProject:
             self._add_node(node)
 
         self.files[new_file.filename] = new_file
-        for ext in self.extensions.values():
-            ext.on_file_added(filename)
+        self._run_hook(
+            'on_file_added',
+            filename)
 
         for node in new_file.nodes:
             if node.parent:
@@ -304,10 +304,10 @@ class UrtextProject:
                                 make_link(links_to_change[node_id]),
                                 replaced_contents)
                             if replaced_contents != contents:
-                                for ext in self.extensions.values():
-                                    ext.on_node_id_changed(
-                                        node_id,
-                                        links_to_change[node_id])
+                                self._run_hook(
+                                    'on_node_id_changed',
+                                    node_id,
+                                    links_to_change[node_id])
                                 self.files[filename]._set_file_contents(
                                     replaced_contents)
                                 self._parse_file(filename)
@@ -342,10 +342,9 @@ class UrtextProject:
                     self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
                     changed_ids[duplicated_id] = resolved_existing_id
-                    for ext in self.extensions.values():
-                        ext.on_node_id_changed(
-                            duplicated_id,
-                            resolved_existing_id)
+                    self._run_hook('on_node_id_changed',
+                        duplicated_id,
+                        resolved_existing_id)
                     del self.nodes[duplicated_id]
 
                 resolved_new_id = node.resolve_duplicate_id()
@@ -414,8 +413,7 @@ class UrtextProject:
         self.nodes[new_node.id] = new_node  
         if self.compiled:
             new_node.metadata.convert_node_links()   
-        for ext in self.extensions.values():
-            ext.on_node_added(new_node)
+        self._run_hook('on_node_added', new_node)
         
     def get_source_node(self, filename, position): # future
         if filename not in self.files:
@@ -474,8 +472,7 @@ class UrtextProject:
                 for op in dd.operations:
                     op.on_file_dropped(filename)
 
-            for ext in self.extensions.values():
-                ext.on_file_dropped(filename)
+            self._run_hook('on_file_dropped', filename)
 
             for node in list(self.files[filename].nodes):    
                 if node.id not in self.nodes:
@@ -505,8 +502,7 @@ class UrtextProject:
             os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
-        for ext in list(self.extensions.values()):
-            ext.on_file_deleted(filename)
+        self._run_hook('on_file_deleted', filename)
         if open_files:
             for f in open_files:
                 self._on_modified(f)
@@ -518,8 +514,10 @@ class UrtextProject:
                 self.nodes[node.id].filename = new_filename
                 self.files[new_filename].filename = new_filename
             del self.files[old_filename]
-            for ext in self.extensions.values():
-                ext.on_file_renamed(old_filename, new_filename)
+            self._run_hook(
+                'on_file_renamed', 
+                old_filename, 
+                new_filename)
     
     """ 
     filtering files to skip 
@@ -560,9 +558,10 @@ class UrtextProject:
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
-        for ext in self.extensions.values():
-            ext.on_new_file_node(
-                self.files[filename].root_node.id)
+
+        #possibly should be sent in a thread:
+        self._run_hook('on_new_file_node', 
+            self.files[filename].root_node.id)
 
         return { 
                 'filename' : filename, 
@@ -1082,8 +1081,7 @@ class UrtextProject:
                 events=['-file_update']))
         self._sync_file_list()
         if filename in self.files:
-            for ext in self.extensions.values():
-                ext.on_file_modified(filename)
+            self._run_hook('on_file_modified', filename)
         self._refresh_modified_files(modified_files)
         return modified_files
         
@@ -1091,8 +1089,7 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        for ext in list(self.extensions.values()):
-            ext.on_node_visited(node_id)
+        self._run_hook('on_node_visited', node_id)
         for dd in list(self.dynamic_definitions.values()):
             for op in dd.operations:
                 op.on_node_visited(node_id)        
@@ -1323,6 +1320,11 @@ class UrtextProject:
             return self.executor.submit(function, *args, **kwargs)
         return function(*args, **kwargs)
 
+    def _run_hook(self, hook_name, *args):
+        for ext in self.extensions.values():
+            hook = getattr(ext, hook_name)
+            if callable(hook): hook(*args)
+
     """ Project Compile """
 
     def _compile(self, events=['-project_compiled']):
@@ -1486,9 +1488,10 @@ class UrtextProject:
                     entry,
                     next_node=node_to_tag, 
                     visited_nodes=visited_nodes)
-
-        for ext in self.extensions.values():
-            ext.on_sub_tags_added(source_node_id, entry)
+        self._run_hook(
+            'on_sub_tags_added',
+            source_node_id,
+            entry)
 
     def _remove_sub_tags(self, source_id):
         for target_id in self.nodes[source_id].target_nodes:
