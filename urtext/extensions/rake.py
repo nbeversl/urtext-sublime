@@ -54,8 +54,7 @@ class AddRakeKeywords(UrtextExtension):
     def get_assoc_nodes(self, string, filename, position):
         node_id = self.project.get_node_id_from_position(filename, position)
         if node_id:
-            r = Rake(strip_contents(string))
-            keywords = [t[0] for t in r.run(string)]
+            keywords = [t[0] for t in self.rake.run(string)]
             assoc_nodes = []
             for k in keywords:
                  assoc_nodes.extend(self.get_by_keyword(k))
