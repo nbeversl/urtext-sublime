@@ -15,6 +15,11 @@ link_modifiers = {
     'action'        : '!',
     'missing'       : '?'
 }
+missing_link_opening_wrapper = ''.join([
+    link_opening_character,
+    link_modifiers['missing'],
+    ' '
+    ])
 link_modifiers_regex = {}
 for modifier in link_modifiers:
     link_modifiers_regex[modifier] = re.escape(link_modifiers[modifier])
