@@ -360,11 +360,11 @@ class UrtextProject:
         if duplicate_nodes:
             messages = []
             self._log_item(file_obj.filename, 
-                'Duplicate node ID(s) found in ' + ''.join([
+                'Duplicate node ID ' + ''.join([
                     ''.join([   syntax.link_opening_wrapper, 
                                 n,
                                 syntax.link_closing_wrapper,
-                                ' (also in): ',
+                                ' also found in ',
                                 syntax.file_link_opening_wrapper,
                                 duplicate_nodes[n],
                                 syntax.link_closing_wrapper,
