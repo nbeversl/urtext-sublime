@@ -324,19 +324,18 @@ class UrtextProject:
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
                     print('Cannot resolve duplicate ID %s' % node.id)
-                    print(file_obj.filename)
                     continue
                 changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
 
-        for node in file_obj.nodes:
-            
+        for node in list(file_obj.nodes):
             duplicated_id = self._is_duplicate_id(node.id) # in project
             if duplicated_id:
                 resolved_existing_id = None
                 if syntax.parent_identifier not in duplicated_id:
                     resolved_existing_id = self.nodes[duplicated_id].resolve_duplicate_id()
                     if not resolved_existing_id:
+                        del node
                         continue
                     self.nodes[duplicated_id].apply_id(resolved_existing_id)
                     self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
