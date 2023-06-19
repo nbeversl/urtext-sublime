@@ -191,14 +191,12 @@ class UrtextProject:
         for node in new_file.nodes:
             self._add_node(node)
 
-        self.files[new_file.filename] = new_file
-        self._run_hook(
-            'on_file_added',
-            filename)
-
         for node in new_file.nodes:
-            if node.parent:
-                node.parent.children.append(node)
+            for child in node.children:
+                child.parent = node
+
+        self.files[new_file.filename] = new_file
+        self._run_hook('on_file_added', filename)
 
         for entry in new_file.meta_to_node:
             keyname = entry.group(1)
