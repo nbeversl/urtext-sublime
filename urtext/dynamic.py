@@ -165,7 +165,11 @@ class UrtextDynamicDefinition:
 		self.flags = flags
 
 		for target_id in self.target_ids:
-
+			if self.source_id not in self.project.nodes:
+				print('%s not in the project (line 169 dynamic.py)' % self.source_id)
+				print(self.target_ids)
+				print(self.targets)
+				continue
 			if target_id not in self.project.nodes:
 				filename = self.project.nodes[self.source_id].filename
 				self.project._log_item(filename, ''.join([

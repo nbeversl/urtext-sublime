@@ -191,7 +191,8 @@ class NodeMetadata:
     def get_values(self, 
         keyname,
         use_timestamp=False,
-        lower=False):
+        lower=False,
+        convert_nodes_to_links=False):
 
         values = []
         keyname = keyname.lower()
@@ -201,6 +202,13 @@ class NodeMetadata:
             values = [e.timestamps for e in entries]
         else:
             values = [e.value for e in entries]        
+        if convert_nodes_to_links:
+            for index, value in enumerate(values):
+                if not isinstance(value, str):
+                    values[index] = ''.join([
+                        syntax.link_opening_wrapper,
+                        value.id,
+                        syntax.link_closing_wrapper])
         if lower:
             return [v.lower() if isinstance(v, str) else v for v in values]
         return values
