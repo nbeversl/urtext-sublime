@@ -25,6 +25,9 @@ import time
 from time import strftime
 import concurrent.futures
 import threading
+import importlib
+import sys
+import inspect
 from .context import CONTEXT
 
 if CONTEXT == 'Sublime Text':
@@ -993,7 +996,33 @@ class UrtextProject:
 
             if entry.keyname == 'other_entry_points':
                 self.project_list.add_project(entry.value)
+                continue
 
+            if entry.keyname == 'extensions':
+                if os.path.exists(entry.value):
+                    sys.path.append(entry.value)
+                    for module_file in os.listdir(entry.value):
+                        if module_file in [".DS_Store", "__init__.py"] : continue
+                        s = importlib.import_module(module_file.replace('.py',''))
+                        for name, obj in inspect.getmembers(s):
+                            if inspect.isclass(obj):
+                                if obj.kind == 'extension':
+                                    self.extensions[name] = make_extension(obj)(self)
+                continue
+
+            if entry.keyname == 'directives':
+                if os.path.exists(entry.value):
+                    sys.path.append(entry.value)
+                    for module_file in os.listdir(entry.value):
+                        if module_file in [".DS_Store", "__init__.py"] : continue
+                        s = importlib.import_module(module_file.replace('.py',''))                   
+                        for name, obj in inspect.getmembers(s):
+                            if inspect.isclass(obj):
+                                if obj.kind == 'directive':
+                                    for name in obj.name: 
+                                        self.directives[name] = make_directive(obj)
+                continue
+ 
             if entry.keyname in single_values_settings:
                 if entry.keyname in integers_settings:
                     try:
@@ -1003,6 +1032,7 @@ class UrtextProject:
                 else:
                     self.settings[entry.keyname] = entry.value
                 continue
+
 
             if entry.keyname in single_boolean_values_settings:
                 self.settings[entry.keyname] = True if entry.value.lower() in ['true','yes'] else False
@@ -1536,3 +1566,12 @@ def make_link(string):
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
 
+def make_directive(directive):
+    class newClass(directive, UrtextDirective):
+        pass
+    return newClass
+
+def make_extension(extension):
+    class newClass(extension, UrtextExtension):
+        pass
+    return newClass
