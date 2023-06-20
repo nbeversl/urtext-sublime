@@ -652,37 +652,34 @@ class CompactNodeCommand(UrtextTextCommand):
         line_contents = self.view.substr(line_region)
 
         if match_compact_node(line_contents):
-            replace = False
             contents = self._UrtextProjectList.current_project.add_compact_node()
+            next_line_down = line_region.b + 2
+            self.view.sel().clear()
+            self.view.sel().add(next_line_down) 
+            self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
+            new_cursor_position = sublime.Region(
+                next_line_down+4, 
+                next_line_down+4) 
+            self.view.sel().clear()
+            self.view.sel().add(new_cursor_position)
         else:
-            replace = True
             contents = line_contents.strip()
             indent = ''
             pos = 0
-            while line_contents[pos].isspace() and pos < len(line_contents):
-                indent = ''.join([indent, line_contents[pos]])
-                pos = pos + 1
+            if len(line_contents):
+                while line_contents[pos].isspace() and pos < len(line_contents) - 1:
+                    indent = ''.join([indent, line_contents[pos]])
+                    pos = pos + 1
             contents = self._UrtextProjectList.current_project.add_compact_node(
                 contents=contents)
-        if replace:
             region = self.view.sel()[0]
             self.view.erase(self.edit, line_region)
             self.view.run_command("insert_snippet",{"contents": indent + contents})
             self.view.sel().clear()
-            cursor_offset = len(contents) - len(contents.strip())
             self.view.sel().add(
                 sublime.Region(
-                    region.a + 2 - cursor_offset, 
-                    region.a + 2 - cursor_offset)
-                )
-        else:
-            next_line_down = line_region.b + 1
-            self.view.sel().clear()
-            self.view.sel().add(next_line_down) 
-            self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
-            new_cursor_position = sublime.Region(next_line_down+4, next_line_down+4) 
-            self.view.sel().clear()
-            self.view.sel().add(new_cursor_position)
+                    region.a + 4,
+                    region.a + 4 ))           
 
 class RandomNodeCommand(UrtextTextCommand):
 
