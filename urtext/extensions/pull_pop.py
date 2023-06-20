@@ -19,7 +19,7 @@ class PopNode(UrtextExtension):
         file_pos=None,  
         node_id=None):
 
-        self.project.execute(
+        return self.project.execute(
             self._pop_node,
             param_string, 
             filename, 
@@ -94,7 +94,7 @@ class PullNode(UrtextExtension):
         file_pos=0,
         col_pos=0):
 
-        self.project.execute(
+        return self.project.execute(
             self._pull_node,
             string, 
             destination_filename, 
@@ -178,8 +178,6 @@ class PullNode(UrtextExtension):
             self.project.files[destination_filename]._set_file_contents(replacement_contents)
             self.project._parse_file(destination_filename)
 
-        if root:
-            return os.path.join(self.project.entry_path, source_filename)
-        
+        if root == True: return source_filename
         return None
         
