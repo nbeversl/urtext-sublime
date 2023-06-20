@@ -653,15 +653,10 @@ class CompactNodeCommand(UrtextTextCommand):
 
         if match_compact_node(line_contents):
             contents = self._UrtextProjectList.current_project.add_compact_node()
-            next_line_down = line_region.b + 2
+            next_line_down = line_region.b
             self.view.sel().clear()
             self.view.sel().add(next_line_down) 
-            self.view.run_command("insert_snippet",{"contents": '\n'+contents})            
-            new_cursor_position = sublime.Region(
-                next_line_down+4, 
-                next_line_down+4) 
-            self.view.sel().clear()
-            self.view.sel().add(new_cursor_position)
+            self.view.run_command("insert_snippet",{"contents": '\n'+contents})
         else:
             contents = line_contents.strip()
             indent = ''
@@ -674,12 +669,7 @@ class CompactNodeCommand(UrtextTextCommand):
                 contents=contents)
             region = self.view.sel()[0]
             self.view.erase(self.edit, line_region)
-            self.view.run_command("insert_snippet",{"contents": indent + contents})
-            self.view.sel().clear()
-            self.view.sel().add(
-                sublime.Region(
-                    region.a + 4,
-                    region.a + 4 ))           
+            self.view.run_command("insert_snippet",{"contents": indent + contents})         
 
 class RandomNodeCommand(UrtextTextCommand):
 
