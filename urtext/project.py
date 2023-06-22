@@ -655,6 +655,8 @@ class UrtextProject:
             for dd in self.dynamic_definitions.values():        
                 if dd.source_id == source:
                     defs.append(dd)
+        else:
+            return self.dynamic_definitions.values()
         return defs
 
     def remove_dynamic_defs(self, node_id):
