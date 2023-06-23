@@ -258,7 +258,7 @@ class UrtextProject:
                             suffix])
                 elif syntax.missing_link_opening_wrapper in link:
                     rewrites[link] = ''.join([
-                            link_opening_wrapper,
+                            syntax.link_opening_wrapper,
                             node_id,
                             suffix
                         ])
@@ -1001,28 +1001,11 @@ class UrtextProject:
                 continue
 
             if entry.keyname == 'extensions':
-                if os.path.exists(entry.value):
-                    sys.path.append(entry.value)
-                    for module_file in os.listdir(entry.value):
-                        if module_file in [".DS_Store", "__init__.py"] : continue
-                        s = importlib.import_module(module_file.replace('.py',''))
-                        for name, obj in inspect.getmembers(s):
-                            if inspect.isclass(obj):
-                                if obj.kind == 'extension':
-                                    self.extensions[name] = make_extension(obj)(self)
+                self._get_extensions_from_folder(entry.value)
                 continue
 
             if entry.keyname == 'directives':
-                if os.path.exists(entry.value):
-                    sys.path.append(entry.value)
-                    for module_file in os.listdir(entry.value):
-                        if module_file in [".DS_Store", "__init__.py"] : continue
-                        s = importlib.import_module(module_file.replace('.py',''))                   
-                        for name, obj in inspect.getmembers(s):
-                            if inspect.isclass(obj):
-                                if obj.kind == 'directive':
-                                    for name in obj.name: 
-                                        self.directives[name] = make_directive(obj)
+                self._get_directives_from_folder(entry.value)
                 continue
  
             if entry.keyname in single_values_settings:
@@ -1051,7 +1034,28 @@ class UrtextProject:
                 self.settings[k] = replacements[k][0]
             else:
                 self.settings[k] = replacements[k]
+
+    def _get_directives_from_folder(self, folder):
+        if os.path.exists(folder):
+            sys.path.append(folder)
+            for module_file in os.listdir(folder):
+                if module_file in [".DS_Store", "__init__.py"] : continue
+                s = importlib.import_module(module_file.replace('.py',''))                   
+                for name, obj in inspect.getmembers(s):
+                    if inspect.isclass(obj):
+                        for name in obj.name: 
+                            self.directives[name] = make_directive(obj)
             
+    def _get_extensions_from_folder(self, folder):
+        if os.path.exists(folder):
+            sys.path.append(folder)
+            for module_file in os.listdir(folder):
+                if module_file in [".DS_Store", "__init__.py"] : continue
+                s = importlib.import_module(module_file.replace('.py',''))
+                for name, obj in inspect.getmembers(s):
+                    if inspect.isclass(obj):
+                        self.extensions[name] = make_extension(obj)(self)
+ 
     def get_home(self):
         if self.settings['home'] in self.nodes:
             return self.settings['home']
