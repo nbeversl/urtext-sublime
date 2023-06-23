@@ -150,16 +150,18 @@ class UrtextNode:
         if self.parent:
             resolved_id = ''.join([
                     title,
-                    ' ^ ',
+                    syntax.parent_identifier,
                     self.parent.title
                 ]) 
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
-            resolved_id = ''.join([
-                    title,
-                    ' ^ ',
-                    self.parent.metadata.get_oldest_timestamp().unwrapped_string
-                ])
+            parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
+            if parent_oldest_timestamp:
+                resolved_id = ''.join([
+                        title,
+                        syntax.parent_identifier,
+                        parent_oldest_timestamp.unwrapped_string
+                    ])
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
 
@@ -167,7 +169,7 @@ class UrtextNode:
         if timestamp:
             resolved_id = ''.join([
                 title,
-                ' ^ ',
+                syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
