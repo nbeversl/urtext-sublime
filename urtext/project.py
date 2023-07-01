@@ -1533,6 +1533,7 @@ class UrtextProject:
             include_project=include_project) 
         if 'set_clipboard' in self.editor_methods:
             self.editor_methods['set_clipboard'](link)
+    def editor_copy_link_to_node(self, filename, position, include_project=False):
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
