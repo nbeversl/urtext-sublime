@@ -167,7 +167,7 @@ class UrtextNode:
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
             resolved_id = ''.join([
-                title,
+                self.title,
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
