@@ -1527,13 +1527,19 @@ class UrtextProject:
         if 'insert_text' in self.editor_methods:
             self.editor_methods['insert_text'](self.timestamp(as_string=True))
 
-    def editor_copy_link_to_node(self, node_id, include_project=False):
-        link = self.project_list.build_contextual_link(
-            node_id,
-            include_project=include_project) 
-        if 'set_clipboard' in self.editor_methods:
-            self.editor_methods['set_clipboard'](link)
     def editor_copy_link_to_node(self, filename, position, include_project=False):
+        node_id = self.get_node_id_from_position(filename, position)
+        if node_id:
+            link = self.project_list.build_contextual_link(
+                node_id,
+                include_project=include_project) 
+            if link:
+                if 'set_clipboard' in self.editor_methods:
+                    self.editor_methods['set_clipboard'](link)
+        else:
+            if 'popup' in self.editor_methods:
+                self.editor_methods['popup']('No Node found here')
+
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
