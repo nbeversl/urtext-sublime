@@ -392,7 +392,7 @@ class UrtextProject:
                                 syntax.link_opening_wrapper,
                                 self.dynamic_definitions[target_id].source_id,
                                 syntax.link_closing_wrapper,
-                                '; skipping the definition in ',
+                                ' -- skipping the definition in ',
                                 syntax.link_opening_wrapper,
                                 definition.source_id,
                                 syntax.link_closing_wrapper,
