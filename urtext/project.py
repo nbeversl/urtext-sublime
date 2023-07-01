@@ -1335,8 +1335,7 @@ class UrtextProject:
         return None, None
 
     def execute(self, function, *args, **kwargs):
-        if self.compiled and not self.nodes:
-            return
+        if self.compiled and not self.nodes: return
         if self.is_async:
             return self.executor.submit(function, *args, **kwargs)
         return function(*args, **kwargs)
