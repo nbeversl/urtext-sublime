@@ -57,10 +57,6 @@ else:
     import urtext.extensions
     from urtext.utils import get_id_from_link
 
-def all_subclasses(cls):
-    return set(cls.__subclasses__()).union(
-        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
-
 class UrtextProject:
 
     urtext_file = UrtextFile
@@ -1547,6 +1543,9 @@ class DuplicateIDs(Exception):
 """ 
 Helpers 
 """
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 def make_link(string):
     return ''.join([
