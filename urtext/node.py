@@ -146,10 +146,9 @@ class UrtextNode:
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
     def resolve_duplicate_id(self):
-        title = self.title.split(' ^ ')[0]
         if self.parent:
             resolved_id = ''.join([
-                    title,
+                    self.title,
                     syntax.parent_identifier,
                     self.parent.title
                 ]) 
@@ -158,7 +157,7 @@ class UrtextNode:
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
             if parent_oldest_timestamp:
                 resolved_id = ''.join([
-                        title,
+                        self.title,
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])

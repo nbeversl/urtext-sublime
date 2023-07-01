@@ -332,51 +332,44 @@ class UrtextProject:
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
                     print('Cannot resolve duplicate ID %s' % node.id)
+                    del node
                     continue
                 changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
 
         for node in list(file_obj.nodes):
-            duplicated_id = self._is_duplicate_id(node.id) # in project
-            if duplicated_id:
+            if self._is_duplicate_id(node.id):
                 resolved_existing_id = None
-                if syntax.parent_identifier not in duplicated_id:
-                    resolved_existing_id = self.nodes[duplicated_id].resolve_duplicate_id()
-                    if not resolved_existing_id:
-                        del node
+                if syntax.parent_identifier not in node.id:
+                    resolved_id = node.resolve_duplicate_id()
+                    if not resolved_id:
+                        del file_obj.nodes[file_obj.nodes.index(node)]
                         continue
-                    self.nodes[duplicated_id].apply_id(resolved_existing_id)
-                    self.nodes[resolved_existing_id] = self.nodes[duplicated_id]
-                    changed_ids[duplicated_id] = resolved_existing_id
-                    self._run_hook('on_node_id_changed',
-                        duplicated_id,
-                        resolved_existing_id)
-                    del self.nodes[duplicated_id]
-
-                resolved_new_id = node.resolve_duplicate_id()
-                if not resolved_new_id:
-                    duplicate_nodes[node.id] = file_obj.filename
-                    continue
-
-                if resolved_existing_id == resolved_new_id:
-                    continue           
-
-                changed_ids[node.id] = resolved_new_id
-                node.apply_id(resolved_new_id)
+                    node.apply_id(resolved_id)
+                else:
+                    resolved_id = node.resolve_duplicate_id()
+                    if not resolved_id:
+                        duplicate_nodes[node.id] = file_obj.filename
+                        del file_obj.nodes[file_obj.nodes.index(node)]
+                        continue
+                    changed_ids[node.id] = resolved_id
+                    node.apply_id(resolved_id)
 
         if duplicate_nodes:
             messages = []
-            self._log_item(file_obj.filename, 
-                'Duplicate node ID ' + ''.join([
-                    ''.join([   syntax.link_opening_wrapper, 
-                                n,
-                                syntax.link_closing_wrapper,
-                                ' also found in ',
-                                syntax.file_link_opening_wrapper,
-                                duplicate_nodes[n],
-                                syntax.link_closing_wrapper,
-                                '\n'
-                            ]) for n in duplicate_nodes]))
+            for node_id in duplicate_nodes:
+                self._log_item(file_obj.filename, 
+                    ''.join([
+                        'Dropping duplicate node ID ',
+                        syntax.link_opening_wrapper, 
+                        node_id,
+                        syntax.link_closing_wrapper,
+                        ' also found in ',
+                        syntax.file_link_opening_wrapper,
+                        duplicate_nodes[node_id],
+                        syntax.link_closing_wrapper,
+                        '\n'
+                        ]))
 
         return changed_ids
 
@@ -472,7 +465,6 @@ class UrtextProject:
     Removing and renaming files
     """
     def _drop_file(self, filename):
-
         if filename in self.files:
             for dd in self.dynamic_definitions.values():
                 for op in dd.operations:
@@ -481,12 +473,11 @@ class UrtextProject:
             self._run_hook('on_file_dropped', filename)
 
             for node in list(self.files[filename].nodes):    
-                if node.id not in self.nodes:
-                    continue
-                self._remove_sub_tags(node.id)
-                self.remove_dynamic_defs(node.id)
-                self.remove_dynamic_metadata_entries(node.id)
-                del self.nodes[node.id]
+                if node.id in self.nodes:
+                    self._remove_sub_tags(node.id)
+                    self.remove_dynamic_defs(node.id)
+                    self.remove_dynamic_metadata_entries(node.id)
+                    del self.nodes[node.id]
             del self.files[filename]
 
         if filename in self.messages:
@@ -927,13 +918,7 @@ class UrtextProject:
             return self.nodes[node_id].contents()
             
     def _is_duplicate_id(self, node_id):
-        """ private method to check if a node id is already in the project """
-        if node_id in self.nodes:
-            return node_id
-        for nid in list(self.nodes):
-            if node_id == nid.split(syntax.parent_identifier)[0]:
-                return nid
-        return False
+        return node_id in self.nodes
 
     def _log_item(self, filename, message):
         self.messages.setdefault(filename, [])
