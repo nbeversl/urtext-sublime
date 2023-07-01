@@ -786,8 +786,8 @@ class UrtextProject:
         if not link:
             if not self.compiled: message = "Project is still compiling"
             else: message = "No link"
-            if 'error_message' in self.editor_methods:                
-                return self.editor_methods['error_message'](message)
+            if 'popup' in self.editor_methods:                
+                return self.editor_methods['popup'](message)
             return message
 
         if not link['kind']:
