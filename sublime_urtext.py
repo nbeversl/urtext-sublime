@@ -548,8 +548,10 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     def run(self):
         if not self.window:
             self.window = self.view.window()
-        node_id = get_node_id(self.window.active_view())
-        self._UrtextProjectList.current_project.editor_copy_link_to_node(node_id)
+        view = self.window.active_view()
+        self._UrtextProjectList.current_project.editor_copy_link_to_node(
+            view.file_name(),
+            view.sel()[0].a)
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
