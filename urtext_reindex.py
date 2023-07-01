@@ -24,7 +24,7 @@ class RenameFileCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):        
         if self.view.file_name() and self._UrtextProjectList:
-            self.view.run_command('save')
+            self.view.run_command('save', {"async" : True})
             filename = self.view.file_name()
 
             def rename_file(view):
