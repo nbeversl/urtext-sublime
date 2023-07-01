@@ -20,7 +20,7 @@ class UrtextAnyTree(UrtextExtension):
                 alias_node.position = pointer['position']
                 alias_node.parent = node.tree_node
                 self.project.files[filename].alias_nodes.append(alias_node)
-            if node.parent:
+            if node.parent and node.parent in self.project.nodes:
                 node.tree_node.parent = node.parent.tree_node
 
     def on_node_id_changed(self, old_node_id, new_node_id):
