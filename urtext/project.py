@@ -190,7 +190,7 @@ class UrtextProject:
                             changed_ids[old_node_ids[index]] = new_node_ids[index]
                             # else:
                             # try to map old to new. This is the hard part
-        
+
         for node in new_file.nodes:
             self._add_node(node)
 

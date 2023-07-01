@@ -139,11 +139,21 @@ class ProjectList():
             else:
                 project = self.get_project(project_title)
             if node_id in project.nodes:
-                link = syntax.link_opening_wrapper + node_id + syntax.link_closing_wrapper
+                link = ''.join([
+                    syntax.link_opening_wrapper,
+                    node_id,
+                    syntax.link_closing_wrapper])
                 if pointer:
-                    link = link.replace(syntax.link_closing_wrapper, syntax.pointer_closing_wrapper)
+                    link = link.replace(
+                        syntax.link_closing_wrapper, 
+                        syntax.pointer_closing_wrapper)
                 if include_project or project != self.current_project:
-                    link = syntax.other_project_link_prefix+ '"' + project.settings['project_title'] +'"'+link
+                    link = ''.join([
+                        syntax.other_project_link_prefix,
+                        '"',
+                        project.settings['project_title'],
+                        '"',
+                        link])
                 return link
         
     def project_titles(self):
