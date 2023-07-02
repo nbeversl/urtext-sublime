@@ -296,7 +296,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 class UrtextCompletions(EventListener):
 
     @refresh_project_event_listener
-    def on_post_save_async(self, view):
+    def on_post_save(self, view):
         if view.file_name():
             _UrtextProjectList.on_modified(view.file_name())
 
