@@ -21,9 +21,7 @@ import os
 import re
 import logging
 
-from .context import CONTEXT
-
-if CONTEXT == 'Sublime Text':    
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from Urtext.anytree import Node, PreOrderIter
     from .metadata import MetadataEntry
     from .metadata import NodeMetadata

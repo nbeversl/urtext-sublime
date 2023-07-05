@@ -1,10 +1,9 @@
+import os
 import re
 from io import StringIO
 import sys
 
-from ..context import CONTEXT
-
-if CONTEXT == 'Sublime Text':
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
 	from Urtext.urtext.extension import UrtextExtension
 	from Urtext.urtext.utils import force_list, get_id_from_link

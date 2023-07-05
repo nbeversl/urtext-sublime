@@ -28,9 +28,8 @@ import threading
 import importlib
 import sys
 import inspect
-from .context import CONTEXT
 
-if CONTEXT == 'Sublime Text':
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
     from .file import UrtextFile, UrtextBuffer
     from .node import UrtextNode
@@ -71,7 +70,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}

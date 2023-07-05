@@ -1,1 +1,0 @@
-CONTEXT = 'Sublime Text'

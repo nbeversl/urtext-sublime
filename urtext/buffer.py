@@ -1,7 +1,7 @@
+import os
 import re
-from .context import CONTEXT
 
-if CONTEXT == 'Sublime Text':
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
     from .utils import strip_backtick_escape
     import Urtext.urtext.syntax as syntax
