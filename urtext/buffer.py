@@ -256,7 +256,8 @@ class UrtextBuffer:
             if node.id == node_id:
                 break
         if node:
-            self.project.editor_methods['replace'](
+            self.project.run_editor_method(
+                'replace',
                 filename=self.project.nodes[node_id].filename,
                 start=node.start_position(),
                 end=node.end_position(),

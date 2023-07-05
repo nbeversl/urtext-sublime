@@ -663,19 +663,19 @@ class UrtextProject:
                 message = 'Project is still compiling' 
             return self.handle_message(message)
 
-        if 'open_file_to_position' in self.editor_methods:
-            node_range = (
-                self.nodes[node_id].ranges[0][0],
-                self.nodes[node_id].ranges[-1][1])
-            self.editor_methods['open_file_to_position'](
-                self.nodes[node_id].filename,
-                self.nodes[node_id].start_position(),
-                node_range=node_range
-                )
-            return self.visit_node(node_id)
+        node_range = (
+            self.nodes[node_id].ranges[0][0],
+            self.nodes[node_id].ranges[-1][1])
 
-        return 'no editor method available'
+        self.run_editor_method(
+            'open_file_to_position',
+            self.nodes[node_id].filename,
+            self.nodes[node_id].start_position(),
+            node_range=node_range
+            )
+        return self.visit_node(node_id)
 
+    
     def open_home(self):
         if not self.get_home():
             if not self.compiled:
@@ -1367,9 +1367,10 @@ class UrtextProject:
         return modified_files
 
     def _refresh_modified_files(self, files):
-        if 'refresh_open_file' in self.editor_methods:
-            for file in files:
-                self.editor_methods['refresh_open_file'](file)
+        for file in files:
+            self.run_editor_method(
+                'refresh_open_file',
+                file)
 
     def _direct_output(self, output, target, dd):
 
@@ -1397,22 +1398,17 @@ class UrtextProject:
                 if self._set_node_contents(dd.source_id, output):
                     return dd.source_id
             if virtual_target == '@clipboard':
-                if 'set_clipboard' in self.editor_methods:
-                    return self.editor_methods['set_clipboard'](output)
+                return self.run_editor_method('set_clipboard', output)
             if virtual_target == '@next_line':
-                if 'insert_at_next_line' in self.editor_methods:
-                    return self.editor_methods['insert_at_next_line'](output)
+                return self.run_editor_method('insert_at_next_line', output)
             if virtual_target == '@log':
                 return self._log_item(
                     None, 
                     output)
             if virtual_target == '@console':
-                if 'write_to_console' in self.editor_methods:
-                    return self.editor_methods['write_to_console'](output)
+                return self.run_editor_method('write_to_console', output)
             if virtual_target == '@popup':
-                if 'popup' in self.editor_methods:
-                    return self.editor_methods['popup'](output)
-
+                return self.run_editor_method('popup', output)
         if target in self.nodes: #fallback
             self._set_node_contents(target, output)
             return target
@@ -1514,8 +1510,7 @@ class UrtextProject:
     """ Editor Methods """
 
     def editor_insert_timestamp(self):
-        if 'insert_text' in self.editor_methods:
-            self.editor_methods['insert_text'](self.timestamp(as_string=True))
+        self.run_editor_method('insert_text', self.timestamp(as_string=True))
 
     def editor_copy_link_to_node(self, filename, position, include_project=False):
         node_id = self.get_node_id_from_position(filename, position)
@@ -1524,12 +1519,14 @@ class UrtextProject:
                 node_id,
                 include_project=include_project) 
             if link:
-                if 'set_clipboard' in self.editor_methods:
-                    self.editor_methods['set_clipboard'](link)
+                self.run_editor_method('set_clipboard', link)
         else:
-            if 'popup' in self.editor_methods:
-                self.editor_methods['popup']('No Node found here')
+            self.run_editor_method('popup', 'No Node found here')
 
+    def run_editor_method(self, method_name, *args, **kwargs):
+        if method_name in self.editor_methods:
+            return self.editor_methods[method_name](*args, **kwargs)
+        return print('No editor method available for "%s"' % method_name)
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
