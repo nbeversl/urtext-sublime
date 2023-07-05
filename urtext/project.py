@@ -664,9 +664,13 @@ class UrtextProject:
             return self.handle_message(message)
 
         if 'open_file_to_position' in self.editor_methods:
+            node_range = (
+                self.nodes[node_id].ranges[0][0],
+                self.nodes[node_id].ranges[-1][1])
             self.editor_methods['open_file_to_position'](
                 self.nodes[node_id].filename,
-                self.nodes[node_id].start_position()
+                self.nodes[node_id].start_position(),
+                node_range=node_range
                 )
             return self.visit_node(node_id)
 
@@ -779,8 +783,8 @@ class UrtextProject:
             col_pos=col_pos,
             file_pos=file_pos)
         
-        if return_target_only: # for manual handling, e.g. Sublime Traverse, etc.
-            return link
+        # for manual handling, e.g. Sublime Traverse, etc.
+        if return_target_only: return link
 
         if not link:
             if not self.compiled: message = "Project is still compiling"
@@ -794,22 +798,9 @@ class UrtextProject:
             return print('No node ID, web link, or file found on this line.')
 
         if link['kind'] == 'NODE':
-            if link['link'] not in self.nodes:
-                if not self.compiled:
-                    return print('Project is still compiling')
-                else:
-                    return print('Node ' + link['link'] + ' is not in the project')
-            else:
-                if 'open_file_to_position' in self.editor_methods:
-                    self.editor_methods['open_file_to_position'](
-                        link['filename'], link['dest_position'])
-                    return self.visit_node(link['link'])
-
-        if return_target_only:
-            return link
+            return self.open_node(link['link'])
 
         if link['kind'] == 'ACTION':
-
             if link['node_id'] not in self.nodes:
                 if not self.compiled: return print('Project is still compiling')
                 return print('Node ' + link['node_id'] + ' is not in the project')

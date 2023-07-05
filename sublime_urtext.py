@@ -33,7 +33,7 @@ class UrtextTextCommand(sublime_plugin.TextCommand):
         self.view = view
         self.window = view.window()
 
-def open_file_to_position(filename, position):
+def open_file_to_position(filename, position, node_range=None):
 
     if sublime.active_window():
         new_view = sublime.active_window().open_file(filename)
@@ -43,8 +43,22 @@ def open_file_to_position(filename, position):
                 if focus_view.window():
                     focus_view.window().focus_view(focus_view)
                     position_node(position, view=focus_view)
+                    if node_range:
+                        highlight_region(focus_view, node_range)
+                        sublime.set_timeout(
+                            lambda: un_highlight_region(focus_view, node_range), 
+                            200)
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+
+        def highlight_region(view, node_range):
+            view.add_regions(
+                'highlight',
+                [sublime.Region(node_range[0], node_range[1])],
+                scope="region.yellowish")
+
+        def un_highlight_region(view, node_range):
+            view.erase_regions('highlight')
 
         focus_position(new_view, position)
 
@@ -730,7 +744,7 @@ def position_node(position, focus=True, view=None):
             view.sel().clear()
             view.sel().add(sublime.Region(position, position))
         r = view.text_to_layout(position)
-        view.set_viewport_position(r)
+        view.show_at_center(position, animate=True)
 
 def get_line_and_cursor(view):
     file_pos = view.sel()[0].a
