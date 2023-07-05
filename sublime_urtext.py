@@ -145,6 +145,12 @@ def refresh_open_file(filename):
             if v.file_name() and v.file_name() == filename:
                 v.run_command('reopen') # undocumented
 
+def close_current():
+    if sublime.active_window() and sublime.active_window().active_view():
+        view = sublime.active_window().active_view()
+        view.close()
+
+
 def insert_at_next_line(contents):
     pass
 
@@ -162,6 +168,7 @@ editor_methods = {
     'insert_at_next_line' : insert_at_next_line,
     'popup' : show_popup,
     'refresh_open_file' : refresh_open_file,
+    'close_current': close_current,
 }
 
 def refresh_project_text_command(change_project=True):

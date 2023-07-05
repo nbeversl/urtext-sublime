@@ -70,7 +70,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -87,7 +87,7 @@ class UrtextProject:
         self.executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)        
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=1) 
+            max_workers=1)
         self.execute(self._initialize_project)
     
     def _initialize_project(self):
@@ -741,9 +741,11 @@ class UrtextProject:
                     self.nodes[self.files[f].root_node.id].metadata.get_first_value(
                         k, use_timestamp=use_timestamp))]
             file_group = sorted(file_group,
-                key=lambda f: self.files[f].root_node.metadata.get_first_value(
-                            k, use_timestamp=use_timestamp),
-                            reverse=use_timestamp)
+                    key=lambda f: self.files[f].root_node.metadata.get_first_value(
+                            k, 
+                            use_timestamp=use_timestamp,
+                            return_type=True),
+                    reverse=use_timestamp)
             sorted_files.extend(file_group)
             files = list(set(files) - set(sorted_files))
         sorted_files.extend(files)
@@ -1081,8 +1083,7 @@ class UrtextProject:
         return []
     
     def _on_modified(self, filename):
-        modified_files = []
-        modified_files.append(filename)
+        modified_files = [filename]
         self._parse_file(filename)
         self._reverify_links(filename)
         if filename in self.files:
