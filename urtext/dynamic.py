@@ -118,7 +118,9 @@ class UrtextDynamicDefinition:
 
 		outcome = []
 		phases_to_process = [p for p in phases if p <= max_phase]
-		all_operations = sorted(list(self.operations), key = lambda op: op.phase)
+		all_operations = sorted(
+			list(self.operations), 
+			key = lambda op: op.phase)
 
 		for p in phases_to_process:	
 			if p == 200: 

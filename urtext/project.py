@@ -70,7 +70,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -78,6 +78,7 @@ class UrtextProject:
         self.exports = {}
         self.messages = {}
         self.dynamic_definitions = {}
+        self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
         self.extensions = {}
         self.directives = {}
@@ -368,39 +369,50 @@ class UrtextProject:
 
         return changed_ids
 
-    def _target_id_defined(self, check_id):
-        if check_id in self.nodes and check_id in self.dynamic_definitions:
-            return self.dynamic_definitions[check_id].source_id
-
-    def _target_file_defined(self, file):
-        for nid in list(self.nodes):
-            for e in self.nodes[nid].dynamic_definitions:
-                for r in e.exports:
-                    if file in r.to_files:
-                        return nid
-
     def _add_dynamic_definition(self, definition):
         for target_id in definition.target_ids:
             if target_id in self.dynamic_definitions:
-                message = ''.join([
-                                'Dynamic node ', 
-                                syntax.link_opening_wrapper,
-                                target_id,
-                                syntax.link_closing_wrapper,
-                                ' already has a definition in ', 
-                                syntax.link_opening_wrapper,
-                                self.dynamic_definitions[target_id].source_id,
-                                syntax.link_closing_wrapper,
-                                ' -- skipping the definition in ',
-                                syntax.link_opening_wrapper,
-                                definition.source_id,
-                                syntax.link_closing_wrapper,
-                            ])
-                self._log_item(
-                    self.nodes[definition.source_id].filename, 
-                    message)
+                self._reject_definition(target_id, definition)
             else:
-                self.dynamic_definitions[target_id] = definition        
+                self.dynamic_definitions[target_id] = definition 
+
+        for target in definition.targets:
+            if target in self.nodes: # allow not using link syntax
+                if target in self.dynamic_definitions:
+                    self._reject_definition(target, definition)
+                else:
+                    self.dynamic_definitions[target] = definition
+                    continue
+            virtual_target = syntax.virtual_target_match_c.match(target)
+            if virtual_target:
+                target = virtual_target.group()
+                if target == "@self":
+                    if definition.source_id in self.dynamic_definitions:
+                        self._reject_definition(definition.source_id, definition)
+                    else:
+                        self.dynamic_definitions[definition.source_id] = definition
+                else:
+                    self.virtual_outputs.setdefault(target, [])
+                    self.virtual_outputs[target].append(definition)
+
+    def _reject_definition(self, target_id, definition):
+        message = ''.join([
+                'Dynamic node ', 
+                syntax.link_opening_wrapper,
+                target_id,
+                syntax.link_closing_wrapper,
+                ' already has a definition in ', 
+                syntax.link_opening_wrapper,
+                self.dynamic_definitions[target_id].source_id,
+                syntax.link_closing_wrapper,
+                ' -- skipping the definition in ',
+                syntax.link_opening_wrapper,
+                definition.source_id,
+                syntax.link_closing_wrapper,
+            ])
+        self._log_item(
+            self.nodes[definition.source_id].filename, 
+            message)
 
     def _add_node(self, new_node):
         new_node.project = self
@@ -454,7 +466,6 @@ class UrtextProject:
         for target in self.dynamic_definitions:
             if target in self.nodes:
                 self.nodes[target].dynamic = True
-
 
     """
     Removing and renaming files
@@ -641,14 +652,22 @@ class UrtextProject:
             for dd in self.dynamic_definitions.values():        
                 if dd.source_id == source:
                     defs.append(dd)
-        else:
-            return self.dynamic_definitions.values()
+        for target in self.virtual_outputs:
+            for dd in self.virtual_outputs[target]:
+                if source and dd.source_id == source:
+                    defs.append(dd)
+                elif not source:
+                    defs.append(dd)
         return defs
 
     def remove_dynamic_defs(self, node_id):
         for target in list(self.dynamic_definitions):
             if self.dynamic_definitions[target].source_id == node_id: 
                 del self.dynamic_definitions[target]
+        for target in self.virtual_outputs:
+            for dd in self.virtual_outputs[target]:
+                if dd.source_id == node_id:
+                    del dd
 
     def remove_dynamic_metadata_entries(self, node_id):
         for entry in list(self.dynamic_metadata_entries):
@@ -1349,7 +1368,6 @@ class UrtextProject:
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
-
         for node in self.files[filename].nodes:
             for dd in self.get_dynamic_defs(target=node.id, source=node.id):
                 output = dd.process(flags=events)

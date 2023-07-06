@@ -15,11 +15,19 @@ class NodeQuery(UrtextDirective):
 		added_nodes = []
 		for match in syntax.node_link_c.finditer(self.argument_string):
 			added_nodes.append(match.group(2))
+		
 		if self.argument_string == ''.join([
 			syntax.virtual_target_marker,
 			'self'
 			]):
 			added_nodes.append(self.dynamic_definition.source_id)
+
+		if self.argument_string == ''.join([
+			syntax.virtual_target_marker,
+			'parent'
+			]) and self.project.nodes[self.dynamic_definition.source_id].parent:
+			added_nodes.append(self.project.nodes[self.dynamic_definition.source_id].parent.id)
+
 		if not added_nodes:	
 			added_nodes = set([])
 			if self.have_flags('*'):
@@ -82,14 +90,12 @@ def _build_group_and(
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			if '"' not in value and value != "@parent":
+			if '"' not in value:
 				print('NO READABLE VALUE in ', value)
 				continue
 			value = value.split('"')[1]
 			new_group = set([value])
 		else:
-			if value == "@parent" and project.nodes[dd.source_id].parent:
-				value = project.nodes[dd.source_id].parent.id
 			new_group = set(project.get_by_meta(key, value, operator))
 		found_sets.append(new_group)
 	
