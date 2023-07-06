@@ -107,13 +107,13 @@ class RenameSingleFile(ReindexFiles):
     def on_file_modified(self, filename):
         if filename == self.file_to_rename:
             renamed_files = self.rename_file_nodes(filename)
-        self.file_to_rename = None
-        if renamed_files:
-            self.project.run_editor_method('close_current')
-            self.project.run_editor_method(
-                'open_file_to_position',
-                renamed_files[filename],
-                0)
+            self.file_to_rename = None
+            if renamed_files:
+                self.project.run_editor_method('close_current')
+                self.project.run_editor_method(
+                    'open_file_to_position',
+                    renamed_files[filename],
+                    0)
 
 def strip_illegal_characters(filename):
     for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:
