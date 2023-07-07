@@ -1,4 +1,5 @@
 import os
+import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
 	import Urtext.urtext.syntax as syntax
@@ -13,20 +14,24 @@ class NodeQuery(UrtextDirective):
 
 	def build_list(self, passed_nodes):
 		added_nodes = []
-		for match in syntax.node_link_c.finditer(self.argument_string):
-			added_nodes.append(match.group(2))
 		
-		if self.argument_string == ''.join([
-			syntax.virtual_target_marker,
-			'self'
-			]):
-			added_nodes.append(self.dynamic_definition.source_id)
+		for arg in self.arguments:
+			node_link = syntax.node_link_c.match(self.argument_string)
+			if node_link:
+				added_nodes.append(node_link.group(2))
+				break
 
-		if self.argument_string == ''.join([
-			syntax.virtual_target_marker,
-			'parent'
-			]) and self.project.nodes[self.dynamic_definition.source_id].parent:
-			added_nodes.append(self.project.nodes[self.dynamic_definition.source_id].parent.id)
+			if re.match(syntax.virtual_target_marker+'self', arg):
+				added_nodes.append(self.dynamic_definition.source_id)
+				break
+
+			if re.match(syntax.virtual_target_marker+'parent', arg):
+				if self.project.nodes[
+						self.dynamic_definition.source_id].parent:
+					added_nodes.append(
+						self.project.nodes[
+							self.dynamic_definition.source_id].parent.id)
+				break
 
 		if not added_nodes:	
 			added_nodes = set([])
@@ -40,18 +45,21 @@ class NodeQuery(UrtextDirective):
 					include_dynamic=self.have_flags('-dynamic'))
 				)
 
-			# flags specify how to LIMIT the query, whether it is + or -
-			if self.have_flags('-title_only'):
-				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
+		# flags specify how to LIMIT the query, whether it is + or -
+		if self.have_flags('-title_only'):
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].title_only])
 
-			if self.have_flags('-untitled'):
-				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
+		if self.have_flags('-untitled'):
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].untitled])
 
-			if self.have_flags('-is_meta'):
-				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
-			
-			if self.have_flags('-dynamic'):		
-				added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].dynamic])
+		if self.have_flags('-is_meta'):
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
+		
+		if self.have_flags('-is_not_meta'):
+			added_nodes = set([node_id for node_id in added_nodes if not self.project.nodes[node_id].is_meta])
+
+		if self.have_flags('-dynamic'):		
+			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].dynamic])
 
 		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
@@ -90,12 +98,14 @@ def _build_group_and(
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
-			if '"' not in value:
+			if '"' not in value and value != "@parent":
 				print('NO READABLE VALUE in ', value)
 				continue
 			value = value.split('"')[1]
 			new_group = set([value])
 		else:
+			if value == "@parent" and project.nodes[dd.source_id].parent:
+				value = project.nodes[dd.source_id].parent.id
 			new_group = set(project.get_by_meta(key, value, operator))
 		found_sets.append(new_group)
 	
