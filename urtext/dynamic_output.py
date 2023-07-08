@@ -38,15 +38,8 @@ class DynamicOutput():
         self.contents = ''
         self.other_format_keys = {}
         self.project_settings = project_settings
-        self.needs_title = False
-        self.needs_meta = False
-        self.needs_link = False
-        self.needs_date = False
         self.needs_contents = False
-        self.needs_entry = False
         self.needs_other_format_keys = []        
-        self.needs_key = False
-        self.needs_values = False
         self.format_string = format_string
 
         #TODO : randomize -- must not be any regex operators.
@@ -77,23 +70,8 @@ class DynamicOutput():
             'date',
             'meta',
             'contents',
-            'entry' # for metadata collection
+            'entry',
         ]
-
-        if self.shah + '$title' in self.item_format:
-            self.needs_title = True
-        if self.shah + '$link' in self.item_format:
-            self.needs_link = True
-        if self.shah + '$date' in self.item_format:
-            self.needs_date = True
-        if self.shah + '$meta' in self.item_format:
-            self.needs_meta = True
-        if self.shah + '$entry' in self.item_format:
-            self.needs_entry = True
-        if self.shah + '$key' in self.item_format:
-            self.needs_key = True
-        if self.shah + '$values' in self.item_format:
-            self.needs_values = True
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
@@ -103,7 +81,8 @@ class DynamicOutput():
         all_format_keys = re.findall(
             self.shah+'\$[\.A-Za-z0-9_-]*', 
             self.item_format, 
-            re.DOTALL)                   
+            re.DOTALL)
+
         for match in all_format_keys:
             meta_key = match.strip(self.shah+'$') 
             if meta_key not in defined_list:

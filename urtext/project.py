@@ -70,7 +70,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -674,7 +674,7 @@ class UrtextProject:
             if entry.from_node == node_id:
                 self.dynamic_metadata_entries.remove(entry)
 
-    def open_node(self, node_id):
+    def open_node(self, node_id, position=0):
         if node_id not in self.nodes:
             if self.compiled:
                 message = node_id + ' not in current project'
@@ -689,7 +689,7 @@ class UrtextProject:
         self.run_editor_method(
             'open_file_to_position',
             self.nodes[node_id].filename,
-            self.nodes[node_id].start_position(),
+            position,
             node_range=node_range
             )
         return self.visit_node(node_id)
@@ -819,7 +819,7 @@ class UrtextProject:
             return print('No node ID, web link, or file found on this line.')
 
         if link['kind'] == 'NODE':
-            return self.open_node(link['link'])
+            return self.open_node(link['link'], position=link['dest_position'])
 
         if link['kind'] == 'ACTION':
             if link['node_id'] not in self.nodes:
@@ -879,23 +879,23 @@ class UrtextProject:
                 'node_id' : node_id,
                 }
 
-        link = syntax.node_link_or_pointer_c.search(string)
-        if link:
-            full_match = link.group()
+        match = syntax.node_link_or_pointer_c.search(string)
+        if match:
+            full_match = match.group()
             link = get_id_from_link(full_match)
-            if link in self.nodes: result = link
-            else:
-                for node_id in self.nodes:
-                    if node_id == link:
-                        result = node_id
-                        break
+            if link in self.nodes:
+                if match.group(7):
+                    dest_position = self.nodes[link].start_position() + int(match.group(7)[1:]) + 1
+                else:
+                    dest_position = self.nodes[link].start_position()
+                result = link
+
         node_id = ''
         if result:
             kind = 'NODE'
             node_id = result
             filename = self.nodes[node_id].filename
-            link = result # node id
-            dest_position = self.nodes[node_id].start_position()
+            link = result # node i            
         else:
             result = syntax.file_link_c.search(string)            
             if result:

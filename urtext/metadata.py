@@ -71,13 +71,13 @@ class NodeMetadata:
                         keyname,
                         value,
                         recursive=tag_descendants,
-                        position=m.start(), 
+                        position=m.start(),
                         end_position=m.start() + len(m.group()))
                 if tag_children or tag_descendants:
                     self.dynamic_entries.append(entry)
                 if tag_self and value not in self.get_values(keyname):
                     self.add_entry(
-                        keyname, 
+                        keyname,
                         value,
                         position=m.start(),
                         end_position=m.start() + len(m.group()))

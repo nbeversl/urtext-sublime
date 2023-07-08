@@ -124,14 +124,14 @@ any_link_or_pointer = r''.join([
     '(',
     id_pattern,
     ')',
-    '\s>{1,2}(?!>)'
+    '\s>{1,2}(\:\d{1,99})?(?!>)'
     ])
 compact_node = bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link = r'(\|\s)(' + id_pattern + ')\s>(?!>)'
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
-node_link_or_pointer = node_link_opening_wrapper_match + '(' + id_pattern + ')\s(>{1,2})(?!>)'
+node_link_or_pointer = node_link_opening_wrapper_match + '(' + id_pattern + ')\s(>{1,2})(\:\d{1,99})?(?!>)'
 node_action_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['action'],

@@ -96,26 +96,24 @@ class Tree(UrtextDirective):
             next_content = DynamicOutput(
                 self.dynamic_definition.show, 
                 self.project.settings)
-          
-            if next_content.needs_title:
-                next_content.title = urtext_node.title
+
+            next_content.title = urtext_node.title
            
-            if next_content.needs_link:
-                link = []
-                #TODO refactor
-                if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
-                    link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
-                else:
-                    link.append(syntax.link_opening_wrapper)
-                link.append(urtext_node.id + syntax.link_closing_wrapper)
-                next_content.link = ''.join(link)
+        
+            link = []
+            #TODO refactor
+            if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
+                link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
+            else:
+                link.append(syntax.link_opening_wrapper)
+            link.append(urtext_node.id + syntax.link_closing_wrapper)
+            next_content.link = ''.join(link)
 
-            if next_content.needs_date:
-                next_content.date = urtext_node.get_date(
-                    self.project.settings['node_date_keyname']).strftime(self.project.settings['timestamp_format'])
+            next_content.date = urtext_node.get_date(
+                self.project.settings[
+                    'node_date_keyname']).strftime(self.project.settings['timestamp_format'])
 
-            if next_content.needs_meta:
-                next_content.meta = urtext_node.consolidate_metadata(separator=':')
+            next_content.meta = urtext_node.consolidate_metadata(separator=':')
 
             if next_content.needs_contents: 
                 next_content.contents = urtext_node.content_only().strip('\n').strip()
