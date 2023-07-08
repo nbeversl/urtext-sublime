@@ -714,8 +714,7 @@ class UrtextProject:
  
     def handle_message(self, message):
         print(message)
-        if 'popup' in self.editor_methods:
-            self.editor_methods['popup'](message)
+        self.run_editor_method('popup',message)
 
     def all_nodes(self, as_nodes=False):
 
@@ -810,16 +809,16 @@ class UrtextProject:
         if not link:
             if not self.compiled: message = "Project is still compiling"
             else: message = "No link"
-            if 'popup' in self.editor_methods:                
-                return self.editor_methods['popup'](message)
-            return message
+            return self.run_editor_method('popup', message)
 
         if not link['kind']:
             if not self.compiled: return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
         if link['kind'] == 'NODE':
-            return self.open_node(link['link'], position=link['dest_position'])
+            return self.open_node(
+                link['link'], 
+                position=link['dest_position'])
 
         if link['kind'] == 'ACTION':
             if link['node_id'] not in self.nodes:
@@ -837,18 +836,14 @@ class UrtextProject:
                             # if modified_file:
                             #     modified_files.append(modified_file)
         if link['kind'] == 'SYSTEM':
-            if 'open_external_file' in self.editor_methods:
-                return self.editor_methods['open_external_file'](link['link'])
+            return self.run_editor_method('open_external_file', link['link'])
 
         if link['kind'] == 'EDITOR_LINK':
-            if 'open_file_in_editor' in self.editor_methods:
-                return self.editor_methods['open_file_in_editor'](link['link'])
+            return self.run_editor_method('open_file_in_editor', link['link'])
         
         if link['kind'] == 'HTTP':
-            if 'open_http_link' in self.editor_methods:
-                return self.editor_methods['open_http_link'](link['link'])
+            return self.run_editor_method('open_http_link', link['link'])
 
-        
         return link
 
     def parse_link(self, 
@@ -885,7 +880,7 @@ class UrtextProject:
             link = get_id_from_link(full_match)
             if link in self.nodes:
                 if match.group(7):
-                    dest_position = self.nodes[link].start_position() + int(match.group(7)[1:]) + 1
+                    dest_position = self.nodes[link].start_position() + int(match.group(7)[1:])
                 else:
                     dest_position = self.nodes[link].start_position()
                 result = link
@@ -1237,14 +1232,13 @@ class UrtextProject:
     def go_to_dynamic_definition(self, target_id):
         if target_id in self.dynamic_definitions:
             dd = self.dynamic_definitions[target_id]
-            if 'open_file_to_position' in self.editor_methods:
-                self.editor_methods[
-                    'open_file_to_position'](
-                        self.nodes[dd.source_id].filename, 
-                        self.get_file_position(
-                            dd.source_id,
-                            dd.position))
-                return self.visit_node(dd.source_id)
+            self.run_editor_method(
+                'open_file_to_position',
+                self.nodes[dd.source_id].filename, 
+                self.get_file_position(
+                    dd.source_id,
+                    dd.position))
+            return self.visit_node(dd.source_id)
 
     def get_by_meta(self, key, values, operator):
         

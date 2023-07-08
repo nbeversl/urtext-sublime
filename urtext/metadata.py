@@ -148,8 +148,7 @@ class NodeMetadata:
             self.add_entry(
                 '_newest_timestamp',
                 t[-1].timestamps[0].wrapped_string,
-                position=t[-1].position
-                )
+                position=t[-1].position)
 
     def get_first_value(self, 
         keyname, 

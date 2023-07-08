@@ -259,8 +259,7 @@ class ProjectList():
             link = self.build_contextual_link(
                 node.id,
                 project_title=project_title)
-            if 'insert_text' in self.editor_methods:
-                self.editor_methods['insert_text'](link)
+            self.run_editor_method('insert_text')(link)
 
     def delete_file(self, file_name, project=None, open_files=[]):
         if not project:

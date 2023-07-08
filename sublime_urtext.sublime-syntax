@@ -297,7 +297,7 @@ contexts:
       pop: true
 
   node_link:
-    - match: '(\|)(\?\s)?(\!\s)?([^>\^]+)( \^ )?([^>\^]+)?( >)'
+    - match: '(\|)(\?\s)?(\!\s)?([^>\^]+)( \^ )?([^>\^]+)?( >)(\:\d{1,99})?'
       captures:
         1: link_opening_wrapper.urtext 
         2: missing_node.urtext
@@ -306,12 +306,15 @@ contexts:
         5: link_uniquifier_marker.urtext
         6: link_uniquifier.urtext
         7: link_closing_wrapper.urtext
+        8: link_destination.urtext
 
   node_pointer:
-    - match: '(\|[\?]?\s)([^>]+)>>{1,2}'
+    - match: '(\|[\?]?\s)([^>]+)(>>)(\:\d{1,99})?'
       captures:
         1: pointer_prefix.urtext
         2: pointer_id.urtext
+        3: pointer_closing_wrapper.urtext
+        4: pointer_destination.urtext
 
   file_link:
     - match: '(\|\/\s)[^\s][^;]*\s>'

@@ -390,6 +390,10 @@
 	  			"font_style": "bold",
 
 	  		},
+	  		{ 	"scope" : "link_destination.urtext",
+	  			"foreground" : "var(bright-green2",
+
+	  		},
 
 	/* system message */
 

@@ -169,6 +169,7 @@ editor_methods = {
     'popup' : show_popup,
     'refresh_open_file' : refresh_open_file,
     'close_current': close_current,
+    'write_to_console' : print
 }
 
 def refresh_project_text_command(change_project=True):

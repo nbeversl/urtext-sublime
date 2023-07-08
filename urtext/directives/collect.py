@@ -123,12 +123,16 @@ class Collect(UrtextDirective):
 				next_content.entry = item['keyname'] + ' :: ' +  str(item['value'])
 				next_content.key = item['keyname']
 				next_content.values = item['value']
+				
+				position_suffix = ''
+				if item['position'] != '0':
+					position_suffix = ''.join([':', item['position']])
+				
 				next_content.link =''.join([
 					syntax.link_opening_wrapper,
 					item['node_id'],
 					syntax.link_closing_wrapper,
-					':',
-					item['position'],
+					position_suffix,
 					])
 
 				next_content.date = item['dt_string']
