@@ -213,7 +213,7 @@ http_link_c = re.compile(http_link)
 virtual_target_match_c = re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
-    r'\*{2}\w+\:\:([^\n};]+);?', # inline_meta
+    r'\*{0,2}\w+\:\:([^\n}]+);?', # inline_meta
     r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
     ]))
 

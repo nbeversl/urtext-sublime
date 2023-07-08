@@ -81,7 +81,7 @@ class UrtextDirective():
 
         for param in self.params:
             self.params_dict.setdefault(param[0], [])
-            self.params_dict[param[0]].append(param[1:])
+            self.params_dict[param[0]].extend(param[1:])
         
     def _parse_flags(self, argument_string):
         for f in syntax.dd_flag_c.finditer(argument_string):
