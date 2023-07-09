@@ -151,6 +151,8 @@ contexts:
 
   system-message:
     - meta_scope: entity.name.struct.system-message.urtext
+    - include: node_link
+    - include: file_link
     - match: <
       push: datestamp
     - match: '!>'
