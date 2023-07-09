@@ -319,6 +319,7 @@ class UrtextProject:
 
         duplicate_nodes = {}
         changed_ids = {}
+        messages = []
         
         # first resolve duplicates in file
         file_node_ids = [n.id for n in file_obj.nodes]
@@ -327,8 +328,9 @@ class UrtextProject:
                 resolved_new_id = node.resolve_duplicate_id()
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
-                    print('Cannot resolve duplicate ID %s' % node.id)
-                    del file_obj.nodes[file_obj.nodes.index(node)]
+                    messages.append( 
+                        'Cannot resolve duplicate ID in this file "%s"' % node.id)
+                    del node
                     continue
                 changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
@@ -339,34 +341,34 @@ class UrtextProject:
                 if syntax.parent_identifier not in node.id:
                     resolved_id = node.resolve_duplicate_id()
                     if not resolved_id:
-                        del file_obj.nodes[file_obj.nodes.index(node)]
+                        del node
                         continue
                     node.apply_id(resolved_id)
                 else:
                     resolved_id = node.resolve_duplicate_id()
                     if not resolved_id:
                         duplicate_nodes[node.id] = file_obj.filename
-                        del file_obj.nodes[file_obj.nodes.index(node)]
+                        del node
                         continue
                     changed_ids[node.id] = resolved_id
                     node.apply_id(resolved_id)
 
         if duplicate_nodes:
-            messages = []
             for node_id in duplicate_nodes:
-                self._log_item(file_obj.filename, 
-                    ''.join([
-                        'Dropping duplicate node ID ',
-                        syntax.link_opening_wrapper, 
+                message = ''.join([
+                        'Dropping duplicate node ID "',
                         node_id,
+                        '", duplicated at ',
+                        syntax.link_opening_wrapper,
+                        ' ',
+                        node_id,
+                        ' ',
                         syntax.link_closing_wrapper,
-                        ' also found in ',
-                        syntax.file_link_opening_wrapper,
-                        duplicate_nodes[node_id],
-                        syntax.link_closing_wrapper,
-                        '\n'
-                        ]))
+                        ])
+                self._log_item(file_obj.filename, message)
+                messages.append(message)
 
+        if messages: file_obj.write_messages(messages=messages)
         return changed_ids
 
     def _add_dynamic_definition(self, definition):

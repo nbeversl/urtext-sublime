@@ -159,9 +159,10 @@ http_link = r''.join([
     link_closing_wrapper
     ])
 urtext_messages = r''.join([
-    urtext_message_opening_wrapper,
-    '.*?',
-    urtext_message_closing_wrapper
+    re.escape(urtext_message_opening_wrapper),
+    r'.*?',
+    re.escape(urtext_message_closing_wrapper),
+    '\n?'
     ])
 
 # Compiled Patterns

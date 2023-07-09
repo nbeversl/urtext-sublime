@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
 import os
 import re
 
@@ -31,11 +13,15 @@ class UrtextFile(UrtextBuffer):
     def __init__(self, filename, project):
         super().__init__(project)
         self.filename = filename
+        self.project = project
         self.file_contents = self._read_file_contents()
         if self.file_contents:
-            self.contents = self._get_file_contents()                
-            self.lex_and_parse(self.contents)
-            self.write_messages(project.settings)
+            cleared_contents = self.clear_messages(self._get_file_contents())
+            if cleared_contents != self.file_contents:
+                self._set_file_contents(cleared_contents)
+                self.file_contents = cleared_contents
+            self.lex_and_parse(self.file_contents)
+            self.write_messages()
             for node in self.nodes:
                 node.filename = filename
                 node.file = self
@@ -84,38 +70,47 @@ class UrtextFile(UrtextBuffer):
         self.file_contents = new_contents
         return True
 
-    def write_messages(self, settings, messages=None):
-        if not messages and not self.messages:
-            return False
+    def write_messages(self, messages=None):
+        if not messages and not self.messages: return False
+        if messages: self.messages = messages
+        new_contents = self.clear_messages(self._get_file_contents())
+
         if messages:
-            self.messages = messages
+            timestamp = self.project.timestamp(as_string=True)
+            messages = ''.join([ 
+                syntax.urtext_message_opening_wrapper,
+                '\n',
+                timestamp,
+                '\n',
+                '\n'.join(messages),
+                '\n',
+                syntax.urtext_message_closing_wrapper,
+                '\n'
+                ])
 
-        contents = self._get_file_contents()
-        timestamp = self.project.timestamp(as_string=True)
-        messages = ''.join([ 
-            syntax.urtext_message_opening_wrapper,
-            '\n',
-            timestamp,
-            ' ',
-            '\n'.join(self.messages),
-            '\n',
-            syntax.urtext_message_closing_wrapper,
-            '\n',
-            ])
-
-        message_length = len(messages)
-        
-        for n in re.finditer('position \d{1,10}', messages):
-            old_n = int(n.group().strip('position '))
-            new_n = old_n + message_length
-            messages = messages.replace(str(old_n), str(new_n))
-             
-        new_contents = ''.join([
-            messages,
-            contents,
-            ])
+            message_length = len(messages)
+            
+            for n in re.finditer('position \d{1,10}', messages):
+                old_n = int(n.group().strip('position '))
+                new_n = old_n + message_length
+                messages = messages.replace(str(old_n), str(new_n))
+                 
+            new_contents = ''.join([
+                messages,
+                new_contents,
+                ])
 
         self._set_file_contents(new_contents, compare=False)
+        # TODO: make DRY
         self.nodes = []
         self.root_node = None
         self.lex_and_parse(new_contents)
+        for node in self.nodes:
+            node.filename =self.filename
+            node.file = self
+
+    def clear_messages(self, contents):
+        for match in syntax.urtext_messages_c.finditer(contents):
+            if self.user_delete_string not in contents:
+                contents = contents.replace(match.group(),'')
+        return contents
