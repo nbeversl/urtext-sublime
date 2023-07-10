@@ -10,7 +10,7 @@ class Log(UrtextDirective):
 
 	name = ["LOG"]    
 	phase = 300
-			
+
 	def dynamic_output(self, node_list):
 		output = []
 		for k in self.project.messages:

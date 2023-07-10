@@ -1372,7 +1372,7 @@ class UrtextProject:
             for dd in self.get_dynamic_defs(target=node.id, source=node.id):
                 output = dd.process(flags=events)
                 if output not in [False, None]:
-                    for target in dd.targets:
+                    for target in dd.targets + dd.target_ids:
                         targeted_output = dd.post_process(target, output)
                         modified_target = self._direct_output(targeted_output, target, dd)
                         modified_targets.append(modified_target)

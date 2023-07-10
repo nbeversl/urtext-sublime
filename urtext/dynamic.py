@@ -84,7 +84,8 @@ class UrtextDynamicDefinition:
 					target_id = get_id_from_link(argument_string)
 					if target_id:
 						self.target_ids.append(target_id)
-					self.targets.append(argument_string)
+					else:
+						self.targets.append(argument_string)
 				continue
 
 			if func == "SHOW":
