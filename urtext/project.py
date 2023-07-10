@@ -1240,7 +1240,11 @@ class UrtextProject:
                 self.get_file_position(
                     dd.source_id,
                     dd.position))
-            return self.visit_node(dd.source_id)
+            return self.visit_node(dd.source_id)        
+        self.run_editor_method(
+            'popup',
+            'No dynamic definition for "%s"' % target_id
+            )
 
     def get_by_meta(self, key, values, operator):
         
