@@ -676,7 +676,7 @@ class UrtextProject:
             if entry.from_node == node_id:
                 self.dynamic_metadata_entries.remove(entry)
 
-    def open_node(self, node_id, position=0):
+    def open_node(self, node_id, position=None):
         if node_id not in self.nodes:
             if self.compiled:
                 message = node_id + ' not in current project'
