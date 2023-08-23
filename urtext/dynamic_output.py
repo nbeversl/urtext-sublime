@@ -66,11 +66,13 @@ class DynamicOutput():
 
         defined_list = [
             'title',
-            'link',
-            'date',
-            'meta',
-            'contents',
-            'entry',
+            '_link',
+            '_date',
+            '_meta',
+            '_contents',
+            '_entry',
+            '_key',
+            '_values',
         ]
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
@@ -89,14 +91,15 @@ class DynamicOutput():
                 self.needs_other_format_keys.append(meta_key)
 
     def output(self):
+        
 
         self.item_format = self.item_format.replace(self.shah + '$title', self.title)
-        self.item_format = self.item_format.replace(self.shah + '$link', self.link)
-        self.item_format = self.item_format.replace(self.shah + '$date', self.date)
-        self.item_format = self.item_format.replace(self.shah + '$meta', self.meta)
-        self.item_format = self.item_format.replace(self.shah + '$entry', self.entry)
-        self.item_format = self.item_format.replace(self.shah + '$key', self.key)
-        self.item_format = self.item_format.replace(self.shah + '$values', str(self.values))
+        self.item_format = self.item_format.replace(self.shah + '$_link', self.link)
+        self.item_format = self.item_format.replace(self.shah + '$_date', self.date)
+        self.item_format = self.item_format.replace(self.shah + '$_meta', self.meta)
+        self.item_format = self.item_format.replace(self.shah + '$_entry', self.entry)
+        self.item_format = self.item_format.replace(self.shah + '$_key', self.key)
+        self.item_format = self.item_format.replace(self.shah + '$_values', str(self.values))
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
