@@ -687,6 +687,9 @@ class UrtextProject:
         node_range = (
             self.nodes[node_id].ranges[0][0],
             self.nodes[node_id].ranges[-1][1])
+        
+        if position == None:
+            position = self.nodes[node_id].start_position()
 
         self.run_editor_method(
             'open_file_to_position',
