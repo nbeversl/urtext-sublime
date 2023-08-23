@@ -57,7 +57,7 @@ class UrtextDynamicDefinition:
 		self.param_string = param_string
 		self.init_self(param_string)	
 		self.source_id = None # set by node once compiled
-		if not self.show: self.show = '$link\n'
+		if not self.show: self.show = '$_link\n'
 
 	def init_self(self, contents):
 
