@@ -319,7 +319,7 @@ class UrtextEventListeners(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
-        if view.file_name():
+        if view and view.file_name():
             _UrtextProjectList.on_modified(view.file_name())
 
     @refresh_project_event_listener

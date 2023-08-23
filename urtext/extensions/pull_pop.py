@@ -49,7 +49,7 @@ class PopNode(UrtextExtension):
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
-        popped_node_contents = file_contents[start:end].strip()
+        popped_node_contents = file_contents[start:end+1].strip()
         parent_id = self.project.nodes[node_id].parent.id
         
         if self.project.settings['breadcrumb_key']:
