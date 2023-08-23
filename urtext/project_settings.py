@@ -64,7 +64,7 @@ def default_project_settings():
             '_newest_timestamp', 
             '_oldest_timestamp', 
             '_breadcrumb',
-             'def'],        
+            'def'],        
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
         'file_index_sort': ['_oldest_timestamp'],
