@@ -1531,8 +1531,19 @@ class UrtextProject:
     def editor_insert_timestamp(self):
         self.run_editor_method('insert_text', self.timestamp(as_string=True))
 
-    def editor_copy_link_to_node(self, filename, position, include_project=False):
-        node_id = self.get_node_id_from_position(filename, position)
+    def editor_copy_link_to_node(self, 
+        buffer_contents, 
+        position, 
+        include_project=False):
+        
+        buffer = UrtextBuffer(self)
+        buffer.lex_and_parse(buffer_contents)
+        node_id = None
+        for node in buffer.nodes:
+            for r in node.ranges:           
+                if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
+                    node_id = node.id
+                    break
         if node_id:
             link = self.project_list.build_contextual_link(
                 node_id,

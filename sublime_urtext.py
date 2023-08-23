@@ -86,10 +86,10 @@ def show_popup(text):
             max_width=1800, 
             max_height=1000)
 
-def get_buffer(node_id):
+def get_buffer(node_id=None):
     global _UrtextProjectList
     if _UrtextProjectList:
-        if node_id in _UrtextProjectList.current_project.nodes:
+        if node_id and node_id in _UrtextProjectList.current_project.nodes:
             filename = _UrtextProjectList.current_project.nodes[node_id].filename
             target_view = None
             for view in sublime.active_window().views():
@@ -98,6 +98,11 @@ def get_buffer(node_id):
                     break
             if target_view:
                 return target_view.substr(sublime.Region(0, view.size()))
+        else:
+            view = sublime.active_window().active_view()
+            if view:
+                return view.substr(sublime.Region(0, view.size()))
+
 
 def set_buffer(filename):    
     if sublime.active_window() and sublime.active_window().active_view():
@@ -149,7 +154,6 @@ def close_current():
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
         view.close()
-
 
 def insert_at_next_line(contents):
     pass
@@ -577,12 +581,10 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command()
     def run(self):
-        if not self.window:
-            self.window = self.view.window()
-        view = self.window.active_view()
+        buffer_contents = get_buffer()
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            view.file_name(),
-            view.sel()[0].a)
+            buffer_contents,
+            self.view.sel()[0].a)
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
