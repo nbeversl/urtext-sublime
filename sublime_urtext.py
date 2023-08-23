@@ -384,10 +384,11 @@ class UrtextEventListeners(EventListener):
 class UrtextViewEventListener(ViewEventListener):
 
     def on_deactivated(self):
-        if _UrtextProjectList and self.view and self.view.file_name():
-            if self.view.file_name() in _UrtextProjectList.current_project.files:
-                self.view.run_command('save')
-                _UrtextProjectList.on_modified(self.view.file_name())
+        if _UrtextProjectList and _UrtextProjectList.current_project:
+            if self.view and self.view.file_name():
+                if self.view.file_name() in _UrtextProjectList.current_project.files:
+                    self.view.run_command('save')
+                    _UrtextProjectList.on_modified(self.view.file_name())
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
