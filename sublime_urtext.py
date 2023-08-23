@@ -23,7 +23,7 @@ import subprocess
 import webbrowser
 import Urtext.urtext.syntax as syntax
 from Urtext.urtext.project_list import ProjectList
-from sublime_plugin import EventListener
+from sublime_plugin import EventListener, ViewEventListener
 from Urtext.urtext.project import match_compact_node
 _UrtextProjectList = None
 
@@ -315,7 +315,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         self.view.window().run_command('close_file')
         _UrtextProjectList.nav_reverse()
 
-class UrtextCompletions(EventListener):
+class UrtextEventListeners(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
@@ -323,7 +323,7 @@ class UrtextCompletions(EventListener):
             _UrtextProjectList.on_modified(view.file_name())
 
     @refresh_project_event_listener
-    def on_activated_async(self, view):
+    def on_activated(self, view):
         if view.file_name():
             _UrtextProjectList.visit_file(view.file_name())
 
@@ -380,6 +380,13 @@ class UrtextCompletions(EventListener):
                     max_height=512, 
                     location=file_pos,
                     on_navigate=unfold_region)
+
+class UrtextViewEventListener(ViewEventListener):
+
+    def on_deactivated(self):
+        self.view.run_command('save')
+        if _UrtextProjectList and self.view and self.view.file_name():
+            _UrtextProjectList.on_modified(self.view.file_name())
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
