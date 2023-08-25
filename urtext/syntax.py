@@ -2,13 +2,13 @@ import re
 
 # Units
 pattern_break = r'($|(?=[\s|\r|]))'
-
+space = ' '
 # Syntax Elements
 node_opening_wrapper = '{'
 node_closing_wrapper = '}'
 link_opening_character = '|'
 link_opening_character_regex = re.escape(link_opening_character)
-link_opening_wrapper = link_opening_character + ' '
+link_opening_wrapper = link_opening_character + space
 link_modifiers = {
     'file'          : '/',
     'http'          : '//',    
@@ -18,7 +18,7 @@ link_modifiers = {
 missing_link_opening_wrapper = ''.join([
     link_opening_character,
     link_modifiers['missing'],
-    ' '
+    space,
     ])
 link_modifiers_regex = {}
 for modifier in link_modifiers:
@@ -42,6 +42,7 @@ title_marker = ' _'
 metadata_assignment_operator = '::'
 metadata_closing_marker = ';'
 metadata_separator = '-'
+metadata_separator_syntax = ''.join([space, metadata_separator, space])
 other_project_link_prefix = '=>'
 dynamic_def_opening_wrapper = '[['
 dynamic_def_closing_wrapper = ']]'
@@ -50,11 +51,11 @@ virtual_target_marker = '@'
 file_link_opening_wrapper = ''.join([
     link_opening_character,
     link_modifiers['file'],
-    ' '])
+    space])
 http_link_opening_wrapper = ''.join([
     link_opening_character,
     link_modifiers['http'],
-    ' '])
+    space])
 
 # Base Patterns
 bullet = r'^([^\S\n]*?)•'
@@ -148,13 +149,13 @@ timestamp = r''.join([
 file_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['file'],
-    ' '
+    space,
     r'([^;]+)',
     link_closing_wrapper])
 http_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['http'],
-    ' ',
+    space,
     r'([^>]+)',
     link_closing_wrapper
     ])

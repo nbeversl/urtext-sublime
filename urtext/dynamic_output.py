@@ -22,8 +22,10 @@ import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
+    from Urtext.urtext.node import UrtextNode
 else:
     import urtext.syntax as syntax
+    from urtext.node import UrtextNode
 
 class DynamicOutput():
 
@@ -45,7 +47,7 @@ class DynamicOutput():
         #TODO : randomize -- must not be any regex operators.
         self.shah = '%&&&&888'
         self.values = []
-        self.item_format = self._tokenize_format();
+        self.item_format = self._tokenize_format()
 
         self._build_needs_list()
 
@@ -71,8 +73,6 @@ class DynamicOutput():
             '_meta',
             '_contents',
             '_entry',
-            '_key',
-            '_values',
         ]
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
@@ -92,14 +92,11 @@ class DynamicOutput():
 
     def output(self):
         
-
         self.item_format = self.item_format.replace(self.shah + '$title', self.title)
         self.item_format = self.item_format.replace(self.shah + '$_link', self.link)
         self.item_format = self.item_format.replace(self.shah + '$_date', self.date)
         self.item_format = self.item_format.replace(self.shah + '$_meta', self.meta)
         self.item_format = self.item_format.replace(self.shah + '$_entry', self.entry)
-        self.item_format = self.item_format.replace(self.shah + '$_key', self.key)
-        self.item_format = self.item_format.replace(self.shah + '$_values', str(self.values))
 
         contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
@@ -124,9 +121,11 @@ class DynamicOutput():
                     
         # all other meta keys
         for meta_key in self.other_format_keys:
-            token = self.shah+'$'+meta_key
+            token = self.shah + '$' + meta_key
+            print(meta_key)
+            print(self.other_format_keys)
             value = ''.join(self.other_format_keys[meta_key])
-            self.item_format = self.item_format.replace(token, value );
+            self.item_format = self.item_format.replace(token, value)
 
         return self.item_format
 

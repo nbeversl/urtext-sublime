@@ -358,35 +358,33 @@ def get_extended_values(urtext_node, meta_keys):
     else:
         if not isinstance(meta_keys, list):
             meta_keys = [meta_keys]
+    values = []
     for index, k in enumerate(meta_keys):
-
         entries = urtext_node.metadata.get_entries(k)
-        if not entries:
-            return []
         for e in entries:
-
             if e.is_node:
-                if index == len(meta_keys) - 1:
-
-                    return ''.join([
-                            syntax.link_opening_wrapper,
-                            e.value.title,
-                            syntax.link_closing_wrapper
-                        ])
-                else:
-                    return get_extended_values(e.value, meta_keys[1:])
-
+                values.append(''.join([
+                        syntax.link_opening_wrapper,
+                        e.value.title,
+                        syntax.link_closing_wrapper
+                    ]))
+                continue
+            else:
+                values.append(e.value)
+                continue
             if index == len(meta_keys) - 1:
                 if k in urtext_node.project.settings['use_timestamp'] and e.timestamps:
-                    return [e.timestamps[0].unwrapped_string]
-                return [e.value]
+                    values.append(e.timestamps[0].unwrapped_string)
 
-            if meta_keys[index+1] in ['timestamp','timestamps'] or k in urtext_node.project.settings['use_timestamp']: 
-                if e.timestamps:
-                    if k == 'timestamp':
-                        return e.timestamps[0].unwrapped_string
-                    else:
-                        return ' - '.join([t.unwrapped_string for t in e.timestamps])
+            if len(meta_keys) < index and ( 
+                   meta_keys[index+1] in ['timestamp','timestamps']) or (
+                    k in urtext_node.project.settings['use_timestamp']): 
+                        if e.timestamps:
+                            if k == 'timestamp':
+                                values.append(e.timestamps[0].unwrapped_string)
+                            else:
+                                values.append(' - '.join([t.unwrapped_string for t in e.timestamps]))
+    return syntax.metadata_separator_syntax.join(values)
 
 def strip_contents(contents, 
     preserve_length=False, 
