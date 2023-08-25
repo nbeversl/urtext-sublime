@@ -122,8 +122,6 @@ class DynamicOutput():
         # all other meta keys
         for meta_key in self.other_format_keys:
             token = self.shah + '$' + meta_key
-            print(meta_key)
-            print(self.other_format_keys)
             value = ''.join(self.other_format_keys[meta_key])
             self.item_format = self.item_format.replace(token, value)
 
