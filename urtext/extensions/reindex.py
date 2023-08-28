@@ -12,7 +12,9 @@ class ReindexFiles(UrtextExtension):
     name=['REINDEX']        
     
     def rename_all_files(self):
-        return self.rename_file_nodes(self.project.all_files())
+        return self.project.execute(
+            self.rename_file_nodes,
+            self.project.all_files())
 
     def rename_file_nodes(self, filenames):
         """ Rename a file or list of files by metadata """
