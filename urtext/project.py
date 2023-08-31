@@ -807,10 +807,9 @@ class UrtextProject:
             string, 
             col_pos=col_pos,
             file_pos=file_pos)
-        
+
         # for manual handling, e.g. Sublime Traverse, etc.
         if return_target_only: return link
-
         if not link:
             if not self.compiled: message = "Project is still compiling"
             else: message = "No link"
@@ -841,7 +840,8 @@ class UrtextProject:
                             # if modified_file:
                             #     modified_files.append(modified_file)
         if link['kind'] == 'SYSTEM':
-            return self.run_editor_method('open_external_file', link['link'])
+            return self.run_editor_method('open_external_file', 
+                os.path.join(self.entry_path, link['link']))
 
         if link['kind'] == 'EDITOR_LINK':
             return self.run_editor_method('open_file_in_editor', link['link'])
@@ -902,7 +902,7 @@ class UrtextProject:
                 link = result.group(1).strip()
                 kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
-                    kind = 'SYSTEM'           
+                    kind = 'SYSTEM'   
             else:
                 result = syntax.http_link_c.search(string)
                 if result:
