@@ -128,7 +128,7 @@ class ProjectList():
     def build_contextual_link(self, 
         node_id,
         project_title=None, 
-        pointer=False, 
+        pointer=False,
         include_project=False):
 
         if node_id:
@@ -136,23 +136,22 @@ class ProjectList():
                 project = self.current_project
             else:
                 project = self.get_project(project_title)
-            if node_id in project.nodes:
+            link = ''.join([
+                syntax.link_opening_wrapper,
+                node_id,
+                syntax.link_closing_wrapper])
+            if pointer:
+                link = link.replace(
+                    syntax.link_closing_wrapper, 
+                    syntax.pointer_closing_wrapper)
+            if include_project or project != self.current_project:
                 link = ''.join([
-                    syntax.link_opening_wrapper,
-                    node_id,
-                    syntax.link_closing_wrapper])
-                if pointer:
-                    link = link.replace(
-                        syntax.link_closing_wrapper, 
-                        syntax.pointer_closing_wrapper)
-                if include_project or project != self.current_project:
-                    link = ''.join([
-                        syntax.other_project_link_prefix,
-                        '"',
-                        project.settings['project_title'],
-                        '"',
-                        link])
-                return link
+                    syntax.other_project_link_prefix,
+                    '"',
+                    project.settings['project_title'],
+                    '"',
+                    link])
+            return link
         
     def project_titles(self):
         titles = []
