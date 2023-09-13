@@ -10,17 +10,14 @@ import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.urtext.node import strip_contents
-    from Urtext.urtext.extension import UrtextExtension
 else:
     from urtext.node import strip_contents
-    from urtext.extension import UrtextExtension
 
-class AddRakeKeywords(UrtextExtension):
+class AddRakeKeywords:
 
     name = ['RAKE_KEYWORDS']
 
-    def __init__(self, project):
-        super().__init__(project);
+    def initialize(self, project):
         self.nodes = {}
         self.rake = Rake()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)

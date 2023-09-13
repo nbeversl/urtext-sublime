@@ -1,10 +1,4 @@
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.directive import UrtextDirective
-else:
-    from urtext.directive import UrtextDirective
-
-class UrtextHeader(UrtextDirective):
+class UrtextHeader:
 
     name = ["HEADER"]
     phase = 410
@@ -17,7 +11,7 @@ class UrtextHeader(UrtextDirective):
             header += '\n'
         return ''.join([header, contents])
 
-class UrtextFooter(UrtextDirective):
+class UrtextFooter:
 
     name = ["FOOTER"]
     phase = 420

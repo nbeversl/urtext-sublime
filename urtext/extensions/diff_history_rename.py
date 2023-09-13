@@ -1,11 +1,4 @@
-import os
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.extension import UrtextExtension
-else:
-    from urtext.extension import UrtextExtension
-
-class UrtextHistoryDiffRename(UrtextExtension):
+class UrtextHistoryDiffRename:
 
 	def on_file_renamed(self, old_filename, new_filename):
 	    history_file = os.path.join(

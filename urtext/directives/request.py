@@ -1,11 +1,6 @@
 import urllib
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import  UrtextDirective
-else:
-	from urtext.directive import  UrtextDirective
 
-class Request(UrtextDirective):
+class Request:
 
 	name = ["REQUEST"]
 	phase = 300

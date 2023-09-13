@@ -1,10 +1,4 @@
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.extension import UrtextExtension
-else:
-    from urtext.extension import UrtextExtension
-
-class ReindexFiles(UrtextExtension):
+class ReindexFiles:
     """ 
     sorts all file-level nodes by their index, then passes
     the result to rename_file_nodes() to rename them.

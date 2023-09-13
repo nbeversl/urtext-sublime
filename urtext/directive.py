@@ -2,14 +2,18 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
     from .utils import force_list
+    #from Urtext.urtext.dynamic_output import DynamicOutput
 else:
     import urtext.syntax as syntax
     from urtext.utils import force_list
+    #from urtext.dynamic_output import DynamicOutput
 
 class UrtextDirective():
 
-    name = ["DIRECTIVE"]
     phase = 0
+    syntax = syntax
+    #DynamicOutput = DynamicOutput
+
     def __init__(self, project):
         
         self.keys = []

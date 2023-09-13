@@ -3,17 +3,14 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
 	from Urtext.urtext.dynamic_output import DynamicOutput
 	from Urtext.anytree import Node, PreOrderIter, RenderTree
 	from Urtext.urtext.timestamp import UrtextTimestamp, default_date
-	from Urtext.urtext.directive import UrtextDirective
 	import Urtext.urtext.syntax as syntax
 else:
-	from urtext.directive import UrtextDirective
 	from urtext.dynamic_output import DynamicOutput
 	from anytree import Node, PreOrderIter, RenderTree
 	from urtext.timestamp import UrtextTimestamp, default_date
-	from urtext.directive import UrtextDirective
 	import urtext.syntax as syntax
 
-class Collect(UrtextDirective):
+class Collect:
 
 	name = ["COLLECT"]
 	phase = 300

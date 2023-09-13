@@ -1,13 +1,6 @@
-import os
 import re
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.extension import UrtextExtension
-    import Urtext.urtext.syntax as syntax
-else:
-    from urtext.extension import UrtextExtension
-    import urtext.syntax as syntax
 
-class PopNode(UrtextExtension):
+class PopNode:
 
     name=['POP_NODE']
 
@@ -56,19 +49,19 @@ class PopNode(UrtextExtension):
             popped_node_contents += ''.join([
                 '\n',
                 self.project.settings['breadcrumb_key'],
-                syntax.metadata_assignment_operator,
-                syntax.link_opening_wrapper,
+                self.syntax.metadata_assignment_operator,
+                self.syntax.link_opening_wrapper,
                 self.project.nodes[parent_id].id,
-                syntax.link_closing_wrapper,
+                self.syntax.link_closing_wrapper,
                 ' ',
                 self.project.timestamp().wrapped_string]);
 
         remaining_node_contents = ''.join([
             file_contents[:start - 1],
             '\n',
-            syntax.link_opening_wrapper,
+            self.syntax.link_opening_wrapper,
             popped_node_id,
-            syntax.pointer_closing_wrapper,
+            self.syntax.pointer_closing_wrapper,
             file_contents[end + 1:]
             ])
        
@@ -82,7 +75,7 @@ class PopNode(UrtextExtension):
         self.project._parse_file(new_file_name) 
         return filename
 
-class PullNode(UrtextExtension):
+class PullNode:
 
     name=['PULL_NODE']
 
@@ -158,11 +151,11 @@ class PullNode(UrtextExtension):
         destination_file_contents = self.project.files[destination_filename]._get_file_contents()
     
         wrapped_contents = ''.join([
-            syntax.node_opening_wrapper,
+            self.syntax.node_opening_wrapper,
             ' ',
             pulled_contents,
             ' ',
-            syntax.node_closing_wrapper])
+            self.syntax.node_closing_wrapper])
 
         for m in re.finditer(re.escape(link['full_match']), destination_file_contents):
                 

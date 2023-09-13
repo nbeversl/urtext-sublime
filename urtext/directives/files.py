@@ -1,10 +1,4 @@
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import UrtextDirective
-else:
-	from urtext.directive import UrtextDirective
-
-class UrtextFiles(UrtextDirective):
+class UrtextFiles:
 
 	name = ["FILES"]
 	phase = 300

@@ -1,14 +1,8 @@
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.extension import UrtextExtension
-else:
-	from urtext.extension import UrtextExtension
-
-class UrtextNavigation(UrtextExtension):
+class UrtextNavigation:
 
 	name = ["NAVIGATION"]
 
-	def __init__(self, project):
+	def initialize(self, project):
 		self.project_list = project.project_list
 		if 'NAVIGATION' not in project.project_list.extensions:
 			project.project_list.extensions['NAVIGATION'] = self

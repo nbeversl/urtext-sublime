@@ -31,7 +31,7 @@ class Exec(UrtextDirective):
 				sys.stdout = mystdout = StringIO()
 				localsParameter = {
 					'ThisProject' : self.project,
-					'UrtextDirective' : UrtextDirective,
+					'UrtextDirective' : self.UrtextDirective,
 					'UrtextExtension' : UrtextExtension,
 				}
 				try:

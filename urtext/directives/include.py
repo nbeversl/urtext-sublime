@@ -1,13 +1,6 @@
-import os
 import re
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import UrtextDirective
-	import Urtext.urtext.syntax as syntax
-else:
-	from urtext.directive import UrtextDirective
-	import urtext.syntax as syntax
 
-class NodeQuery(UrtextDirective):
+class NodeQuery:
 
 	name = ["QUERY"]
 	phase = 100
@@ -16,16 +9,16 @@ class NodeQuery(UrtextDirective):
 		added_nodes = []
 		
 		for arg in self.arguments:
-			node_link = syntax.node_link_c.match(self.argument_string)
+			node_link = self.syntax.node_link_c.match(self.argument_string)
 			if node_link:
 				added_nodes.append(node_link.group(2))
 				break
 
-			if re.match(syntax.virtual_target_marker+'self', arg):
+			if re.match(self.syntax.virtual_target_marker+'self', arg):
 				added_nodes.append(self.dynamic_definition.source_id)
 				break
 
-			if re.match(syntax.virtual_target_marker+'parent', arg):
+			if re.match(self.syntax.virtual_target_marker+'parent', arg):
 				if self.project.nodes[
 						self.dynamic_definition.source_id].parent:
 					added_nodes.append(

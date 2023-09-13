@@ -1,13 +1,4 @@
-import os
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.urtext.directive import UrtextDirective
-    import Urtext.urtext.syntax as syntax
-else:
-    from urtext.directive import UrtextDirective
-    import urtext.syntax as syntax
-
-class AccessHistory(UrtextDirective):
+class AccessHistory:
 
     name = ["ACCESS_HISTORY"]
     phase = 700
@@ -25,9 +16,9 @@ class AccessHistory(UrtextDirective):
                             '\n',
                             self.project.timestamp(as_string=True), 
                             ' ',
-                            syntax.link_opening_wrapper, 
+                            self.syntax.link_opening_wrapper, 
                             node_id, 
-                            syntax.link_closing_wrapper,
+                            self.syntax.link_closing_wrapper,
                         ]))
         self.last_visited = node_id
 

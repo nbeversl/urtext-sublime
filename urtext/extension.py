@@ -1,6 +1,5 @@
 class UrtextExtension:
 
-    name = ["EXTENSION"]
     phase = 0
     
     def __init__(self, project):

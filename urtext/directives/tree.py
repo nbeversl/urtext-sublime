@@ -1,136 +1,129 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
-    from ..dynamic_output import DynamicOutput
-    from ..directive import UrtextDirective
-    import Urtext.urtext.syntax as syntax
 else:
     from anytree import Node, RenderTree, PreOrderIter
     from anytree.render import ContStyle
-    from urtext.dynamic_output import DynamicOutput
-    from urtext.directive import UrtextDirective
-    import urtext.syntax as syntax
 """
 Tree
 """   
 
-class Tree(UrtextDirective):
+class UrtextTree:
 
+    name = ["TREES"]
     phase = 310
-    
-    def __init__(self, project):
-        super().__init__(project)
-        self.depth = 1
+    # depth = 1
 
-    def dynamic_output(self, start_point):
+    def dynamic_output(self, start_points):
         if self.have_flags('*'):
             self.depth = 999999
-        
-        start_point = start_point.tree_node
 
-        pointers = self._has_pointers(start_point)
-        while pointers:  
-            for leaf in pointers:
-                if leaf.name[:5] == 'ALIA$':
-                    node_id = leaf.name[5:]
-                    new_tree = self.duplicate_tree(self.project.nodes[node_id].tree_node, leaf)            
-                    leaf.children = new_tree.children
-            pointers = self._has_pointers(start_point)
-     
         tree_render = ''
+        for start_point in start_points:
+            print(start_point)
+            start_point = start_point.tree_node
 
-        level = 0
-        for pre, _, this_node in RenderTree(
-                start_point, 
-                style=ContStyle, 
-                maxlevel=self.depth):
-
-            #DEBUGGING ONLY
-            for n in this_node.children:
-                if n.name not in self.project.nodes:                
-                    try:
-                        s = n.position
-                    except:
-                        print(n, ' has no position')
-
-            this_node.children = sorted(
-                this_node.children,
-                key=lambda n: self.project.nodes[n.name].start_position() if (
-                    n.name in self.project.nodes ) else 0)
-
-            indented_pre = '  ' + pre
+            pointers = self._has_pointers(start_point)
+            while pointers:  
+                for leaf in pointers:
+                    if leaf.name[:5] == 'ALIA$':
+                        node_id = leaf.name[5:]
+                        new_tree = self.duplicate_tree(self.project.nodes[node_id].tree_node, leaf)            
+                        leaf.children = new_tree.children
+                pointers = self._has_pointers(start_point)
+         
             
-            if self._tree_node_is_excluded(this_node):
-                this_node.children = []
-                continue
 
-            if this_node.name[:5] == 'ALIA$':
-                if this_node.name[5:] not in self.project.nodes:
-                    tree_render += "%s%s" % (
-                        indented_pre, 
-                        ''.join([
-                            this_node.name[5:],
-                            ' ',
-                            syntax.urtext_message_opening_wrapper,
-                            ' NOT IN PROJECT ',
-                            syntax.urtext_message_closing_wrapper,
-                            '\n']
-                            ))
+            level = 0
+            for pre, _, this_node in RenderTree(
+                    start_point, 
+                    style=ContStyle, 
+                    maxlevel=self.depth):
+
+                #DEBUGGING ONLY
+                for n in this_node.children:
+                    if n.name not in self.project.nodes:                
+                        try:
+                            s = n.position
+                        except:
+                            print(n, ' has no position')
+
+                this_node.children = sorted(
+                    this_node.children,
+                    key=lambda n: self.project.nodes[n.name].start_position() if (
+                        n.name in self.project.nodes ) else 0)
+
+                indented_pre = '  ' + pre
+                
+                if self._tree_node_is_excluded(this_node):
+                    this_node.children = []
                     continue
+
+                if this_node.name[:5] == 'ALIA$':
+                    if this_node.name[5:] not in self.project.nodes:
+                        tree_render += "%s%s" % (
+                            indented_pre, 
+                            ''.join([
+                                this_node.name[5:],
+                                ' ',
+                                self.syntax.urtext_message_opening_wrapper,
+                                ' NOT IN PROJECT ',
+                                self.syntax.urtext_message_closing_wrapper,
+                                '\n']
+                                ))
+                        continue
+                    else:
+                        urtext_node = self.project.nodes[this_node.name[5:]]
                 else:
-                    urtext_node = self.project.nodes[this_node.name[5:]]
-            else:
 
-                if this_node.name[:11] == '! RECURSION':
-                    tree_render += "%s%s" % (pre, this_node.name + '\n')    
-                    continue
-                    
-                if this_node.name not in self.project.nodes:
-                    tree_render += "%s | %s > <! not in project !>)\n" % (pre, this_node.name)    
-                    continue
+                    if this_node.name[:11] == '! RECURSION':
+                        tree_render += "%s%s" % (pre, this_node.name + '\n')    
+                        continue
+                        
+                    if this_node.name not in self.project.nodes:
+                        tree_render += "%s | %s > <! not in project !>)\n" % (pre, this_node.name)    
+                        continue
 
-                urtext_node = self.project.nodes[this_node.name]
-            
-            next_content = DynamicOutput(
-                self.dynamic_definition.show, 
-                self.project.settings)
+                    urtext_node = self.project.nodes[this_node.name]
+                
+                next_content = self.DynamicOutput(
+                    self.dynamic_definition.show, 
+                    self.project.settings)
 
-            next_content.title = urtext_node.title
-           
-        
-            link = []
-            #TODO refactor
-            if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
-                link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
-            else:
-                link.append(syntax.link_opening_wrapper)
-            link.append(urtext_node.id + syntax.link_closing_wrapper)
-            next_content.link = ''.join(link)
+                next_content.title = urtext_node.title
+               
+                link = []
+                #TODO refactor
+                if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
+                    link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
+                else:
+                    link.append(self.syntax.link_opening_wrapper)
+                link.append(urtext_node.id + self.syntax.link_closing_wrapper)
+                next_content.link = ''.join(link)
 
-            next_content.date = urtext_node.get_date(
-                self.project.settings[
-                    'node_date_keyname']).strftime(self.project.settings['timestamp_format'])
+                next_content.date = urtext_node.get_date(
+                    self.project.settings[
+                        'node_date_keyname']).strftime(self.project.settings['timestamp_format'])
 
-            next_content.meta = urtext_node.consolidate_metadata(separator=':')
+                next_content.meta = urtext_node.consolidate_metadata(separator=':')
 
-            if next_content.needs_contents: 
-                next_content.contents = urtext_node.content_only().strip('\n').strip()
+                if next_content.needs_contents: 
+                    next_content.contents = urtext_node.content_only().strip('\n').strip()
 
-            for meta_key in next_content.needs_other_format_keys:
-                next_content.other_format_keys[
-                    meta_key] = urtext_node.get_extended_values(
-                        meta_key)
+                for meta_key in next_content.needs_other_format_keys:
+                    next_content.other_format_keys[
+                        meta_key] = urtext_node.get_extended_values(
+                            meta_key)
 
-            if level == 0:
-                prefix = pre
-            else:
-                prefix = indented_pre
+                if level == 0:
+                    prefix = pre
+                else:
+                    prefix = indented_pre
 
-            tree_render += "%s%s" % (prefix, next_content.output())
+                tree_render += "%s%s" % (prefix, next_content.output())
 
-            level += 1
+                level += 1
 
         return tree_render
 
