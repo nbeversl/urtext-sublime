@@ -111,7 +111,7 @@ id_pattern = r'([^\|>\n\r]+)'
 
 # for syntax highlighting only:
 sh_metadata_key = metadata_key + '(?='+metadata_assigner+')'
-sh_metadata_values = r'(?<=::)[^\n};@\s]+;?'
+sh_metadata_values = r'(?<=::)[^\n};@]+;?'
 sh_metadata_key_c = re.compile(sh_metadata_key)
 sh_metadata_values_c = re.compile(sh_metadata_values)
 metadata_flags = r'\+?\*{1,2}(?=' + metadata_key + ')' 
