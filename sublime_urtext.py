@@ -58,7 +58,6 @@ def open_file_to_position(filename, position, node_range=None):
             sublime.set_timeout(
                 lambda: view.erase_regions('highlight'), 
                 200)
-            
 
         focus_position(new_view, position)
 
@@ -276,7 +275,12 @@ def initialize_project_list(view, reload_projects=False):
         else:
             _UrtextProjectList = ProjectList(
                 current_path,
-                editor_methods=editor_methods) 
+                editor_methods=editor_methods)
+    else:
+        sublime.error_message(
+            'No folder is open in this window.\n' +
+            'To use Urtext, create or open an existing folder in this window.')
+
     return _UrtextProjectList
 
 

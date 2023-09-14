@@ -110,7 +110,7 @@ class UrtextProject:
             self.entry_path = os.path.dirname(self.entry_point)            
             self._parse_file(self.entry_point)
         else:
-            return self.handle_message('%s does not exist' % self.entry_point)
+            return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
 
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
@@ -118,6 +118,13 @@ class UrtextProject:
             for file in self._get_included_files():
                 if file not in self.files:
                     self._parse_file(file)
+
+        if len(self.nodes) == 0:
+            return self.handle_error_message(
+                '\n'.join([
+                    'No Urtext files are in this folder.',
+                    'To create one, press Ctrl-Shift-;'
+                    ]))
 
         for node_id in self.nodes:
             self.nodes[node_id].metadata.convert_hash_keys()
@@ -134,7 +141,7 @@ class UrtextProject:
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
         self._run_hook('after_project_initialized')
-        self.handle_message(
+        self.handle_info_message(
             '"'+self.settings['project_title']+'" compiled')
     
     def get_file_position(self, node_id, position): 
@@ -682,7 +689,7 @@ class UrtextProject:
                 message = node_id + ' not in current project'
             else:
                 message = 'Project is still compiling' 
-            return self.handle_message(message)
+            return self.handle_info_message(message)
 
         node_range = (
             self.nodes[node_id].ranges[0][0],
@@ -705,21 +712,23 @@ class UrtextProject:
             if not self.compiled:
                 if not self.home_requested:
                     self.message_executor.submit(
-                        self.handle_message,
+                        self.handle_info_message,
                         'Project is compiling. Home will be shown when found.')
                     self.home_requested = True
                 timer = threading.Timer(.5, self.open_home)
                 return timer.start()
             else:
                 self.home_requested = False
-                return self.handle_message(
+                return self.handle_info_message(
                     'Project compiled. No home node for this project')
         self.home_requested = False
         return self.open_node(self.settings['home'])
  
-    def handle_message(self, message):
-        print(message)
-        self.run_editor_method('popup',message)
+    def handle_info_message(self, message):
+        self.run_editor_method('popup', message)
+
+    def handle_error_message(self, message):
+        self.run_editor_method('error_message', message)
 
     def all_nodes(self, as_nodes=False):
 
