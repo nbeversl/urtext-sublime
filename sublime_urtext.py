@@ -662,18 +662,6 @@ class GoToDynamicDefinitionCommand(UrtextTextCommand):
         target_id = get_node_id(self.view)
         self._UrtextProjectList.current_project.go_to_dynamic_definition(target_id)
 
-class TagFromOtherNodeCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        # save the current file first
-        line, cursor = get_line_and_cursor(self.view)
-        _UrtextProjectList.current_project.tag_other_node(
-            line,
-            cursor,
-            #open_files=open_files ?
-            )
-
 class UrtextReloadProjectCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
