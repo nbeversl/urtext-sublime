@@ -308,20 +308,18 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        window = self.view.window()
+        project_titles = self._UrtextProjectList.project_titles()
+
+        def move_file(selected_index):
+            self._UrtextProjectList.move_file(
+                self.view.file_name(), 
+                project_titles[selected_index])
+            self.view.window().run_command('close_file')
+            
         show_panel(
-            window,
-            self._UrtextProjectList.project_titles(), 
-            self.move_file)
-
-    def move_file(self, new_project_title):
-                
-        self._UrtextProjectList.move_file(
-            self.view.file_name(), 
-            new_project_title)
-
-        self.view.window().run_command('close_file')
-        _UrtextProjectList.nav_reverse()
+            self.view.window(),
+            project_titles, 
+            move_file)
 
 class UrtextEventListeners(EventListener):
 
