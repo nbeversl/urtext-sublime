@@ -73,13 +73,13 @@ class UrtextNode:
         self.nested = nested
     
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
-        contents = strip_dynamic_definitions(contents)
         contents = strip_wrappers(contents)
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
-        
+
         self.get_links(contents=contents)
+        contents = strip_dynamic_definitions(contents)       
         contents = strip_links(contents)
 
         self.metadata = self.urtext_metadata(self, self.project)        
@@ -184,9 +184,7 @@ class UrtextNode:
             stripped_contents = stripped_contents.replace(inline_node.group(), r * len(inline_node.group()))
         return stripped_contents
 
-    def get_links(self, contents=None):
-        if contents == None:
-            contents = self.content_only()
+    def get_links(self, contents):
         links = syntax.node_link_or_pointer_c.finditer(contents)
         for link in links:
             self.links.append(link.group())
@@ -395,8 +393,12 @@ def strip_contents(contents,
         preserve_length=preserve_length, 
         include_backtick=include_backtick,
         reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
-    contents = strip_metadata(contents=contents, preserve_length=preserve_length)
-    contents = strip_dynamic_definitions(contents=contents, preserve_length=preserve_length)
+    contents = strip_metadata(
+        contents=contents, 
+        preserve_length=preserve_length)
+    contents = strip_dynamic_definitions(
+        contents=contents, 
+        preserve_length=preserve_length)
     contents = contents.strip().strip('{}').strip()
     return contents
 
