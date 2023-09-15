@@ -205,7 +205,7 @@ class ProjectList():
             filename,
             os.path.join(
                 destination_project.settings['paths'][0]['path'],
-                filename)
+                os.path.basename(filename))
             )
         """
         add_file() will raise an exception if the file makes
