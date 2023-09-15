@@ -1105,25 +1105,25 @@ class UrtextProject:
                 self.files[filename]._set_file_contents(new_contents, compare=False)
                 return self.execute(self._on_modified, filename)
 
-    def on_modified(self, filename):
-        if self.compiled:
-            return self.execute(self._on_modified, filename)
-        return []
+    def on_modified(self, filename):    
+        return self.execute(self._on_modified, filename)
     
     def _on_modified(self, filename):
-        modified_files = [filename]
-        self._parse_file(filename)
-        self._reverify_links(filename)
-        if filename in self.files:
-            modified_files.extend(
-                self._compile_file(
-                filename,
-                events=['-file_update']))
-        self._sync_file_list()
-        if filename in self.files:
-            self._run_hook('on_file_modified', filename)
-        self._refresh_modified_files(modified_files)
-        return modified_files
+        if self.compiled:
+            modified_files = [filename]
+            self._parse_file(filename)
+            self._reverify_links(filename)
+            if filename in self.files:
+                modified_files.extend(
+                    self._compile_file(
+                    filename,
+                    events=['-file_update']))
+            self._sync_file_list()
+            if filename in self.files:
+                self._run_hook('on_file_modified', filename)
+            self._refresh_modified_files(modified_files)
+            return modified_files
+        return []
         
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
@@ -1446,16 +1446,22 @@ class UrtextProject:
         
     """ Metadata Handling """
 
-    def tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
-        return self.execute(
-            self._tag_other_node, 
-            full_line,
-            cursor, 
-            metadata=metadata, 
-            open_files=open_files)
+    def tag_other_node(self, 
+        full_line, 
+        cursor, 
+        metadata={}):
         
-    def _tag_other_node(self, full_line, cursor, metadata={}, open_files=[]):
-        """adds a metadata tag to a node programmatically"""
+        return self.execute(
+            self._tag_other_node,
+            full_line,
+            cursor,
+            metadata=metadata)
+        
+    def _tag_other_node(
+        self, 
+        full_line, 
+        cursor, 
+        metadata={}):
         
         link = self.parse_link(full_line, col_pos=cursor)
         if not link: return
@@ -1481,8 +1487,7 @@ class UrtextProject:
             separator,
             full_file_contents[tag_position:]])
         self.files[filename]._set_file_contents(new_contents)
-        s = self.on_modified(filename)
-        return s
+        return self._on_modified(filename)
  
     def _add_sub_tags(self, 
         entry,
