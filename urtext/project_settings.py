@@ -81,7 +81,7 @@ def default_project_settings():
         'node_date_keyname' : 'timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
         'open_with_system' : ['pdf'],
-        'other_projects' : [],
+        'other_entry_points' : [],
         'paths': [],
         'project_title' : None,
         'recurse_folders': False,
