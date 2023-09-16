@@ -1139,12 +1139,11 @@ class UrtextProject:
         return modified_files
 
     def visit_file(self, filename):
-        return self.execute(self._visit_file, filename)
+        return self.execute(
+            self._visit_file, 
+            filename)
 
     def _visit_file(self, filename):
-        """
-        Call whenever a file requires dynamic updating
-        """        
         if filename in self.files and self.compiled:
             modified_files = self._compile_file(
                 filename, 
@@ -1387,9 +1386,10 @@ class UrtextProject:
                 if output not in [False, None]:
                     for target in dd.targets + dd.target_ids:
                         targeted_output = dd.post_process(target, output)
-                        modified_target = self._direct_output(
+                        r = modified_target = self._direct_output(
                             targeted_output, 
-                            target, dd)
+                            target, 
+                            dd)
                         if modified_target:
                             modified_targets.append(modified_target)
 
@@ -1408,14 +1408,15 @@ class UrtextProject:
                 file)
 
     def _direct_output(self, output, target, dd):
-
         node_link = syntax.node_link_or_pointer_c.match(target)
         if node_link:
             node_id = get_id_from_link(node_link.group())
-            if node_id in self.nodes:
-                if self._set_node_contents(node_id, output):
-                    return node_id
-                return False
+        else:
+            node_id = target
+        if node_id in self.nodes:
+            if self._set_node_contents(node_id, output):
+                return node_id
+            return False
 
         target_file = syntax.file_link_c.match(target)
         if target_file:
