@@ -406,15 +406,15 @@ class UrtextProject:
 
     def _reject_definition(self, target_id, definition):
         message = ''.join([
-                'Dynamic node ', 
+                '\nDynamic node ', 
                 syntax.link_opening_wrapper,
                 target_id,
                 syntax.link_closing_wrapper,
-                ' already has a definition in ', 
+                '\nalready has a definition in ', 
                 syntax.link_opening_wrapper,
                 self.dynamic_definitions[target_id].source_id,
                 syntax.link_closing_wrapper,
-                ' -- skipping the definition in ',
+                '\nskipping the definition in ',
                 syntax.link_opening_wrapper,
                 definition.source_id,
                 syntax.link_closing_wrapper,
