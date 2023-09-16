@@ -1133,10 +1133,8 @@ class UrtextProject:
         self._run_hook('on_node_visited', node_id)
         for dd in list(self.dynamic_definitions.values()):
             for op in dd.operations:
-                op.on_node_visited(node_id)        
-        modified_files = self.visit_file(self.nodes[node_id].filename)
-        self._refresh_modified_files(modified_files)
-        return modified_files
+                op.on_node_visited(node_id)      
+        self.visit_file(self.nodes[node_id].filename)
 
     def visit_file(self, filename):
         return self.execute(
@@ -1386,7 +1384,7 @@ class UrtextProject:
                 if output not in [False, None]:
                     for target in dd.targets + dd.target_ids:
                         targeted_output = dd.post_process(target, output)
-                        r = modified_target = self._direct_output(
+                        modified_target = self._direct_output(
                             targeted_output, 
                             target, 
                             dd)

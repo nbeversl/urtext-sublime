@@ -296,7 +296,7 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def set_content(self, contents):        
+    def set_content(self, contents):      
         file_contents = self.get_file_contents()
         new_file_contents = ''.join([
             file_contents[0:self.start_position()],
