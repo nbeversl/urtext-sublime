@@ -112,7 +112,11 @@ class UrtextNode:
     def contents(self, 
         preserve_length=False,
         strip_first_line_title=False,
-        do_strip_embedded_syntaxes=True):
+        do_strip_embedded_syntaxes=True,
+        reformat_and_keep_embedded_syntaxes=False,
+        do_strip_metadata=True,
+        do_strip_dynamic_definitions=True
+        ):
    
         file_contents = self.get_file_contents()
         node_contents = []
@@ -135,6 +139,17 @@ class UrtextNode:
                 preserve_length=preserve_length)
         if strip_first_line_title:
             node_contents = self.strip_first_line_title(node_contents)
+
+        node_contents = strip_contents(
+            node_contents,
+            preserve_length=False, 
+            include_backtick=True,
+            reformat_and_keep_embedded_syntaxes=False,
+            embedded_syntaxes=do_strip_embedded_syntaxes,
+            metadata=do_strip_metadata,
+            dynamic_definitions=do_strip_dynamic_definitions
+            )
+
         return node_contents
 
     def links_ids(self):
@@ -188,15 +203,6 @@ class UrtextNode:
         links = syntax.node_link_or_pointer_c.finditer(contents)
         for link in links:
             self.links.append(link.group())
-
-    def content_only(self, 
-        contents=None, 
-        preserve_length=False):
-        return self.content_only_text
-
-        if contents == None:
-            contents = self.contents(preserve_length=preserve_length)
-        return strip_contents(contents, preserve_length=preserve_length)
 
     def set_title(self, contents):
         """
@@ -388,17 +394,23 @@ def strip_contents(contents,
     preserve_length=False, 
     include_backtick=True,
     reformat_and_keep_embedded_syntaxes=False,
+    embedded_syntaxes=True,
+    metadata=True,
+    dynamic_definitions=True
     ):
-    contents = strip_embedded_syntaxes(contents, 
-        preserve_length=preserve_length, 
-        include_backtick=include_backtick,
-        reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
-    contents = strip_metadata(
-        contents=contents, 
-        preserve_length=preserve_length)
-    contents = strip_dynamic_definitions(
-        contents=contents, 
-        preserve_length=preserve_length)
+    if embedded_syntaxes:
+        contents = strip_embedded_syntaxes(contents, 
+            preserve_length=preserve_length, 
+            include_backtick=include_backtick,
+            reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
+    if metadata:
+        contents = strip_metadata(
+            contents=contents, 
+            preserve_length=preserve_length)
+    if dynamic_definitions:
+        contents = strip_dynamic_definitions(
+            contents=contents, 
+            preserve_length=preserve_length)
     contents = contents.strip().strip('{}').strip()
     return contents
 
@@ -414,24 +426,21 @@ def strip_wrappers(contents):
         return contents
 
 def strip_metadata(contents, preserve_length=False):
-
-        r = ' ' if preserve_length else ''
-
-        for e in syntax.metadata_replacements.finditer(contents):
-            contents = contents.replace(e.group(), r*len(e.group()))       
-        contents = contents.replace('• ',r*2)
-        return contents.strip()
+    r = ' ' if preserve_length else ''
+    for e in syntax.metadata_replacements.finditer(contents):
+        contents = contents.replace(e.group(), r*len(e.group()))       
+    contents = contents.replace('• ',r*2)
+    return contents.strip()
 
 def strip_dynamic_definitions(contents, preserve_length=False):
-
-        r = ' ' if preserve_length else ''
-        if not contents:
-            return contents
-        stripped_contents = contents
-      
-        for dynamic_definition in syntax.dynamic_def_c.finditer(stripped_contents):
-            stripped_contents = stripped_contents.replace(dynamic_definition.group(), r*len(dynamic_definition.group()))
-        return stripped_contents.strip()
+    r = ' ' if preserve_length else ''
+    if not contents:
+        return contents
+    stripped_contents = contents
+  
+    for dynamic_definition in syntax.dynamic_def_c.finditer(stripped_contents):
+        stripped_contents = stripped_contents.replace(dynamic_definition.group(), r*len(dynamic_definition.group()))
+    return stripped_contents.strip()
 
 def strip_nested_links(title):
     nested_link = syntax.node_link_or_pointer_c.search(title)

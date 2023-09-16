@@ -84,7 +84,7 @@ class Collect(UrtextDirective):
 							found_item['sort_value'] = sort_value
 
 						found_item['keyname'] = k
-						full_contents = node.content_only(preserve_length=True)
+						full_contents = node.contents(preserve_length=True)
 						
 						context = []
 						length = 0

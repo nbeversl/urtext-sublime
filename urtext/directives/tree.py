@@ -115,8 +115,9 @@ class Tree(UrtextDirective):
 
             next_content.meta = urtext_node.consolidate_metadata(separator=':')
 
-            if next_content.needs_contents: 
-                next_content.contents = urtext_node.content_only().strip('\n').strip()
+            if next_content.needs_contents:
+                next_content.contents = urtext_node.contents(
+                    strip_first_line_title=True).strip('\n').strip()
 
             for meta_key in next_content.needs_other_format_keys:
                 next_content.other_format_keys[

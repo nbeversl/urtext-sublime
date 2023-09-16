@@ -75,11 +75,14 @@ class DynamicOutput():
             '_entry',
         ]
 
-        contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
-        contents_match = re.search(contents_syntax, self.item_format)
+        contents_syntax = re.compile(
+            self.shah+'\$_contents'+'(:\d*)?', 
+            re.DOTALL)      
+        contents_match = re.search(
+            contents_syntax, 
+            self.item_format)
         if contents_match:
             self.needs_contents = True
-
         all_format_keys = re.findall(
             self.shah+'\$[\.A-Za-z0-9_-]*', 
             self.item_format, 
@@ -98,7 +101,7 @@ class DynamicOutput():
         self.item_format = self.item_format.replace(self.shah + '$_meta', self.meta)
         self.item_format = self.item_format.replace(self.shah + '$_entry', self.entry)
 
-        contents_syntax = re.compile(self.shah+'\$contents'+'(:\d*)?', re.DOTALL)      
+        contents_syntax = re.compile(self.shah+'\$_contents'+'(:\d*)?', re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
 
         if contents_match:
@@ -117,7 +120,13 @@ class DynamicOutput():
                 length = int(length_str)
                 if len(contents) > length:
                     contents = contents[0:length] + ' (...)'
-            self.item_format = self.item_format.replace(self.shah + '$contents' + suffix, contents + '\n')
+            self.item_format = self.item_format.replace(
+                ''.join([
+                        self.shah,
+                        '$_contents',
+                        suffix
+                    ]),
+                ''.join([ contents, '\n']))
                     
         # all other meta keys
         for meta_key in self.other_format_keys:

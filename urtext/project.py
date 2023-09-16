@@ -1283,7 +1283,7 @@ class UrtextProject:
                 if node.dynamic:
                     continue
                 matches = []
-                contents = node.content_only()
+                contents = node.contents()
                 lower_contents = contents.lower()           
 
                 for v in values:

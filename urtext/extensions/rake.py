@@ -36,7 +36,7 @@ class AddRakeKeywords(UrtextExtension):
     def parse_keywords(self, node):
         if not node.dynamic:
             self.nodes[node.id] = self.rake.parse_keywords(
-                node.content_only())
+                node.contents())
 
     def get_keywords(self):
         keyword_list = []
