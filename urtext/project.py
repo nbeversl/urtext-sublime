@@ -1134,7 +1134,7 @@ class UrtextProject:
         for dd in list(self.dynamic_definitions.values()):
             for op in dd.operations:
                 op.on_node_visited(node_id)      
-        self.visit_file(self.nodes[node_id].filename)
+        self._visit_file(self.nodes[node_id].filename)
 
     def visit_file(self, filename):
         return self.execute(
