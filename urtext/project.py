@@ -269,8 +269,9 @@ class UrtextProject:
                 contents = self.files[filename]._get_file_contents()
                 for old_link in rewrites:
                     contents = contents.replace(old_link, rewrites[old_link])
-                self.files[filename]._set_file_contents(contents)
-                self._parse_file(filename)
+                if self.files[filename]._set_file_contents(contents):
+                  self._parse_file(filename)
+                  self.run_editor_method('refresh_open_file', filename)
 
     def _collect_extensions_directives(self):
         
@@ -299,6 +300,7 @@ class UrtextProject:
                 for project_node in list(self.nodes):
                     links_to_change = {}
                     if project_node not in self.nodes: continue
+                    if self.nodes[project_node].dynamic: continue
                     for link in self.nodes[project_node].links:
                         link = get_id_from_link(link)
                         if link == old_id:
@@ -318,9 +320,10 @@ class UrtextProject:
                                     'on_node_id_changed',
                                     node_id,
                                     links_to_change[node_id])
-                                self.files[filename]._set_file_contents(
-                                    replaced_contents)
-                                self._parse_file(filename)
+                                if self.files[filename]._set_file_contents(
+                                    replaced_contents):
+                                  self._parse_file(filename)
+                                  self.run_editor_method('refresh_open_file', filename)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -1122,9 +1125,6 @@ class UrtextProject:
             self._sync_file_list()
             if filename in self.files:
                 self._run_hook('on_file_modified', filename)
-            self._refresh_modified_files(modified_files)
-            return modified_files
-        return []
         
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
