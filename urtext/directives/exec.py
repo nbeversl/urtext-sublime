@@ -23,7 +23,9 @@ class Exec(UrtextDirective):
 		node_to_exec = get_id_from_link(self.argument_string)
 		if node_to_exec in self.project.nodes:
 			contents = self.project.nodes[node_to_exec].contents(
-				do_strip_embedded_syntaxes=False)
+				do_strip_metadata=False,
+				do_strip_embedded_syntaxes=False,
+				do_strip_dynamic_definitions=False)
 			python_embed = python_code_regex.search(contents)
 			if python_embed:
 				python_code = python_embed.group(2)

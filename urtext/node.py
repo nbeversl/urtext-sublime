@@ -142,9 +142,9 @@ class UrtextNode:
 
         node_contents = strip_contents(
             node_contents,
-            preserve_length=False, 
+            preserve_length=preserve_length, 
             include_backtick=True,
-            reformat_and_keep_embedded_syntaxes=False,
+            reformat_and_keep_embedded_syntaxes=reformat_and_keep_embedded_syntaxes,
             embedded_syntaxes=do_strip_embedded_syntaxes,
             metadata=do_strip_metadata,
             dynamic_definitions=do_strip_dynamic_definitions
