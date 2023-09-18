@@ -364,6 +364,11 @@ def get_extended_values(urtext_node, meta_keys):
             meta_keys = [meta_keys]
     values = []
     for index, k in enumerate(meta_keys):
+        if k in ['_oldest_timestamp', '_newest_timestamp']:
+            timestamps = urtext_node.metadata.get_entries(k)
+            if timestamps:
+                values.append(timestamps[0].timestamps[0].unwrapped_string)
+            continue
         entries = urtext_node.metadata.get_entries(k)
         for e in entries:
             if e.is_node:
