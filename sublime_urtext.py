@@ -58,7 +58,6 @@ def open_file_to_position(filename, position, node_range=None):
             sublime.set_timeout(
                 lambda: view.erase_regions('highlight'), 
                 200)
-            
 
         focus_position(new_view, position)
 
@@ -276,7 +275,12 @@ def initialize_project_list(view, reload_projects=False):
         else:
             _UrtextProjectList = ProjectList(
                 current_path,
-                editor_methods=editor_methods) 
+                editor_methods=editor_methods)
+    else:
+        sublime.error_message(
+            'No folder is open in this window.\n' +
+            'To use Urtext, create or open an existing folder in this window.')
+
     return _UrtextProjectList
 
 
@@ -304,20 +308,18 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        window = self.view.window()
+        project_titles = self._UrtextProjectList.project_titles()
+
+        def move_file(selected_index):
+            self._UrtextProjectList.move_file(
+                self.view.file_name(), 
+                project_titles[selected_index])
+            self.view.window().run_command('close_file')
+            
         show_panel(
-            window,
-            self._UrtextProjectList.project_titles(), 
-            self.move_file)
-
-    def move_file(self, new_project_title):
-                
-        self._UrtextProjectList.move_file(
-            self.view.file_name(), 
-            new_project_title)
-
-        self.view.window().run_command('close_file')
-        _UrtextProjectList.nav_reverse()
+            self.view.window(),
+            project_titles, 
+            move_file)
 
 class UrtextEventListeners(EventListener):
 
@@ -657,18 +659,6 @@ class GoToDynamicDefinitionCommand(UrtextTextCommand):
     def run(self):
         target_id = get_node_id(self.view)
         self._UrtextProjectList.current_project.go_to_dynamic_definition(target_id)
-
-class TagFromOtherNodeCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        # save the current file first
-        line, cursor = get_line_and_cursor(self.view)
-        _UrtextProjectList.current_project.tag_other_node(
-            line,
-            cursor,
-            #open_files=open_files ?
-            )
 
 class UrtextReloadProjectCommand(UrtextTextCommand):
 

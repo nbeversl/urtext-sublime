@@ -28,7 +28,6 @@ replace_settings = [
     'file_index_sort',
     'filenames',
     'node_browser_sort',
-    'tag_other',
     'filename_datestamp_format',
     'exclude_files' ]
 
@@ -82,11 +81,10 @@ def default_project_settings():
         'node_date_keyname' : 'timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
         'open_with_system' : ['pdf'],
-        'other_projects' : [],
+        'other_entry_points' : [],
         'paths': [],
         'project_title' : None,
         'recurse_folders': False,
-        'tag_other': [],
         'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 
         'title_length':255,
         'use_timestamp': [ 

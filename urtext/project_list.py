@@ -188,8 +188,9 @@ class ProjectList():
         node ID duplication in the new project location, and 
         optionally replacing links to every affected node.
         """
+        destination_project = self.get_project(
+            destination_project_name_or_path)
 
-        destination_project = self.get_project(destination_project_name_or_path)
         if not destination_project:
             print('Destination project `'+ destination_project_name_or_path +'` was not found.')
             return None
@@ -198,15 +199,14 @@ class ProjectList():
             print('File '+ filename +' not included in the current project.')
             return None
 
-        affected_nodes = self.current_project.files[filename].nodes.keys()
-        
-        self.current_project.drop_file(filename) # also updates the source project
-
+        affected_nodes = list(self.current_project.files[filename].nodes)        
+        self.current_project.drop_file(filename)
         os.rename(
-            os.path.join( self.current_project.settings['paths'][0], filename),
-            os.path.join( destination_project.settings['paths'][0], filename)
+            filename,
+            os.path.join(
+                destination_project.settings['paths'][0]['path'],
+                os.path.basename(filename))
             )
-
         """
         add_file() will raise an exception if the file makes
         duplicate nodes in the destination project
@@ -214,14 +214,15 @@ class ProjectList():
         try:
             destination_project.add_file(filename)    
         except:
+            #TODO handle
             return None
  
         if replace_links:
-            for node_id in affected_nodes:
+            for node in affected_nodes:
                 self.replace_links(
                     self.current_project.settings['project_title'],
                     destination_project.settings['project_title'],                   
-                    node_id)
+                    node.id)
 
         return True
 

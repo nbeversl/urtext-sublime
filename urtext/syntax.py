@@ -111,7 +111,7 @@ id_pattern = r'([^\|>\n\r]+)'
 
 # for syntax highlighting only:
 sh_metadata_key = metadata_key + '(?='+metadata_assigner+')'
-sh_metadata_values = r'(?<=::)[^\n};@\s]+;?'
+sh_metadata_values = r'(?<=::)[^\n};@]+;?'
 sh_metadata_key_c = re.compile(sh_metadata_key)
 sh_metadata_values_c = re.compile(sh_metadata_values)
 metadata_flags = r'\+?\*{1,2}(?=' + metadata_key + ')' 
@@ -216,6 +216,7 @@ virtual_target_match_c = re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
     r'\*{0,2}\w+\:\:([^\n}]+);?', # inline_meta
+    r'\*{0,2}\w+\:\:\{[^\}]\}', # node as meta
     r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
     ]))
 
