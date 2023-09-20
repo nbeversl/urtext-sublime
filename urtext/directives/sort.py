@@ -26,7 +26,15 @@ class Sort(UrtextDirective):
 			k, ext = k, ''
 			if '.' in k:
 				k, ext = k.split('.')
-			value = node.metadata.get_first_value(k, return_type=True)	
+
+			use_timestamp=False
+			if ext == 'timestamp':
+				use_timestamp= True
+
+			value = node.metadata.get_first_value(
+				k, 
+				return_type=True,
+				use_timestamp=use_timestamp)
 			if isinstance(value, str):
 				value=value.lower()			
 			t.append(value)
