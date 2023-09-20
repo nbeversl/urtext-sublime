@@ -61,7 +61,7 @@ http_link_opening_wrapper = ''.join([
 bullet = r'^([^\S\n]*?)•'
 closing_wrapper = r'(?<!\\)' + re.escape(node_closing_wrapper)
 dd_flag = r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
-dd_key = r'(^|\s)[\w_]+(\s|$)'
+dd_key = r'(^|\s)[\w\._]+(\s|$)'
 dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break

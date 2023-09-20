@@ -353,47 +353,55 @@ class UrtextNode:
         return contents
 
     def get_extended_values(self, meta_keys):
-        return get_extended_values(self, meta_keys)
+        """
+        from an extended key, returns all values
+        """
 
-def get_extended_values(urtext_node, meta_keys):
+        if '.' in meta_keys:
+            meta_keys = meta_keys.split('.')
+        else:
+            if not isinstance(meta_keys, list):
+                meta_keys = [meta_keys]
+        values = []
 
-    if '.' in meta_keys:
-        meta_keys = meta_keys.split('.')
-    else:
-        if not isinstance(meta_keys, list):
-            meta_keys = [meta_keys]
-    values = []
-    for index, k in enumerate(meta_keys):
-        if k in ['_oldest_timestamp', '_newest_timestamp']:
-            timestamps = urtext_node.metadata.get_entries(k)
-            if timestamps:
-                values.append(timestamps[0].timestamps[0].unwrapped_string)
-            continue
-        entries = urtext_node.metadata.get_entries(k)
-        for e in entries:
-            if e.is_node:
-                values.append(''.join([
-                        syntax.link_opening_wrapper,
-                        e.value.title,
-                        syntax.link_closing_wrapper
-                    ]))
+        for index, k in enumerate(meta_keys):
+
+            # handle single system keys
+            if k in ['_oldest_timestamp', '_newest_timestamp']:
+                timestamps = self.metadata.get_entries(k)
+                if timestamps and timestamps[0].timestamps:
+                    values.append(timestamps[0].timestamps[0].unwrapped_string)
                 continue
-            else:
-                values.append(e.value)
-                continue
-            if index == len(meta_keys) - 1:
-                if k in urtext_node.project.settings['use_timestamp'] and e.timestamps:
-                    values.append(e.timestamps[0].unwrapped_string)
 
-            if len(meta_keys) < index and ( 
-                   meta_keys[index+1] in ['timestamp','timestamps']) or (
-                    k in urtext_node.project.settings['use_timestamp']): 
+            entries = self.metadata.get_entries(k)
+            for e in entries:
+
+                # handle node as meta
+                if e.is_node:
+                    values.append(''.join([
+                            syntax.link_opening_wrapper,
+                            e.value.title,
+                            syntax.link_closing_wrapper
+                        ]))
+                    continue
+
+                # handle an ending key set to use timestamp
+                # last dot-key 
+                if ( 
+                    index == len(meta_keys) - 1 and (
+                        k in self.project.settings['use_timestamp'] ) ) or (
+                    index < len(meta_keys) - 1  and ( 
+                        meta_keys[index+1] in ['timestamp','timestamps'])
+                    ):
                         if e.timestamps:
-                            if k == 'timestamp':
-                                values.append(e.timestamps[0].unwrapped_string)
-                            else:
-                                values.append(' - '.join([t.unwrapped_string for t in e.timestamps]))
-    return syntax.metadata_separator_syntax.join(values)
+                            values.append(e.timestamps[0].unwrapped_string)
+                        continue
+
+                    # handle any key asking to use the timestamp
+                
+                values.append(e.value)
+
+        return syntax.metadata_separator_syntax.join(values)
 
 def strip_contents(contents, 
     preserve_length=False, 
