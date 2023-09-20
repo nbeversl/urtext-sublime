@@ -99,7 +99,6 @@ class Tree(UrtextDirective):
 
             next_content.title = urtext_node.title
            
-        
             link = []
             #TODO refactor
             if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
@@ -108,6 +107,12 @@ class Tree(UrtextDirective):
                 link.append(syntax.link_opening_wrapper)
             link.append(urtext_node.id + syntax.link_closing_wrapper)
             next_content.link = ''.join(link)
+
+            next_content.pointer = ''.join([
+                syntax.link_opening_wrapper,
+                urtext_node.id,
+                syntax.pointer_closing_wrapper
+                ])
 
             next_content.date = urtext_node.get_date(
                 self.project.settings[
