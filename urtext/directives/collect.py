@@ -101,7 +101,7 @@ class Collect(UrtextDirective):
 								syntax.node_closing_wrapper)
 
 						# this will be position in NODE, not FILE:
-						found_item['position'] = str(entry.position)                         
+						found_item['position'] = str(entry.position + 1)
 						found_stuff.append(found_item)
 	
 		if not found_stuff:
