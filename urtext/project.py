@@ -232,6 +232,10 @@ class UrtextProject:
                 self.dynamic_metadata_entries.append(entry)
 
         if self.compiled and changed_ids:
+            for node_id in changed_ids:
+                self._run_hook('on_node_id_changed',
+                    node_id,
+                    changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
 
     def _verify_links_globally(self):
@@ -1130,11 +1134,13 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        self._run_hook('on_node_visited', node_id)
-        for dd in list(self.dynamic_definitions.values()):
-            for op in dd.operations:
-                op.on_node_visited(node_id)      
-        self._visit_file(self.nodes[node_id].filename)
+        if node_id:
+            filename = self.nodes[node_id].filename
+            self._run_hook('on_node_visited', node_id)
+            for dd in list(self.dynamic_definitions.values()):
+                for op in dd.operations:
+                    op.on_node_visited(node_id)
+            self._visit_file(filename)
 
     def visit_file(self, filename):
         return self.execute(
