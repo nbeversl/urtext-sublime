@@ -331,7 +331,9 @@ class UrtextEventListeners(EventListener):
     @refresh_project_event_listener
     def on_activated(self, view):
         if view.file_name():
-            _UrtextProjectList.visit_file(view.file_name())
+            _UrtextProjectList.visit_node(
+                view.file_name(),
+                get_node_id(view))
 
     def on_query_completions(self, view, prefix, locations):
         

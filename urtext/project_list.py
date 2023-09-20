@@ -98,6 +98,8 @@ class ProjectList():
             return future
 
     def _get_project_from_path(self, path):
+        if not os.path.isdir(path):
+            path = os.path.dirname(path)
         for project in self.projects:
             if path in [entry['path'] for entry in project.settings['paths']]:
                 return project
@@ -166,10 +168,12 @@ class ProjectList():
         return None
 
     def visit_file(self, filename):
-        if filename and self.current_project:
-            path = os.path.dirname(filename)
-            self.set_current_project(path)
-            return self.current_project.visit_file(filename)
+        self.set_current_project(filename)
+        return self.current_project.visit_file(filename)
+
+    def visit_node(self, filename, node_id):
+        self.set_current_project(filename)
+        return self.current_project.visit_node(node_id)
 
     def new_project_in_path(self, path):
         if os.path.exists(path):
