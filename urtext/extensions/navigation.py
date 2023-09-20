@@ -22,13 +22,16 @@ class UrtextNavigation(UrtextExtension):
 
 		if self.project_list_instance:
 			
-			if self.project_list_instance.nav_index == len(
-				self.project_list_instance.navigation) - 1:
-					return print('index is already at the end')
 			if self.project_list_instance.nav_index == -1:
 				self.project_list_instance.nav_index = 1
-			else: self.project_list_instance.nav_index += 1
-	
+			else: 
+				self.project_list_instance.nav_index += 1
+
+			if self.project_list_instance.nav_index == len(
+				self.project_list_instance.navigation):
+					self.project_list_instance.nav_index -= 1			
+					return print('index is already at the end')
+
 			project, next_node = self.project_list_instance.navigation[
 				self.project_list_instance.nav_index]
 			self.project_list.set_current_project(project)
@@ -42,7 +45,6 @@ class UrtextNavigation(UrtextExtension):
 			self.project_list_instance.nav_index -= 1
 		if self.project_list_instance.nav_index == -1:
 			return print('index is already at the beginning.')
-
 		project, previous_node = self.project_list_instance.navigation[
 			self.project_list_instance.nav_index]
 		self.project_list.set_current_project(project)
@@ -65,7 +67,8 @@ class UrtextNavigation(UrtextExtension):
 			# don't re-remember consecutive duplicate links
 			if (-1 < self.project_list_instance.nav_index < len(
 				self.project_list_instance.navigation) and 
-				node_id == last_id): return
+				node_id == last_id): 
+				return
 			# add the newly opened file as the new "HEAD"
 			self.project_list_instance.nav_index += 1
 			del self.project_list_instance.navigation[
@@ -77,13 +80,13 @@ class UrtextNavigation(UrtextExtension):
 	def on_file_deleted(self, filename):
 		return self.reverse()
 
-	def on_new_file_node(self, node_id):
-		self.on_node_visited(node_id)
-
 	def on_node_id_changed(self, old_id, new_id):
-		for index, item in enumerate(self.project_list_instance.navigation):
+		for index, item in enumerate(
+			self.project_list_instance.navigation):
 			project = item[0]
 			node_id = item[1]
-			if project == self.project_list.current_project.settings['project_title']:
-				if node_id == old_id:
-					self.project_list_instance.navigation[index] = (project, new_id)
+			if project == self.project_list.current_project.settings[
+				'project_title'] and ( 
+				node_id == old_id):
+					self.project_list_instance.navigation[
+						index] = (project, new_id)
