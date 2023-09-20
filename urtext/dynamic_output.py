@@ -29,7 +29,9 @@ else:
 
 class DynamicOutput():
 
-    def __init__(self, format_string, project_settings):
+    def __init__(self, 
+        format_string, 
+        project_settings):
 
         self.title = ''
         self.date = ''
