@@ -32,8 +32,10 @@ class ProjectList():
 
     def __init__(self, 
         entry_point,
-        editor_methods={}):
-    
+        editor_methods=None):
+   
+        if editor_methods == None:
+            editor_methods = {} 
         self.entry_point = entry_point
         self.projects = []
         self.extensions = {}
