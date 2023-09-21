@@ -117,7 +117,7 @@ class NodeMetadata:
         from_node=None, 
         recursive=False):
 
-        key = key.lower()
+        key = key.lower().strip()
         if value in self.get_values(key):
             return False
 
