@@ -184,18 +184,6 @@ class UrtextNode:
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
 
-    def strip_inline_nodes(self, contents='', preserve_length=False):
-        r = ' ' if preserve_length else ''
-        if contents == '':
-            contents = self.contents(
-                do_strip_embedded_syntaxes=False
-                )
-        
-        stripped_contents = contents
-        for inline_node in syntax.subnode_regexp.finditer(stripped_contents):
-            stripped_contents = stripped_contents.replace(inline_node.group(), r * len(inline_node.group()))
-        return stripped_contents
-
     def get_links(self, contents):
         links = syntax.node_link_or_pointer_c.finditer(contents)
         for link in links:

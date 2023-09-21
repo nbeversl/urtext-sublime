@@ -936,10 +936,6 @@ class UrtextProject:
                 'dest_position' : dest_position,
                 'full_match' : full_match,
                 }
-
-    def get_node_contents(self, node_id):
-        if node_id in self.nodes:
-            return self.nodes[node_id].contents()
             
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
