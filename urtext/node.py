@@ -133,10 +133,7 @@ class UrtextNode:
             node_contents.append(this_range)
         node_contents = ''.join(node_contents)
         node_contents = strip_wrappers(node_contents)
-        if do_strip_embedded_syntaxes:
-            node_contents = strip_embedded_syntaxes(
-                node_contents,
-                preserve_length=preserve_length)
+                
         if strip_first_line_title:
             node_contents = self.strip_first_line_title(node_contents)
 

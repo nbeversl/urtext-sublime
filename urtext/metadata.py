@@ -199,7 +199,6 @@ class NodeMetadata:
         convert_nodes_to_links=False):
 
         values = []
-        keyname = keyname.lower()
         entries = self.get_entries(keyname)
 
         if use_timestamp:
@@ -231,7 +230,6 @@ class NodeMetadata:
         return all_entries
 
     def get_matching_entries(self, keyname, value):
-        keyname = keyname.lower() 
         entries = self.get_entries(keyname)
         matching_entries = []
         if entries:
@@ -248,7 +246,6 @@ class NodeMetadata:
         """
         Returns the timestamp of the FIRST matching metadata entry with the given key.
         """
-        keyname = keyname.lower()
         entries = self.get_entries(keyname)
         if entries and entries[0].timestamps:
             return entries[0].timestamps[0].datetime
@@ -304,7 +301,7 @@ class MetadataEntry:  # container for a single metadata entry
         end_position=None, 
         from_node=None):
 
-        self.keyname = keyname.strip().lower() # string
+        self.keyname = keyname
         self.string_contents = contents
         self.value = ''
         self.recursive=recursive
