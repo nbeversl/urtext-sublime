@@ -202,7 +202,7 @@ class NodeMetadata:
         entries = self.get_entries(keyname)
 
         if use_timestamp:
-            values = [e.timestamps for e in entries]
+            return [e.timestamps for e in entries]
         else:
             values = [e.value for e in entries]        
         if convert_nodes_to_links:

@@ -1278,7 +1278,8 @@ class UrtextProject:
 
             return set([])
 
-        if key == '_contents' and operator == '?': # `=` not currently implemented
+        if key == '_contents' and operator == '?': 
+            # `=` not currently implemented
             for node in list(self.nodes.values()):
                 if node.dynamic:
                     continue
@@ -1306,14 +1307,13 @@ class UrtextProject:
         
         if key == '*':
             keys = self.get_all_keys()
-        
         else:
             keys = [key]
 
         for k in keys:
             for value in values:
 
-                if value in ['*']:
+                if value == '*':
                     results = results.union(
                         set(n for n in list(self.nodes) if n in self.nodes 
                             and self.nodes[n].metadata.get_values(k))
