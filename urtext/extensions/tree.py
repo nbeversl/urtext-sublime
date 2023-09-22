@@ -13,6 +13,7 @@ class UrtextAnyTree(UrtextExtension):
     def on_file_added(self, filename):
         for node in self.project.files[filename].nodes:
             node.tree_node = Node(node.id)
+            node.tree_node.position = self.project.nodes[node.id].start_position()
         for node in self.project.files[filename].nodes:
             for pointer in node.pointers:
                 alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 

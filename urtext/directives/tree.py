@@ -47,18 +47,12 @@ class Tree(UrtextDirective):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
-            #DEBUGGING ONLY
-            for n in this_node.children:
-                if n.name not in self.project.nodes:                
-                    try:
-                        s = n.position
-                    except:
-                        print(n, ' has no position')
-
+            #TODO implement better ?
+            #currently mixes nodes with pointers
             this_node.children = sorted(
                 this_node.children,
                 key=lambda n: self.project.nodes[n.name].start_position() if (
-                    n.name in self.project.nodes ) else 0)
+                    n.name in self.project.nodes ) else n.position)
 
             indented_pre = '  ' + pre
             
