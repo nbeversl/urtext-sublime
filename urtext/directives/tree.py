@@ -47,19 +47,11 @@ class Tree(UrtextDirective):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
-            #TODO implement better ?
-            #currently mixes nodes with pointers
-            this_node.children = sorted(
-                this_node.children,
-                key=lambda n: self.project.nodes[n.name].start_position() if (
-                    n.name in self.project.nodes ) else n.position)
-
-            indented_pre = '  ' + pre
-            
             if self._tree_node_is_excluded(this_node):
                 this_node.children = []
                 continue
 
+            # handle pointers
             if this_node.name[:5] == 'ALIA$':
                 if this_node.name[5:] not in self.project.nodes:
                     tree_render += "%s%s" % (
@@ -87,6 +79,15 @@ class Tree(UrtextDirective):
 
                 urtext_node = self.project.nodes[this_node.name]
             
+            #TODO implement better ?
+            #currently mixes nodes with pointers
+            this_node.children = sorted(
+                this_node.children,
+                key=lambda n: self.project.nodes[n.name].start_position() if (
+                    n.name in self.project.nodes ) else n.position)
+
+            indented_pre = '  ' + pre
+
             next_content = DynamicOutput(
                 self.dynamic_definition.show, 
                 self.project.settings)
