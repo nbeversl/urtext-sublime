@@ -196,7 +196,6 @@ metadata_ops = re.compile(r'(' + r'|'.join([
             metadata_op_contains,
             metadata_op_is_like
         ]) + r')')
-dd_key_value = r'(\w+)\s*(' + r'|'.join([
 
 metadata_ops_or_c = re.compile(metadata_ops_or)
 metadata_separator_pattern_c = re.compile(metadata_separator_pattern)
