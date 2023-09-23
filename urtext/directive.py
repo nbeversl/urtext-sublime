@@ -12,9 +12,10 @@ class UrtextDirective():
     phase = 0
     def __init__(self, project):
         
-        self.keys = []
         self.flags = []
         self.params = []
+        self.keys = []
+        self.links = []
         self.arguments = []
         self.params_dict = {}
         self.project = project
@@ -64,9 +65,11 @@ class UrtextDirective():
 
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
-        self._parse_flags(argument_string)
-        self._parse_keys(argument_string)
-        
+        argument_string = self._parse_flags(argument_string)
+        argument_string = self._parse_keys(argument_string)
+        argument_string = self._parse_links(argument_string)
+
+        # keys, values
         for argument in [
             r.strip() for r in syntax.metadata_arg_delimiter_c.split(
                 argument_string)]:
