@@ -27,10 +27,12 @@ class UrtextNavigation(UrtextExtension):
 			else: 
 				self.project_list_instance.nav_index += 1
 
-			if self.project_list_instance.nav_index == len(
+			if self.project_list_instance.nav_index >= len(
 				self.project_list_instance.navigation):
 					self.project_list_instance.nav_index -= 1			
-					return print('index is already at the end')
+					return self.project_list.current_project.run_editor_method(
+						'popup',
+						'index is already at the end')
 
 			project, next_node = self.project_list_instance.navigation[
 				self.project_list_instance.nav_index]
@@ -40,11 +42,15 @@ class UrtextNavigation(UrtextExtension):
 
 	def reverse(self):
 		if not self.project_list_instance.navigation:
-			return print('no nav history')
+			return self.project_list.current_project.run_editor_method(
+				'popup',
+				'no nav history')
 		if self.project_list_instance.nav_index > -1:
 			self.project_list_instance.nav_index -= 1
 		if self.project_list_instance.nav_index == -1:
-			return print('index is already at the beginning.')
+			return self.project_list.current_project.run_editor_method(
+				'popup',
+				'index is already at the beginning.')
 		project, previous_node = self.project_list_instance.navigation[
 			self.project_list_instance.nav_index]
 		self.project_list.set_current_project(project)
