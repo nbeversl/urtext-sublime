@@ -51,39 +51,37 @@ class UrtextNavigation(UrtextExtension):
 			return self.project_list.current_project.run_editor_method(
 				'popup',
 				'index is already at the beginning.')
-		self.navigate_to_index()
-
-	def navigate_to_index(self):
-		project, next_node = self.project_list_instance.navigation[
+		project, previous_node = self.project_list_instance.navigation[
 			self.project_list_instance.nav_index]
 		self.project_list.set_current_project(project)
 		self.project_list_instance.triggered_node_visit = True
-		self.project_list.current_project.open_node(next_node)
+		self.project_list.current_project.open_node(previous_node)
 
 	def on_node_visited(self, node_id):
 		if self.project_list_instance.triggered_node_visit:
 			self.project_list_instance.triggered_node_visit = False
 			return
-		if self.project_list_instance.navigation:
-			project, last_id = self.project_list_instance.navigation[
-				self.project_list_instance.nav_index]
-		else:
-			project = self.project_list.current_project
-			last_id = None
+	
+		if node_id in self.project_list.current_project.nodes:
+			if self.project_list_instance.navigation:
+				project, last_id = self.project_list_instance.navigation[
+					self.project_list_instance.nav_index]
+			else:
+				project = self.project_list.current_project
+				last_id = None
 
-		# don't re-remember consecutive duplicate links
-		if (-1 < self.project_list_instance.nav_index < len(
-			self.project_list_instance.navigation) and 
-			node_id == last_id):
-			return
-
-		# add the newly opened file as the new "HEAD"
-		self.project_list_instance.navigation = self.project_list_instance.navigation[
-			:self.project_list_instance.nav_index+1]
-		self.project_list_instance.navigation.append((
-			self.project_list.current_project.settings['project_title'],
-			node_id))
-		self.project_list_instance.nav_index += 1
+			# don't re-remember consecutive duplicate links
+			if (-1 < self.project_list_instance.nav_index < len(
+				self.project_list_instance.navigation) and 
+				node_id == last_id): 
+				return
+			# add the newly opened file as the new "HEAD"
+			self.project_list_instance.nav_index += 1
+			del self.project_list_instance.navigation[
+				self.project_list_instance.nav_index:]
+			self.project_list_instance.navigation.append((
+				self.project_list.current_project.settings['project_title'],
+				node_id))
 
 	def on_file_deleted(self, filename):
 		return self.reverse()
