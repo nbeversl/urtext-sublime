@@ -16,17 +16,29 @@ class UrtextNavigation(UrtextExtension):
 			self.project_list_instance.navigation = []
 			self.project_list_instance.nav_index = -1
 			self.project_list_instance.triggered_node_visit = False
+		self.project_list_instance = project.project_list.extensions['NAVIGATION']
 
 	def forward(self):
-		if self.project_list_instance:			
-			if self.project_list_instance.nav_index == len(
-				self.project_list_instance.navigation) - 1:
+
+		if self.project_list_instance:
+			
+			if self.project_list_instance.nav_index == -1:
+				self.project_list_instance.nav_index = 1
+			else: 
+				self.project_list_instance.nav_index += 1
+
+			if self.project_list_instance.nav_index >= len(
+				self.project_list_instance.navigation):
+					self.project_list_instance.nav_index -= 1			
 					return self.project_list.current_project.run_editor_method(
 						'popup',
 						'index is already at the end')
-			self.project_list_instance.nav_index += 1
-		self.navigate_to_index()
 
+			project, next_node = self.project_list_instance.navigation[
+				self.project_list_instance.nav_index]
+			self.project_list.set_current_project(project)
+			self.project_list_instance.triggered_node_visit = True
+			self.project_list.current_project.open_node(next_node)
 
 	def reverse(self):
 		if not self.project_list_instance.navigation:
