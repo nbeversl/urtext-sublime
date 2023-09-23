@@ -85,7 +85,17 @@ class UrtextDirective():
         
     def _parse_flags(self, argument_string):
         for f in syntax.dd_flag_c.finditer(argument_string):
-            self.flags.append(f.group().strip())
+            flag = f.group().strip()
+            self.flags.append(flag)
+            argument_string = argument_string.replace(flag, '')
+        return argument_string
+
+    def _parse_links(self, argument_string):
+        for l in syntax.any_link_or_pointer_c.finditer(argument_string):
+            link = l.group().strip()
+            self.links.append(link)
+            argument_string = argument_string.replace(link, '')
+        return argument_string
 
     def have_flags(self, flags):
         for f in force_list(flags):
@@ -103,8 +113,11 @@ class UrtextDirective():
         return False
 
     def _parse_keys(self, argument_string):
-        for f in syntax.dd_key_c.finditer(argument_string):
-            self.keys.append(f.group().strip())
+        for k in syntax.dd_key_c.finditer(argument_string):
+            key = k.group().strip()
+            self.keys.append(key)
+            argument_string = argument_string.replace(key, '')
+        return argument_string
 
 def key_value(param, operators):
     operator = operators.search(param)

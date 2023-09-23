@@ -130,7 +130,10 @@ any_link_or_pointer = r''.join([
 compact_node = bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
-node_link = r'(\|\s)(' + id_pattern + ')\s>(?!>)'
+node_link = ''.join([
+    node_link_opening_wrapper_match,
+    '(',
+    id_pattern + ')\s>(?!>)' ])
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 node_link_or_pointer = node_link_opening_wrapper_match + '(' + id_pattern + ')\s(>{1,2})(\:\d{1,99})?(?!>)'
 node_action_link = r''.join([
@@ -193,6 +196,7 @@ metadata_ops = re.compile(r'(' + r'|'.join([
             metadata_op_contains,
             metadata_op_is_like
         ]) + r')')
+dd_key_value = r'(\w+)\s*(' + r'|'.join([
 
 metadata_ops_or_c = re.compile(metadata_ops_or)
 metadata_separator_pattern_c = re.compile(metadata_separator_pattern)
