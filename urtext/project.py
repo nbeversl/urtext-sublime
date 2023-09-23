@@ -1132,7 +1132,7 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        if node_id in self.nodes and self.compiled:
+        if node_id:
             filename = self.nodes[node_id].filename
             self._run_hook('on_node_visited', node_id)
             for dd in list(self.dynamic_definitions.values()):
