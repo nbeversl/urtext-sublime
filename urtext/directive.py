@@ -65,9 +65,9 @@ class UrtextDirective():
 
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
+        argument_string = self._parse_links(argument_string)
         argument_string = self._parse_flags(argument_string)
         argument_string = self._parse_keys(argument_string)
-        argument_string = self._parse_links(argument_string)
 
         # keys, values
         for argument in [

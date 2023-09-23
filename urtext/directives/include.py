@@ -3,9 +3,12 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directive import UrtextDirective
 	import Urtext.urtext.syntax as syntax
+	from Urtext.urtext.utils import force_list, get_id_from_link
+
 else:
 	from urtext.directive import UrtextDirective
 	import urtext.syntax as syntax
+	from urtext.utils import force_list, get_id_from_link
 
 class NodeQuery(UrtextDirective):
 
@@ -14,12 +17,11 @@ class NodeQuery(UrtextDirective):
 
 	def build_list(self, passed_nodes):
 		added_nodes = []
-		
+
+		for link in self.links:
+			added_nodes.append(get_id_from_link(link))
+
 		for arg in self.arguments:
-			node_link = syntax.node_link_c.match(self.argument_string)
-			if node_link:
-				added_nodes.append(node_link.group(2))
-				break
 
 			if re.match(syntax.virtual_target_marker+'self', arg):
 				added_nodes.append(self.dynamic_definition.source_id)
