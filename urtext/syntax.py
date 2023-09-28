@@ -61,7 +61,7 @@ http_link_opening_wrapper = ''.join([
 bullet = r'^([^\S\n]*?)•'
 closing_wrapper = r'(?<!\\)' + re.escape(node_closing_wrapper)
 dd_flag = r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
-dd_key = r'(^|\s)[\w_]+(\s|$)'
+dd_key = r'(^|\s)[\w\._]+(\s|$)'
 dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break
@@ -130,7 +130,10 @@ any_link_or_pointer = r''.join([
 compact_node = bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.+?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
-node_link = r'(\|\s)(' + id_pattern + ')\s>(?!>)'
+node_link = ''.join([
+    node_link_opening_wrapper_match,
+    '(',
+    id_pattern + ')\s>(?!>)' ])
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 node_link_or_pointer = node_link_opening_wrapper_match + '(' + id_pattern + ')\s(>{1,2})(\:\d{1,99})?(?!>)'
 node_action_link = r''.join([

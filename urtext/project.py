@@ -78,6 +78,7 @@ class UrtextProject:
         self.files = {}
         self.exports = {}
         self.messages = {}
+        self.project_keys = {}
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
@@ -244,7 +245,12 @@ class UrtextProject:
                 self.dynamic_metadata_entries.append(entry)
 
         if self.compiled and changed_ids:
+            for node_id in changed_ids:
+                self._run_hook('on_node_id_changed',
+                    node_id,
+                    changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
+            self._build_meta_key_ref()
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -944,10 +950,6 @@ class UrtextProject:
                 'dest_position' : dest_position,
                 'full_match' : full_match,
                 }
-
-    def get_node_contents(self, node_id):
-        if node_id in self.nodes:
-            return self.nodes[node_id].contents()
             
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
@@ -1166,11 +1168,13 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        self._run_hook('on_node_visited', node_id)
-        for dd in list(self.dynamic_definitions.values()):
-            for op in dd.operations:
-                op.on_node_visited(node_id)      
-        self._visit_file(self.nodes[node_id].filename)
+        if node_id:
+            filename = self.nodes[node_id].filename
+            self._run_hook('on_node_visited', node_id)
+            for dd in list(self.dynamic_definitions.values()):
+                for op in dd.operations:
+                    op.on_node_visited(node_id)
+            self._visit_file(filename)
 
     def visit_file(self, filename):
         return self.execute(
@@ -1268,6 +1272,14 @@ class UrtextProject:
             )
         return list(set(keys))
 
+    def _build_meta_key_ref(self):
+        self.project_keys = {}
+        for n in list(self.nodes):
+            keys = self.nodes[n].metadata.get_keys()
+            for key in keys:
+                self.project_keys.setdefault(key, [])
+                self.project_keys[key].append(n)
+
     def get_all_values_for_key(self, key, lower=False):
         entries = []
         for node in self.nodes.values():
@@ -1312,7 +1324,8 @@ class UrtextProject:
 
             return set([])
 
-        if key == '_contents' and operator == '?': # `=` not currently implemented
+        if key == '_contents' and operator == '?': 
+            # `=` not currently implemented
             for node in list(self.nodes.values()):
                 if node.dynamic:
                     continue
@@ -1340,14 +1353,13 @@ class UrtextProject:
         
         if key == '*':
             keys = self.get_all_keys()
-        
         else:
             keys = [key]
 
         for k in keys:
             for value in values:
 
-                if value in ['*']:
+                if value == '*':
                     results = results.union(
                         set(n for n in list(self.nodes) if n in self.nodes 
                             and self.nodes[n].metadata.get_values(k))
@@ -1375,11 +1387,13 @@ class UrtextProject:
                 else:
                     if isinstance(value, str):
                         value = value.lower()
-                    results = results.union(set(
-                        n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
-                            k,
-                            use_timestamp=use_timestamp, 
-                            lower=True)))
+
+                    if k in self.project_keys:
+                        results = results.union(set(
+                            n for n in self.project_keys[k] if value in self.nodes[n].metadata.get_values(
+                                k,
+                                use_timestamp=use_timestamp, 
+                                lower=True)))
         
         return results
 
@@ -1410,6 +1424,7 @@ class UrtextProject:
         for file in list(self.files):
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
+        self._build_meta_key_ref()
 
     def _compile_file(self, filename, events=[]):
         modified_targets = []

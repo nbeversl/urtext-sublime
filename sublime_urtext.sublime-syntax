@@ -229,7 +229,7 @@ contexts:
 
   var-word:
     - meta_scope: format-string.urtext
-    - match: \$[A-Za-z0-9_-]+
+    - match: \$[A-Za-z0-9_-]+[\.A-Za-z0-9_-]*
       scope: dynamic-def-format-var.urtext
 
   # Node Nesting

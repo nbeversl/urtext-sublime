@@ -98,7 +98,7 @@ class Collect:
 								syntax.node_closing_wrapper)
 
 						# this will be position in NODE, not FILE:
-						found_item['position'] = str(entry.position)                         
+						found_item['position'] = str(entry.position + 1)
 						found_stuff.append(found_item)
 	
 		if not found_stuff:
@@ -141,17 +141,12 @@ class Collect:
 					contents = contents.replace('\n\n', '\n')
 				next_content.contents = contents
 
+				#TODO refactor with same in tree.py
 				for meta_key in next_content.needs_other_format_keys:
-					values = self.project.nodes[
-						item['node_id']
-						].metadata.get_values(
-							meta_key,
-							convert_nodes_to_links=True
-							) #, substitute_timestamp=True)
-					replacement = ''
-					if values:
-						 replacement = ' - '.join(values)
-					next_content.other_format_keys[meta_key] = replacement
+					next_content.other_format_keys[
+                    meta_key] = self.project.nodes[
+						item['node_id']].get_extended_values(
+                        meta_key)
 
 				collection.extend([next_content.output()])
 

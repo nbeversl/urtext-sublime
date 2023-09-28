@@ -29,11 +29,14 @@ else:
 
 class DynamicOutput():
 
-    def __init__(self, format_string, project_settings):
+    def __init__(self, 
+        format_string, 
+        project_settings):
 
         self.title = ''
         self.date = ''
         self.link = ''
+        self.pointer = ''
         self.meta = ''
         self.entry = ''
         self.key = ''
@@ -69,6 +72,7 @@ class DynamicOutput():
         defined_list = [
             'title',
             '_link',
+            '_pointer',
             '_date',
             '_meta',
             '_contents',
@@ -95,13 +99,28 @@ class DynamicOutput():
 
     def output(self):
         
-        self.item_format = self.item_format.replace(self.shah + '$title', self.title)
-        self.item_format = self.item_format.replace(self.shah + '$_link', self.link)
-        self.item_format = self.item_format.replace(self.shah + '$_date', self.date)
-        self.item_format = self.item_format.replace(self.shah + '$_meta', self.meta)
-        self.item_format = self.item_format.replace(self.shah + '$_entry', self.entry)
+        self.item_format = self.item_format.replace(
+            self.shah + '$title', 
+            self.title)
+        self.item_format = self.item_format.replace(
+            self.shah + '$_link', 
+            self.link)
+        self.item_format = self.item_format.replace(
+            self.shah + '$_pointer', 
+            self.pointer)
+        self.item_format = self.item_format.replace(
+            self.shah + '$_date', 
+            self.date)
+        self.item_format = self.item_format.replace(
+            self.shah + '$_meta', 
+            self.meta)
+        self.item_format = self.item_format.replace(
+            self.shah + '$_entry', 
+            self.entry)
 
-        contents_syntax = re.compile(self.shah+'\$_contents'+'(:\d*)?', re.DOTALL)      
+        contents_syntax = re.compile(
+            self.shah+'\$_contents'+'(:\d*)?', 
+            re.DOTALL)      
         contents_match = re.search(contents_syntax, self.item_format)
 
         if contents_match:

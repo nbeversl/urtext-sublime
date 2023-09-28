@@ -47,25 +47,11 @@ class Tree(UrtextDirective):
                 style=ContStyle, 
                 maxlevel=self.depth):
 
-            #DEBUGGING ONLY
-            for n in this_node.children:
-                if n.name not in self.project.nodes:                
-                    try:
-                        s = n.position
-                    except:
-                        print(n, ' has no position')
-
-            this_node.children = sorted(
-                this_node.children,
-                key=lambda n: self.project.nodes[n.name].start_position() if (
-                    n.name in self.project.nodes ) else 0)
-
-            indented_pre = '  ' + pre
-            
             if self._tree_node_is_excluded(this_node):
                 this_node.children = []
                 continue
 
+            # handle pointers
             if this_node.name[:5] == 'ALIA$':
                 if this_node.name[5:] not in self.project.nodes:
                     tree_render += "%s%s" % (
@@ -93,13 +79,21 @@ class Tree(UrtextDirective):
 
                 urtext_node = self.project.nodes[this_node.name]
             
+            #TODO implement better ?
+            #currently mixes nodes with pointers
+            this_node.children = sorted(
+                this_node.children,
+                key=lambda n: self.project.nodes[n.name].start_position() if (
+                    n.name in self.project.nodes ) else n.position)
+
+            indented_pre = '  ' + pre
+
             next_content = DynamicOutput(
                 self.dynamic_definition.show, 
                 self.project.settings)
 
             next_content.title = urtext_node.title
            
-        
             link = []
             #TODO refactor
             if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
@@ -108,6 +102,12 @@ class Tree(UrtextDirective):
                 link.append(syntax.link_opening_wrapper)
             link.append(urtext_node.id + syntax.link_closing_wrapper)
             next_content.link = ''.join(link)
+
+            next_content.pointer = ''.join([
+                syntax.link_opening_wrapper,
+                urtext_node.id,
+                syntax.pointer_closing_wrapper
+                ])
 
             next_content.date = urtext_node.get_date(
                 self.project.settings[
