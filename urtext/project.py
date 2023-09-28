@@ -78,7 +78,6 @@ class UrtextProject:
         self.files = {}
         self.exports = {}
         self.messages = {}
-        self.project_keys = {}
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
@@ -247,7 +246,6 @@ class UrtextProject:
                     node_id,
                     changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
-            self._build_meta_key_ref()
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -1239,14 +1237,6 @@ class UrtextProject:
             )
         return list(set(keys))
 
-    def _build_meta_key_ref(self):
-        self.project_keys = {}
-        for n in list(self.nodes):
-            keys = self.nodes[n].metadata.get_keys()
-            for key in keys:
-                self.project_keys.setdefault(key, [])
-                self.project_keys[key].append(n)
-
     def get_all_values_for_key(self, key, lower=False):
         entries = []
         for node in self.nodes.values():
@@ -1353,13 +1343,11 @@ class UrtextProject:
                 else:
                     if isinstance(value, str):
                         value = value.lower()
-
-                    if k in self.project_keys:
-                        results = results.union(set(
-                            n for n in self.project_keys[k] if value in self.nodes[n].metadata.get_values(
-                                k,
-                                use_timestamp=use_timestamp, 
-                                lower=True)))
+                    results = results.union(set(
+                        n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
+                            k,
+                            use_timestamp=use_timestamp, 
+                            lower=True)))
         
         return results
 
@@ -1391,7 +1379,6 @@ class UrtextProject:
         for file in list(self.files):
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
-        self._build_meta_key_ref()
 
     def _compile_file(self, filename, events=[]):
         modified_targets = []
