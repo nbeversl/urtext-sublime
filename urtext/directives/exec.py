@@ -14,10 +14,12 @@ else:
 
 python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
 
-class Exec(UrtextDirective):
+class Exec:
 
 	name = ["EXEC"]
 	phase = 350
+	UrtextExtension = UrtextExtension
+	UrtextDirective = UrtextDirective
 
 	def dynamic_output(self, input_contents):
 		node_to_exec = get_id_from_link(self.argument_string)
@@ -34,7 +36,7 @@ class Exec(UrtextDirective):
 				localsParameter = {
 					'ThisProject' : self.project,
 					'UrtextDirective' : self.UrtextDirective,
-					'UrtextExtension' : UrtextExtension,
+					'UrtextExtension' : self.UrtextExtension,
 				}
 				try:
 					exec(python_code, {}, localsParameter)

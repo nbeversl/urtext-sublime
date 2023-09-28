@@ -104,9 +104,7 @@ class UrtextProject:
             'extensions')
 
         self._get_extensions_from_folder(extensions_folder)
-        print(self.extensions)
         self._get_directives_from_folder(directives_folder)
-        print(self.directives)
         
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
@@ -1047,10 +1045,10 @@ class UrtextProject:
                     if not isinstance(directives, list):
                         directives = [directives]
                     for d in directives:
-                        for n in d.name:
-                            self.directives[n] = make_directive(d)
-                                                
-            
+                        new_directive = make_directive(d)
+                        for n in d.name:                            
+                            self.directives[n] = new_directive
+                                                            
     def _get_extensions_from_folder(self, folder):
         if os.path.exists(folder):
             sys.path.append(folder)

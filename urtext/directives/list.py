@@ -11,7 +11,7 @@ class NodeList:
 	
 	def __init__(self, project):
 		super().__init__(project)
-		self.tree = Tree(self.project)
+		self.tree = Tree(project)
 
 	def dynamic_output(self, node_list):
 
