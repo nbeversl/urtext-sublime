@@ -104,7 +104,7 @@ class UrtextProject:
             'extensions')
 
         self._get_extensions_from_folder(extensions_folder)
-        #print(self.extensions)
+        print(self.extensions)
         self._get_directives_from_folder(directives_folder)
         print(self.directives)
         

@@ -1,24 +1,19 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
-    from ..dynamic_output import DynamicOutput
-    from ..directive import UrtextDirective
-    import Urtext.urtext.syntax as syntax
+    from Urtext.urtext.dynamic_output import DynamicOutput
 else:
     from anytree import Node, RenderTree, PreOrderIter
     from anytree.render import ContStyle
     from urtext.dynamic_output import DynamicOutput
-    from urtext.directive import UrtextDirective
-    import urtext.syntax as syntax
 """
 Tree
 """   
-
-class Tree(UrtextDirective):
+class Tree:
 
     phase = 310
+    name = ["TREE"]
     
     def __init__(self, project):
         super().__init__(project)
@@ -59,9 +54,9 @@ class Tree(UrtextDirective):
                         ''.join([
                             this_node.name[5:],
                             ' ',
-                            syntax.urtext_message_opening_wrapper,
+                            self.syntax.urtext_message_opening_wrapper,
                             ' NOT IN PROJECT ',
-                            syntax.urtext_message_closing_wrapper,
+                            self.syntax.urtext_message_closing_wrapper,
                             '\n']
                             ))
                     continue
@@ -99,14 +94,14 @@ class Tree(UrtextDirective):
             if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
                 link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
             else:
-                link.append(syntax.link_opening_wrapper)
-            link.append(urtext_node.id + syntax.link_closing_wrapper)
+                link.append(self.syntax.link_opening_wrapper)
+            link.append(self.urtext_node.id + self.syntax.link_closing_wrapper)
             next_content.link = ''.join(link)
 
             next_content.pointer = ''.join([
-                syntax.link_opening_wrapper,
+                self.syntax.link_opening_wrapper,
                 urtext_node.id,
-                syntax.pointer_closing_wrapper
+                self.syntax.pointer_closing_wrapper
                 ])
 
             next_content.date = urtext_node.get_date(
@@ -211,3 +206,5 @@ class Tree(UrtextDirective):
                 new_node.parent = new_root
 
         return new_root
+
+urtext_directives=[ Tree ]
