@@ -1,12 +1,10 @@
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.directive import UrtextDirective
-	from .tree import Tree
+	from Urtext.urtext.directives.tree_directive import Tree
 else:
-	from urtext.directive import UrtextDirective
 	from urtext.directives.tree import Tree
 
-class NodeList(UrtextDirective):
+class NodeList:
 
 	name = ["TREE"]    
 	phase = 300
@@ -38,3 +36,5 @@ class NodeList(UrtextDirective):
 
 	def on_file_modified(self, filename):
 		self.tree.on_file_modified(filename)
+
+urtext_directives = [NodeList]

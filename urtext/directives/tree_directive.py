@@ -13,7 +13,7 @@ Tree
 class Tree:
 
     phase = 310
-    name = ["TREE"]
+    #name = ["TREE"]
     
     def __init__(self, project):
         super().__init__(project)
@@ -206,5 +206,3 @@ class Tree:
                 new_node.parent = new_root
 
         return new_root
-
-urtext_directives=[ Tree ]
