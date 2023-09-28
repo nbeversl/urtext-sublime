@@ -147,7 +147,6 @@ class UrtextProject:
         
         self._compile() ## TODO fix
         if len(self.extensions) > 0 or len(self.directives) > 0:
-            self._collect_extensions_directives()
             self._compile()
 
         self.compiled = True
@@ -290,22 +289,6 @@ class UrtextProject:
                 if self.files[filename]._set_file_contents(contents):
                   self._parse_file(filename)
                   self.run_editor_method('refresh_open_file', filename)
-
-    # def _collect_extensions_directives(self):
-        
-    #     num_extensions = len(self.extensions)
-    #     num_directives = len(self.directives)
-
-    #     for c in all_subclasses(UrtextExtension):
-    #         for n in [x for x in c.name if x not in self.extensions]:
-    #             self.extensions[n] = c(self)
-
-    #     for c in all_subclasses(UrtextDirective):
-    #         for n in [x for x in c.name if x not in self.directives]:
-    #             self.directives[n] = c
-
-    #     if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
-    #         self._collect_extensions_directives()
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -1057,48 +1040,30 @@ class UrtextProject:
     def _get_directives_from_folder(self, folder):
         if os.path.exists(folder):
             sys.path.append(folder)
-            for module_file in os.listdir(folder):
-                if module_file in [".DS_Store", "__init__.py"] : continue
-                s = importlib.import_module(module_file.replace('.py',''))                   
-                for name, obj in inspect.getmembers(s):
-                    try:
-                        r = obj.__getattribute__(obj, 'name')
-                    except Exception as e: 
-                        #if module_file == "tree.py":
-                        print('SHIT!!')
-                        print(module_file)
-                        print(e)
-                        #continue
-                    try:
-                        for name in obj.name: 
-                            self.directives[name] = make_directive(obj)
-                    except Exception as e:
-                        print('SHIT!!')
-                        print(module_file)
-                        print(e)
-                        print(e)
-
-                        
-                        
+            for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
+                s = importlib.import_module(module_file.replace('.py',''))
+                if 'urtext_directives' in dir(s):
+                    directives = s.urtext_directives
+                    if not isinstance(directives, list):
+                        directives = [directives]
+                    for d in directives:
+                        for n in d.name:
+                            self.directives[n] = make_directive(d)
+                                                
             
     def _get_extensions_from_folder(self, folder):
         if os.path.exists(folder):
             sys.path.append(folder)
-            for module_file in os.listdir(folder):
-                if module_file in [".DS_Store", "__init__.py"] : continue
+            for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
                 s = importlib.import_module(module_file.replace('.py',''))
-                for name, obj in inspect.getmembers(s):
-                    if inspect.isclass(obj):
-                        try:
-                            r = obj.__getattribute__(obj, 'name')
-                        except Exception as e: 
-                            # print(e)
-                            # print('ERROR')
-                            # print(obj)
-                            continue
-                        for name in obj.name: 
-                            self.extensions[name] = make_extension(obj)(self)
- 
+                if 'urtext_extensions' in dir(s):
+                    extensions = s.urtext_extensions
+                    if not isinstance(extensions, list):
+                        extensions = [extensions]
+                    for e in extensions:
+                        for n in e.name:
+                            self.extensions[n] = make_extension(e)(self)
+
     def get_home(self):
         if self.settings['home'] in self.nodes:
             return self.settings['home']
@@ -1413,7 +1378,8 @@ class UrtextProject:
     def _run_hook(self, hook_name, *args):
         for ext in self.extensions.values():
             hook = getattr(ext, hook_name)
-            if callable(hook): hook(*args)
+            if callable(hook):
+                hook(*args)
 
     """ Project Compile """
 

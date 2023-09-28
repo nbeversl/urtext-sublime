@@ -19,3 +19,5 @@ class Log:
 	                '\n'
 	                ]))
 		return '\n'.join(output) + '\n'
+
+urtext_directives=[Log]

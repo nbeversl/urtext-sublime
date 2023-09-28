@@ -191,3 +191,5 @@ def contains_different_types(list_to_check):
 		if type(y) != i:
 			return True
 	return False
+
+urtext_directives = [Collect]

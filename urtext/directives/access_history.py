@@ -25,3 +25,5 @@ class AccessHistory:
     def dynamic_output(self, input_contents):
         return False
 
+urtext_directives=[AccessHistory]
+

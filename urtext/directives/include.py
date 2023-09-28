@@ -106,3 +106,5 @@ def _build_group_and(
 		new_group = new_group.intersection(this_set)
 	
 	return new_group
+
+urtext_directives=[Include, Exclude]

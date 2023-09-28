@@ -105,3 +105,5 @@ class Interlinks:
         render = render_upside_down + render
         render = render.split('\n')
         return '\n'.join(render)
+
+urtext_directives=[Interlinks]

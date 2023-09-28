@@ -47,3 +47,5 @@ class Exec(UrtextDirective):
 					return str(e)
 
 		return '(no Python code found)'
+
+urtext_directives=[Exec]

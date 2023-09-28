@@ -1,4 +1,4 @@
-class UrtextHeader:
+class Header:
 
     name = ["HEADER"]
     phase = 410
@@ -11,7 +11,7 @@ class UrtextHeader:
             header += '\n'
         return ''.join([header, contents])
 
-class UrtextFooter:
+class Footer:
 
     name = ["FOOTER"]
     phase = 420
@@ -19,3 +19,5 @@ class UrtextFooter:
     def dynamic_output(self, contents):
         footer = bytes(self.argument_string, "utf-8").decode("unicode_escape") + '\n'
         return ''.join([contents, footer])
+
+urtext_directives=[Header,Footer]

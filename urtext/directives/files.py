@@ -9,3 +9,5 @@ class UrtextFiles:
 		for f in file_list:
 			output.append(''.join(['|/ ',f,' >\n']))
 		return ''.join(output)
+
+urtext_directives=[UrtextFiles]

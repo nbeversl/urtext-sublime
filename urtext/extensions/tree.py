@@ -67,3 +67,5 @@ class UrtextAnyTree:
                     entry,
                     next_node=node_to_tag, 
                     visited_nodes=visited_nodes)
+
+urtext_extensions = [UrtextAnyTree]

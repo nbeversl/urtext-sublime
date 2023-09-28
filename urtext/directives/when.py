@@ -10,3 +10,5 @@ class When:
 			if flag in self.dynamic_definition.flags:
 				return True
 		return False
+
+urtext_directives = [ When ]

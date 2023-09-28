@@ -171,4 +171,6 @@ class PullNode:
 
         if root == True: return source_filename
         return None
+
+urtext_extensions = [PullNode, PopNode]
         

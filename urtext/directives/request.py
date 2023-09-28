@@ -13,3 +13,5 @@ class Request:
 			return '%%JSON\n'+ t +'\n%%\n'
 		except urllib.error.URLError:
 			return str(urllib.error.URLError)
+
+urtext_directives=[Request]

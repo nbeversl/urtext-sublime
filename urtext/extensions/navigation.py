@@ -1,4 +1,4 @@
-class UrtextNavigation:
+class Navigation:
 
 	name = ["NAVIGATION"]
 
@@ -84,3 +84,5 @@ class UrtextNavigation:
 				node_id == old_id):
 					self.project_list_instance.navigation[
 						index] = (project, new_id)
+
+urtext_extensions = [Navigation]

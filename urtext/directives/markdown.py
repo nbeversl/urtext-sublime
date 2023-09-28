@@ -40,3 +40,5 @@ def strip_leading_space(text):
             line = line.lstrip()
         result.append(line)
     return '\n'.join(result)
+
+urtext_directives=[MarkdownExport]

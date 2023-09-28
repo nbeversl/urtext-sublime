@@ -9,3 +9,5 @@ class Limit:
 			if number:
 				return nodes[:number]
 		return nodes
+
+urtext_directives=[Limit]

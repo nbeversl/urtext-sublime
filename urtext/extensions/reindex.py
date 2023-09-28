@@ -115,3 +115,5 @@ def strip_illegal_characters(filename):
     for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:
         filename = filename.replace(c,' ')
     return filename
+
+urtext_extensions = [ReindexFiles]

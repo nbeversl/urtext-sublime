@@ -39,3 +39,5 @@ class Sort:
 				return tuple([])
 			return tuple(nt)
 		return tuple(t)
+
+urtext_directives=[Sort]
