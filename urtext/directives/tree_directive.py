@@ -3,18 +3,23 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../
     from Urtext.anytree import Node, RenderTree, PreOrderIter
     from Urtext.anytree.render import ContStyle
     from Urtext.urtext.dynamic_output import DynamicOutput
+    from Urtext.urtext.directive import UrtextDirective
+
 else:
     from anytree import Node, RenderTree, PreOrderIter
     from anytree.render import ContStyle
     from urtext.dynamic_output import DynamicOutput
+    from urtext.directive import UrtextDirective
+
 """
 Tree
 """   
-class Tree:
+class Tree(UrtextDirective):
 
     phase = 310
     
     def __init__(self, project):
+        super().__init__(project)
         self.depth = 1
 
     def dynamic_output(self, start_point):
@@ -93,7 +98,7 @@ class Tree:
                 link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
             else:
                 link.append(self.syntax.link_opening_wrapper)
-            link.append(self.urtext_node.id + self.syntax.link_closing_wrapper)
+            link.append(urtext_node.id + self.syntax.link_closing_wrapper)
             next_content.link = ''.join(link)
 
             next_content.pointer = ''.join([

@@ -2,7 +2,8 @@ class Navigation:
 
 	name = ["NAVIGATION"]
 
-	def initialize(self, project):
+	def __init__(self, project):
+		super().__init__(project)
 		self.project_list = project.project_list
 		if 'NAVIGATION' not in project.project_list.extensions:
 			project.project_list.extensions['NAVIGATION'] = self
@@ -46,30 +47,32 @@ class Navigation:
 		self.project_list.current_project.open_node(previous_node)
 
 	def on_node_visited(self, node_id):
-		if self.project_list_instance.triggered_node_visit:
-			self.project_list_instance.triggered_node_visit = False
-			return
-	
-		if node_id in self.project_list.current_project.nodes:
-			if self.project_list_instance.navigation:
-				project, last_id = self.project_list_instance.navigation[
-					self.project_list_instance.nav_index]
-			else:
-				project = self.project_list.current_project
-				last_id = None
+		if self.project_list_instance:
 
-			# don't re-remember consecutive duplicate links
-			if (-1 < self.project_list_instance.nav_index < len(
-				self.project_list_instance.navigation) and 
-				node_id == last_id): 
+			if self.project_list_instance.triggered_node_visit:
+				self.project_list_instance.triggered_node_visit = False
 				return
-			# add the newly opened file as the new "HEAD"
-			self.project_list_instance.nav_index += 1
-			del self.project_list_instance.navigation[
-				self.project_list_instance.nav_index:]
-			self.project_list_instance.navigation.append((
-				self.project_list.current_project.settings['project_title'],
-				node_id))
+		
+			if node_id in self.project_list.current_project.nodes:
+				if self.project_list_instance.navigation:
+					project, last_id = self.project_list_instance.navigation[
+						self.project_list_instance.nav_index]
+				else:
+					project = self.project_list.current_project
+					last_id = None
+
+				# don't re-remember consecutive duplicate links
+				if (-1 < self.project_list_instance.nav_index < len(
+					self.project_list_instance.navigation) and 
+					node_id == last_id): 
+					return
+				# add the newly opened file as the new "HEAD"
+				self.project_list_instance.nav_index += 1
+				del self.project_list_instance.navigation[
+					self.project_list_instance.nav_index:]
+				self.project_list_instance.navigation.append((
+					self.project_list.current_project.settings['project_title'],
+					node_id))
 
 	def on_file_deleted(self, filename):
 		return self.reverse()

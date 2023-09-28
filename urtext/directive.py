@@ -8,7 +8,7 @@ else:
     from urtext.utils import force_list
     from urtext.dynamic_output import DynamicOutput
 
-class UrtextDirective():
+class UrtextDirective:
 
     phase = 0
     syntax = syntax
