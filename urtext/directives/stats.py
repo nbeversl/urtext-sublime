@@ -20,3 +20,5 @@ class UrtextStats:
 		contents.append('# dynamic defs : '+ str(len(self.project.dynamic_definitions)))
 		contents.append('compile time :' + str(self.project.last_compile_time))
 		return '\n'.join(contents)
+
+urtext_directives = UrtextStats
