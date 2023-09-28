@@ -6,8 +6,7 @@ class NodeQuery:
 	phase = 100
 
 	def build_list(self, passed_nodes):
-		added_nodes = self.links
-		
+		added_nodes = [l for l in self.links if l in self.project.nodes]		
 		for arg in self.arguments:
 
 			if re.match(self.syntax.virtual_target_marker+'self', arg):
