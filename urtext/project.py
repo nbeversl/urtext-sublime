@@ -137,9 +137,9 @@ class UrtextProject:
                     'To create one, press Ctrl-Shift-;'
                     ]))
 
-        for node_id in self.nodes:
-            self.nodes[node_id].metadata.convert_hash_keys()
-            self.nodes[node_id].metadata.convert_node_links()
+        for node in self.nodes.values():
+            node.metadata.convert_hash_keys()
+            node.metadata.convert_node_links()
 
         self._mark_dynamic_nodes()
         
@@ -1068,13 +1068,17 @@ class UrtextProject:
 
     def get_all_meta_pairs(self):
         pairs = []
-        for n in list(self.nodes):
-            for k in self.nodes[n].metadata.get_keys():
-               values = self.nodes[n].metadata.get_values(k)
+        for n in self.nodes.values():
+            for k in n.metadata.get_keys():
+               values = n.metadata.get_values(k)
                if k == '#':
                     k = self.settings['hash_key']
                for v in values:
-                    pairs.append(''.join([k, syntax.metadata_assignment_operator, str(v) ])  )
+                    pairs.append(''.join([
+                        k,
+                        syntax.metadata_assignment_operator,
+                        str(v)
+                        ]))
 
         return list(set(pairs))
 
@@ -1341,9 +1345,8 @@ class UrtextProject:
                 
                 if k in self.settings['case_sensitive']:
                     results = results.union(set(
-                        n for n in list(self.nodes) if (
-                            n in self.nodes) and (
-                            value in self.nodes[n].metadata.get_values(
+                        n for n in self.nodes.values() if (
+                            value in n.metadata.get_values(
                                 k,
                                 use_timestamp=use_timestamp))
                         ))
