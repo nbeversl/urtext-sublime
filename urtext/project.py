@@ -369,11 +369,10 @@ class UrtextProject:
                 message = ''.join([
                         'Dropping duplicate node ID "',
                         node_id,
-                        '", duplicated at ',
+                        '"\n',
+                        'duplicated at ',
                         syntax.link_opening_wrapper,
-                        ' ',
                         node_id,
-                        ' ',
                         syntax.link_closing_wrapper,
                         ])
                 self._log_item(file_obj.filename, message)
