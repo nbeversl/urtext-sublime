@@ -330,10 +330,10 @@ class UrtextProject:
         changed_ids = {}
         messages = []
         
-        # resolve duplicates in file
+        # resolve duplicates in same file
         file_node_ids = [n.id for n in file_obj.nodes]
         for node in list(file_obj.nodes):
-            if file_node_ids.count(node.id) > 1:
+            if node.id == '(untitled)' or file_node_ids.count(node.id) > 1:
                 resolved_new_id = node.resolve_duplicate_id()
                 if not resolved_new_id:
                     duplicate_nodes[node.id] = file_obj.filename
@@ -344,6 +344,7 @@ class UrtextProject:
                 changed_ids[node.id] = resolved_new_id
                 node.apply_id(resolved_new_id)
 
+        # resolve duplicates in project
         for node in list(file_obj.nodes):
             if self._is_duplicate_id(node.id):
                 resolved_existing_id = None

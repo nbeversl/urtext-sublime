@@ -161,7 +161,7 @@ class UrtextNode:
                     self.title,
                     syntax.parent_identifier,
                     self.parent.title
-                ]) 
+                ])
             if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
                 return resolved_id
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
