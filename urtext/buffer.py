@@ -3,11 +3,11 @@ import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .node import UrtextNode
-    from .utils import strip_backtick_escape
+    from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
 else:
     from urtext.node import UrtextNode
-    from urtext.utils import strip_backtick_escape
+    from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
 
 USER_DELETE_STRING = 'This message can be deleted.'
@@ -57,7 +57,7 @@ class UrtextBuffer:
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
 
                 if symbol_type == 'pointer':
-                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
+                    symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
@@ -78,7 +78,10 @@ class UrtextBuffer:
         last_position = start_position
         pointers = {}
         if from_compact:
-            unstripped_contents = re.sub(syntax.bullet, '', unstripped_contents)
+            unstripped_contents = re.sub(
+                syntax.bullet, 
+                '', 
+                unstripped_contents)
 
         for position in sorted(symbols.keys()):
 
