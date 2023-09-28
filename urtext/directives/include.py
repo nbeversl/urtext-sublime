@@ -6,13 +6,9 @@ class NodeQuery:
 	phase = 100
 
 	def build_list(self, passed_nodes):
-		added_nodes = []
+		added_nodes = self.links
 		
 		for arg in self.arguments:
-			node_link = self.syntax.node_link_c.match(self.argument_string)
-			if node_link:
-				added_nodes.append(node_link.group(2))
-				break
 
 			if re.match(self.syntax.virtual_target_marker+'self', arg):
 				added_nodes.append(self.dynamic_definition.source_id)

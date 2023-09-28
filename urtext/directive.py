@@ -1,11 +1,11 @@
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
-    from .utils import force_list
+    from .utils import force_list, get_id_from_link
     from Urtext.urtext.dynamic_output import DynamicOutput
 else:
     import urtext.syntax as syntax
-    from urtext.utils import force_list
+    from urtext.utils import force_list, get_id_from_link
     from urtext.dynamic_output import DynamicOutput
 
 class UrtextDirective:
@@ -17,6 +17,7 @@ class UrtextDirective:
     def __init__(self, project):
         self.keys = []
         self.flags = []
+        self.links = []
         self.params = []
         self.arguments = []
         self.params_dict = {}
@@ -67,8 +68,9 @@ class UrtextDirective:
 
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
-        self._parse_flags(argument_string)
-        self._parse_keys(argument_string)
+        argument_string = self._parse_links(argument_string)
+        argument_string = self._parse_flags(argument_string)
+        argument_string = self._parse_keys(argument_string)
         
         for argument in [
             r.strip() for r in self.syntax.metadata_arg_delimiter_c.split(
@@ -96,7 +98,7 @@ class UrtextDirective:
     def _parse_links(self, argument_string):
         for l in self.syntax.any_link_or_pointer_c.finditer(argument_string):
             link = l.group().strip()
-            self.links.append(link)
+            self.links.append(get_id_from_link(link))
             argument_string = argument_string.replace(link, '')
         return argument_string
 
