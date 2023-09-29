@@ -7,8 +7,8 @@ class NodeQuery:
 
 	def build_list(self, passed_nodes):
 		added_nodes = [l for l in self.links if l in self.project.nodes]		
-		for arg in self.arguments:
 
+		for arg in self.arguments:
 			if re.match(self.syntax.virtual_target_marker+'self', arg):
 				added_nodes.append(self.dynamic_definition.source_id)
 				break
