@@ -79,11 +79,10 @@ class UrtextDirective:
             if value:
                 for v in value:
                     self.params.append((key,v,operator))
-            elif key:
-                self.keys.append(key)
             else:
                 self.arguments.append(argument.strip())
 
+        argument_string = self._parse_keys(argument_string)
         for param in self.params:
             self.params_dict.setdefault(param[0], [])
             self.params_dict[param[0]].extend(param[1:])
