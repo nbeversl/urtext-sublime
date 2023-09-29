@@ -116,6 +116,13 @@ class UrtextDirective:
                 return True
         return False
 
+    def _parse_keys(self, argument_string):
+        for k in self.syntax.dd_key_c.finditer(argument_string):
+            key = k.group().strip()
+            self.keys.append(key)
+            argument_string = argument_string.replace(key, '', 1)
+        return argument_string
+
     def key_value(self, param, operators):
         operator = operators.search(param)
         if operator:
