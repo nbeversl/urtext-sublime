@@ -118,4 +118,4 @@ def strip_illegal_characters(filename):
         filename = filename.replace(c,' ')
     return filename
 
-urtext_extensions = [ReindexFiles]
+urtext_extensions = [ReindexFiles]urtext_extensions = [ReindexFiles, RenameSingleFile]
