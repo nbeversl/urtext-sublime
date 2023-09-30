@@ -324,7 +324,7 @@ class UrtextProject:
 
     def _check_file_for_duplicates(self, file_obj):
 
-        duplicate_nodes = {}
+        duplicate_nodes = []
         changed_ids = {}
         messages = []
         
@@ -332,15 +332,15 @@ class UrtextProject:
         file_node_ids = [n.id for n in file_obj.nodes]
         for node in list(file_obj.nodes):
             if node.id == '(untitled)' or file_node_ids.count(node.id) > 1:
-                resolved_new_id = node.resolve_duplicate_id()
-                if not resolved_new_id:
-                    duplicate_nodes[node.id] = file_obj.filename
+                resolved_id = node.resolve_duplicate_id()
+                if not resolved_id:
+                    duplicate_nodes.append(node.id)
                     messages.append(
                         'Cannot resolve duplicate ID in this file "%s"' % node.id)
                     del node
                     continue
-                changed_ids[node.id] = resolved_new_id
-                node.apply_id(resolved_new_id)
+                changed_ids[node.id] = resolved_id
+                node.apply_id(resolved_id)
 
         # resolve duplicates in project
         for node in list(file_obj.nodes):
@@ -356,27 +356,24 @@ class UrtextProject:
                 else:
                     resolved_id = node.resolve_duplicate_id()
                     if not resolved_id:
-                        duplicate_nodes[node.id] = file_obj.filename
+                        duplicate_nodes.append(node.id)
                         del node
                         continue
                     changed_ids[node.id] = resolved_id
                     node.apply_id(resolved_id)
 
         if duplicate_nodes:
-            for node_id in duplicate_nodes:
+            for duplicate in duplicate_nodes:
                 message = ''.join([
                         'Dropping duplicate node ID "',
-                        node_id,
+                        duplicate,
                         '"\n',
-                        'duplicated at ',
-                        syntax.link_opening_wrapper,
-                        node_id,
-                        syntax.link_closing_wrapper,
                         ])
                 self._log_item(file_obj.filename, message)
                 messages.append(message)
 
-        if messages: file_obj.write_messages(messages=messages)
+        if messages:
+            file_obj.write_messages(messages=messages)
         return changed_ids
 
     def _add_dynamic_definition(self, definition):
