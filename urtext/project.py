@@ -1129,13 +1129,19 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        if node_id:
+        if node_id in self.nodes and self.compiled:
             filename = self.nodes[node_id].filename
             self._run_hook('on_node_visited', node_id)
             for dd in list(self.dynamic_definitions.values()):
                 for op in dd.operations:
                     op.on_node_visited(node_id)
             self._visit_file(filename)
+            self.run_editor_method('status_message',
+                ''.join([
+                    'UrtextProject:',
+                    self.title(),
+                    ' (compiled)' if self.compiled else ' (compiling)'
+                    ]))
 
     def visit_file(self, filename):
         return self.execute(

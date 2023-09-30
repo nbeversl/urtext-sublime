@@ -102,6 +102,11 @@ def get_buffer(node_id=None):
             if view:
                 return view.substr(sublime.Region(0, view.size()))
 
+def show_status(message):
+    window = sublime.active_window()
+    if window:
+        window.status_message(message)
+
 
 def set_buffer(filename):    
     if sublime.active_window() and sublime.active_window().active_view():
@@ -172,7 +177,8 @@ editor_methods = {
     'popup' : show_popup,
     'refresh_open_file' : refresh_open_file,
     'close_current': close_current,
-    'write_to_console' : print
+    'write_to_console' : print,
+    'status_message' : show_status,
 }
 
 def refresh_project_text_command(change_project=True):
