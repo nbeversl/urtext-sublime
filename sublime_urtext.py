@@ -400,7 +400,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         row, col_pos = self.view.rowcol(click_position)
         full_line = self.view.substr(sublime.Region(full_line_region.a-1, full_line_region.b))
 
-        link = self._UrtextProjectList.handle_link(
+        link = _UrtextProjectList.handle_link(
             full_line,
             self.view.file_name(),
             col_pos=col_pos,
