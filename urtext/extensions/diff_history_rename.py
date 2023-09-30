@@ -1,3 +1,5 @@
+import os
+
 class UrtextHistoryDiffRename:
 
 	name = ["DIFF_HISTORY_RENAME"]

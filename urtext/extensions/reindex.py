@@ -1,3 +1,5 @@
+import os
+
 class ReindexFiles:
     """ 
     sorts all file-level nodes by their index, then passes
