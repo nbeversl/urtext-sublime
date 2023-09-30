@@ -2,7 +2,7 @@ import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.directives.tree_directive import Tree
 else:
-	from urtext.directives.tree import Tree
+	from urtext.directives.tree_directive import Tree
 
 class NodeList:
 
