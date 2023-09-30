@@ -13,8 +13,6 @@ class ReIndexFilesCommand(UrtextTextCommand):
             renamed_files=renamed_files.result()
         if renamed_files:
             for view in self.view.window().views():
-                if view.file_name() == None:
-                    continue
                 if view.file_name() in renamed_files:               
                     view.retarget(renamed_files[view.file_name()])
 

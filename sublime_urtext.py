@@ -203,12 +203,15 @@ def refresh_project_text_command(change_project=True):
 
             # get the current project first from the view
             if view.file_name():
-                _UrtextProjectList.set_current_project(os.path.dirname(view.file_name()))
+                _UrtextProjectList.set_current_project(
+                    os.path.dirname(view.file_name()))
            
             # then try the window
-            for folder in window.folders():
-                if _UrtextProjectList.set_current_project(folder): break
-            
+            else:
+                for folder in window.folders():
+                    if _UrtextProjectList.set_current_project(folder): 
+                        break
+
             # If there is a current project, return it
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
@@ -239,14 +242,14 @@ def refresh_project_event_listener(function):
             current_path = os.path.dirname(view.file_name())
             _UrtextProjectList.set_current_project(current_path)
             args[0]._UrtextProjectList = _UrtextProjectList
-            return function(args[0], view)
+            return function(*args)
 
         for folder in window.folders():
             if _UrtextProjectList.set_current_project(folder): break
 
         if _UrtextProjectList.current_project:
             args[0]._UrtextProjectList = _UrtextProjectList
-            return function(args[0], view)
+            return function(*args)
 
         return None
 
@@ -326,44 +329,14 @@ class UrtextEventListeners(EventListener):
     @refresh_project_event_listener
     def on_post_save(self, view):
         if view and view.file_name():
-            _UrtextProjectList.on_modified(view.file_name())
+            self._UrtextProjectList.on_modified(view.file_name())
 
     @refresh_project_event_listener
     def on_activated(self, view):
         if view.file_name():
-            _UrtextProjectList.visit_node(
+            self._UrtextProjectList.visit_node(
                 view.file_name(),
                 get_node_id(view))
-
-    def on_query_completions(self, view, prefix, locations):
-        
-        if _UrtextProjectList and _UrtextProjectList.current_project:
-            current_path = os.path.dirname(view.file_name())
-            if _UrtextProjectList.get_project(current_path):
-                subl_completions = []
-                proj_completions = _UrtextProjectList.get_all_meta_pairs()
-                for c in proj_completions:
-                    t = c.split('::')
-                    if len(t) > 1:
-                        subl_completions.append([t[1]+'\t'+c, c])
-                for t in _UrtextProjectList.current_project.title_completions():
-                    subl_completions.append([t[0],t[1]])
-                file_pos = view.sel()[0].a
-                full_line = view.substr(view.line(view.sel()[0]))
-
-                related_nodes =_UrtextProjectList.current_project.extensions['RAKE_KEYWORDS'].get_assoc_nodes(
-                    full_line, 
-                    view.file_name(), 
-                    file_pos)
-                if related_nodes:
-                    for n in list(set(related_nodes)):
-                        subl_completions.append([
-                            _UrtextProjectList.current_project.nodes[n].id, 
-                            _UrtextProjectList.current_project.nodes[n].id])
-                return (subl_completions, 
-                    sublime.INHIBIT_WORD_COMPLETIONS,
-                    sublime.DYNAMIC_COMPLETIONS
-                    )
 
     def on_hover(self, view, point, hover_zone):
         
@@ -412,7 +385,8 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, **kwargs):
 
-        if not _UrtextProjectList: return
+        if not _UrtextProjectList:
+            return
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
         file_pos = region.a
@@ -420,7 +394,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         row, col_pos = self.view.rowcol(click_position)
         full_line = self.view.substr(sublime.Region(full_line_region.a-1, full_line_region.b))
 
-        link = _UrtextProjectList.handle_link(
+        link = self._UrtextProjectList.handle_link(
             full_line,
             self.view.file_name(),
             col_pos=col_pos,
@@ -436,8 +410,8 @@ class NodeBrowserCommand(UrtextTextCommand):
                 
         self.window = self.view.window()
         self.menu = NodeBrowserMenu(
-            _UrtextProjectList, 
-            project=_UrtextProjectList.current_project)
+            self._UrtextProjectList, 
+            project=self._UrtextProjectList.current_project)
 
         self.selection_has_changed = False
         show_panel(
@@ -609,7 +583,7 @@ class NewFileNodeCommand(UrtextTextCommand):
             path = self.view.window().folders()[0]
         if not path:
             return
-        _UrtextProjectList.set_current_project(path)
+        self._UrtextProjectList.set_current_project(path)
         new_node = self._UrtextProjectList.current_project.new_file_node(path=path)
         new_view = self.view.window().open_file(new_node['filename'])
 
