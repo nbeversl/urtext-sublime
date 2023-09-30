@@ -585,20 +585,17 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command()
     def run(self):
-        buffer_contents = get_buffer()
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            buffer_contents,
+            get_buffer(),
             self.view.sel()[0].a)
 
 class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
     @refresh_project_text_command()
     def run(self):
-        if not self.window:
-            self.window = self.view.window()
-        node_id = get_node_id(self.window.active_view())
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            node_id,
+            get_buffer(),
+            self.view.sel()[0].a,
             include_project=True)
 
 class NewFileNodeCommand(UrtextTextCommand):
