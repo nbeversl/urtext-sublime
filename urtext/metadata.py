@@ -1,31 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .dynamic import UrtextDynamicDefinition
     from .timestamp import UrtextTimestamp, default_date
     import Urtext.urtext.syntax as syntax
+    from .metadata_entry import MetadataEntry
 else:
-    from urtext.dynamic import UrtextDynamicDefinition
     from urtext.timestamp import UrtextTimestamp, default_date
     import urtext.syntax as syntax
+    from urtext.metadata_entry import MetadataEntry
 
 class NodeMetadata:
 
@@ -289,70 +271,3 @@ class NodeMetadata:
     def log(self):
         for entry in self.all_entries():
             entry.log()
-
-class MetadataEntry:  # container for a single metadata entry
-    def __init__(self, 
-        keyname, 
-        contents, 
-        is_node=False,
-        as_int=False,
-        position=None,
-        recursive=False,
-        end_position=None, 
-        from_node=None):
-
-        self.keyname = keyname
-        self.string_contents = contents
-        self.value = ''
-        self.recursive=recursive
-        self.timestamps = []
-        self.from_node = from_node
-        self.position = position
-        self.end_position = end_position
-        self.is_node = is_node
-        if is_node:
-            self.value = contents
-        else:
-            self._parse_values(contents)
-        
-    def log(self):
-        print('key: %s' % self.keyname)
-        print(self.value)
-        print('from_node: %s' % self.from_node)
-        print('recursive: %s' % self.recursive)
-        print(self.timestamps)
-        print('is node', self.is_node)
-        print('-------------------------')
-        
-    def _parse_values(self, contents):
-        for ts in syntax.timestamp_c.finditer(contents):
-            dt_string = ts.group(0).strip()
-            contents = contents.replace(dt_string, '').strip()
-            t = UrtextTimestamp(dt_string[1:-1])
-            if t.datetime:
-                self.timestamps.append(t)        
-        self.value = contents
-   
-    def ints(self):
-        parts = self.value.split[' ']
-        ints = []
-        for b in parts:
-            try:
-                ints.append(int(b))
-            except:
-                continue
-        return ints
-
-    def as_int(self):
-        try:
-            return int(self.value)
-        except:
-            return None
-
-    def value_as_string(self):
-        if self.is_node:
-            return ''.join([
-                syntax.link_opening_wrapper,
-                self.value.title,
-                syntax.link_closing_wrapper ])
-        return self.value
