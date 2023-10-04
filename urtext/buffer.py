@@ -5,10 +5,12 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .node import UrtextNode
     from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
+    from Urtext.urtext.metadata import MetadataValue
 else:
     from urtext.node import UrtextNode
     from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
+    from urtext.metadata import MetadataValue
 
 USER_DELETE_STRING = 'This message can be deleted.'
 
@@ -251,9 +253,10 @@ class UrtextBuffer:
                 child_oldest_timestamp = child.metadata.get_oldest_timestamp()
                 if not child_oldest_timestamp:
                     child.metadata.add_entry(
-                        'inline_timestamp', 
-                        oldest_timestamp.wrapped_string,
-                        from_node=start_node.title)
+                        'inline_timestamp',
+                        [MetadataValue(oldest_timestamp.wrapped_string)],
+                        from_node=start_node.title,
+                        )
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)
 

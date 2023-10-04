@@ -110,7 +110,8 @@ class Tree(UrtextDirective):
 
             next_content.date = urtext_node.get_date(
                 self.project.settings[
-                    'node_date_keyname']).strftime(self.project.settings['timestamp_format'])
+                    'node_date_keyname']).strftime(
+                        self.project.settings['timestamp_format'])
 
             next_content.meta = urtext_node.consolidate_metadata(separator=':')
 

@@ -24,9 +24,8 @@ class Sort:
 			use_timestamp=False
 			if ext == 'timestamp':
 				use_timestamp= True
-
 			value = node.metadata.get_first_value(
-				k, 
+				k,
 				return_type=True,
 				use_timestamp=use_timestamp)
 			if isinstance(value, str):

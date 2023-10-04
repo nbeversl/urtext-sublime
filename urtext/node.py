@@ -23,20 +23,22 @@ import logging
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from Urtext.anytree import Node, PreOrderIter
-    from .metadata import MetadataEntry
+    from .metadata import MetadataEntry, MetadataValue
     from .metadata import NodeMetadata
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
+
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
-    from urtext.metadata import NodeMetadata
+    from urtext.metadata import NodeMetadata, MetadataValue
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
+
 
 class UrtextNode:
 
@@ -95,7 +97,7 @@ class UrtextNode:
         self.id = new_id
         for d in self.dynamic_definitions:
             d.source_id = new_id
-        for entry in self.metadata.dynamic_entries:
+        for entry in self.metadata.entries():
             entry.from_node = new_id
 
     def start_position(self):
@@ -105,7 +107,17 @@ class UrtextNode:
 
     def end_position(self):
         return self.ranges[-1][1]
-    
+
+    def get_file_position(self, node_position): 
+        node_length = 0
+        offset_position = node_position
+        for r in self.ranges:
+            range_length = r[1] - r[0]
+            node_length += range_length
+            if node_position < node_length:
+                return r[0] + offset_position
+            offset_position -= range_length
+
     def get_date(self, date_keyword):
         return self.metadata.get_date(date_keyword)
 
@@ -228,7 +240,7 @@ class UrtextNode:
         title = sanitize_escape(title)
         title = strip_nested_links(title)
         title = strip_disallowed_characters(title)
-        self.metadata.add_entry('title', title)
+        self.metadata.add_entry('title', [MetadataValue(title)])
         return title
    
     def log(self):
@@ -239,7 +251,7 @@ class UrtextNode:
     def consolidate_metadata(self, one_line=True, separator='::'):
         
         keynames = {}
-        for entry in self.metadata.all_entries():
+        for entry in self.metadata.entries():
             if entry.keyname in [
                 '_newest_timestamp',
                 '_oldest_timestamp', 
@@ -247,13 +259,7 @@ class UrtextNode:
                 continue
             if entry.keyname not in keynames:
                 keynames[entry.keyname] = []
-            timestamps = ''
-            if entry.timestamps:
-                timestamps = ' '.join([t.wrapped_string for t in entry.timestamps])  
-            if not entry.value:
-                keynames[entry.keyname].append(timestamps)
-            else:
-                keynames[entry.keyname].append(str(entry.value)+' '+timestamps)
+            keynames[entry.keyname] = [v.unparsed_text for v in entry.meta_values]
 
         return self.build_metadata(keynames, one_line=one_line, separator=separator)
 
@@ -287,6 +293,20 @@ class UrtextNode:
             file_contents[0:self.start_position()],
             contents,
             file_contents[self.end_position():]]) 
+        return self.set_file_contents(new_file_contents)
+
+    def replace_range(self, 
+        range_to_replace, 
+        replacement_contents):
+        file_contents = self.get_file_contents()
+        file_range_to_replace = [
+            self.get_file_position(range_to_replace[0]),
+            self.get_file_position(range_to_replace[1])
+            ]
+        new_file_contents = ''.join([
+            file_contents[:file_range_to_replace[0]+1],
+            replacement_contents,
+            file_contents[file_range_to_replace[1]:]]) 
         return self.set_file_contents(new_file_contents)
 
     def append_content(self, appended_content):
@@ -352,39 +372,45 @@ class UrtextNode:
         for index, k in enumerate(meta_keys):
 
             # handle single system keys
-            if k in ['_oldest_timestamp', '_newest_timestamp']:
+            if k in [
+                '_oldest_timestamp', 
+                '_newest_timestamp',
+                'inline_timestamp']:
                 timestamps = self.metadata.get_entries(k)
                 if timestamps and timestamps[0].timestamps:
                     values.append(timestamps[0].timestamps[0].unwrapped_string)
                 continue
 
-            entries = self.metadata.get_entries(k)
+            entries = self.metadata.get_entries(k, use_timestamp=False)
             for e in entries:
 
-                # handle node as meta
+                for v in e.meta_values:
+                    # handle node as meta
+                    
+
+                    # handle an ending key set to use timestamp
+                    # last dot-key 
+                    if ( 
+                        index == len(meta_keys) - 1 and (
+                            k in self.project.settings['use_timestamp'] ) ) or (
+                        index < len(meta_keys) - 1  and ( 
+                            meta_keys[index+1] in ['timestamp','timestamps'])
+                        ):
+                            if v.timestamp:
+                                values.append(v.timestamp.unwrapped_string)
+                            continue
+
+                        # handle any key asking to use the timestamp
+
                 if e.is_node:
                     values.append(''.join([
                             syntax.link_opening_wrapper,
-                            e.value.title,
+                            e.title,
                             syntax.link_closing_wrapper
                         ]))
                     continue
 
-                # handle an ending key set to use timestamp
-                # last dot-key 
-                if ( 
-                    index == len(meta_keys) - 1 and (
-                        k in self.project.settings['use_timestamp'] ) ) or (
-                    index < len(meta_keys) - 1  and ( 
-                        meta_keys[index+1] in ['timestamp','timestamps'])
-                    ):
-                        if e.timestamps:
-                            values.append(e.timestamps[0].unwrapped_string)
-                        continue
-
-                    # handle any key asking to use the timestamp
-                
-                values.append(e.value)
+                values.append(v.text)
 
         return syntax.metadata_separator_syntax.join(values)
 

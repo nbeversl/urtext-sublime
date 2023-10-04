@@ -47,59 +47,60 @@ class Collect:
 						entries = node.metadata.get_matching_entries(k, v)
 
 					for entry in entries:
-						found_item = {}
-						if v == '*':
+						for meta_value in entry.meta_values:
+							found_item = {}
+							if v == '*':
+								if use_timestamp:
+									value = meta_value.timestamp.datetime
+								else:
+									value = meta_value.text
+							else:
+								if use_timestamp and meta_value.timestamp.datetime == v:
+									value = meta_value.timestamp.datetime
+								else:
+									value = meta_value
+
+							found_item['node_id'] = node.id
+							found_item['title'] = node.title
+							found_item['dt_string'] = meta_value.timestamp.unwrapped_string if meta_value.timestamp else ''
+
 							if use_timestamp:
-								value = entry.timestamps[0].datetime
+								found_item['value'] = meta_value.timestamp.unwrapped_string
+								found_item['sort_value'] = meta_value.timestamp.datetime
+						   
 							else:
-								value = entry.value
-						else:
-							if use_timestamp and entry.timestamps[0].datetime == v:
-								value =entry.timestamps[0].datetime
-							else:
-								value = entry.value
+								found_item['value'] = value
+								sort_value = value
+								if self.have_flags('-sort_numeric'):
+									try:
+										sort_value = float(value)
+									except ValueError: 
+										sort_value = 99999999
+								else:
+									sort_value = str(sort_value)
+			
+								found_item['sort_value'] = sort_value
 
-						found_item['node_id'] = node.id
-						found_item['title'] = node.title
-						found_item['dt_string'] = entry.timestamps[0].unwrapped_string if entry.timestamps else ''
+							found_item['keyname'] = k
+							full_contents = node.contents(preserve_length=True)
+							
+							context = []
+							length = 0
+							lines = full_contents.split('\n')
+							for line in lines:
+								length += len(line)
+								if entry.end_position < length:
+									break
 
-						if use_timestamp:
-							found_item['value'] = entry.timestamps[0].unwrapped_string
-							found_item['sort_value'] = entry.timestamps[0].datetime
-					   
-						else:
-							found_item['value'] = value
-							sort_value = value
-							if self.have_flags('-sort_numeric'):
-								try:
-									sort_value = float(value)
-								except ValueError: 
-									sort_value = 99999999
-							else:
-								sort_value = str(sort_value)
-		
-							found_item['sort_value'] = sort_value
+							found_item['context'] = line.strip().replace('_',' ')
+							while syntax.pointer_closing_wrapper in found_item['context']:
+								found_item['context'] = found_item['context'].replace(
+									syntax.pointer_closing_wrapper,
+									syntax.node_closing_wrapper)
 
-						found_item['keyname'] = k
-						full_contents = node.contents(preserve_length=True)
-						
-						context = []
-						length = 0
-						lines = full_contents.split('\n')
-						for line in lines:
-							length += len(line)
-							if entry.end_position < length:
-								break
-
-						found_item['context'] = line.strip().replace('_',' ')
-						while syntax.pointer_closing_wrapper in found_item['context']:
-							found_item['context'] = found_item['context'].replace(
-								syntax.pointer_closing_wrapper,
-								syntax.node_closing_wrapper)
-
-						# this will be position in NODE, not FILE:
-						found_item['position'] = str(entry.position + 1)
-						found_stuff.append(found_item)
+							# this will be position in NODE, not FILE:
+							found_item['position'] = str(entry.start_position + 1)
+							found_stuff.append(found_item)
 	
 		if not found_stuff:
 			 return ''

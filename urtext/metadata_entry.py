@@ -11,36 +11,30 @@ class MetadataEntry:  # container for a single metadata entry
 
     def __init__(self, 
         keyname, 
-        contents, 
+        values,
         is_node=False,
         as_int=False,
-        position=None,
-        recursive=False,
+        start_position=None,
         end_position=None, 
+        tag_self=False,
+        tag_children=False,
+        tag_descendants=False,
         from_node=None):
 
         self.keyname = keyname
-        self.string_contents = contents
-        self.value = ''
-        self.recursive=recursive
-        self.timestamps = []
+        self.meta_values = []
+        self.tag_children = tag_children
+        self.tag_descendants = tag_descendants
         self.from_node = from_node
-        self.position = position
+        self.start_position = start_position
         self.end_position = end_position
         self.is_node = is_node
         if is_node:
-            self.value = contents
+            self.meta_values = values
         else:
-            self._parse_values(contents)
-        
-    def _parse_values(self, contents):
-        for ts in syntax.timestamp_c.finditer(contents):
-            dt_string = ts.group(0).strip()
-            contents = contents.replace(dt_string, '').strip()
-            t = UrtextTimestamp(dt_string[1:-1])
-            if t.datetime:
-                self.timestamps.append(t)        
-        self.value = contents
+            if not isinstance(values, list):
+                values = [values]
+            self.meta_values = values
    
     def ints(self):
         parts = self.value.split[' ']
@@ -66,11 +60,20 @@ class MetadataEntry:  # container for a single metadata entry
                 syntax.link_closing_wrapper ])
         return self.value
 
+    def get_timestamps(self):
+        return sorted([
+            v.timestamp for v in self.meta_values if v.timestamp],
+            key=lambda t: t.datetime)
+
+    def text_values(self):
+        print(self.meta_values)
+        return [v.text for v in self.meta_values if v.text]
+
     def log(self):
         print('key: %s' % self.keyname)
         print(self.value)
         print('from_node: %s' % self.from_node)
         print('recursive: %s' % self.recursive)
-        print(self.timestamps)
         print('is node', self.is_node)
         print('-------------------------')
+
