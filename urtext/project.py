@@ -775,8 +775,7 @@ class UrtextProject:
             file_group = sorted(file_group,
                     key=lambda f: self.files[f].root_node.metadata.get_first_value(
                             k, 
-                            use_timestamp=use_timestamp,
-                            return_type=True),
+                            use_timestamp=use_timestamp),                            
                     reverse=use_timestamp)
             sorted_files.extend(file_group)
             files = list(set(files) - set(sorted_files))
