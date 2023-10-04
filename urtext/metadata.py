@@ -4,10 +4,12 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .timestamp import UrtextTimestamp, default_date
     import Urtext.urtext.syntax as syntax
     from .metadata_entry import MetadataEntry
+    from .metadata_value import MetadataValue
 else:
     from urtext.timestamp import UrtextTimestamp, default_date
     import urtext.syntax as syntax
     from urtext.metadata_entry import MetadataEntry
+    from urtext.metadata_value import MetadataValue
 
 SINGLE_VALUES = [
     '_oldest_timestamp',
@@ -182,8 +184,7 @@ class NodeMetadata:
     def get_first_value(self, 
         keyname, 
         as_int=False,
-        use_timestamp=False,
-        return_type=False):
+        use_timestamp=False):
         
         keyname = keyname.lower()
 
@@ -193,12 +194,6 @@ class NodeMetadata:
         else:
             if keyname == 'title':
                 return self.node.title
-            # if return_type:
-            #     if keyname in self.project.settings['use_timestamp']:
-            #         return default_date
-            #     if keyname in self.project.settings['numerical_keys']:
-            #         return 999999
-            #     return ''
             return None
 
         if use_timestamp or keyname in self.project.settings['use_timestamp']:
@@ -206,22 +201,16 @@ class NodeMetadata:
                 return self.entries_dict[keyname][0].meta_values[0].timestamp
             if entries[0].meta_values[0].timestamp:
                 return entries[0].meta_values[0].timestamp
-            # if return_type:
             return default_date
-            # return None
                     
         #TODO update: when would this happen?
         if len(entries) and not entries[0].meta_values:
-            if return_type:
-                return ''
             return None
 
         if as_int or keyname in self.project.settings['numerical_keys']:
             try:
                 return int(entries[0].meta_value[0])
             except:
-                if return_type:
-                    return 9999999
                 return None
 
         return entries[0].meta_values[0].text
@@ -235,34 +224,38 @@ class NodeMetadata:
         values = []
         entries = self.get_entries(keyname)
 
-        if use_timestamp:
-            return [e.timestamps for e in entries]
-        else:
-            for e in entries:
-                values.extend(e.meta_values)
-        if convert_nodes_to_links:
-            for index, value in enumerate(values):
-                if not isinstance(value, str):
-                    values[index] = ''.join([
+        for e in entries:
+            if e.is_node:
+                if convert_nodes_to_links:
+                    values.append(''.join([
                         syntax.link_opening_wrapper,
                         value.id,
-                        syntax.link_closing_wrapper])
-        if lower:
-            return [v.lower() if isinstance(v, str) else v for v in values]
+                        syntax.link_closing_wrapper])) 
+                continue
+            for v in e.meta_values:
+                if use_timestamp and v.timestamp:
+                    values.append(v.timestamp)
+                    continue
+                if v.text:
+                    if lower:
+                        values.append(v.text.lower())
+                        continue
+                    values.append(v.text)
         return values
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
         matching_entries = []
         if entries:
-            use_timestamp = True if isinstance(value, UrtextTimestamp) else False
             for e in entries:
-                if not use_timestamp and value == e.value:
-                    matching_entries.append(e)
-                # TODO FIX
-                # elif value.timestamps and e.contains_timestamp(value.timestamps[0]):
-                #     matching_entries.append(e)
-        return matching_entries
+                if isinstance(value, UrtextTimestamp):
+                    meta_values = [v.timestamp for v in e.meta_values]
+                else:
+                    meta_values = [v.text for v in e.meta_values]
+                for v in meta_values:
+                    if v == value:
+                        matching_entries.append(e)
+            return matching_entries
 
     def get_date(self, keyname):
         """
@@ -317,21 +310,3 @@ class NodeMetadata:
     def log(self):
         for entry in self.entries():
             entry.log()
-
-class MetadataValue:
-
-    def __init__(self, value_string):
-
-        self.timestamp = None
-        self.unparsed_text = value_string
-        self.text = None
-        for ts in syntax.timestamp_c.finditer(value_string):
-            dt_string = ts.group(0).strip()
-            value_string = value_string.replace(dt_string, '').strip()
-            t = UrtextTimestamp(
-                dt_string[1:-1],
-                ts.start())
-            if t.datetime:
-                self.timestamp = t 
-
-        self.text = value_string

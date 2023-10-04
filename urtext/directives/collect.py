@@ -42,11 +42,15 @@ class Collect:
 				use_timestamp = k in self.project.settings['use_timestamp']
 				for v in keys[k]:
 					if v == '*':
-						entries = node.metadata.get_entries(k)
+						entries = node.metadata.get_entries(k, use_timestamp=False)
 					else:
-						entries = node.metadata.get_matching_entries(k, v)
-
+						entries = node.metadata.get_matching_entries(
+							k, 
+							v)
+					if not entries:
+						continue
 					for entry in entries:
+
 						for meta_value in entry.meta_values:
 							found_item = {}
 							if v == '*':

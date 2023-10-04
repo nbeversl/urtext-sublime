@@ -19,11 +19,9 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-	from .directive import UrtextDirective
 	from .utils import force_list, get_id_from_link
 	import Urtext.urtext.syntax as syntax
 else:
-	from urtext.directive import UrtextDirective
 	from urtext.utils import force_list, get_id_from_link
 	import urtext.syntax as syntax
 

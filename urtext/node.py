@@ -257,6 +257,8 @@ class UrtextNode:
                 '_oldest_timestamp', 
                 'inline_timestamp']:
                 continue
+            if entry.is_node:
+                continue
             if entry.keyname not in keynames:
                 keynames[entry.keyname] = []
             keynames[entry.keyname] = [v.unparsed_text for v in entry.meta_values]
@@ -376,18 +378,15 @@ class UrtextNode:
                 '_oldest_timestamp', 
                 '_newest_timestamp',
                 'inline_timestamp']:
-                timestamps = self.metadata.get_entries(k)
-                if timestamps and timestamps[0].timestamps:
-                    values.append(timestamps[0].timestamps[0].unwrapped_string)
+                timestamp_entries = self.metadata.get_entries(k)
+                if timestamp_entries:
+                    values.append(timestamp_entries[0].unwrapped_string)
                 continue
 
             entries = self.metadata.get_entries(k, use_timestamp=False)
             for e in entries:
 
                 for v in e.meta_values:
-                    # handle node as meta
-                    
-
                     # handle an ending key set to use timestamp
                     # last dot-key 
                     if ( 
@@ -409,8 +408,8 @@ class UrtextNode:
                             syntax.link_closing_wrapper
                         ]))
                     continue
-
-                values.append(v.text)
+                if v.text:
+                    values.append(v.text)
 
         return syntax.metadata_separator_syntax.join(values)
 

@@ -8,13 +8,20 @@ class Sort:
 		if self.keys:
 			return sorted(
 				nodes,
-				key=lambda node: self.sort_values(node, self.keys),
-				reverse=self.have_flags(['-reverse','-r'])
+				key=lambda node: self.sort_values(
+					node, 
+					self.keys),
+				reverse=self.have_flags([
+					'-reverse',
+					'-r'])
 				)
 	
 		return nodes
 
-	def sort_values(self, node, keys):
+	def sort_values(self, 
+		node, 
+		keys):
+
 		t = []
 		for k in keys:
 			k, ext = k, ''
@@ -25,12 +32,16 @@ class Sort:
 			if ext == 'timestamp':
 				use_timestamp= True
 			value = node.metadata.get_first_value(
-				k,
-				return_type=True,
+				k, 
 				use_timestamp=use_timestamp)
+			if not value:
+				continue
+			if use_timestamp:
+				value = value.datetime
 			if isinstance(value, str):
-				value=value.lower()			
+				value = value.lower()			
 			t.append(value)
+	
 		if self.have_flags('-num'):
 			try:
 				nt = [int(n) for n in t]

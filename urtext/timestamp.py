@@ -26,6 +26,10 @@ class UrtextTimestamp:
         self.start_position=start_position
         self.end_position=start_position + len(self.wrapped_string)
 
+    def __lt__(self, other):
+        return self.datetime < other.datetime
+
+
 def date_from_timestamp(datestamp_string):
     if not datestamp_string:
         return default_date

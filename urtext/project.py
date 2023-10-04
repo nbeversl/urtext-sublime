@@ -721,25 +721,38 @@ class UrtextProject:
     def all_nodes(self, 
         as_nodes=False):
 
-        def sort(node, return_type=False):
-            return node.metadata.get_first_value(
-                k, 
-                use_timestamp=use_timestamp,
-                return_type=return_type)
+        def sort(node, use_timestamp=False):
+            #TODO make better
+            if use_timestamp:
+                return node.metadata.get_first_value(
+                    k.datetime,
+                    use_timestamp=use_timestamp)
+
+            else: 
+                return node.metadata.get_first_value(
+                    k,
+                    use_timestamp=use_timestamp)
+
 
         remaining_nodes = list(self.nodes.values())
         sorted_nodes = []
+        return remaining_nodes
+        # Fix later
         for k in self.settings['node_browser_sort']:
             use_timestamp = k in self.settings['use_timestamp']
             as_int = k in self.settings['numerical_keys']
             node_group = [
-                r for r in remaining_nodes if r.metadata.get_first_value(k)]
+                r for r in remaining_nodes if r.metadata.get_first_value(
+                    k,
+                    use_timestamp=use_timestamp)]
+            if not node_group:
+                continue
             node_group = sorted(
-                node_group, 
+                node_group,
                 key=lambda node: sort(
-                    node, 
-                    return_type=True), 
-                reverse=k in self.settings['use_timestamp'])
+                    node,
+                    use_timestamp=use_timestamp),
+                reverse=use_timestamp)
             sorted_nodes.extend(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
