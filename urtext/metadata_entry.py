@@ -66,7 +66,6 @@ class MetadataEntry:  # container for a single metadata entry
             key=lambda t: t.datetime)
 
     def text_values(self):
-        print(self.meta_values)
         return [v.text for v in self.meta_values if v.text]
 
     def log(self):
