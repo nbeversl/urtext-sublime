@@ -297,19 +297,32 @@ class UrtextNode:
             file_contents[self.end_position():]]) 
         return self.set_file_contents(new_file_contents)
 
-    def replace_range(self, 
+    def replace_range(self,
+        range_to_replace,
+        replacement_contents):
+
+        self.project.execute(
+            self._replace_range,
+            range_to_replace,
+            replacement_contents)
+
+    def _replace_range(self, 
         range_to_replace, 
         replacement_contents):
+
+        self.project._parse_file(self.filename)
         file_contents = self.get_file_contents()
         file_range_to_replace = [
             self.get_file_position(range_to_replace[0]),
             self.get_file_position(range_to_replace[1])
             ]
+
         new_file_contents = ''.join([
-            file_contents[:file_range_to_replace[0]+1],
+            file_contents[0:file_range_to_replace[0]],
             replacement_contents,
-            file_contents[file_range_to_replace[1]:]]) 
-        return self.set_file_contents(new_file_contents)
+            file_contents[file_range_to_replace[1]:]])
+        self.set_file_contents(new_file_contents)
+        self.project._parse_file(self.filename)
 
     def append_content(self, appended_content):
         file_contents = self.get_file_contents()
