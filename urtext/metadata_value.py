@@ -20,7 +20,7 @@ class MetadataValue:
             value_string = value_string.replace(dt_string, '').strip()
             t = UrtextTimestamp(
                 dt_string[1:-1],
-                ts.start())
+                start_position=ts.start())
             if t.datetime:
                 self.timestamp = t
         if not value_string:

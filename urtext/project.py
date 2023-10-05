@@ -1393,18 +1393,26 @@ class UrtextProject:
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
+        processed_targets = []
         for node in self.files[filename].nodes:
             for dd in self.get_dynamic_defs(target=node.id, source=node.id):
-                output = dd.process(flags=events)
-                if output not in [False, None]:
-                    for target in dd.targets + dd.target_ids:
-                        targeted_output = dd.post_process(target, output)
-                        modified_target = self._direct_output(
-                            targeted_output, 
-                            target, 
-                            dd)
-                        if modified_target:
-                            modified_targets.append(modified_target)
+                new_targets = []
+                for d in dd.targets + dd.target_ids:
+                    if d in processed_targets:
+                        continue
+                    new_targets.append(d)
+                if new_targets:
+                    output = dd.process(flags=events)
+                    if output not in [False, None]:
+                        for target in new_targets:
+                            processed_targets.append(target)
+                            targeted_output = dd.post_process(target, output)
+                            modified_target = self._direct_output(
+                                targeted_output, 
+                                target, 
+                                dd)
+                            if modified_target:
+                                modified_targets.append(modified_target)
 
         for target in modified_targets:
             if target in self.nodes:
