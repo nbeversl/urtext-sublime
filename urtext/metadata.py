@@ -70,7 +70,7 @@ class NodeMetadata:
             remaining_contents = remaining_contents.replace(
                 m.group(),
                 '', 
-                1 )
+                1)
 
         for m in syntax.hash_meta_c.finditer(parsed_contents):
             value = syntax.hash_key_c.sub('',m.group()).strip()

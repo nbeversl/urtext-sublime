@@ -236,7 +236,7 @@ class UrtextBuffer:
         return new_node
 
     def _get_file_contents(self):
-          return self.contents
+        return self.contents
           
     def _set_file_contents(self, contents):
           return

@@ -182,9 +182,12 @@ class UrtextDynamicDefinition:
 							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
-		if output == False: return
-		if not self.returns_text: return
-		if self.spaces: output = indent(output, spaces=self.spaces)
+		if output == False:
+			return
+		if not self.returns_text:
+			return
+		if self.spaces:
+			output = indent(output, spaces=self.spaces)
 		return output
 
 	def post_process(self, target, output):
@@ -195,7 +198,6 @@ class UrtextDynamicDefinition:
 		for op in post_process_ops:
 			output = op._dynamic_output(output)
 		return output
-
 
 def has_text_output(operations):
 	for op in operations:

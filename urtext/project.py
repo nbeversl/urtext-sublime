@@ -156,7 +156,6 @@ class UrtextProject:
 
 
     def _parse_file(self, filename):
-    
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
@@ -243,7 +242,6 @@ class UrtextProject:
             self._reverify_links(filename)
 
     def _reverify_links(self, filename):
-        
         for node in self.files[filename].nodes:
             rewrites = {}
             for link in list(node.links):
@@ -273,8 +271,8 @@ class UrtextProject:
                 for old_link in rewrites:
                     contents = contents.replace(old_link, rewrites[old_link])
                 if self.files[filename]._set_file_contents(contents):
-                  self._parse_file(filename)
-                  self.run_editor_method('refresh_open_file', filename)
+                    self._parse_file(filename)
+                    self.run_editor_method('refresh_open_file', filename)
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -286,8 +284,10 @@ class UrtextProject:
             if new_id in list(self.nodes):
                 for project_node in list(self.nodes):
                     links_to_change = {}
-                    if project_node not in self.nodes: continue
-                    if self.nodes[project_node].dynamic: continue
+                    if project_node not in self.nodes:
+                        continue
+                    if self.nodes[project_node].dynamic:
+                        continue
                     for link in self.nodes[project_node].links:
                         link = get_id_from_link(link)
                         if link == old_id:
@@ -295,6 +295,7 @@ class UrtextProject:
                     if links_to_change:
                         filename = self.nodes[project_node].filename
                         contents = self.files[filename]._get_file_contents()
+                        
                         for node_id in list(links_to_change.keys()):
                             replaced_contents = contents
                             node_id_regex = re.escape(node_id)
@@ -310,7 +311,9 @@ class UrtextProject:
                                 if self.files[filename]._set_file_contents(
                                     replaced_contents):
                                   self._parse_file(filename)
-                                  self.run_editor_method('refresh_open_file', filename)
+                                  self.run_editor_method(
+                                    'refresh_open_file', 
+                                    filename)
 
     def _check_file_for_duplicates(self, file_obj):
 
@@ -641,7 +644,9 @@ class UrtextProject:
                 metadata_block = ' ' + metadata_block
             return '• ' + contents.strip() + metadata_block
 
-    def get_dynamic_defs(self, target=None, source=None):
+    def get_dynamic_defs(self, 
+        target=None, 
+        source=None):
         defs = []
         if target and target in self.dynamic_definitions:
             defs.append(self.dynamic_definitions[target])
@@ -1369,7 +1374,8 @@ class UrtextProject:
         return None, None
 
     def execute(self, function, *args, **kwargs):
-        if self.compiled and not self.nodes: return
+        if self.compiled and not self.nodes:
+            return
         if self.is_async:
             return self.executor.submit(function, *args, **kwargs)
         return function(*args, **kwargs)
