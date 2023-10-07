@@ -84,7 +84,7 @@ metadata_assigner = r''+metadata_assignment_operator
 metadata_end_marker = r';'
 metadata_entry_modifiers = r'[+]?\*{0,2}'
 metadata_key = r'[\w_\?\!\#\d-]+?'
-metadata_values = r'[^\n;]*[\n;]?'
+metadata_values = r'[^\n;]*($|\n|;)'
 metadata_entry = r''.join([
     metadata_entry_modifiers, 
     metadata_key,
@@ -128,7 +128,7 @@ any_link_or_pointer = r''.join([
     '\s>{1,2}(\:\d{1,99})?(?!>)'
     ])
 compact_node = bullet + r'([^\r\n]*)(?=\n|$)'
-embedded_syntax_full = embedded_syntax_open + '.+?' + embedded_syntax_close
+embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link = ''.join([
     node_link_opening_wrapper_match,
