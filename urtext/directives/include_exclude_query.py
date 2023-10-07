@@ -53,8 +53,7 @@ class NodeQuery:
 		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
 			passed_nodes.discard(target_id)   
-		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))	
-		
+		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))
 		return self.dynamic_definition.included_nodes
 
 	def dynamic_output(self, nodes):
