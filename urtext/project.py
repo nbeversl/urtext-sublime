@@ -1269,7 +1269,7 @@ class UrtextProject:
             self.run_editor_method(
                 'open_file_to_position',
                 self.nodes[dd.source_id].filename,
-                self.nodes[dd.source.id].get_file_position(dd.position))
+                self.nodes[dd.source_id].get_file_position(dd.position))
             return self.visit_node(dd.source_id)        
         self.run_editor_method(
             'popup',
