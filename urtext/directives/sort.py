@@ -4,7 +4,6 @@ class Sort:
 	phase = 220
 		
 	def dynamic_output(self, nodes):
-
 		if self.keys:
 			return sorted(
 				nodes,

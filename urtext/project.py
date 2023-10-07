@@ -745,7 +745,6 @@ class UrtextProject:
         # Fix later
         for k in self.settings['node_browser_sort']:
             use_timestamp = k in self.settings['use_timestamp']
-            as_int = k in self.settings['numerical_keys']
             node_group = [
                 r for r in remaining_nodes if r.metadata.get_first_value(
                     k,

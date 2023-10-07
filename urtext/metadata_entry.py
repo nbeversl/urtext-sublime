@@ -13,7 +13,6 @@ class MetadataEntry:  # container for a single metadata entry
         keyname, 
         values,
         is_node=False,
-        as_int=False,
         start_position=None,
         end_position=None, 
         tag_self=False,
@@ -45,12 +44,6 @@ class MetadataEntry:  # container for a single metadata entry
             except:
                 continue
         return ints
-
-    def as_int(self):
-        try:
-            return int(self.value)
-        except:
-            return None
 
     def value_as_string(self):
         if self.is_node:

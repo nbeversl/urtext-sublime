@@ -185,7 +185,6 @@ class NodeMetadata:
 
     def get_first_value(self, 
         keyname, 
-        as_int=False,
         use_timestamp=False):
         
         keyname = keyname.lower()
@@ -209,13 +208,9 @@ class NodeMetadata:
         if len(entries) and not entries[0].meta_values:
             return None
 
-        if as_int or keyname in self.project.settings['numerical_keys']:
-            try:
-                return int(entries[0].meta_value[0])
-            except:
-                return None
-
-        return entries[0].meta_values[0].text
+        return self._as_num_if_num(
+            keyname,
+            entries[0].meta_values[0].text)
 
     def get_values(self, 
         keyname,
@@ -240,10 +235,19 @@ class NodeMetadata:
                     continue
                 if v.text:
                     if lower:
-                        values.append(v.text.lower())
-                        continue
-                    values.append(v.text)
+                        v.text = v.text.lower()
+                    values.append(self._as_num_if_num(
+                        keyname,
+                        v.text))
+
         return values
+
+    def _as_num_if_num(self, keyname, value):
+        if keyname in self.project.settings['numerical_keys']:
+            try:
+                return int(value)
+            except:
+                return None
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
