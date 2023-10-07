@@ -63,7 +63,7 @@ class NodeMetadata:
                 tag_children=tag_children,
                 tag_descendants=tag_descendants,
                 start_position=m.start(),
-                end_position=m.start() + len(m.group()))
+                end_position=m.start() + len(m.group().strip()))
 
             parsed_contents = parsed_contents.replace(
                 m.group(),
