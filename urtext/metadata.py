@@ -27,12 +27,14 @@ class NodeMetadata:
         self.project = project
    
     def parse_contents(self, full_contents):
-
         parsed_contents = full_contents
         remaining_contents = full_contents
 
         for m in syntax.metadata_entry_c.finditer(full_contents):
-            keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)                 
+            keyname, contents = m.group().strip(
+                syntax.metadata_end_marker).split(
+                    syntax.metadata_assigner, 
+                    1)
             value_list = syntax.metadata_separator_pattern_c.split(contents)
             
             tag_self=False

@@ -1412,7 +1412,9 @@ class UrtextProject:
                     if output not in [False, None]:
                         for target in new_targets:
                             processed_targets.append(target)
-                            targeted_output = dd.post_process(target, output)
+                            targeted_output = dd.post_process(
+                                target,
+                                output)
                             modified_target = self._direct_output(
                                 targeted_output, 
                                 target, 

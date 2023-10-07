@@ -17,11 +17,10 @@ class Collect:
 
 	""" 
 	generates a collection of context-aware metadata 
-	anchors in list or tree format 
+	anchors in list or tree format
 	"""
 
 	def dynamic_output(self, nodes):
-	   
 		m_format = self.dynamic_definition.show
 		keys = {}
 		
@@ -50,7 +49,6 @@ class Collect:
 					if not entries:
 						continue
 					for entry in entries:
-
 						for meta_value in entry.meta_values:
 							found_item = {}
 							if v == '*':
@@ -102,7 +100,6 @@ class Collect:
 									syntax.pointer_closing_wrapper,
 									syntax.node_closing_wrapper)
 
-							# this will be position in NODE, not FILE:
 							found_item['position'] = str(entry.start_position + 1)
 							found_stuff.append(found_item)
 	
@@ -113,14 +110,14 @@ class Collect:
 
 			collection = []
 		
-			sorted_stuff = sorted(found_stuff, 
+			sorted_stuff = sorted(
+				found_stuff, 
 				key=lambda x: ( x['sort_value'] ),
 				reverse=self.have_flags('-sort_reverse'))
 
 			for item in sorted_stuff:
 
 				next_content = DynamicOutput(m_format, self.project.settings)
-
 				next_content.title = item['title']
 				next_content.entry = item['keyname'] + ' :: ' +  str(item['value'])
 				next_content.key = item['keyname']
