@@ -70,9 +70,10 @@ class MetadataEntry:  # container for a single metadata entry
 
     def log(self):
         print('key: %s' % self.keyname)
-        print(self.value)
+        print(self.meta_values)
+        print(self.start_position, self.end_position)
         print('from_node: %s' % self.from_node)
-        print('recursive: %s' % self.recursive)
+        print('tag descendats: %s' % self.tag_descendants)
         print('is node', self.is_node)
         print('-------------------------')
 
