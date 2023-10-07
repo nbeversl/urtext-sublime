@@ -27,3 +27,10 @@ class MetadataValue:
             self.is_timestamp = True
         else:
             self.text = value_string
+
+    def log(self):
+        print('text: %s' % ( 
+            self.text if self.text else '' ))
+        print('timestamp: %s' % (
+            self.timestamp.unwrapped_string if self.timestamp else ''))
+        print('-')

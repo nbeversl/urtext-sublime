@@ -62,11 +62,12 @@ class MetadataEntry:  # container for a single metadata entry
         return [v.text for v in self.meta_values if v.text]
 
     def log(self):
-        print('key: %s' % self.keyname)
-        print(self.meta_values)
-        print(self.start_position, self.end_position)
         print('from_node: %s' % self.from_node)
+        print('key: %s' % self.keyname)
+        print(self.start_position, self.end_position)
         print('tag descendats: %s' % self.tag_descendants)
         print('is node', self.is_node)
+        for value in self.meta_values:
+            value.log()
         print('-------------------------')
 
