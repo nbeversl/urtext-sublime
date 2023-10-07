@@ -1357,10 +1357,11 @@ class UrtextProject:
                     if isinstance(value, str):
                         value = value.lower()
                     results = results.union(set(
-                        n for n in list(self.nodes) if n in self.nodes and value in self.nodes[n].metadata.get_values(
+                        n for n in list(self.nodes) if n in self.nodes and value in [ 
+                        v.text for v in self.nodes[n].metadata.get_values(
                             k,
                             use_timestamp=use_timestamp, 
-                            lower=True)))
+                            lower=True) if v.text]))
         
         return results
 
