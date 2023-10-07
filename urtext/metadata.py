@@ -233,16 +233,16 @@ class NodeMetadata:
                         v.text = v.text.lower()
                     values.append(self._as_num_if_num(
                         keyname,
-                        v.text))
-
+                        v))
         return values
 
     def _as_num_if_num(self, keyname, value):
         if keyname in self.project.settings['numerical_keys']:
             try:
-                return int(value)
+                return int(value.text)
             except:
                 return None
+        return value
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
