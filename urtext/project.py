@@ -1309,7 +1309,7 @@ class UrtextProject:
                         results.append(node.id)
 
             return results
-
+        
         if key == '_links_to':
             for v in values:
                 results.extend(self.get_links_to(v))
@@ -1329,7 +1329,6 @@ class UrtextProject:
 
         for k in keys:
             for value in values:
-
                 if value == '*':
                     results = results.union(
                         set(n for n in list(self.nodes) if n in self.nodes 
