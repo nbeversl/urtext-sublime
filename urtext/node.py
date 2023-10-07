@@ -111,7 +111,7 @@ class UrtextNode:
         for r in self.ranges:
             range_length = r[1] - r[0]
             node_length += range_length
-            if node_position < node_length:
+            if node_position <= node_length:
                 return r[0] + offset_position
             offset_position -= range_length
 
