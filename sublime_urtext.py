@@ -345,10 +345,8 @@ class UrtextEventListeners(EventListener):
                 get_node_id(view))
 
     def on_hover(self, view, point, hover_zone):
-        
-        if _UrtextProjectList:
-            region = sublime.Region(point, point)
-            if view.is_folded(region):
+        if view.is_folded(sublime.Region(point, point)):
+            if _UrtextProjectList:
                 for r in view.folded_regions():
                     if point in [r.a, r.b]:
                         contents = view.export_to_html(
