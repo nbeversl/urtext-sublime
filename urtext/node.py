@@ -75,7 +75,6 @@ class UrtextNode:
         self.nested = nested
     
         contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
-        contents = strip_wrappers(contents)
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
@@ -101,9 +100,7 @@ class UrtextNode:
             entry.from_node = new_id
 
     def start_position(self):
-        if self.root_node:
-            return self.ranges[0][0]
-        return self.ranges[0][0] + 1 # omit opening bracket
+        return self.ranges[0][0]
 
     def end_position(self):
         return self.ranges[-1][1]
@@ -132,19 +129,10 @@ class UrtextNode:
    
         file_contents = self.get_file_contents()
         node_contents = []
-        wrappers = [
-            syntax.node_opening_wrapper, 
-            syntax.node_closing_wrapper
-            ]
+
         for segment in self.ranges:
-            this_range = file_contents[segment[0]:segment[1]]
-            if this_range and this_range[0] in wrappers:
-                this_range = this_range[1:]
-            if this_range and this_range[-1] in wrappers:
-                this_range = this_range[:-1]
-            node_contents.append(this_range)
+            node_contents.append(file_contents[segment[0]:segment[1]])
         node_contents = ''.join(node_contents)
-        node_contents = strip_wrappers(node_contents)
                 
         if strip_first_line_title:
             node_contents = self.strip_first_line_title(node_contents)
@@ -450,23 +438,12 @@ def strip_contents(contents,
     contents = contents.strip().strip('{}').strip()
     return contents
 
-def strip_wrappers(contents):
-        wrappers = [syntax.node_opening_wrapper, syntax.node_closing_wrapper]
-        if contents and contents[0] in wrappers:
-            contents = contents[1:]
-        if contents and contents[-1] in wrappers:
-            contents = contents[:-1]
-        
-        contents = contents.replace(syntax.node_opening_wrapper,'')
-        contents = contents.replace(syntax.node_closing_wrapper,'')
-        return contents
-
 def strip_metadata(contents, preserve_length=False):
     r = ' ' if preserve_length else ''
     for e in syntax.metadata_replacements.finditer(contents):
         contents = contents.replace(e.group(), r*len(e.group()))       
     contents = contents.replace('• ',r*2)
-    return contents.strip()
+    return contents
 
 def strip_dynamic_definitions(contents, preserve_length=False):
     r = ' ' if preserve_length else ''
@@ -476,7 +453,7 @@ def strip_dynamic_definitions(contents, preserve_length=False):
   
     for dynamic_definition in syntax.dynamic_def_c.finditer(stripped_contents):
         stripped_contents = stripped_contents.replace(dynamic_definition.group(), r*len(dynamic_definition.group()))
-    return stripped_contents.strip()
+    return stripped_contents
 
 def strip_nested_links(title):
     nested_link = syntax.node_link_or_pointer_c.search(title)

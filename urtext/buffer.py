@@ -102,32 +102,34 @@ class UrtextBuffer:
                     })
                 continue
 
-            if symbols[position]['type'] == 'opening_wrapper':
+            elif symbols[position]['type'] == 'opening_wrapper':
                 nested_levels[nested].append([last_position, position])
+                position += 1 #wrappers exist outside range
                 nested += 1
 
-            if not from_compact and symbols[position]['type'] == 'compact_node':
+            elif not from_compact and symbols[position]['type'] == 'compact_node':
                 nested_levels[nested].append([last_position, position])
-                
+
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 
-                    start_position=position)
+                    start_position=position+1)
 
                 nested_levels, child_group, nested = self.parse(
-                    symbols[position]['full_match'], 
+                    symbols[position]['full_match'],
                     compact_symbols,
                     nested_levels=nested_levels,
-                    nested=nested + 1,
+                    nested=nested+1,
                     child_group=child_group,
-                    start_position=position,
+                    start_position=position+1,
                     from_compact=True)
 
                 last_position = position + len(symbols[position]['full_match'])
                 continue
  
-            if symbols[position]['type'] == 'closing_wrapper':
-                nested_levels[nested].append([last_position , position])
-    
+            elif symbols[position]['type'] == 'closing_wrapper':
+                nested_levels[nested].append([last_position, position])
+                position += 1 #wrappers exist outside range
+
                 if nested <= 0:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
@@ -137,7 +139,7 @@ class UrtextBuffer:
 
                 node = self.add_node(
                     nested_levels[nested],
-                    nested, 
+                    nested,
                     unstripped_contents,
                     position,
                     start_position=start_position)
@@ -158,7 +160,7 @@ class UrtextBuffer:
                     del nested_levels[nested]
                 nested -= 1
 
-            if symbols[position]['type'] == 'EOB':
+            elif symbols[position]['type'] == 'EOB':
                 # handle closing of buffer
                 nested_levels[nested].append([last_position, position])
                 root_node = self.add_node(
@@ -170,7 +172,7 @@ class UrtextBuffer:
                     compact=from_compact,
                     start_position=start_position)
 
-                #TODO refactor
+                #TODO refactor?
                 if nested + 1 in child_group:
                     for child in child_group[nested+1]:
                         child.parent = root_node
@@ -219,7 +221,7 @@ class UrtextBuffer:
                 :
                 r[1] - start_position ]
             for r in ranges])
-        
+
         new_node = self.urtext_node(
             node_contents,
             self.project,
