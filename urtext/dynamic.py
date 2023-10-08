@@ -102,6 +102,13 @@ class UrtextDynamicDefinition:
 			self.operations.append(op)
 			self.phases.append(300)
 
+		if 'SORT' not in [op.name[0] for op in self.operations]:
+			op = self.project.directives['SORT'](self.project)
+			op.parse_argument_string('title')
+			op.set_dynamic_definition(self)
+			self.operations.append(op)
+			self.phases.append(220)
+
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
