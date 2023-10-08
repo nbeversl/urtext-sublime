@@ -74,15 +74,11 @@ class UrtextNode:
         self.title_from_marker = False
         self.nested = nested
     
-        contents = self.parse_dynamic_definitions(contents, self.dynamic_definitions)
+        contents = self.parse_dynamic_definitions(contents)
         contents = strip_errors(contents)
         contents = strip_embedded_syntaxes(contents)
         contents = strip_backtick_escape(contents)
-
-        self.get_links(contents=contents)
-        contents = strip_dynamic_definitions(contents)       
-        contents = strip_links(contents)
-
+        contents = self.get_links(contents=contents)
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
     
@@ -185,9 +181,12 @@ class UrtextNode:
                 return resolved_id
 
     def get_links(self, contents):
+        stripped_contents = contents
         links = syntax.node_link_or_pointer_c.finditer(contents)
         for link in links:
             self.links.append(link.group())
+            stripped_contents = stripped_contents.replace(link.group(), '', 1)
+        return stripped_contents
 
     def set_title(self, contents):
         """
@@ -343,15 +342,18 @@ class UrtextNode:
             file_contents[self.end_position():]])         
         return self.set_file_contents(new_file_contents)
 
-    def parse_dynamic_definitions(self, contents, dynamic_definitions): 
+    def parse_dynamic_definitions(self, contents): 
+        stripped_contents = contents
         for d in syntax.dynamic_def_c.finditer(contents):
             param_string = d.group(0)[2:-2]
-            dynamic_definitions.append(
+            self.dynamic_definitions.append(
                 UrtextDynamicDefinition(
                     param_string, 
                     self.project, 
                     d.start()))
-        return contents
+            stripped_contents = stripped_contents.replace(d.group(), '', 1)
+
+        return stripped_contents
 
     def strip_first_line_title(self, contents):
         if self.first_line_title:
@@ -461,10 +463,6 @@ def strip_nested_links(title):
         title = title.replace(nested_link.group(), '(' + nested_link.group(1) + ')' )
         nested_link = syntax.node_link_or_pointer_c.search(title)
     return title
-
-
-def strip_links(contents):
-    return re.sub(syntax.node_link_or_pointer, '', contents)
 
 #TODO refactor
 def strip_embedded_syntaxes(
