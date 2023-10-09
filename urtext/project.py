@@ -1276,7 +1276,7 @@ class UrtextProject:
             'No dynamic definition for "%s"' % target_id
             )
 
-    def get_by_meta(self, key, values, operator):
+    def get_by_meta(self, key, values, operator, as_nodes=False):
         
         if isinstance(values,str):
             values = [values]
@@ -1364,6 +1364,8 @@ class UrtextProject:
                             use_timestamp=use_timestamp, 
                             lower=True) if v.text]))
         
+        if as_nodes:
+            return [self.nodes[n] for n in results]
         return results
 
     def get_file_and_position(self, node_id):
