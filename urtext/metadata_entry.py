@@ -47,21 +47,18 @@ class MetadataEntry:  # container for a single metadata entry
                 continue
         return ints
 
-    def value_as_string(self):
+    def text_values(self):
         if self.is_node:
             return ''.join([
                 syntax.link_opening_wrapper,
                 self.value.title,
                 syntax.link_closing_wrapper ])
-        return self.value
+        return [v.text for v in self.meta_values if v.text]
 
     def get_timestamps(self):
         return sorted([
             v.timestamp for v in self.meta_values if v.timestamp],
             key=lambda t: t.datetime)
-
-    def text_values(self):
-        return [v.text for v in self.meta_values if v.text]
 
     def log(self):
         print('from_node: %s' % self.from_node)
