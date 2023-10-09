@@ -42,9 +42,11 @@ class ReindexFiles:
                     filename_template[i] = title[:filename_length]
                 
                 elif filename_template[i].lower() in self.project.settings['use_timestamp']:
-                    timestamp = root_node.metadata.get_first_value(filename_template[i], use_timestamp=True)
+                    timestamp = root_node.metadata.get_first_value(
+                        filename_template[i], 
+                        use_timestamp=True)
                     if timestamp:
-                        filename_template[i] = timestamp.strftime(self.project.settings['filename_datestamp_format'])
+                        filename_template[i] = timestamp.datetime.strftime(self.project.settings['filename_datestamp_format'])
                     else:
                         filename_template[i] = ''                
                 else:
