@@ -76,16 +76,17 @@ class UrtextNode:
     
         contents = self.parse_dynamic_definitions(contents)
         contents = strip_errors(contents)
-        contents = strip_embedded_syntaxes(contents)
-        contents = strip_backtick_escape(contents)
-        contents = self.get_links(contents=contents)
+        contents = strip_embedded_syntaxes(
+            contents,
+            preserve_length=True)
+        contents = strip_backtick_escape(
+            contents)
+        self.get_links(contents=contents)
         self.metadata = self.urtext_metadata(self, self.project)        
         contents = self.metadata.parse_contents(contents)
-    
         self.title = self.set_title(contents)
         if not contents.strip().replace(self.title,'').strip(' _'):
             self.title_only = True
-        self.content_only_text = contents
         self.apply_id(self.title)
         
     def apply_id(self, new_id):
@@ -185,7 +186,8 @@ class UrtextNode:
         links = syntax.node_link_or_pointer_c.finditer(contents)
         for link in links:
             self.links.append(link.group())
-            stripped_contents = stripped_contents.replace(link.group(), '', 1)
+            stripped_contents = stripped_contents.replace(
+                link.group(), ' '*len(link.group()), 1)
         return stripped_contents
 
     def set_title(self, contents):
@@ -194,7 +196,7 @@ class UrtextNode:
         - Then the first ` _` marker overrides any subsequent one.
             - If it is on the first line, 
             we need to remember this for dynamic nodes.
-        - if nothing else found, titel is the first non-blank line
+        - if nothing else found, title is the first non-blank line
         """
         t = self.metadata.get_first_value('title')
         if t:
@@ -351,7 +353,10 @@ class UrtextNode:
                     param_string, 
                     self.project, 
                     d.start()))
-            stripped_contents = stripped_contents.replace(d.group(), '', 1)
+            stripped_contents = stripped_contents.replace(
+                d.group(), 
+                ' '*len(d.group()), 
+                1)
 
         return stripped_contents
 
