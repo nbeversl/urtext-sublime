@@ -227,9 +227,9 @@ class UrtextNode:
         if len(title) > 255:
             title = title[:255]
         title = sanitize_escape(title)
-        title = strip_nested_links(title)
+        # title = strip_nested_links(title)
         title = strip_disallowed_characters(title)
-        self.metadata.add_entry('title', [MetadataValue(title)])
+        self.metadata.add_entry('title', [MetadataValue(title)], self)
         return title
    
     def log(self):
