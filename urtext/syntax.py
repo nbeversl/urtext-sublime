@@ -137,7 +137,12 @@ node_link = ''.join([
     ')\s>(?!>)'
     ])
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
-node_link_or_pointer = node_link_opening_wrapper_match + '(' + id_pattern + ')\s(>{1,2})(\:\d{1,99})?(?!>)'
+node_link_or_pointer = r''.join([
+    node_link_opening_wrapper_match,
+    '(',
+    id_pattern,
+    ')\s(>{1,2})(\:\d{1,99})?(?!>)'])
+
 node_action_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['action'],
