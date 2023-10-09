@@ -261,6 +261,7 @@ class UrtextBuffer:
                     child.metadata.add_entry(
                         'inline_timestamp',
                         [MetadataValue(oldest_timestamp.wrapped_string)],
+                        child,
                         from_node=start_node.title,
                         )
                     child.metadata.add_system_keys()
