@@ -727,23 +727,8 @@ class UrtextProject:
     def all_nodes(self, 
         as_nodes=False):
 
-        def sort(node, use_timestamp=False):
-            #TODO make better
-            if use_timestamp:
-                return node.metadata.get_first_value(
-                    k.datetime,
-                    use_timestamp=use_timestamp)
-
-            else: 
-                return node.metadata.get_first_value(
-                    k,
-                    use_timestamp=use_timestamp)
-
-
         remaining_nodes = list(self.nodes.values())
         sorted_nodes = []
-        return remaining_nodes
-        # Fix later
         for k in self.settings['node_browser_sort']:
             use_timestamp = k in self.settings['use_timestamp']
             node_group = [
@@ -754,8 +739,8 @@ class UrtextProject:
                 continue
             node_group = sorted(
                 node_group,
-                key=lambda node: sort(
-                    node,
+                key=lambda node: node.metadata.get_first_value(
+                    k,
                     use_timestamp=use_timestamp),
                 reverse=use_timestamp)
             sorted_nodes.extend(node_group)
