@@ -59,6 +59,7 @@ class NodeMetadata:
             self.add_entry(
                 keyname,
                 [MetadataValue(v) for v in value_list],
+                self.node,
                 tag_self=tag_self,
                 tag_children=tag_children,
                 tag_descendants=tag_descendants,
@@ -80,6 +81,7 @@ class NodeMetadata:
             self.add_entry(
                 keyname,
                 [MetadataValue(value)], 
+                self.node,
                 start_position=m.start(), 
                 end_position=m.start() + len(m.group()))
             parsed_contents = parsed_contents.replace(
@@ -96,6 +98,7 @@ class NodeMetadata:
             self.add_entry(
                 'inline_timestamp',
                 [MetadataValue(m.group())],
+                self.node,
                 start_position=m.start(),
                 end_position=m.start() + len(m.group()))
             remaining_contents = remaining_contents.replace(
@@ -109,6 +112,7 @@ class NodeMetadata:
     def add_entry(self, 
         key,
         values,
+        node,
         is_node=False,
         start_position=0,
         end_position=0,
@@ -125,6 +129,7 @@ class NodeMetadata:
         e = MetadataEntry(
             key, 
             values,
+            node,
             is_node=is_node,
             start_position=start_position, 
             end_position=end_position,
@@ -136,8 +141,8 @@ class NodeMetadata:
         # error catch in case the user tries to manually add one:
         # if key == 'inline_timestamp' and not e.timestamps:
         #     return False
-
         self.entries_dict.setdefault(key, [])
+        
         if e.is_node:
             # node values must be unique for the key
             self.entries_dict[key] = [e]
@@ -175,11 +180,13 @@ class NodeMetadata:
             self.add_entry(
                 '_oldest_timestamp', 
                 [MetadataValue(inline_timestamps[0].wrapped_string)],
+                self.node,
                 start_position=inline_timestamps[0].start_position,
                 end_position=inline_timestamps[-1].end_position)
             self.add_entry(
                 '_newest_timestamp',
                 [MetadataValue(inline_timestamps[-1].wrapped_string)],
+                self.node,
                 start_position=inline_timestamps[-1].start_position,
                 end_position=inline_timestamps[-1].end_position)
 

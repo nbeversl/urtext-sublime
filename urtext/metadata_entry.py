@@ -12,6 +12,7 @@ class MetadataEntry:  # container for a single metadata entry
     def __init__(self, 
         keyname, 
         values,
+        node,
         is_node=False,
         start_position=None,
         end_position=None, 
@@ -20,6 +21,7 @@ class MetadataEntry:  # container for a single metadata entry
         tag_descendants=False,
         from_node=None):
 
+        self.node = node
         self.keyname = keyname
         self.meta_values = []
         self.tag_children = tag_children

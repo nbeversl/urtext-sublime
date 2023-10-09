@@ -212,6 +212,7 @@ class UrtextProject:
             self.nodes[source_node].metadata.add_entry(
                 keyname,
                 self.nodes[target_node],
+                self.nodes[source_node],
                 is_node=True)
             self.nodes[target_node].is_meta = True
 
@@ -1508,6 +1509,7 @@ class UrtextProject:
                 self.nodes[node_to_tag].metadata.add_entry(
                     entry.keyname,
                     entry.meta_values,
+                    self.nodes[node_to_tag],
                     from_node=entry.from_node,
                     tag_descendants=entry.tag_descendants)
                 if node_to_tag not in self.nodes[entry.from_node].target_nodes:
