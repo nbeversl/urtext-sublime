@@ -60,7 +60,7 @@ class UrtextFile(UrtextBuffer):
             ]))
 
     def _set_file_contents(self, new_contents, compare=True): 
-        new_contents = "\n".join(new_contents.splitlines())
+        new_contents = '\n'.join(new_contents.splitlines())
         if compare:
             existing_contents = self._get_file_contents()
             if existing_contents == new_contents:

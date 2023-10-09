@@ -10,7 +10,8 @@ class FindByMetaCommand(UrtextTextCommand):
 
     def list_values(self, index):
         self.selected_tag = self.tagnames[index]
-        self.values = self._UrtextProjectList.current_project.get_all_values_for_key(self.selected_tag)        
+        self.values = self._UrtextProjectList.current_project.get_all_values_for_key(
+            self.selected_tag)
         self.values.insert(0, '< all >')
         self.view.window().show_quick_panel(self.values, self.display_files)
 
