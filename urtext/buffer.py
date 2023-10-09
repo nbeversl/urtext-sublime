@@ -55,15 +55,19 @@ class UrtextBuffer:
                 if symbol_type == 'meta_to_node':
                     self.meta_to_node.append(match)
                     continue
-                symbols[match.span()[0] + start_position] = {}
-                symbols[match.span()[0] + start_position]['type'] = symbol_type
 
                 if symbol_type == 'pointer':
                     symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
                 if symbol_type == 'compact_node':
-                    symbols[match.span()[0] + start_position]['full_match'] = match.group()
-                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
-        
+                    symbols[match.span()[0] + start_position + len(match.group(1))] = {}
+                    symbols[match.span()[0] + start_position + len(match.group(1))]['type'] = symbol_type
+                    symbols[match.span()[0] + start_position + len(match.group(1))]['contents'] = match.group(3)
+                else:
+                    symbols[match.span()[0] + start_position] = {}
+                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+
+                    
+
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
@@ -79,11 +83,11 @@ class UrtextBuffer:
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
         pointers = {}
-        if from_compact:
-            unstripped_contents = re.sub(
-                syntax.bullet, 
-                '', 
-                unstripped_contents)
+        # if from_compact:
+        #     unstripped_contents = re.sub(
+        #         syntax.bullet, 
+        #         '', 
+        #         unstripped_contents)
 
         for position in sorted(symbols.keys()):
 
@@ -108,22 +112,22 @@ class UrtextBuffer:
                 nested += 1
 
             elif not from_compact and symbols[position]['type'] == 'compact_node':
-                nested_levels[nested].append([last_position, position])
+                nested_levels[nested].append([last_position, position-1])
 
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 
-                    start_position=position+1)
-
+                    start_position=position)
+                
                 nested_levels, child_group, nested = self.parse(
-                    symbols[position]['full_match'],
+                    symbols[position]['contents'],
                     compact_symbols,
                     nested_levels=nested_levels,
                     nested=nested+1,
                     child_group=child_group,
-                    start_position=position+1,
+                    start_position=position,
                     from_compact=True)
-
-                last_position = position + len(symbols[position]['full_match'])
+                
+                last_position = position + 1 + len(symbols[position]['contents'])
                 continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
