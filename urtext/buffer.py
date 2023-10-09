@@ -57,16 +57,16 @@ class UrtextBuffer:
                     continue
 
                 if symbol_type == 'pointer':
+                    symbols[match.span()[0] + start_position] = {}
                     symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
-                if symbol_type == 'compact_node':
+                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+                elif symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position + len(match.group(1))] = {}
                     symbols[match.span()[0] + start_position + len(match.group(1))]['type'] = symbol_type
                     symbols[match.span()[0] + start_position + len(match.group(1))]['contents'] = match.group(3)
                 else:
                     symbols[match.span()[0] + start_position] = {}
                     symbols[match.span()[0] + start_position]['type'] = symbol_type
-
-                    
 
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
