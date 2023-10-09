@@ -1258,7 +1258,9 @@ class UrtextProject:
         entries = []
         for node in self.nodes.values():
             entries.extend(node.metadata.get_entries(key))
-        values = [e.value_as_string() for e in entries]
+        values = []
+        for e in entries:
+            values.extend(e.text_values())
         if lower:
             return list(set([v.lower() for v in values]))
         return list(set(values))
