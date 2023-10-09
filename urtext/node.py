@@ -465,14 +465,16 @@ def strip_dynamic_definitions(contents, preserve_length=False):
 def strip_nested_links(title):
     nested_link = syntax.node_link_or_pointer_c.search(title)
     while nested_link:
-        title = title.replace(nested_link.group(), '(' + nested_link.group(1) + ')' )
+        title = title.replace(
+            nested_link.group(), 
+            '(' + nested_link.group() + ')' )
         nested_link = syntax.node_link_or_pointer_c.search(title)
     return title
 
 #TODO refactor
 def strip_embedded_syntaxes(
     stripped_contents, 
-    preserve_length=False, 
+    preserve_length=False,
     reformat_and_keep_contents=False,
     include_backtick=True):
 
