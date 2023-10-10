@@ -118,7 +118,7 @@ class UrtextBuffer:
                     nested_levels=nested_levels,
                     nested=nested+1,
                     child_group=child_group,
-                    start_position=position,
+                    start_position=position+1,
                     from_compact=True)
 
                 last_position = position + 1 + len(symbols[position]['contents'])
