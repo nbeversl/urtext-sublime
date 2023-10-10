@@ -62,8 +62,9 @@ class UrtextBuffer:
                     symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
                     continue
                 if symbol_type == 'compact_node':
-                    symbols[match.span()[0] + start_position]['full_match'] = match.group()
-                    symbols[match.span()[0] + start_position]['contents'] = match.group(2)
+                    symbols[match.span()[0] + start_position+ len(match.group(1))] = {}
+                    symbols[match.span()[0] + start_position + len(match.group(1))]['type'] = symbol_type
+                    symbols[match.span()[0] + start_position + len(match.group(1))]['contents'] = match.group(3)
     
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
@@ -115,7 +116,7 @@ class UrtextBuffer:
                     start_position=position+1)
 
                 nested_levels, child_group, nested = self.parse(
-                    symbols[position]['full_match'],
+                    symbols[position]['contents'],
                     compact_symbols,
                     nested_levels=nested_levels,
                     nested=nested+1,
@@ -123,7 +124,7 @@ class UrtextBuffer:
                     start_position=position+1,
                     from_compact=True)
 
-                last_position = position + len(symbols[position]['full_match'])
+                last_position = position + 1 + len(symbols[position]['contents'])
                 continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
