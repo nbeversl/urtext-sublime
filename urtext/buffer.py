@@ -55,17 +55,21 @@ class UrtextBuffer:
                 if symbol_type == 'meta_to_node':
                     self.meta_to_node.append(match)
                     continue
-                symbols[match.span()[0] + start_position] = {}
-                symbols[match.span()[0] + start_position]['type'] = symbol_type
 
                 if symbol_type == 'pointer':
+                    symbols[match.span()[0] + start_position] = {}
                     symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
-                    continue
-                if symbol_type == 'compact_node':
+                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+                elif symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position+ len(match.group(1))] = {}
                     symbols[match.span()[0] + start_position + len(match.group(1))]['type'] = symbol_type
                     symbols[match.span()[0] + start_position + len(match.group(1))]['contents'] = match.group(3)
-    
+                else:
+                    symbols[match.span()[0] + start_position] = {}
+                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+
+   
+
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
@@ -109,7 +113,7 @@ class UrtextBuffer:
                 nested += 1
 
             elif not from_compact and symbols[position]['type'] == 'compact_node':
-                nested_levels[nested].append([last_position, position-1])
+                nested_levels[nested].append([last_position, position])
 
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 
@@ -121,7 +125,7 @@ class UrtextBuffer:
                     nested_levels=nested_levels,
                     nested=nested+1,
                     child_group=child_group,
-                    start_position=position+1,
+                    start_position=position,
                     from_compact=True)
 
                 last_position = position + 1 + len(symbols[position]['contents'])
