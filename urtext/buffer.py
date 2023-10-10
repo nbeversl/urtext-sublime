@@ -112,7 +112,7 @@ class UrtextBuffer:
                 nested += 1
 
             elif not from_compact and symbols[position]['type'] == 'compact_node':
-                nested_levels[nested].append([last_position, position])
+                nested_levels[nested].append([last_position, position-1])
 
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 

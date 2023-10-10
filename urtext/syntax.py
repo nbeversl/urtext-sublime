@@ -127,7 +127,7 @@ any_link_or_pointer = r''.join([
     ')',
     '\s>{1,2}(\:\d{1,99})?(?!>)'
     ])
-compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
+compact_node = bullet + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
 node_link = ''.join([
