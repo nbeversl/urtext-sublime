@@ -59,13 +59,13 @@ class UrtextBuffer:
                 symbols[match.span()[0] + start_position]['type'] = symbol_type
 
                 if symbol_type == 'pointer':
-                    symbols[match.span()[0] + start_position] = {}
                     symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
+                    continue
                 if symbol_type == 'compact_node':
                     symbols[match.span()[0] + start_position]['full_match'] = match.group()
                     symbols[match.span()[0] + start_position]['contents'] = match.group(2)
-        
-       symbols[len(contents) + start_position] = { 'type': 'EOB' }
+    
+        symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
     def parse(self, 
@@ -95,7 +95,6 @@ class UrtextBuffer:
             # Allow node nesting arbitrarily deep
             nested_levels[nested] = [] if nested not in nested_levels else nested_levels[nested]
             pointers[nested] = [] if nested not in pointers else pointers[nested]
-
             if symbols[position]['type'] == 'pointer':
                 pointers[nested].append({ 
                     'id' : symbols[position]['contents'],
@@ -109,7 +108,7 @@ class UrtextBuffer:
                 nested += 1
 
             elif not from_compact and symbols[position]['type'] == 'compact_node':
-                nested_levels[nested].append([last_position, position])
+                nested_levels[nested].append([last_position, position-1])
 
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 
