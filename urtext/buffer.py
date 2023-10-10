@@ -118,16 +118,18 @@ class UrtextBuffer:
                     nested_levels=nested_levels,
                     nested=nested+1,
                     child_group=child_group,
-                    start_position=position+1,
+                    start_position=position,
                     from_compact=True)
-
-                last_position = position + 1 + len(symbols[position]['contents'])
-                continue
+               
+                r = position + len(symbols[position]['contents'])
+                if r in symbols and symbols[r]['type'] == 'EOB':
+                    continue
+                else:
+                    last_position = position + 1 + len(symbols[position]['contents'])
+                    continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position, position])
-                position += 1 #wrappers exist outside range
-
                 if nested <= 0:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
@@ -135,6 +137,7 @@ class UrtextBuffer:
                     self._set_file_contents(contents)
                     return self.lex_and_parse(contents)
 
+                position += 1 #wrappers exist outside range
                 node = self.add_node(
                     nested_levels[nested],
                     nested,
