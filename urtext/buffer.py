@@ -68,8 +68,6 @@ class UrtextBuffer:
                     symbols[match.span()[0] + start_position] = {}
                     symbols[match.span()[0] + start_position]['type'] = symbol_type
 
-   
-
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
@@ -85,11 +83,6 @@ class UrtextBuffer:
         unstripped_contents = strip_backtick_escape(contents)
         last_position = start_position
         pointers = {}
-        if from_compact:
-            unstripped_contents = re.sub(
-                syntax.bullet, 
-                '', 
-                unstripped_contents)
 
         for position in sorted(symbols.keys()):
 
