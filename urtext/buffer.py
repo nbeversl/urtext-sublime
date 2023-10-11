@@ -142,7 +142,6 @@ class UrtextBuffer:
                     nested_levels[nested],
                     nested,
                     unstripped_contents,
-                    position,
                     start_position=start_position)
 
                 if nested + 1 in child_group:
@@ -168,7 +167,6 @@ class UrtextBuffer:
                     nested_levels[nested],
                     nested,
                     unstripped_contents,
-                    position,
                     root=True if not from_compact else False,
                     compact=from_compact,
                     start_position=start_position)
@@ -210,7 +208,6 @@ class UrtextBuffer:
         ranges, 
         nested,
         contents,
-        position,
         root=None,
         compact=False,
         start_position=0):
