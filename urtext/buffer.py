@@ -101,7 +101,7 @@ class UrtextBuffer:
                 continue
 
             elif symbols[position]['type'] == 'opening_wrapper':
-                nested_levels[nested].append([last_position, position])
+                nested_levels[nested].append([last_position, position-1])
                 position += 1 #wrappers exist outside range
                 nested += 1
 
@@ -190,7 +190,7 @@ class UrtextBuffer:
 
             last_position = position
         
-        if not from_compact and nested >= 0:
+        if not from_compact and nested > 0:
             self.messages.append(
                 'Appended closing bracket to close opening bracket at %s. %s'  % 
                 ( str(position), self.user_delete_string) )
@@ -230,6 +230,9 @@ class UrtextBuffer:
         new_node.get_file_contents = self._get_file_contents
         new_node.set_file_contents = self._set_file_contents
         new_node.ranges = ranges
+        new_node.start_position = ranges[0][0]
+        new_node.end_position = ranges[-1][1]
+
         self.nodes.append(new_node)
         if new_node.root_node:
             self.root_node = new_node
@@ -244,7 +247,7 @@ class UrtextBuffer:
     def get_ordered_nodes(self):
         return sorted( 
             list(self.nodes),
-            key=lambda node :  node.start_position())
+            key=lambda node : node.start_position)
 
     def propagate_timestamps(self, start_node):
         oldest_timestamp = start_node.metadata.get_oldest_timestamp()
@@ -270,8 +273,8 @@ class UrtextBuffer:
             self.project.run_editor_method(
                 'replace',
                 filename=self.project.nodes[node_id].filename,
-                start=node.start_position(),
-                end=node.end_position(),
+                start=node.start_position,
+                end=node.end_position,
                 replacement_text=replacement_text
                 )
 
