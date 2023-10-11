@@ -84,7 +84,7 @@ class Collect:
 								found_item['sort_value'] = sort_value
 
 							found_item['keyname'] = k
-							full_contents = node.contents(preserve_length=True)
+							full_contents = node.stripped_contents
 							
 							context = []
 							length = 0
