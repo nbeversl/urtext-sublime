@@ -97,13 +97,9 @@ class UrtextNode:
 
     def get_file_position(self, node_position): 
         node_length = 0
-        print('NODE POSITION')
-        print(node_position)
         offset_position = node_position
         for r in self.ranges:
             range_length = r[1] - r[0]
-            print('range length')
-            print(range_length)
             node_length += range_length
             if node_position <= node_length:
                 return r[0] + offset_position
