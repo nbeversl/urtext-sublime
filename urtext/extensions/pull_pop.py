@@ -37,8 +37,8 @@ class PopNode:
             return None
 
         self.project._parse_file(filename)
-        start = self.project.nodes[node_id].start_position()
-        end = self.project.nodes[node_id].end_position()
+        start = self.project.nodes[node_id].start_position
+        end = self.project.nodes[node_id].end_position
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
@@ -129,7 +129,7 @@ class PullNode:
                 return None
                         
         self.project._parse_file(source_filename)
-        start = self.project.nodes[source_id].start_position()
+        start = self.project.nodes[source_id].start_position
         end = self.project.nodes[source_id].ranges[-1][1]
         
         source_file_contents = self.project.files[source_filename]._get_file_contents()

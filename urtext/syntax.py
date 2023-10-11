@@ -101,10 +101,11 @@ sub_node = r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
 virtual_target = r'' + virtual_target_marker + '[\w_]+'
 disallowed_title_characters = [
     r'\|',
-    r'>',
+    r'\>',
     r'@',
     r'\n',
     r'\r'
+    r'`'
 ]
 title_pattern = r'^([^' + r''.join(disallowed_title_characters) + ']+)'
 id_pattern = r'([^\|>\n\r]+)'
@@ -124,7 +125,7 @@ any_link_or_pointer = r''.join([
     '\s',
     '(',
     id_pattern,
-    ')',
+    ')?', # might be empty
     '\s>{1,2}(\:\d{1,99})?(?!>)'
     ])
 compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
@@ -157,7 +158,7 @@ node_pointer = r''.join([
     ')',
     pointer_closing_wrapper,
     '(?!>)'
-    ]) 
+    ])
 node_title = r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 timestamp = r''.join([
     timestamp_opening_wrapper,

@@ -82,7 +82,7 @@ class Tree(UrtextDirective):
             #currently mixes nodes with pointers
             this_node.children = sorted(
                 this_node.children,
-                key=lambda n: self.project.nodes[n.name].start_position() if (
+                key=lambda n: self.project.nodes[n.name].start_position if (
                     n.name in self.project.nodes ) else n.position)
 
             indented_pre = '  ' + pre
@@ -116,8 +116,7 @@ class Tree(UrtextDirective):
             next_content.meta = urtext_node.consolidate_metadata(separator=':')
 
             if next_content.needs_contents:
-                next_content.contents = urtext_node.contents(
-                    strip_first_line_title=True).strip('\n').strip()
+                next_content.contents = urtext_node.stripped_contents
 
             for meta_key in next_content.needs_other_format_keys:
                 next_content.other_format_keys[

@@ -53,7 +53,7 @@ class UrtextNode:
 
         self.project = project
         self.position = 0
-        self.ranges = [[0, 0]]
+        self.ranges = []
         self.is_tree = False
         self.is_meta = False
         self.export_points = {}
@@ -73,22 +73,21 @@ class UrtextNode:
         self.first_line_title = False
         self.title_from_marker = False
         self.nested = nested
-    
-        contents = self.parse_dynamic_definitions(contents)
+        
         contents = strip_errors(contents)
-        contents = strip_embedded_syntaxes(
-            contents,
-            preserve_length=True)
-        contents = strip_backtick_escape(
-            contents)
-        self.get_links(contents=contents)
+        self.full_contents = contents
+        stripped_contents, replaced_contents = self.parse_dynamic_definitions(contents)
+        stripped_contents, replaced_contents = strip_embedded_syntaxes(replaced_contents)
+
+        self.get_links(contents=replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)        
-        contents = self.metadata.parse_contents(contents)
-        self.title = self.set_title(contents)
-        if not contents.strip().replace(self.title,'').strip(' _'):
+        stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
+        self.title = self.set_title(stripped_contents)
+        if not stripped_contents.strip().replace(self.title,'').strip(' _'):
             self.title_only = True
         self.apply_id(self.title)
-        
+        self.stripped_contents = stripped_contents    
+
     def apply_id(self, new_id):
         self.id = new_id
         for d in self.dynamic_definitions:
@@ -96,17 +95,15 @@ class UrtextNode:
         for entry in self.metadata.entries():
             entry.from_node = new_id
 
-    def start_position(self):
-        return self.ranges[0][0]
-
-    def end_position(self):
-        return self.ranges[-1][1]
-
     def get_file_position(self, node_position): 
         node_length = 0
+        print('NODE POSITION')
+        print(node_position)
         offset_position = node_position
         for r in self.ranges:
             range_length = r[1] - r[0]
+            print('range length')
+            print(range_length)
             node_length += range_length
             if node_position <= node_length:
                 return r[0] + offset_position
@@ -116,35 +113,12 @@ class UrtextNode:
         return self.metadata.get_date(date_keyword)
 
     def contents(self, 
-        preserve_length=False,
-        strip_first_line_title=False,
-        do_strip_embedded_syntaxes=True,
-        reformat_and_keep_embedded_syntaxes=False,
-        do_strip_metadata=True,
-        do_strip_dynamic_definitions=True
-        ):
-   
-        file_contents = self.get_file_contents()
-        node_contents = []
+        strip_first_line_title=False):
 
-        for segment in self.ranges:
-            node_contents.append(file_contents[segment[0]:segment[1]])
-        node_contents = ''.join(node_contents)
-                
         if strip_first_line_title:
-            node_contents = self.strip_first_line_title(node_contents)
-
-        node_contents = strip_contents(
-            node_contents,
-            preserve_length=preserve_length, 
-            include_backtick=True,
-            reformat_and_keep_embedded_syntaxes=reformat_and_keep_embedded_syntaxes,
-            embedded_syntaxes=do_strip_embedded_syntaxes,
-            metadata=do_strip_metadata,
-            dynamic_definitions=do_strip_dynamic_definitions
-            )
-
-        return node_contents
+            return self.strip_first_line_title(self.stripped_contents)
+        
+        return self.stripped_contents
 
     def links_ids(self):
         return [get_id_from_link(link) for link in self.links]        
@@ -206,6 +180,7 @@ class UrtextNode:
         contents_lines = contents.strip().split('\n')       
         for line in contents_lines:
             first_non_blank_line = line.strip()
+            first_non_blank_line = strip_nested_links(first_non_blank_line).strip()
             if first_non_blank_line and first_non_blank_line != '_':
                 break
 
@@ -217,18 +192,14 @@ class UrtextNode:
             self.title_from_marker = True
             if title in first_non_blank_line:
                 self.first_line_title = True 
-        else:
-            if first_non_blank_line:
-                title = first_non_blank_line.strip()
+        elif first_non_blank_line:
+                title = first_non_blank_line
                 self.first_line_title = True
-            else:
-                title = '(untitled)'
-                self.untitled = True
+        if not title:
+            title = '(untitled)'
+            self.untitled = True
         if len(title) > 255:
             title = title[:255]
-        title = sanitize_escape(title)
-        # title = strip_nested_links(title)
-        title = strip_disallowed_characters(title)
         self.metadata.add_entry('title', [MetadataValue(title)], self)
         return title
    
@@ -278,12 +249,12 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def set_content(self, contents):      
+    def set_content(self, contents):
         file_contents = self.get_file_contents()
         new_file_contents = ''.join([
-            file_contents[0:self.start_position()],
+            file_contents[:self.start_position],
             contents,
-            file_contents[self.end_position():]]) 
+            file_contents[self.end_position:]])
         return self.set_file_contents(new_file_contents)
 
     def replace_range(self,
@@ -316,14 +287,14 @@ class UrtextNode:
     def append_content(self, appended_content):
         file_contents = self.get_file_contents()
         new_file_contents = ''.join([
-            file_contents[0:self.start_position()],
+            file_contents[0:start_position],
             contents,
             appended_content,
-            file_contents[self.end_position():]])         
+            file_contents[self.end_position:]])         
         return self.set_file_contents(new_file_contents)
 
     def prepend_content(self, prepended_content, preserve_title=True):
-        node_contents = self.contents(strip_first_line_title=True)
+        node_contents = self.strip_first_line_title(self.full_contents)
         file_contents = self.get_file_contents()
         
         if preserve_title and self.first_line_title:
@@ -339,13 +310,14 @@ class UrtextNode:
                 node_contents
                 ])
         new_file_contents = ''.join([
-            file_contents[:self.start_position()], # omit opening
+            file_contents[:self.start_position], # omit opening
             new_node_contents,
-            file_contents[self.end_position():]])         
+            file_contents[self.end_position:]])         
         return self.set_file_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents): 
         stripped_contents = contents
+        replaced_contents = contents
         for d in syntax.dynamic_def_c.finditer(contents):
             param_string = d.group(0)[2:-2]
             self.dynamic_definitions.append(
@@ -357,8 +329,12 @@ class UrtextNode:
                 d.group(), 
                 ' '*len(d.group()), 
                 1)
+            replaced_contents = replaced_contents.replace(
+                d.group(), 
+                '', 
+                1)
 
-        return stripped_contents
+        return stripped_contents, replaced_contents
 
     def strip_first_line_title(self, contents):
         if self.first_line_title:
@@ -436,7 +412,7 @@ def strip_contents(contents,
             reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
     if metadata:
         contents = strip_metadata(
-            contents=contents, 
+            contents=contents,
             preserve_length=preserve_length)
     if dynamic_definitions:
         contents = strip_dynamic_definitions(
@@ -463,13 +439,17 @@ def strip_dynamic_definitions(contents, preserve_length=False):
     return stripped_contents
 
 def strip_nested_links(title):
-    nested_link = syntax.node_link_or_pointer_c.search(title)
+    nested_link = syntax.any_link_or_pointer_c.search(title)
     while nested_link:
         title = title.replace(
             nested_link.group(), 
-            '(' + nested_link.group() + ')' )
-        nested_link = syntax.node_link_or_pointer_c.search(title)
+            '', 
+            1)
+        nested_link = syntax.any_link_or_pointer_c.search(title)
     return title
+
+def strip_errors(contents):
+    return re.sub('<!.*?!>', '', contents, flags=re.DOTALL)
 
 #TODO refactor
 def strip_embedded_syntaxes(
@@ -478,9 +458,9 @@ def strip_embedded_syntaxes(
     reformat_and_keep_contents=False,
     include_backtick=True):
 
-    r = ' ' if preserve_length else ''
     if include_backtick:
         stripped_contents = strip_backtick_escape(stripped_contents)
+    replaced_contents = stripped_contents
     for e in syntax.embedded_syntax_c.finditer(stripped_contents):
         e = e.group()
         if reformat_and_keep_contents:
@@ -495,19 +475,7 @@ def strip_embedded_syntaxes(
             unwrapped_contents = '\t\t\n'.join(unwrapped_contents)
             stripped_contents = stripped_contents.replace(e, unwrapped_contents)
         else:
-            stripped_contents = stripped_contents.replace(e, r*len(e))
+            stripped_contents = stripped_contents.replace(e, '')
+            replaced_contents = replaced_contents.replace(e, ' '*len(e))
 
-    return stripped_contents
-
-def strip_errors(contents):
-    return re.sub('<!.*?!>', '', contents, flags=re.DOTALL)
-
-def sanitize_escape(string):
-    if string.count('`') == 1:
-        return string.replace('`','')
-    return string
-
-def strip_disallowed_characters(title):
-    for character in syntax.disallowed_title_characters:
-        title = re.sub(character, ' ', title)
-    return title.strip()
+    return stripped_contents, replaced_contents

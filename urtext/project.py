@@ -429,7 +429,7 @@ class UrtextProject:
         points = self.nodes[exported_node_id].export_points
         if not points:
             return None, None
-        node_start_point = self.nodes[exported_node_id].start_position()
+        node_start_point = self.nodes[exported_node_id].start_position
 
         indexes = sorted(points)
         for index in range(0, len(indexes)):
@@ -690,7 +690,7 @@ class UrtextProject:
             self.nodes[node_id].ranges[-1][1])
         
         if position == None:
-            position = self.nodes[node_id].start_position()
+            position = self.nodes[node_id].start_position
 
         self.run_editor_method(
             'open_file_to_position',
@@ -883,9 +883,9 @@ class UrtextProject:
             link = get_id_from_link(full_match)
             if link in self.nodes:
                 if match.group(7):
-                    dest_position = self.nodes[link].start_position() + int(match.group(7)[1:])
+                    dest_position = self.nodes[link].start_position + int(match.group(7)[1:])
                 else:
-                    dest_position = self.nodes[link].start_position()
+                    dest_position = self.nodes[link].start_position
                 result = link
 
         node_id = ''
@@ -1279,78 +1279,64 @@ class UrtextProject:
                 if operator == 'after':
                     results = [n for n in self.nodes.values() if n.metadata.get_date(key) > compare_date != default_date ]
 
-                return set(results)
-
-            return set([])
-
         if key == '_contents' and operator == '?': 
             # `=` not currently implemented
             for node in list(self.nodes.values()):
                 if node.dynamic:
                     continue
                 matches = []
-                contents = node.contents()
+                contents = node.stripped_contents
                 lower_contents = contents.lower()           
 
                 for v in values:
                     if v.lower() in lower_contents:
                         results.append(node.id)
 
-            return results
-        
-        if key == '_links_to':
+        elif key == '_links_to':
             for v in values:
                 results.extend(self.get_links_to(v))
-            return results
 
-        if key == '_links_from':
+        elif key == '_links_from':
             for v in values:
                 results.extend(self.get_links_from(v))
-            return results
 
-        results = set([])
-        
-        if key == '*':
-            keys = self.get_all_keys()
-        else:
-            keys = [key]
+        else:        
+            if key == '*':
+                keys = self.get_all_keys()
+            else:
+                keys = [key]
+            for k in keys:
+                for value in values:
+                    if value == '*':
+                        results.extend([n for n in self.nodes if 
+                                self.nodes[n].metadata.get_values(k)])
+                        continue
 
-        for k in keys:
-            for value in values:
-                if value == '*':
-                    results = results.union(
-                        set(n for n in list(self.nodes) if n in self.nodes 
-                            and self.nodes[n].metadata.get_values(k))
-                        ) 
-                    continue
+                    use_timestamp = False
+                    if isinstance(value, UrtextTimestamp):
+                        use_timestamp = True
 
-                use_timestamp = False
-                if isinstance(value, UrtextTimestamp):
-                    use_timestamp = True
-
-                if k in self.settings['numerical_keys']:
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        value = 99999999
-                
-                if k in self.settings['case_sensitive']:
-                    results = results.union(set(
-                        n.id for n in self.nodes.values() if 
-                            value in [v.text for v in n.metadata.get_values(
+                    if k in self.settings['numerical_keys']:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            value = 99999999
+ 
+                    if k in self.settings['case_sensitive']:
+                        results.extend([
+                            n for n in self.nodes if 
+                                value in [v.text for v in self.nodes[n].metadata.get_values(
+                                    k,
+                                    use_timestamp=use_timestamp) if v.text]])
+                    else:
+                        results.extend([
+                            n for n in self.nodes if value in [ 
+                            v.text for v in self.nodes[n].metadata.get_values(
                                 k,
-                                use_timestamp=use_timestamp) if v.text])
-                        )      
-                else:
-                    if isinstance(value, str):
-                        value = value.lower()
-                    results = results.union(set(
-                        n for n in list(self.nodes) if n in self.nodes and value in [ 
-                        v.text for v in self.nodes[n].metadata.get_values(
-                            k,
-                            use_timestamp=use_timestamp, 
-                            lower=True) if v.text]))
-        
+                                use_timestamp=use_timestamp, 
+                                lower=True) if v.text]])
+
+        results=list(set(results))            
         if as_nodes:
             return [self.nodes[n] for n in results]
         return results
@@ -1358,7 +1344,7 @@ class UrtextProject:
     def get_file_and_position(self, node_id):
         if node_id in self.nodes:
             filename = self.get_file_name(node_id)
-            position = self.nodes[node_id].start_position()
+            position = self.nodes[node_id].start_position
             return filename, position
         return None, None
 

@@ -101,13 +101,17 @@ class NodeMetadata:
                 self.node,
                 start_position=m.start(),
                 end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
             remaining_contents = remaining_contents.replace(
                 m.group(),
                 '',
                 1)
 
         self.add_system_keys()
-        return remaining_contents
+        return remaining_contents, parsed_contents
 
     def add_entry(self, 
         key,
@@ -241,7 +245,8 @@ class NodeMetadata:
                     values.append(self._as_num_if_num(
                         keyname,
                         v))
-        return values
+        
+        return list(set(values))
 
     def _as_num_if_num(self, keyname, value):
         if keyname in self.project.settings['numerical_keys']:
