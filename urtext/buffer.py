@@ -101,12 +101,18 @@ class UrtextBuffer:
                 continue
 
             elif symbols[position]['type'] == 'opening_wrapper':
-                nested_levels[nested].append([last_position, position-1])
+                if position > 0:
+                    nested_levels[nested].append([last_position, position-1])
+                else:
+                    nested_levels[nested].append([0, 0])
                 position += 1 #wrappers exist outside range
                 nested += 1
 
             elif not from_compact and symbols[position]['type'] == 'compact_node':
-                nested_levels[nested].append([last_position, position-1])
+                if position > 0:
+                    nested_levels[nested].append([last_position, position-1])
+                else:
+                    nested_levels[nested].append([0, 0])
 
                 compact_symbols = self.lex(
                     symbols[position]['contents'], 
@@ -129,7 +135,7 @@ class UrtextBuffer:
                     continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
-                nested_levels[nested].append([last_position, position])
+                nested_levels[nested].append([last_position, position - 1])
                 if nested <= 0:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
