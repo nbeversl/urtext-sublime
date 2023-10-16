@@ -389,7 +389,7 @@ class UrtextNode:
                 if v.text:
                     values.append(v.text)
 
-        return syntax.metadata_separator_syntax.join(values)
+        return syntax.metadata_separator_syntax.join(list(set(values)))
 
 def strip_contents(contents, 
     preserve_length=False, 
