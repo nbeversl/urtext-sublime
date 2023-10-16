@@ -1,6 +1,14 @@
+import os
+
+if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
+    import Urtext.urtext.syntax as syntax
+else:
+    import urtext.syntax as syntax
+
 class UrtextExtension:
 
     phase = 0
+    syntax = syntax
     
     def __init__(self, project):
         self.project = project
