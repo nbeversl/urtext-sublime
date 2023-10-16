@@ -343,12 +343,10 @@ class UrtextNode:
         """
         from an extended key, returns all values
         """
-
         if '.' in meta_keys:
             meta_keys = meta_keys.split('.')
-        else:
-            if not isinstance(meta_keys, list):
-                meta_keys = [meta_keys]
+        elif not isinstance(meta_keys, list):
+            meta_keys = [meta_keys]
         values = []
 
         for index, k in enumerate(meta_keys):

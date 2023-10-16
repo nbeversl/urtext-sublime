@@ -1,5 +1,4 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
 else:

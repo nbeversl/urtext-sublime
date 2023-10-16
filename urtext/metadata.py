@@ -126,9 +126,6 @@ class NodeMetadata:
         tag_descendants=False):
 
         key = key.lower().strip()
-        # handle this using sets
-        # if value in self.get_values(key):
-        #     return False
 
         e = MetadataEntry(
             key, 
