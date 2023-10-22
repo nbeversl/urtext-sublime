@@ -129,10 +129,11 @@ class UrtextBuffer:
                
                 r = position + len(symbols[position]['contents'])
                 if r in symbols and symbols[r]['type'] == 'EOB':
+                    nested_levels[nested].append([r,r])
+                    last_position = r
                     continue
-                else:
-                    last_position = position + 1 + len(symbols[position]['contents'])
-                    continue
+                last_position = position + 1 + len(symbols[position]['contents'])
+                continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
                 nested_levels[nested].append([last_position, position - 1])
