@@ -1485,6 +1485,7 @@ class UrtextProject:
                     entry.keyname,
                     entry.meta_values,
                     self.nodes[node_to_tag],
+                    tag_self=True,
                     from_node=entry.from_node,
                     tag_descendants=entry.tag_descendants)
                 if node_to_tag not in self.nodes[entry.from_node].target_nodes:

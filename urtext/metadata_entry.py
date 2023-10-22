@@ -24,6 +24,7 @@ class MetadataEntry:  # container for a single metadata entry
         self.node = node
         self.keyname = keyname
         self.meta_values = []
+        self.tag_self = tag_self
         self.tag_children = tag_children
         self.tag_descendants = tag_descendants
         self.from_node = from_node
@@ -64,6 +65,7 @@ class MetadataEntry:  # container for a single metadata entry
         print('from_node: %s' % self.from_node)
         print('key: %s' % self.keyname)
         print(self.start_position, self.end_position)
+        print('tag children: %s' % self.tag_children)
         print('tag descendats: %s' % self.tag_descendants)
         print('is node', self.is_node)
         for value in self.meta_values:

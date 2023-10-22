@@ -40,8 +40,8 @@ class NodeMetadata:
             tag_self=False
             tag_children=False
             tag_descendants=False
-
-            if not syntax.metadata_tag_self_c.match(keyname[0]) and not syntax.metadata_tag_desc_c.match(keyname[0]):
+            if not syntax.metadata_tag_self_c.match(keyname[0]) and ( 
+                not syntax.metadata_tag_desc_c.match(keyname[0])):
                 tag_self=True
             else:
                 if syntax.metadata_tag_self_c.match(keyname[0]):
@@ -157,13 +157,14 @@ class NodeMetadata:
         keyname = keyname.lower()
         if keyname not in self.entries_dict:
             return []
+        entries = [e for e in self.entries_dict[keyname] if e.tag_self]
 
         if use_timestamp and keyname in self.project.settings['use_timestamp']:
             timestamps = []
-            for e in self.entries_dict[keyname]:
+            for e in entries:
                 timestamps.extend(e.get_timestamps())
             return timestamps
-        return self.entries_dict[keyname]
+        return entries
 
     def entries(self):
         all_entries = []
