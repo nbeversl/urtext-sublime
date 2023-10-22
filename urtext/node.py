@@ -195,7 +195,7 @@ class UrtextNode:
             title = '(untitled)'
             self.untitled = True
         if len(title) > 255:
-            title = title[:255]
+            title = title[:255].strip()
         self.metadata.add_entry('title', [MetadataValue(title)], self)
         return title
    
