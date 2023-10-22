@@ -1491,7 +1491,7 @@ class UrtextProject:
                 if node_to_tag not in self.nodes[entry.from_node].target_nodes:
                     self.nodes[entry.from_node].target_nodes.append(node_to_tag)
             
-            visited_nodes.append(uid)        
+            visited_nodes.append(uid)
             
             if entry.tag_descendants:
                 self._add_sub_tags(

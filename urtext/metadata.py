@@ -120,7 +120,7 @@ class NodeMetadata:
         is_node=False,
         start_position=0,
         end_position=0,
-        tag_self=False,
+        tag_self=True,
         from_node=None,
         tag_children=False,
         tag_descendants=False):
