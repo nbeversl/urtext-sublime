@@ -513,7 +513,7 @@ class NodeBrowserMenu:
             project = project_list.current_project
         
         if nodes != None:
-            self.menu = [project.nodes[node_id] for node_id in nodes]
+            self.menu = project.all_nodes(as_nodes=True)
         else:
             for single_project in projects:
                 self.menu.extend(single_project.all_nodes(as_nodes=True))

@@ -734,17 +734,16 @@ class UrtextProject:
             node_group = [
                 r for r in remaining_nodes if r.metadata.get_first_value(
                     k,
-                    use_timestamp=use_timestamp)]
-            if not node_group:
-                continue
-            node_group = sorted(
-                node_group,
-                key=lambda node: node.metadata.get_first_value(
-                    k,
-                    use_timestamp=use_timestamp),
-                reverse=use_timestamp)
-            sorted_nodes.extend(node_group)
-            remaining_nodes = list(set(remaining_nodes) - set(node_group))
+                    use_timestamp=use_timestamp) != None]
+            if node_group:
+                node_group = sorted(
+                    node_group,
+                    key=lambda node: node.metadata.get_first_value(
+                        k,
+                        use_timestamp=use_timestamp),
+                    reverse=use_timestamp)
+                sorted_nodes.extend(node_group)
+                remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
         if not as_nodes:
             sorted_nodes = [n.id for n in sorted_nodes if n.id in self.nodes]
