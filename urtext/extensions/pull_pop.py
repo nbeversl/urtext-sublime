@@ -38,6 +38,7 @@ class PopNode:
             return None
 
         self.project._parse_file(filename)
+    
         start = self.project.nodes[node_id].start_position
         end = self.project.nodes[node_id].end_position
         filename = self.project.nodes[node_id].filename
@@ -62,6 +63,7 @@ class PopNode:
             self.syntax.link_opening_wrapper,
             popped_node_id,
             self.syntax.pointer_closing_wrapper,
+            '\n' if self.project.nodes[popped_node_id].compact else '',
             file_contents[end + 1:]
             ])
        
@@ -73,7 +75,6 @@ class PopNode:
         with open(new_file_name, 'w',encoding='utf-8') as f:
             f.write(popped_node_contents)
         self.project._parse_file(new_file_name) 
-        return filename
 
 class PullNode:
 
@@ -130,13 +131,14 @@ class PullNode:
                         
         self.project._parse_file(source_filename)
         start = self.project.nodes[source_id].start_position
-        end = self.project.nodes[source_id].ranges[-1][1]
+        end = self.project.nodes[source_id].end_position
         
         source_file_contents = self.project.files[source_filename]._get_file_contents()
 
         updated_source_file_contents = ''.join([
-            source_file_contents[0:start-1],
-            source_file_contents[end+1:len(source_file_contents)]])
+            source_file_contents[0:end],
+            source_file_contents[end:len(source_file_contents)]
+            ])
 
         root = False
         if not self.project.nodes[source_id].root_node:
