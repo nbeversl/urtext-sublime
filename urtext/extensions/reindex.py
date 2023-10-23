@@ -9,10 +9,10 @@ class ReindexFiles:
     
     def rename_all_files(self):
         return self.project.execute(
-            self.rename_file_nodes,
+            self._rename_file_nodes,
             self.project.all_files())
 
-    def rename_file_nodes(self, filenames):
+    def _rename_file_nodes(self, filenames):
         """ Rename a file or list of files by metadata """
         if isinstance(filenames, str):
             filenames = [filenames]
@@ -60,7 +60,7 @@ class ReindexFiles:
                 return print('New filename(s) could not be made. Check project_settings')
 
             filename_template = [p.strip() for p in filename_template if p.strip()]
-            new_basename = ' - '.join(filename_template)      
+            new_basename = ' - '.join(filename_template)     
             new_basename = new_basename.replace('’', "'")
             new_basename = new_basename.strip().strip('-').strip();
             new_basename = strip_illegal_characters(new_basename)
@@ -110,7 +110,7 @@ class RenameSingleFile(ReindexFiles):
 
     def on_file_modified(self, filename):
         if filename == self.file_to_rename:
-            renamed_files = self.rename_file_nodes(filename)
+            renamed_files = self._rename_file_nodes(filename)
             self.file_to_rename = None
             if renamed_files:
                 self.project.run_editor_method('close_current')

@@ -24,4 +24,4 @@ class RenameFileCommand(UrtextTextCommand):
             self._UrtextProjectList.current_project.extensions[
                 'RENAME_SINGLE_FILE'
                 ].set_file_to_rename(self.view.file_name())
-            self.view.run_command('save')         
+            self.view.run_command('save')
