@@ -136,7 +136,7 @@ class UrtextBuffer:
                 continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
-                nested_levels[nested].append([last_position, position - 1])
+                nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
