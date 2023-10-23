@@ -100,7 +100,7 @@ class Collect:
 									syntax.pointer_closing_wrapper,
 									syntax.node_closing_wrapper)
 
-							found_item['position'] = str(entry.start_position + 1)
+							found_item['position'] = str(entry.start_position)
 							found_stuff.append(found_item)
 	
 		if not found_stuff:
