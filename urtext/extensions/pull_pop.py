@@ -26,7 +26,7 @@ class PopNode:
  
         if not node_id:
             node_id = self.project.get_node_id_from_position(
-                filename, 
+                filename,
                 file_pos)
  
         if not node_id:
@@ -43,7 +43,7 @@ class PopNode:
         filename = self.project.nodes[node_id].filename
         file_contents = self.project.files[filename]._get_file_contents()
         popped_node_id = node_id
-        popped_node_contents = file_contents[start:end+1].strip()
+        popped_node_contents = file_contents[start:end].strip()
         parent_id = self.project.nodes[node_id].parent.id
         
         if self.project.settings['breadcrumb_key']:
@@ -59,7 +59,6 @@ class PopNode:
 
         remaining_node_contents = ''.join([
             file_contents[:start - 1],
-            '\n',
             self.syntax.link_opening_wrapper,
             popped_node_id,
             self.syntax.pointer_closing_wrapper,
@@ -68,7 +67,7 @@ class PopNode:
        
         with open(os.path.join(self.project.entry_path, filename), 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
-        self.project._parse_file(filename) 
+        self.project._parse_file(os.path.join(self.project.entry_path, filename)) 
 
         new_file_name = os.path.join(self.project.entry_path, popped_node_id+'.urtext')
         with open(new_file_name, 'w',encoding='utf-8') as f:
@@ -170,7 +169,8 @@ class PullNode:
             self.project.files[destination_filename]._set_file_contents(replacement_contents)
             self.project._parse_file(destination_filename)
 
-        if root == True: return source_filename
+        if root == True: 
+            return source_filename
         return None
 
 urtext_extensions = [PullNode, PopNode]
