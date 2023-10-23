@@ -682,8 +682,11 @@ class RandomNodeCommand(UrtextTextCommand):
 class ToNextNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
-        next_wrapper = self.view.find(
-            syntax.opening_wrapper + '|' + syntax.bullet,
+        next_wrapper = self.view.find(r'|'.join([
+                syntax.opening_wrapper,
+                syntax.bullet,
+                syntax.node_pointer
+            ]),
             self.view.sel()[0].a + 1)
         if next_wrapper:
             self.view.sel().clear()
@@ -694,7 +697,11 @@ class ToPreviousNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         all_previous_opening_wrappers = [r.a for r in self.view.find_all(
-            syntax.opening_wrapper + '|' + syntax.bullet) if r.a < self.view.sel()[0].a]
+            '|'.join([
+                syntax.opening_wrapper,
+                syntax.bullet,
+                syntax.node_pointer
+            ])) if r.a < self.view.sel()[0].a]
         if all_previous_opening_wrappers:
             self.view.sel().clear()
             self.view.sel().add(all_previous_opening_wrappers[-1])
