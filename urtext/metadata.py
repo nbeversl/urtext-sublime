@@ -249,7 +249,7 @@ class NodeMetadata:
     def _as_num_if_num(self, keyname, value):
         if keyname in self.project.settings['numerical_keys']:
             try:
-                return int(value.text)
+                return float(value)
             except:
                 return None
         return value
