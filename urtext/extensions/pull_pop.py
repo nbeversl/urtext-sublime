@@ -65,9 +65,9 @@ class PopNode:
             file_contents[end + 1:]
             ])
        
-        with open(os.path.join(self.project.entry_path, filename), 'w', encoding='utf-8') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
-        self.project._parse_file(os.path.join(self.project.entry_path, filename)) 
+        self.project._parse_file(filename) 
 
         new_file_name = os.path.join(self.project.entry_path, popped_node_id+'.urtext')
         with open(new_file_name, 'w',encoding='utf-8') as f:
