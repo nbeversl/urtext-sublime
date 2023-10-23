@@ -67,7 +67,7 @@ def default_project_settings():
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
         'file_index_sort': ['_oldest_timestamp'],
-        'filename_datestamp_format':'%m-%d-%Y',
+        'filename_datestamp_format':'%m-%d-%Y %I:%M %p',
         'file_node_timestamp' : True,
         'filename_title_length': 100,
         'hash_key': '#',
