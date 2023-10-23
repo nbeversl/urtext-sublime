@@ -102,7 +102,10 @@ class UrtextBuffer:
 
             elif symbols[position]['type'] == 'opening_wrapper':
                 if position > 0:
-                    nested_levels[nested].append([last_position, position-1])
+                    if from_compact:
+                        nested_levels[nested].append([last_position-1, position-1])
+                    else:
+                        nested_levels[nested].append([last_position, position-1])
                 else:
                     nested_levels[nested].append([0, 0])
                 position += 1 #wrappers exist outside range
@@ -136,7 +139,10 @@ class UrtextBuffer:
                 continue
  
             elif symbols[position]['type'] == 'closing_wrapper':
-                nested_levels[nested].append([last_position, position])
+                if from_compact:
+                    nested_levels[nested].append([last_position-1, position-1])
+                else:
+                    nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
