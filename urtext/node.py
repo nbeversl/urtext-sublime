@@ -189,8 +189,10 @@ class UrtextNode:
             if title in first_non_blank_line:
                 self.first_line_title = True 
         elif first_non_blank_line:
-                title = first_non_blank_line
-                self.first_line_title = True
+            title = first_non_blank_line
+            for character in syntax.disallowed_title_characters:
+                title = re.sub(character, ' ', title)
+            self.first_line_title = True
         if not title:
             title = '(untitled)'
             self.untitled = True
