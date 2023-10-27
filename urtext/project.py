@@ -1177,6 +1177,8 @@ class UrtextProject:
             files.extend([os.path.join(path['path'], f) for f in os.listdir(path['path'])])
             if 'recurse_subfolders' in path and path['recurse_subfolders']:
                 for dirpath, dirnames, filenames in os.walk(path['path']):
+                    if '/.git' in dirpath or '/_diff' in dirpath:
+                        continue
                     files.extend([os.path.join(dirpath, f) for f in filenames])
         return [f for f in files if self._include_file(f)]
 
