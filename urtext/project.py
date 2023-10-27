@@ -558,6 +558,8 @@ class UrtextProject:
         filename = filename + '.urtext'
         if path:
             filename = os.path.join(path, filename)
+        else:
+            filename = os.path.join(self.entry_path, filename)
         with open(filename, "w") as f:
             f.write(contents)  
         self._parse_file(filename)
@@ -628,7 +630,7 @@ class UrtextProject:
                 if date == None:
                     date = datetime.datetime.now() 
                 if self.settings['keyless_timestamp'] == True:
-                    new_node_contents += self.timestamp(date) + ' '
+                    new_node_contents += self.timestamp(date).unwrapped_string + ' '
                 elif self.settings['node_date_keyname']:
                     metadata[self.settings['node_date_keyname']] = self.timestamp(date)
 
