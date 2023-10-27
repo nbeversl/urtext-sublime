@@ -22,6 +22,7 @@ class UrtextBuffer:
     def __init__(self, project):
         
         self.nodes = []
+        self.filename = None
         self.root_node = None
         self.alias_nodes = [] #todo should be in tree extension
         self.messages = []
@@ -147,7 +148,7 @@ class UrtextBuffer:
                     self.messages.append(
                         'Removed stray closing wrapper at %s. ' % str(position))
                     contents = contents[:position] + contents[position + 1:]
-                    self._set_file_contents(contents)
+                    self._set_contents(contents)
                     return self.lex_and_parse(contents)
 
                 position += 1 #wrappers exist outside range
@@ -212,7 +213,7 @@ class UrtextBuffer:
                  syntax.node_closing_wrapper,
                  ' ',
                  contents[position:]])
-            self._set_file_contents(contents)
+            self._set_contents(contents)
             return self.lex_and_parse(contents)
 
         return nested_levels, child_group, nested
@@ -240,8 +241,8 @@ class UrtextBuffer:
             compact=compact,
             nested=nested)
         
-        new_node.get_file_contents = self._get_file_contents
-        new_node.set_file_contents = self._set_file_contents
+        new_node.get_contents = self._get_contents
+        new_node.set_contents = self._set_contents
         new_node.ranges = ranges
         new_node.start_position = ranges[0][0]
         new_node.end_position = ranges[-1][1]
@@ -251,11 +252,70 @@ class UrtextBuffer:
             self.root_node = new_node
         return new_node
 
-    def _get_file_contents(self):
+    def clear_messages_and_parse(self):
+        file_contents = self._get_contents()
+        cleared_contents = self.clear_messages(self._get_contents())
+        if cleared_contents != file_contents:
+            self._set_contents(cleared_contents)
+            self.contents = cleared_contents
+        self.lex_and_parse(cleared_contents)
+        self.write_messages()
+        for node in self.nodes:
+            node.filename =self.filename
+            node.file = self
+
+    def _get_contents(self):
         return self.contents
           
-    def _set_file_contents(self, contents):
-          return
+    def _set_contents(self, contents, compare=False):
+        self.contents = contents
+        return
+
+    def write_messages(self, messages=None):
+        if not messages and not self.messages: return False
+        if messages: 
+            self.messages = messages
+        new_contents = self.clear_messages(self._get_contents())
+
+        if self.messages:
+            timestamp = self.project.timestamp(as_string=True)
+            messages = ''.join([ 
+                syntax.urtext_message_opening_wrapper,
+                '\n',
+                timestamp,
+                '\n',
+                '\n'.join(messages),
+                '\n',
+                syntax.urtext_message_closing_wrapper,
+                '\n'
+                ])
+
+            message_length = len(messages)
+            
+            for n in re.finditer('position \d{1,10}', messages):
+                old_n = int(n.group().strip('position '))
+                new_n = old_n + message_length
+                messages = messages.replace(str(old_n), str(new_n))
+                 
+            new_contents = ''.join([
+                messages,
+                new_contents,
+                ])
+
+        self._set_contents(new_contents, compare=False)
+        # TODO: make DRY
+        self.nodes = []
+        self.root_node = None
+        self.lex_and_parse(new_contents)
+        for node in self.nodes:
+            node.filename =self.filename
+            node.file = self
+
+    def clear_messages(self, contents):
+        for match in syntax.urtext_messages_c.finditer(contents):
+            if self.user_delete_string not in contents:
+                contents = contents.replace(match.group(),'')
+        return contents
 
     def get_ordered_nodes(self):
         return sorted( 

@@ -73,6 +73,11 @@ def save_current():
         view = sublime.active_window().active_view()
         view.run_command('save')
 
+def save_file(filename):
+    view = sublime.active_window().find_open_file(filename)
+    if view:
+        view.run_command('save')
+
 def set_clipboard(text):
     sublime.set_clipboard(text)
     show_popup(text + '\ncopied to the clipboard')
@@ -107,7 +112,6 @@ def show_status(message):
     if window:
         window.status_message(message)
 
-
 def set_buffer(filename):    
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
@@ -139,7 +143,6 @@ def open_file_in_editor(filepath):
         sublime.active_window().open_file(filepath)
 
 def open_http_link(link):
-
     #TODO : possibly refactor into Urtext library
     if link[:8] != 'https://' and link [:7] != 'http://':
         link = 'https://' + link
@@ -158,6 +161,13 @@ def close_current():
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
         view.close()
+
+def close_file(filename):
+    view = sublime.active_window().find_open_file(filename)
+    if view:
+        view.set_scratch(True)
+        view.close()
+
 
 def insert_at_next_line(contents):
     pass
@@ -179,6 +189,8 @@ editor_methods = {
     'close_current': close_current,
     'write_to_console' : print,
     'status_message' : show_status,
+    'close_file': close_file,
+    'save_file': save_file,
 }
 
 def refresh_project_text_command(change_project=True):
@@ -370,8 +382,8 @@ class UrtextViewEventListener(ViewEventListener):
 
     def on_deactivated(self):
         if _UrtextProjectList and _UrtextProjectList.current_project:
-            if self.view and self.view.file_name():
-                if self.view.file_name() in _UrtextProjectList.current_project.files:
+            if self.view and ( self.view.file_name() and self.view.is_dirty()
+                and self.view.file_name() in _UrtextProjectList.current_project.files):
                     self.view.run_command('save')
                     _UrtextProjectList.on_modified(self.view.file_name())
 
@@ -384,7 +396,6 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
             line, 
             self.view.file_name(),
             cursor)
-        print(link)
                             
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
@@ -618,12 +629,7 @@ class DeleteThisNodeCommand(UrtextTextCommand):
                 f.file_name() for f in self.view.window().views() if (
                     f.file_name() != self.view.file_name())]
             file_name = self.view.file_name()
-            if self.view.is_dirty():
-                self.view.set_scratch(True)
-            self.view.window().run_command('close_file')            
-            self._UrtextProjectList.delete_file(
-                file_name,
-                open_files=open_files)
+            self._UrtextProjectList.delete_file(file_name)
 
 class InsertTimestampCommand(UrtextTextCommand):
 

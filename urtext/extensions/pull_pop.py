@@ -7,45 +7,55 @@ class PopNode:
 
     def pop_node(self,
         param_string, 
-        filename, 
-        file_pos=None,  
-        node_id=None):
+        source_filename, 
+        file_pos):
 
         return self.project.execute(
             self._pop_node,
             param_string, 
-            filename, 
-            file_pos=file_pos,  
-            node_id=node_id)
+            source_filename, 
+            file_pos)
 
     def _pop_node(self,
         param_string, 
-        filename, 
-        file_pos=None,  
-        node_id=None):
- 
-        if not node_id:
-            node_id = self.project.get_node_id_from_position(
-                filename,
-                file_pos)
- 
-        if not node_id:
-            print('No node ID or duplicate Node ID')
-            return None
-        
-        if self.project.nodes[node_id].root_node:
-            print(node_id+ ' is already a root node.')
-            return None
+        source_filename, 
+        file_pos):
 
-        self.project._parse_file(filename)
+        if not self.project.event_listeners_should_continue:
+            return
+
+        if source_filename not in self.project.files:
+            print(source_filename, 'not in project')
+            return
+
+        self.project.event_listeners_should_continue = False
+        self.project.run_editor_method('save_file', source_filename)
+        self.project._on_modified(source_filename, bypass=True)
+
+        popped_node_id = self.project.get_node_id_from_position(
+            source_filename,
+            file_pos)
+ 
+        if not popped_node_id:
+            print('No node ID or duplicate Node ID')
+            self.project.event_listeners_should_continue = True
+            return
+        
+        if popped_node_id not in self.project.nodes:
+            print(popped_node_id, 'not in project')
+            self.project.event_listeners_should_continue = True
+            return
+
+        if self.project.nodes[popped_node_id].root_node:
+            print(popped_node_id+ ' is already a root node.')
+            self.project.event_listeners_should_continue = True
+            return
     
-        start = self.project.nodes[node_id].start_position
-        end = self.project.nodes[node_id].end_position
-        filename = self.project.nodes[node_id].filename
-        file_contents = self.project.files[filename]._get_file_contents()
-        popped_node_id = node_id
-        popped_node_contents = file_contents[start:end].strip()
-        parent_id = self.project.nodes[node_id].parent.id
+        start = self.project.nodes[popped_node_id].start_position
+        end = self.project.nodes[popped_node_id].end_position
+        source_file_contents = self.project.files[source_filename]._get_contents()
+        popped_node_contents = source_file_contents[start:end].strip()
+        parent_id = self.project.nodes[popped_node_id].parent.id
         
         if self.project.settings['breadcrumb_key']:
             popped_node_contents += ''.join([
@@ -59,23 +69,25 @@ class PopNode:
                 self.project.timestamp().wrapped_string]);
 
         remaining_node_contents = ''.join([
-            file_contents[:start - 1],
+            source_file_contents[:start - 1],
             self.syntax.link_opening_wrapper,
             popped_node_id,
             self.syntax.pointer_closing_wrapper,
             '\n' if self.project.nodes[popped_node_id].compact else '',
-            file_contents[end + 1:]
+            source_file_contents[end + 1:]
             ])
-       
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(remaining_node_contents)
-        self.project._parse_file(filename) 
+        self.project.files[source_filename]._set_contents(remaining_node_contents)
+        self.project._parse_file(source_filename)
 
-        new_file_name = os.path.join(self.project.entry_path, popped_node_id+'.urtext')
+        new_file_name = os.path.join(
+            self.project.entry_path, 
+            popped_node_id+'.urtext')
         with open(new_file_name, 'w',encoding='utf-8') as f:
             f.write(popped_node_contents)
-        self.project._parse_file(new_file_name) 
-
+        self.project._parse_file(new_file_name)
+        self.project._on_modified(source_filename, bypass=True)
+        self.project.event_listeners_should_continue = True
+  
 class PullNode:
 
     name=['PULL_NODE']
@@ -83,74 +95,82 @@ class PullNode:
     def pull_node(self, 
         string, 
         destination_filename, 
-        file_pos=0,
-        col_pos=0):
+        file_pos):
 
         return self.project.execute(
             self._pull_node,
             string, 
             destination_filename, 
-            file_pos=file_pos,
-            col_pos=col_pos)
+            file_pos)
 
     def _pull_node(self, 
         string, 
         destination_filename, 
-        file_pos=0,
-        col_pos=0):
-        
-        replacement_contents = None
+        file_pos):
+
+        if not self.project.event_listeners_should_continue:
+            return
+
+        self.project.event_listeners_should_continue = False
+        self.project.run_editor_method('save_current')
+        self.project.event_listeners_should_continue = True
+        self.project._on_modified(destination_filename)
+        self.project.event_listeners_should_continue = False
 
         link = self.project.parse_link(
             string,
-            file_pos=file_pos,
-            col_pos=col_pos)
-        
-        if not link or link['kind'] != 'NODE': 
-            return None
-        
-        source_id = link['link']
-        
-        if source_id not in self.project.nodes: 
-            return None
+            file_pos=file_pos)
 
-        #  make sure we are in a node in an Urtext file.
-        self.project._parse_file(destination_filename)
-        destination_node = self.project.get_node_id_from_position(destination_filename, file_pos)
+        if not link or link['kind'] != 'NODE': 
+            self.project.event_listeners_should_continue = True
+            return
+
+        source_id = link['node_id']
+        if source_id not in self.project.nodes: 
+            self.project.event_listeners_should_continue = True
+            return
+        
+        destination_node = self.project.get_node_id_from_position(
+            destination_filename, 
+            file_pos)
+
         if not destination_node:
-            return None
+            print('No destination node found here')
+            self.project.event_listeners_should_continue = True
+            return
+
         if self.project.nodes[destination_node].dynamic:
             print('Not pulling content into a dynamic node')
-            return None
+            self.project.event_listeners_should_continue = True
+            return
 
         source_filename = self.project.nodes[source_id].filename
         for ancestor in self.project.nodes[destination_node].tree_node.ancestors:
             if ancestor.name == source_id:
                 print('Cannot pull a node into its own child or descendant.')
-                return None
-                        
-        self.project._parse_file(source_filename)
+                self.project.event_listeners_should_continue = True
+                return
+
+        self.project._on_modified(source_filename, bypass=True)
         start = self.project.nodes[source_id].start_position
         end = self.project.nodes[source_id].end_position
-        
-        source_file_contents = self.project.files[source_filename]._get_file_contents()
 
-        updated_source_file_contents = ''.join([
-            source_file_contents[0:end],
-            source_file_contents[end:len(source_file_contents)]
-            ])
+        source_file_contents = self.project.files[source_filename]._get_contents()
 
-        root = False
         if not self.project.nodes[source_id].root_node:
-            self.project.files[source_filename]._set_file_contents(
+            updated_source_file_contents = ''.join([
+                source_file_contents[0:end],
+                source_file_contents[end:len(source_file_contents)]
+                ])
+            self.project.files[source_filename]._set_contents(
                 updated_source_file_contents)
-            self.project._parse_file(source_filename)
+            self.project._on_modified(source_filename, bypass=True)
         else:
             self.project._delete_file(source_filename)
-            root = True
-        
+            self.project.run_editor_method('close_file', source_filename)
+
         pulled_contents = source_file_contents[start:end]
-        destination_file_contents = self.project.files[destination_filename]._get_file_contents()
+        destination_file_contents = self.project.files[destination_filename]._get_contents()
     
         wrapped_contents = ''.join([
             self.syntax.node_opening_wrapper,
@@ -158,22 +178,14 @@ class PullNode:
             pulled_contents,
             ' ',
             self.syntax.node_closing_wrapper])
+            
+        destination_file_contents = destination_file_contents.replace(
+            link['full_match'],
+            wrapped_contents)
 
-        for m in re.finditer(re.escape(link['full_match']), destination_file_contents):
-                
-            replacement_contents = ''.join([
-                destination_file_contents[:m.start()],
-                wrapped_contents,
-                destination_file_contents[m.end():]]
-                )
-
-        if replacement_contents:
-            self.project.files[destination_filename]._set_file_contents(replacement_contents)
-            self.project._parse_file(destination_filename)
-
-        if root == True: 
-            return source_filename
-        return None
+        self.project.files[destination_filename]._set_contents(destination_file_contents)
+        self.project._on_modified(destination_filename, bypass=True)
+        self.project.event_listeners_should_continue = True
 
 urtext_extensions = [PullNode, PopNode]
         

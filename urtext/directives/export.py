@@ -76,7 +76,7 @@ class UrtextExport:
 
         ranges = self.project.nodes[root_node_id].ranges
         filename = self.project.nodes[root_node_id].filename
-        file_contents = self.project.files[filename]._get_file_contents()
+        file_contents = self.project.files[filename]._get_contents()
         title = self.project.nodes[root_node_id].title
 
         if root_node_id in exclude or root_node_id in visited_nodes:

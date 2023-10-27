@@ -71,7 +71,8 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
+        self.event_listeners_should_continue = True
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -152,8 +153,6 @@ class UrtextProject:
         self._run_hook('after_project_initialized')
         self.handle_info_message(
             '"'+self.settings['project_title']+'" compiled')
-    
-
 
     def _parse_file(self, filename):
         if self._filter_filenames(filename) == None:
@@ -268,10 +267,10 @@ class UrtextProject:
                             suffix
                         ])
             if rewrites:
-                contents = self.files[filename]._get_file_contents()
+                contents = self.files[filename]._get_contents()
                 for old_link in rewrites:
                     contents = contents.replace(old_link, rewrites[old_link])
-                if self.files[filename]._set_file_contents(contents):
+                if self.files[filename]._set_contents(contents):
                     self._parse_file(filename)
                     self.run_editor_method('refresh_open_file', filename)
 
@@ -295,7 +294,7 @@ class UrtextProject:
                             links_to_change[link] = new_id
                     if links_to_change:
                         filename = self.nodes[project_node].filename
-                        contents = self.files[filename]._get_file_contents()
+                        contents = self.files[filename]._get_contents()
                         
                         for node_id in list(links_to_change.keys()):
                             replaced_contents = contents
@@ -309,7 +308,7 @@ class UrtextProject:
                                     'on_node_id_changed',
                                     node_id,
                                     links_to_change[node_id])
-                                if self.files[filename]._set_file_contents(
+                                if self.files[filename]._set_contents(
                                     replaced_contents):
                                   self._parse_file(filename)
                                   self.run_editor_method(
@@ -490,27 +489,24 @@ class UrtextProject:
         if filename in self.messages:
             self.messages[filename] = []
 
-    def delete_file(self, filename, open_files=[]):
+    def delete_file(self, filename):
         return self.execute(
             self._delete_file, 
-            filename, 
-            open_files=open_files)
+            filename)
 
-    def _delete_file(self, filename, open_files=[]):
+    def _delete_file(self, filename):
         """
         Deletes a file, removes it from the project,
         and returns modified files.
         """
         if filename in self.files:         
+            self.run_editor_method('close_file', filename)
             self._drop_file(filename)
             os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
         self._run_hook('on_file_deleted', filename)
-        if open_files:
-            for f in open_files:
-                self._on_modified(f)
-    
+
     def _handle_renamed(self, old_filename, new_filename):
         if new_filename != old_filename:
             self.files[new_filename] = self.files[old_filename]
@@ -1098,20 +1094,22 @@ class UrtextProject:
             r'[^\}]>' ]         # finally node links
 
         for filename in list(self.files):
-            contents = self.files[filename]._get_file_contents()
+            contents = self.files[filename]._get_contents()
             new_contents = contents
             for pattern in patterns_to_replace:
                 links = re.findall(pattern + original_id, new_contents)
                 for link in links:
                     new_contents = new_contents.replace(link, replacement, 1)
-            if self.files[filename]._set_file_contents(
+            if self.files[filename]._set_contents(
                 new_contents):
                 return self.execute(self._on_modified, filename)
 
-    def on_modified(self, filename):    
-        return self.execute(self._on_modified, filename)
+    def on_modified(self, filename, bypass=False):    
+        return self.execute(self._on_modified, filename, bypass=bypass)
     
-    def _on_modified(self, filename):
+    def _on_modified(self, filename, bypass=False):
+        if not self.event_listeners_should_continue and not bypass:
+            return
         if self.compiled:
             modified_files = [filename]
             self._parse_file(filename)
@@ -1124,12 +1122,13 @@ class UrtextProject:
             self._sync_file_list()
             if filename in self.files:
                 self._run_hook('on_file_modified', filename)
+            return modified_files
         
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        if node_id in self.nodes and self.compiled:
+        if node_id in self.nodes and self.compiled and self.event_listeners_should_continue:
             filename = self.nodes[node_id].filename
             self._run_hook('on_node_visited', node_id)
             for dd in list(self.dynamic_definitions.values()):
@@ -1142,6 +1141,8 @@ class UrtextProject:
                     self.title(),
                     ' (compiled)' if self.compiled else ' (compiling)'
                     ]))
+        else:
+            print('NOT VISITING NODE')
 
     def visit_file(self, filename):
         return self.execute(
@@ -1149,7 +1150,7 @@ class UrtextProject:
             filename)
 
     def _visit_file(self, filename):
-        if filename in self.files and self.compiled:
+        if filename in self.files and self.compiled and self.event_listeners_should_continue:
             modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
@@ -1163,7 +1164,7 @@ class UrtextProject:
             self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
             self._log_item(
-                file, 
+                file,
                 file+' no longer seen in project path. Dropping it from the project.')
             self._drop_file(file)
 
@@ -1523,6 +1524,9 @@ class UrtextProject:
         
         buffer = UrtextBuffer(self)
         buffer.lex_and_parse(buffer_contents)
+        buffer.clear_messages_and_parse()
+
+        duplicated_ids = self._check_file_for_duplicates(buffer)
         node_id = None
         for node in buffer.nodes:
             for r in node.ranges:           
