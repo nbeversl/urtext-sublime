@@ -1531,6 +1531,7 @@ class UrtextProject:
             known_ids = [n.id for n in self.files[filename].nodes]
 
         buffer = UrtextBuffer(self, buffer_contents)
+        buffer.filename = filename
         buffer.lex_and_parse()
         
         duplicated_ids = self._check_file_for_duplicates(
