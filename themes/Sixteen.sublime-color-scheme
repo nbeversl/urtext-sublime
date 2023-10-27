@@ -300,6 +300,9 @@
 	  		{ 	"scope" : "entity.name.struct.error-message.urtext",
 	  			"foreground" : "var(error-message)"
 	  		},
+	  		{ 	"scope" : "http_link.urtext",
+	  			"foreground" : "var(blue)"
+	  		},
 	  		
 	],
 }

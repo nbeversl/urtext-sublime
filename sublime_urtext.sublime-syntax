@@ -25,6 +25,7 @@ contexts:
     - include: shorthand_meta
     - include: node_title
     - include: metadata-entry
+    - include: http-link
     
     - match: ^\s*(•|-)
       scope: compact_node_opener.urtext 
@@ -375,5 +376,9 @@ contexts:
     - match: '[\r|\n]'
       pop: true
 
+  http-link:
+    - match: (https?:\/\/)?([\w\-])+\.{1}([a-zA-Z]{2,63})([\/\w-]*)*\/?\??([^#\n\r\s]*)?#?([^\n\r\s]*)
+      scope: http_link.urtext
+  
   customizations:
     - meta_scope: customization.urtext

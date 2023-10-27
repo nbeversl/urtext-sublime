@@ -394,6 +394,9 @@
 	  			"foreground" : "var(bright-green2",
 
 	  		},
+	  		{ 	"scope" : "http_link.urtext",
+	  			"foreground" : "var(blue)"
+	  		},
 
 	/* system message */
 
