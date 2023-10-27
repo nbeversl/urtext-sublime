@@ -19,25 +19,24 @@ class UrtextBuffer:
     urtext_node = UrtextNode
     user_delete_string = USER_DELETE_STRING
 
-    def __init__(self, project):
-        
+    def __init__(self, project, contents):
         self.nodes = []
-        self.filename = None
+        self.contents = contents
         self.root_node = None
         self.alias_nodes = [] #todo should be in tree extension
         self.messages = []
         self.project = project
         self.meta_to_node = []
-
-    def lex_and_parse(self, contents):
-        self.contents = contents
-        symbols = self.lex(contents)
-        self.parse(contents, symbols)
-        self.file_length = len(contents)
+    
+    def lex_and_parse(self):
+        symbols = self.lex(self.contents)
+        self.parse(self.contents, symbols)
+        self.file_length = len(self.contents)
         self.propagate_timestamps(self.root_node)
+        for node in self.nodes:
+            node.buffer = self
 
     def lex(self, contents, start_position=0):
-       
         symbols = {}
         embedded_syntaxes = []
         contents = strip_backtick_escape(contents)
@@ -257,11 +256,10 @@ class UrtextBuffer:
         cleared_contents = self.clear_messages(self._get_contents())
         if cleared_contents != file_contents:
             self._set_contents(cleared_contents)
-            self.contents = cleared_contents
-        self.lex_and_parse(cleared_contents)
+        self.lex_and_parse()
         self.write_messages()
         for node in self.nodes:
-            node.filename =self.filename
+            node.filename = self.filename
             node.file = self
 
     def _get_contents(self):
@@ -306,7 +304,7 @@ class UrtextBuffer:
         # TODO: make DRY
         self.nodes = []
         self.root_node = None
-        self.lex_and_parse(new_contents)
+        self.lex_and_parse()
         for node in self.nodes:
             node.filename =self.filename
             node.file = self

@@ -129,8 +129,9 @@ class UrtextNode:
                     syntax.parent_identifier,
                     self.parent.title
                 ])
-            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
                 return resolved_id
+
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
             if parent_oldest_timestamp:
                 resolved_id = ''.join([
@@ -138,7 +139,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
-            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
                 return resolved_id
 
         timestamp = self.metadata.get_oldest_timestamp()
@@ -148,7 +149,7 @@ class UrtextNode:
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.file.nodes]:
+            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
                 return resolved_id
 
     def get_links(self, contents):

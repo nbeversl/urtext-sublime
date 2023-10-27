@@ -315,11 +315,12 @@ class UrtextProject:
                                     'refresh_open_file', 
                                     filename)
 
-    def _check_file_for_duplicates(self, file_obj):
+    def _check_file_for_duplicates(self, file_obj, known_ids=[]):
 
         duplicate_nodes = []
         changed_ids = {}
         messages = []
+        existing_nodes = [n for n in self.nodes if n not in known_ids]
         
         # resolve duplicates in same file
         file_node_ids = [n.id for n in file_obj.nodes]
@@ -337,6 +338,8 @@ class UrtextProject:
 
         # resolve duplicates in project
         for node in list(file_obj.nodes):
+            if node.id in known_ids:
+                continue
             if self._is_duplicate_id(node.id):
                 resolved_existing_id = None
                 if syntax.parent_identifier not in node.id:
@@ -1519,14 +1522,20 @@ class UrtextProject:
 
     def editor_copy_link_to_node(self, 
         buffer_contents, 
-        position, 
+        position,
+        filename,
         include_project=False):
         
-        buffer = UrtextBuffer(self)
-        buffer.lex_and_parse(buffer_contents)
-        buffer.clear_messages_and_parse()
+        known_ids = []
+        if filename in self.files:
+            known_ids = [n.id for n in self.files[filename].nodes]
 
-        duplicated_ids = self._check_file_for_duplicates(buffer)
+        buffer = UrtextBuffer(self, buffer_contents)
+        buffer.lex_and_parse()
+        
+        duplicated_ids = self._check_file_for_duplicates(
+            buffer,
+            known_ids=known_ids)
         node_id = None
         for node in buffer.nodes:
             for r in node.ranges:           
