@@ -797,16 +797,12 @@ class UrtextProject:
     def handle_link(self, 
         string, 
         col_pos=0,
-        file_pos=0,
         return_target_only=False):
 
         link = self.parse_link(
-            string, 
-            col_pos=col_pos,
-            file_pos=file_pos)
+            string,
+            col_pos=col_pos)
 
-        # for manual handling, e.g. Sublime Traverse, etc.
-        if return_target_only: return link
         if not link:
             if not self.compiled: message = "Project is still compiling"
             else: message = "No link"
@@ -816,9 +812,13 @@ class UrtextProject:
             if not self.compiled: return print('Project is still compiling')
             return print('No node ID, web link, or file found on this line.')
 
+        # for manual handling, e.g. Sublime Traverse, etc.
+        if return_target_only:
+            return link
+
         if link['kind'] == 'NODE':
             return self.open_node(
-                link['link'], 
+                link['node_id'],
                 position=link['dest_position'])
 
         if link['kind'] == 'ACTION':
@@ -851,71 +851,70 @@ class UrtextProject:
     def parse_link(self, 
         string, 
         col_pos=0,
-        file_pos=0):
-      
+        file_pos=None):
+
         kind = ''
-        link = ''
+        urtext_link = None
+        http_link = None
+        node_id = None
         dest_position = None
-        result = None
         full_match = None
         filename = None
-        
-        links = syntax.any_link_or_pointer_c.finditer(string)
-        if links:
-            for f in links:
-                if col_pos < f.end():
-                    string = f.group()
+        return_link = None
+
+        for match in syntax.http_link_c.finditer(string):
+            if col_pos < match.end():
+                link_start = match.start()
+                link_end = match.end()
+                http_link = full_match = match.group()
+                break
+
+        for match in syntax.any_link_or_pointer_c.finditer(string):
+            if col_pos < match.end():
+                if http_link and link_end < match.end():
                     break
+                urtext_link = match.group()
+                link_start = match.start()
+                link_end = match.end()
+                full_match = match.group()
+                break
 
-        action_only = syntax.node_action_link_c.search(string)
-        if action_only:
-            node_id = get_id_from_link(action_only.group())
-            return {
-                'kind' : 'ACTION', 
-                'link' : link, 
-                'node_id' : node_id,
-                }
+        if http_link and not urtext_link:
+            kind ='HTTP'
+            return_link = http_link
 
-        match = syntax.node_link_or_pointer_c.search(string)
-        if match:
-            full_match = match.group()
-            link = get_id_from_link(full_match)
-            if link in self.nodes:
-                if match.group(7):
-                    dest_position = self.nodes[link].start_position + int(match.group(7)[1:])
+        if urtext_link:
+            return_link = urtext_link
+            if urtext_link[1] in syntax.link_modifiers:
+                kind = syntax.link_modifiers[urtext_link[1]].upper()
+            else:
+                kind = 'NODE'
+                node_id = get_id_from_link(full_match)
+                if node_id in self.nodes:
+                    if match.group(7):
+                        dest_position = self.nodes[node_id].start_position + int(match.group(7)[1:])
+                    else:
+                        dest_position = self.nodes[node_id].start_position
+                    filename = self.nodes[node_id].filename
                 else:
-                    dest_position = self.nodes[link].start_position
-                result = link
-
-        node_id = ''
-        if result:
-            kind = 'NODE'
-            node_id = result
-            filename = self.nodes[node_id].filename
-            link = result # node i            
-        else:
-            result = syntax.file_link_c.search(string)            
-            if result:
+                    kind = 'MISSING'
+            if kind == 'FILE':
                 link = result.group(1).strip()
+                link_start_position = result.start()
                 kind = 'EDITOR_LINK'
                 if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
-                    kind = 'SYSTEM'   
-            else:
-                result = syntax.http_link_c.search(string)
-                if result:
-                    kind ='HTTP'
-                    link = result.group(1).strip()
-                    full_match = result.group()
-        if result:
-            return {
-                'kind' : kind, 
-                'link' : link, 
-                'filename' : filename,
-                'node_id' : node_id,
-                'file_pos': file_pos, 
-                'dest_position' : dest_position,
-                'full_match' : full_match,
-                }
+                    kind = 'SYSTEM'
+
+        return {
+            'kind' : kind, 
+            'link' : return_link, 
+            'filename' : filename,
+            'node_id' : node_id,
+            'link_start_position': link_start,
+            'link_end_position': link_end,
+            'dest_position' : dest_position,
+            'full_match' : full_match,
+            }
             
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes

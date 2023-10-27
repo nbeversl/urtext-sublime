@@ -79,7 +79,6 @@ class ProjectList():
             return self.current_project.handle_link(
                 string, 
                 col_pos=col_pos,
-                file_pos=file_pos,
                 return_target_only=return_target_only)
          
         """ Otherwise, set the project, search the link for a link in the current project """
@@ -89,7 +88,6 @@ class ProjectList():
                 return self.current_project.handle_link( 
                     string,
                     col_pos=col_pos,
-                    file_pos=file_pos,
                     return_target_only=return_target_only)
 
     def on_modified(self, filename):

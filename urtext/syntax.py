@@ -11,7 +11,6 @@ link_opening_character_regex = re.escape(link_opening_character)
 link_opening_wrapper = link_opening_character + space
 link_modifiers = {
     'file'          : '/',
-    'http'          : '//',    
     'action'        : '!',
     'missing'       : '?'
 }
@@ -51,10 +50,6 @@ virtual_target_marker = '@'
 file_link_opening_wrapper = ''.join([
     link_opening_character,
     link_modifiers['file'],
-    space])
-http_link_opening_wrapper = ''.join([
-    link_opening_character,
-    link_modifiers['http'],
     space])
 
 # Base Patterns
@@ -171,13 +166,7 @@ file_link = r''.join([
     space,
     r'([^;]+)',
     link_closing_wrapper])
-http_link = r''.join([
-    link_opening_character_regex,
-    link_modifiers_regex['http'],
-    space,
-    r'([^>]+)',
-    link_closing_wrapper
-    ])
+http_link = r'(https?:\/\/)?([\w\-])+\.{1}([a-zA-Z]{2,63})([\/\w-]*)*\/?\??([^#\n\r\s]*)?#?([^\n\r\s]*)'
 urtext_messages = r''.join([
     re.escape(urtext_message_opening_wrapper),
     r'.*?',

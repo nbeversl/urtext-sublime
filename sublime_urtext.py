@@ -382,8 +382,9 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         line, cursor = get_line_and_cursor(self.view)
         link = _UrtextProjectList.handle_link(
             line, 
-            self.view.file_name(), 
-            col_pos=cursor)
+            self.view.file_name(),
+            cursor)
+        print(link)
                             
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
@@ -401,8 +402,7 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
         link = _UrtextProjectList.handle_link(
             full_line,
             self.view.file_name(),
-            col_pos=col_pos,
-            file_pos=file_pos)
+            col_pos=col_pos)
 
     def want_event(self):
         return True
