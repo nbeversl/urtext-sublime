@@ -853,7 +853,7 @@ class UrtextProject:
         col_pos=0,
         file_pos=None):
 
-        kind = ''
+        kind = None
         urtext_link = None
         http_link = None
         node_id = None
@@ -861,6 +861,8 @@ class UrtextProject:
         full_match = None
         filename = None
         return_link = None
+        link_start = None
+        link_end = None
 
         for match in syntax.http_link_c.finditer(string):
             if col_pos < match.end():
