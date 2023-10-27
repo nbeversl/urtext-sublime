@@ -1144,8 +1144,6 @@ class UrtextProject:
                     self.title(),
                     ' (compiled)' if self.compiled else ' (compiling)'
                     ]))
-        else:
-            print('NOT VISITING NODE')
 
     def visit_file(self, filename):
         return self.execute(
