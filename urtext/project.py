@@ -1567,8 +1567,10 @@ class UrtextProject:
 
     def run_editor_method(self, method_name, *args, **kwargs):
         if method_name in self.editor_methods:
-            return self.editor_methods[method_name](*args, **kwargs)
-        return print('No editor method available for "%s"' % method_name)
+            self.editor_methods[method_name](*args, **kwargs)
+            return True
+        print('No editor method available for "%s"' % method_name)
+        return False
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
