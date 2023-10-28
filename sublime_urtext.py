@@ -447,7 +447,8 @@ class BacklinksBrowser(NodeBrowserCommand):
     @refresh_project_text_command()
     def run(self):
         backlinks = self._UrtextProjectList.current_project.get_links_to(
-            get_node_id(self.view))
+            get_node_id(self.view),
+            as_nodes=True)
 
         if backlinks:
             self.menu = NodeBrowserMenu(
@@ -465,7 +466,8 @@ class ForwardlinksBrowser(NodeBrowserCommand):
     @refresh_project_text_command()
     def run(self):
         forward_links = self._UrtextProjectList.current_project.get_links_from(
-            get_node_id(self.view))
+            get_node_id(self.view),
+            as_nodes=True)
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
             project=self._UrtextProjectList.current_project,
@@ -520,7 +522,7 @@ class NodeBrowserMenu:
             project = project_list.current_project
         
         if nodes != None:
-            self.menu = project.all_nodes(as_nodes=True)
+            self.menu = nodes
         else:
             for single_project in projects:
                 self.menu.extend(single_project.all_nodes(as_nodes=True))

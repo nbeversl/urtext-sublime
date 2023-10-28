@@ -778,13 +778,19 @@ class UrtextProject:
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                         return node.id
 
-    def get_links_to(self, to_id):
-        return [i for i in list(self.nodes) if to_id in self.nodes[i].links_ids()]
+    def get_links_to(self, to_id, as_nodes=False):
+        links_to = [i for i in list(self.nodes) if to_id in self.nodes[i].links_ids()]
+        if as_nodes:
+            return [self.nodes[n] for n in links_to]
+        return links_to
 
-    def get_links_from(self, from_id):
+    def get_links_from(self, from_id, as_nodes=False):
         if from_id in self.nodes:
             links = self.nodes[from_id].links_ids()
-            return [l for l in links if l in self.nodes]
+            links_from = [l for l in links if l in self.nodes]
+            if as_nodes:
+                return [self.nodes[n] for n in links_from]
+            return links_from
         return []
 
     def get_all_links(self):
