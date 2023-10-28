@@ -490,13 +490,14 @@ class AllProjectsNodeBrowser(NodeBrowserCommand):
             self.open_the_file)
 
 class WrapSelectionCommand(sublime_plugin.TextCommand):
+    
     @refresh_project_text_command()
     def run(self):
         region = self.view.sel()[0]
         selection = self.view.substr(region)
         self.view.replace(self.edit, region, ''.join(['{ ',selection, ' }']))
         self.view.sel().clear()
-        self.view.sel().add(region)
+        self.view.sel().add(sublime.Region(region.a+2, region.a+2))
 
 class NodeBrowserMenu:
 
