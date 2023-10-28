@@ -875,7 +875,9 @@ class UrtextProject:
 
         for match in syntax.any_link_or_pointer_c.finditer(string):
             if col_pos < match.end():
-                if http_link_present and (link_end < match.end()):
+                if http_link_present and (
+                    link_end < match.end()) and (
+                    link_end < match.start()):
                     break
                 urtext_link = match.group()
                 link_start = match.start()
