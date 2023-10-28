@@ -27,10 +27,8 @@ class PopNode:
         
         if source_filename not in self.project.files:
             print(source_filename, 'not in project')
-            self.running = False
             return
 
-        self.project.event_listeners_should_continue = False
         self.project.run_editor_method('save_file', source_filename)
         self.project._on_modified(source_filename, bypass=True)
 
@@ -40,20 +38,14 @@ class PopNode:
  
         if not popped_node_id:
             print('No node ID or duplicate Node ID')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
         
         if popped_node_id not in self.project.nodes:
             print(popped_node_id, 'not in project')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
 
         if self.project.nodes[popped_node_id].root_node:
             print(popped_node_id+ ' is already a root node.')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
     
         start = self.project.nodes[popped_node_id].start_position
@@ -95,9 +87,6 @@ class PopNode:
             remaining_node_contents)
         self.project._parse_file(source_filename)
         # self.project._on_modified(source_filename, bypass=True)
-        print(new_file_node['id'] in self.project.nodes)
-        self.project.event_listeners_should_continue = True
-        self.running = False
  
 class PullNode:
 
@@ -123,22 +112,16 @@ class PullNode:
         destination_filename, 
         file_pos):
 
-        self.project.event_listeners_should_continue = False
-
         link = self.project.parse_link(
             string,
             file_pos=file_pos)
 
         if not link or link['kind'] != 'NODE':
             print('link is not a node')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
 
         source_id = link['node_id']
         if source_id not in self.project.nodes: 
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
         
         destination_node = self.project.get_node_id_from_position(
@@ -147,22 +130,16 @@ class PullNode:
 
         if not destination_node:
             print('No destination node found here')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
 
         if self.project.nodes[destination_node].dynamic:
             print('Not pulling content into a dynamic node')
-            self.project.event_listeners_should_continue = True
-            self.running = False
             return
 
         source_filename = self.project.nodes[source_id].filename
         for ancestor in self.project.nodes[destination_node].tree_node.ancestors:
             if ancestor.name == source_id:
                 print('Cannot pull a node into its own child or descendant.')
-                self.project.event_listeners_should_continue = True
-                self.running = False
                 return
         self.project._parse_file(source_filename)
 
@@ -205,8 +182,6 @@ class PullNode:
             destination_filename,
             destination_file_contents)
         self.project._parse_file(destination_filename)
-
-        self.project.event_listeners_should_continue = True
 
 urtext_extensions = [PullNode, PopNode]
         
