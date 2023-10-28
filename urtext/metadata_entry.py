@@ -1,10 +1,8 @@
 import os
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .timestamp import UrtextTimestamp
     import Urtext.urtext.syntax as syntax
 else:
-    from urtext.timestamp import UrtextTimestamp
     import urtext.syntax as syntax
 
 class MetadataEntry:  # container for a single metadata entry
@@ -56,10 +54,35 @@ class MetadataEntry:  # container for a single metadata entry
                 syntax.link_closing_wrapper ])
         return [v.text for v in self.meta_values if v.text]
 
-    def get_timestamps(self):
-        return sorted([
+    def num_values(self):
+        if self.is_node:
+            return ''.join([
+                syntax.link_opening_wrapper,
+                self.value.title,
+                syntax.link_closing_wrapper ])
+        return [v.num for v in self.meta_values if v.num]
+
+    def get_timestamps(self, as_string=False):
+        timestamps = sorted([
             v.timestamp for v in self.meta_values if v.timestamp],
             key=lambda t: t.datetime)
+        if as_string:
+            return [t.unwrapped_string for t in timestamps]
+        return timestamps
+
+    def values_with_timestamps(self, lower=False):
+        if self.is_node:
+            return ''.join([
+                syntax.link_opening_wrapper,
+                self.value.title,
+                syntax.link_closing_wrapper])
+        values = []
+        for v in self.meta_values:
+            values.append((
+                v.text if not lower else v.text.lower(),
+                v.timestamp
+                ))
+        return values
 
     def log(self):
         print('from_node: %s' % self.from_node)

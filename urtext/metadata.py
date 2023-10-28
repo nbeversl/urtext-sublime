@@ -153,18 +153,11 @@ class NodeMetadata:
     def get_keys(self, exclude=[]):
         return [k for k in self.entries_dict.keys() if k not in exclude]
 
-    def get_entries(self, keyname, use_timestamp=True):
+    def get_entries(self, keyname):
         keyname = keyname.lower()
         if keyname not in self.entries_dict:
             return []
-        entries = [e for e in self.entries_dict[keyname] if e.tag_self]
-
-        if use_timestamp and keyname in self.project.settings['use_timestamp']:
-            timestamps = []
-            for e in entries:
-                timestamps.extend(e.get_timestamps())
-            return timestamps
-        return entries
+        return [e for e in self.entries_dict[keyname] if e.tag_self]
 
     def entries(self):
         all_entries = []
@@ -173,21 +166,21 @@ class NodeMetadata:
         return all_entries
 
     def add_system_keys(self):
-        inline_timestamps = self.get_entries('inline_timestamp')
-        if inline_timestamps:
+        inline_timestamp_entries = self.get_entries('inline_timestamp')
+        if inline_timestamp_entries:
             inline_timestamps = sorted(
-                inline_timestamps,
-                key=lambda t: t.datetime
+                inline_timestamp_entries,
+                key=lambda t: t.meta_values[0].timestamp.datetime
                 )
             self.add_entry(
                 '_oldest_timestamp', 
-                [MetadataValue(inline_timestamps[0].wrapped_string)],
+                [MetadataValue(inline_timestamps[0].meta_values[0].timestamp.wrapped_string)],
                 self.node,
                 start_position=inline_timestamps[0].start_position,
                 end_position=inline_timestamps[-1].end_position)
             self.add_entry(
                 '_newest_timestamp',
-                [MetadataValue(inline_timestamps[-1].wrapped_string)],
+                [MetadataValue(inline_timestamps[-1].meta_values[0].timestamp.wrapped_string)],
                 self.node,
                 start_position=inline_timestamps[-1].start_position,
                 end_position=inline_timestamps[-1].end_position)
@@ -212,9 +205,7 @@ class NodeMetadata:
         if len(entries) and not entries[0].meta_values:
             return None
 
-        return self._as_num_if_num(
-            keyname,
-            entries[0].meta_values[0].text)
+        return entries[0].meta_values[0].text
 
     def get_values(self, 
         keyname,
@@ -234,25 +225,14 @@ class NodeMetadata:
                         syntax.link_closing_wrapper])) 
                 continue
             for v in e.meta_values:
-                if use_timestamp and v.timestamp:
-                    values.append(v.timestamp)
-                    continue
-                if v.text:
-                    if lower:
-                        v.text = v.text.lower()
-                    values.append(self._as_num_if_num(
-                        keyname,
-                        v))
-        
-        return list(set(values))
+                values.append(v)
 
-    def _as_num_if_num(self, keyname, value):
-        if keyname in self.project.settings['numerical_keys']:
-            try:
-                return float(value)
-            except:
-                return None
-        return value
+        if lower:
+            for v in values:
+                if v.text:
+                    v.text = v.text.lower()
+
+        return list(set(values))
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
@@ -292,17 +272,8 @@ class NodeMetadata:
             self.entries_dict[self.project.settings['hash_key']].extend(self.entries_dict['#'])
             del self.entries_dict['#']
 
-    def get_oldest_timestamp(self, use_timestamp=True):
-        oldest_timestamp = self.get_first_value('_oldest_timestamp')
-        if oldest_timestamp:
-            return oldest_timestamp
-        return None
-        # all_timestamps = []
-        # for entry in self.entries():
-        #     all_timestamps.extend(entry.timestamps)
-        # all_timestamps = sorted(all_timestamps, reverse=True, key=lambda ts: ts.datetime)
-        # if all_timestamps:
-        #     return all_timestamps[0]
+    def get_oldest_timestamp(self):
+        return self.get_first_value('_oldest_timestamp')
 
     def convert_node_links(self):
         for entry in self.entries():

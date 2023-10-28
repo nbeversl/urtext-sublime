@@ -361,10 +361,10 @@ class UrtextNode:
                 'inline_timestamp']:
                 timestamp_entries = self.metadata.get_entries(k)
                 if timestamp_entries:
-                    values.append(timestamp_entries[0].unwrapped_string)
+                    values.append(timestamp_entries[0].meta_values[0].timestamp.unwrapped_string)
                 continue
 
-            entries = self.metadata.get_entries(k, use_timestamp=False)
+            entries = self.metadata.get_entries(k)
             for e in entries:
 
                 for v in e.meta_values:

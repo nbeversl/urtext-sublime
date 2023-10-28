@@ -41,7 +41,7 @@ class Collect:
 				use_timestamp = k in self.project.settings['use_timestamp']
 				for v in keys[k]:
 					if v == '*':
-						entries = node.metadata.get_entries(k, use_timestamp=False)
+						entries = node.metadata.get_entries(k)
 					else:
 						entries = node.metadata.get_matching_entries(
 							k, 

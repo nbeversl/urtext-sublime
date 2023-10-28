@@ -1236,15 +1236,6 @@ class UrtextProject:
                     ])) 
                 for n in list(self.nodes)]
 
-    def get_first_value(self, node, keyname):
-        value = node.metadata.get_first_value(keyname)
-        if keyname in self.settings['numerical_keys']:
-            try:
-                value = float(value)
-            except ValueError:
-                return 0
-        return value
-
     def get_all_keys(self):
         keys = []
         exclude = self.settings['exclude_from_star']
@@ -1254,15 +1245,17 @@ class UrtextProject:
             )
         return list(set(keys))
 
-    def get_all_values_for_key(self, key, lower=False):
+    def get_all_values_for_key(self, 
+        key,
+        lower=False,
+        substitute_timestamp=True):
+
         entries = []
         for node in self.nodes.values():
             entries.extend(node.metadata.get_entries(key))
         values = []
         for e in entries:
-            values.extend(e.text_values())
-        if lower:
-            return list(set([v.lower() for v in values]))
+            values.extend(e.values_with_timestamps(lower=lower))
         return list(set(values))
 
     def go_to_dynamic_definition(self, target_id):
@@ -1278,14 +1271,17 @@ class UrtextProject:
             'No dynamic definition for "%s"' % target_id
             )
 
-    def get_by_meta(self, key, values, operator, as_nodes=False):
+    def get_by_meta(self,
+        key,
+        values,
+        operator,
+        as_nodes=False):
         
-        if isinstance(values,str):
+        if not isinstance(values, list):
             values = [values]
         results = []
 
-        if operator in ['before','after']:
-            
+        if operator in ['before','after']:            
             compare_date = date_from_timestamp(values[0][1:-1])
             
             if compare_date:
@@ -1295,7 +1291,6 @@ class UrtextProject:
                     results = [n for n in self.nodes.values() if n.metadata.get_date(key) > compare_date != default_date ]
 
         if key == '_contents' and operator == '?': 
-            # `=` not currently implemented
             for node in list(self.nodes.values()):
                 if node.dynamic:
                     continue
@@ -1315,7 +1310,7 @@ class UrtextProject:
             for v in values:
                 results.extend(self.get_links_from(v))
 
-        else:        
+        else:
             if key == '*':
                 keys = self.get_all_keys()
             else:
@@ -1324,7 +1319,7 @@ class UrtextProject:
                 for value in values:
                     if value == '*':
                         results.extend([n for n in self.nodes if 
-                                self.nodes[n].metadata.get_values(k)])
+                            self.nodes[n].metadata.get_values(k)])
                         continue
 
                     use_timestamp = False
@@ -1344,12 +1339,19 @@ class UrtextProject:
                                     k,
                                     use_timestamp=use_timestamp) if v.text]])
                     else:
-                        results.extend([
-                            n for n in self.nodes if value in [ 
-                            v.text for v in self.nodes[n].metadata.get_values(
+                        if isinstance(value, str):
+                            value = value.lower()
+                        for n in self.nodes.values():
+                            values = n.metadata.get_values(
                                 k,
-                                use_timestamp=use_timestamp, 
-                                lower=True) if v.text]])
+                                use_timestamp=use_timestamp,
+                                lower=True)
+                            if use_timestamp:
+                                if value in [v.timestamp for v in values]:
+                                    results.append(n.id)
+                            else:
+                                if value in [v.text for v in values]:
+                                    results.append(n.id)
 
         results=list(set(results))            
         if as_nodes:
