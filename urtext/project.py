@@ -28,6 +28,7 @@ import threading
 import importlib
 import sys
 import inspect
+from .url import url_match
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from ..anytree import Node, PreOrderIter, RenderTree
@@ -863,16 +864,18 @@ class UrtextProject:
         link_start = None
         link_end = None
 
-        for match in syntax.http_link_c.finditer(string):
-            if col_pos < match.end():
-                link_start = match.start()
-                link_end = match.end()
-                http_link = full_match = match.group()
-                break
+        http_link_present = False
+        http_link = url_match(string)
+        if http_link:
+            if col_pos < http_link.end():
+                http_link_present = True
+                link_start = http_link.start()
+                link_end = http_link.end()
+                http_link = full_match = http_link.group().strip()
 
         for match in syntax.any_link_or_pointer_c.finditer(string):
             if col_pos < match.end():
-                if http_link and link_end < match.end():
+                if http_link_present and (link_end < match.end()):
                     break
                 urtext_link = match.group()
                 link_start = match.start()

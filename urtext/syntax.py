@@ -166,7 +166,7 @@ file_link = r''.join([
     space,
     r'([^;]+)',
     link_closing_wrapper])
-http_link = r'(https?:\/\/)?([\w\-])+\.{1}([a-zA-Z]{2,63})([\/\w-]*)*\/?\??([^#\n\r\s]*)?#?([^\n\r\s]*)'
+
 urtext_messages = r''.join([
     re.escape(urtext_message_opening_wrapper),
     r'.*?',
@@ -219,7 +219,6 @@ preformat_c = re.compile(preformat, flags=re.DOTALL)
 subnode_regexp_c = re.compile(sub_node, flags=re.DOTALL)
 timestamp_c = re.compile(timestamp)
 title_regex_c = re.compile(title_pattern)
-http_link_c = re.compile(http_link)             
 virtual_target_match_c = re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
