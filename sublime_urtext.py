@@ -168,10 +168,6 @@ def close_file(filename):
         view.set_scratch(True)
         view.close()
 
-
-def insert_at_next_line(contents):
-    pass
-
 editor_methods = {
     'open_file_to_position' : open_file_to_position,
     'error_message' : sublime.error_message,
@@ -184,7 +180,6 @@ editor_methods = {
     'get_buffer' : get_buffer,
     'set_buffer' : set_buffer,
     'replace' : replace,
-    'insert_at_next_line' : insert_at_next_line,
     'popup' : show_popup,
     'refresh_open_file' : refresh_open_file,
     'close_current': close_current,
