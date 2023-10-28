@@ -121,10 +121,6 @@ def show_status(message):
     if window:
         window.status_message(message)
 
-# def set_buffer(filename):    
-#     if sublime.active_window() and sublime.active_window().active_view():
-#         view = sublime.active_window().active_view()
-#         return view.substr(sublime.Region(0, view.size()))
 
 def replace(filename='', start=0, end=0, replacement_text=''):
     target_view = None
