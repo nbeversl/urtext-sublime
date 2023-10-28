@@ -293,20 +293,19 @@ def initialize_project_list(view, reload_projects=False):
             _UrtextProjectList = ProjectList(
                 current_path,
                 editor_methods=editor_methods)
-    else:
+
+    elif not _UrtextProjectList:
         sublime.error_message(
             'No folder is open in this window.\n' +
             'To use Urtext, create or open an existing folder in this window.')
 
     return _UrtextProjectList
 
-
 class UrtextReplace(sublime_plugin.TextCommand):
 
     def run(self, edit, start=0, end=0, replacement_text=''):
         self.view.replace(edit, sublime.Region(start, end), replacement_text)
-        
-        
+
 class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
