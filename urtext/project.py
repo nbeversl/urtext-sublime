@@ -745,7 +745,7 @@ class UrtextProject:
                 remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)
         if not as_nodes:
-            sorted_nodes = [n.id for n in sorted_nodes if n.id in self.nodes]
+            return [n.id for n in sorted_nodes if n.id in self.nodes]
         return sorted_nodes
 
     def all_files(self):
