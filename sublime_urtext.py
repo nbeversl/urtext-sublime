@@ -90,6 +90,15 @@ def show_popup(text):
             max_width=1800, 
             max_height=1000)
 
+def set_buffer(filename, contents):
+    view = sublime.active_window().find_open_file(filename)
+    if view:
+        view.run_command('urtext_replace', {
+            'start' : 0,
+            'end' :view.size(),
+            'replacement_text' : contents
+            })
+
 def get_buffer(node_id=None):
     global _UrtextProjectList
     if _UrtextProjectList:
@@ -112,19 +121,16 @@ def show_status(message):
     if window:
         window.status_message(message)
 
-def set_buffer(filename):    
-    if sublime.active_window() and sublime.active_window().active_view():
-        view = sublime.active_window().active_view()
-        return view.substr(sublime.Region(0, view.size()))
+# def set_buffer(filename):    
+#     if sublime.active_window() and sublime.active_window().active_view():
+#         view = sublime.active_window().active_view()
+#         return view.substr(sublime.Region(0, view.size()))
 
 def replace(filename='', start=0, end=0, replacement_text=''):
     target_view = None
-    for view in sublime.active_window().views():
-        if view.file_name() == filename:
-            target_view = view
-            break
-    if target_view:
-        target_view.run_command('urtext_replace', {
+    view = sublime.active_window().find_open_file(filename)
+    if view:
+        view.run_command('urtext_replace', {
             'start' : start,
             'end' :end,
             'replacement_text' : replacement_text
@@ -151,11 +157,9 @@ def open_http_link(link):
         self.log('Could not open tab using your "web_browser_path" setting')       
 
 def refresh_open_file(filename):
-    window = sublime.active_window()
-    if window:
-        for v in window.views():
-            if v.file_name() and v.file_name() == filename:
-                v.run_command('reopen') # undocumented
+    view = sublime.active_window().find_open_file(filename)
+    if view:
+        view.run_command('reopeon')
 
 def close_current():
     if sublime.active_window() and sublime.active_window().active_view():
@@ -182,6 +186,7 @@ editor_methods = {
     'open_file_in_editor' : open_file_in_editor,
     'open_http_link' : open_http_link,
     'get_buffer' : get_buffer,
+    'set_buffer' : set_buffer,
     'replace' : replace,
     'insert_at_next_line' : insert_at_next_line,
     'popup' : show_popup,
@@ -626,11 +631,7 @@ class DeleteThisNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         if self.view.file_name():
-            open_files = [
-                f.file_name() for f in self.view.window().views() if (
-                    f.file_name() != self.view.file_name())]
-            file_name = self.view.file_name()
-            self._UrtextProjectList.delete_file(file_name)
+            self._UrtextProjectList.delete_file(self.view.file_name())
 
 class InsertTimestampCommand(UrtextTextCommand):
 

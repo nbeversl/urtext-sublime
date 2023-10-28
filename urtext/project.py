@@ -500,12 +500,10 @@ class UrtextProject:
     def _delete_file(self, filename):
         """
         Deletes a file, removes it from the project,
-        and returns modified files.
         """
-        if filename in self.files:         
-            self.run_editor_method('close_file', filename)
-            self._drop_file(filename)
-            os.remove(filename)
+        self.run_editor_method('close_file', filename)
+        self._drop_file(filename)
+        os.remove(filename)
         if filename in self.messages:
             del self.messages[filename]
         self._run_hook('on_file_deleted', filename)
@@ -1162,9 +1160,9 @@ class UrtextProject:
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
-        current_files = list(self.files)
-        for file in [f for f in included_files if f not in current_files]:
-            self._parse_file(file)
+        for file in included_files:
+            if file not in self.files:
+                self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]: # now list of dropped files
             self._log_item(
                 file,
