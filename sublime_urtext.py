@@ -757,7 +757,7 @@ def get_line_and_cursor(view):
 
 def get_node_id(view):
     global _UrtextProjectList
-    if view.file_name():
+    if _UrtextProjectList and _UrtextProjectList.current_project and view.file_name():
         position = view.sel()[0].a
         filename = view.file_name()
         return _UrtextProjectList.current_project.get_node_id_from_position(filename, position)
