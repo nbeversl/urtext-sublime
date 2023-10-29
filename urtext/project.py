@@ -211,8 +211,10 @@ class UrtextProject:
                 entry.span()[1])
             self.nodes[source_node].metadata.add_entry(
                 keyname,
-                self.nodes[target_node],
+                [self.nodes[target_node]],
                 self.nodes[source_node],
+                start_position=self.nodes[target_node].start_position - (len(keyname) + 3),
+                end_position=self.nodes[target_node].end_position,
                 is_node=True)
             self.nodes[target_node].is_meta = True
 
@@ -1347,7 +1349,9 @@ class UrtextProject:
                 for value in values:
                     if value == '*':
                         results.extend([n for n in self.nodes if 
-                            self.nodes[n].metadata.get_values(k)])
+                            self.nodes[n].metadata.get_values(
+                                k,
+                                convert_nodes_to_links=True)])
                         continue
 
                     use_timestamp = False

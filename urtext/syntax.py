@@ -85,11 +85,16 @@ metadata_entry = r''.join([
     metadata_key,
     metadata_assigner,
     metadata_values
-    ])                             
+    ])
+metadata_key_only = r''.join([
+    metadata_entry_modifiers, 
+    metadata_key,
+    metadata_assigner,
+    ])                          
 metadata_separator_pattern = r'\s' + metadata_separator + r'\s'
 metadata_tag_self = r'\+'
 metadata_tag_desc = r'\*'
-meta_to_node = r'(\w+)\:\:\{'
+meta_to_node = r'(\w+)(\:\:)\{'
 opening_wrapper = r'(?<!\\)' + re.escape(node_opening_wrapper)
 preformat = r'\`.*?\`'
 sub_node = r'(?<!\\){(?!.*(?<!\\){)(?:(?!}).)*}'
@@ -195,6 +200,7 @@ hash_key_c = re.compile(hash_key)
 hash_meta_c = re.compile(hash_meta)
 metadata_arg_delimiter_c = re.compile(metadata_arg_delimiter)
 metadata_entry_c = re.compile(metadata_entry, flags=re.DOTALL)
+metadata_key_only_c = re.compile(metadata_key_only, flags=re.DOTALL)
 metadata_ops = re.compile(r'(' + r'|'.join([
             metadata_op_before,
             metadata_op_after,

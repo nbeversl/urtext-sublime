@@ -1,5 +1,4 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .timestamp import UrtextTimestamp, default_date
     import Urtext.urtext.syntax as syntax
@@ -101,6 +100,17 @@ class NodeMetadata:
                 self.node,
                 start_position=m.start(),
                 end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        #remove from contents entries without or entries that are nodes:
+        for m in syntax.metadata_key_only_c.finditer(parsed_contents):
             parsed_contents = parsed_contents.replace(
                 m.group(),
                 ' '*len(m.group()),
@@ -221,7 +231,7 @@ class NodeMetadata:
                 if convert_nodes_to_links:
                     values.append(''.join([
                         syntax.link_opening_wrapper,
-                        value.id,
+                        e.meta_values[0].id,
                         syntax.link_closing_wrapper])) 
                 continue
             for v in e.meta_values:

@@ -386,7 +386,7 @@ class UrtextNode:
                 if e.is_node:
                     values.append(''.join([
                             syntax.link_opening_wrapper,
-                            e.title,
+                            e.meta_values[0].title,
                             syntax.link_closing_wrapper
                         ]))
                     continue
