@@ -60,7 +60,7 @@ class MetadataEntry:  # container for a single metadata entry
                 syntax.link_opening_wrapper,
                 self.value.title,
                 syntax.link_closing_wrapper ])
-        return [v.num for v in self.meta_values if v.num]
+        return [v.num() for v in self.meta_values if v.num()]
 
     def get_timestamps(self, as_string=False):
         timestamps = sorted([

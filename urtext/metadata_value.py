@@ -22,11 +22,10 @@ class MetadataValue:
             if t.datetime:
                 self.timestamp = t
         self.text = value_string
-        self.num = self._set_num(value_string)
 
-    def _set_num(self, value):
+    def num(self):
         try:
-            return float(value)
+            return float(self.text)
         except:
             return None
 
