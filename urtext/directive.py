@@ -69,10 +69,13 @@ class UrtextDirective:
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
         argument_string = self._parse_links(argument_string)
-        argument_string = self._parse_flags(argument_string)
+        argument_string = self._parse_keys(argument_string)
+        # argument_string = self._parse_flags(argument_string)
 
         for argument in self.syntax.metadata_arg_delimiter_c.split(
                 argument_string):
+
+
             key, value, operator = self.key_value(
                 argument,
                 self.syntax.metadata_ops)
@@ -82,7 +85,6 @@ class UrtextDirective:
             else:
                 self.arguments.append(argument.strip())
 
-        argument_string = self._parse_keys(argument_string)
         for param in self.params:
             self.params_dict.setdefault(param[0], [])
             self.params_dict[param[0]].extend(param[1:])
@@ -112,14 +114,17 @@ class UrtextDirective:
         #(terminology)
         keys = force_list(keys)
         for f in keys:
-            if f in list(self.params_dict.keys()):
+            if f in [k[0] for k in self.params_dict.keys()]:
                 return True
         return False
 
     def _parse_keys(self, argument_string):
         for k in self.syntax.dd_key_c.finditer(argument_string):
-            key = k.group().strip()
-            self.keys.append(key)
+            key = k.group(1).strip()
+            flag = None
+            if k.group(2):
+                flag = k.group(2).strip()
+            self.keys.append((key, flag))
             argument_string = argument_string.replace(key, '', 1)
         return argument_string
 

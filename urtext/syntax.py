@@ -55,8 +55,8 @@ file_link_opening_wrapper = ''.join([
 # Base Patterns
 bullet = r'^([^\S\n]*?)•'
 closing_wrapper = r'(?<!\\)' + re.escape(node_closing_wrapper)
-dd_flag = r'((^|\s)(-[\w|_]+)|((^|\s)\*))(?=\s|$)'
-dd_key = r'(^|\s)[\w\._]+(\s|$)'
+dd_flag = '((^\\s)-[\w_]+)+|\*'
+dd_key = r'([^\-][\w\._]+)(\s' + dd_flag + ')?(\s|$|;)'
 dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break
