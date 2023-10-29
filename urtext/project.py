@@ -897,8 +897,11 @@ class UrtextProject:
 
         if urtext_link:
             return_link = urtext_link
-            if urtext_link[1] in syntax.link_modifiers:
-                kind = syntax.link_modifiers[urtext_link[1]].upper()
+            if urtext_link[1] in syntax.link_modifiers.values():
+                for kind in syntax.link_modifiers:
+                    if urtext_link[1] == syntax.link_modifiers[kind]:
+                        kind = kind.upper()
+                        break
             else:
                 kind = 'NODE'
                 node_id = get_id_from_link(full_match)
@@ -911,11 +914,10 @@ class UrtextProject:
                 else:
                     kind = 'MISSING'
             if kind == 'FILE':
-                link = result.group(1).strip()
-                link_start_position = result.start()
                 kind = 'EDITOR_LINK'
-                if os.path.splitext(link)[1][1:] in self.settings['open_with_system']:
+                if os.path.splitext(return_link)[1][1:] in self.settings['open_with_system']:
                     kind = 'SYSTEM'
+                return_link = return_link[2:-2].strip()
 
         return {
             'kind' : kind, 
