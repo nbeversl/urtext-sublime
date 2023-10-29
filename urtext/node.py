@@ -122,7 +122,7 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
-    def resolve_duplicate_id(self):
+    def resolve_duplicate_id(self, existing_nodes=[]):
         if self.parent:
             resolved_id = ''.join([
                     self.title,
@@ -139,7 +139,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
-            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
+            if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
                 return resolved_id
 
         timestamp = self.metadata.get_oldest_timestamp()
@@ -149,7 +149,7 @@ class UrtextNode:
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in self.project.nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
+            if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
                 return resolved_id
 
     def get_links(self, contents):

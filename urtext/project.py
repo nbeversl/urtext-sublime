@@ -329,7 +329,7 @@ class UrtextProject:
         file_node_ids = [n.id for n in file_obj.nodes]
         for node in list(file_obj.nodes):
             if node.id == '(untitled)' or file_node_ids.count(node.id) > 1:
-                resolved_id = node.resolve_duplicate_id()
+                resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
                 if not resolved_id:
                     duplicate_nodes.append(node.id)
                     messages.append(
@@ -346,14 +346,14 @@ class UrtextProject:
             if self._is_duplicate_id(node.id):
                 resolved_existing_id = None
                 if syntax.parent_identifier not in node.id:
-                    resolved_id = node.resolve_duplicate_id()
+                    resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
                     if not resolved_id:
                         del node
                         continue
                     changed_ids[node.id] = resolved_id
                     node.apply_id(resolved_id)
                 else:
-                    resolved_id = node.resolve_duplicate_id()
+                    resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
                     if not resolved_id:
                         duplicate_nodes.append(node.id)
                         del node
@@ -1570,21 +1570,21 @@ class UrtextProject:
         position,
         filename,
         include_project=False):
-        
+
         known_ids = []
         if filename in self.files:
             known_ids = [n.id for n in self.files[filename].nodes]
 
         buffer = UrtextBuffer(self, buffer_contents)
         buffer.filename = filename
-        buffer.lex_and_parse()
+        buffer.clear_messages_and_parse()
         
         duplicated_ids = self._check_file_for_duplicates(
             buffer,
             known_ids=known_ids)
         node_id = None
         for node in buffer.nodes:
-            for r in node.ranges:           
+            for r in node.ranges:
                 if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                     node_id = node.id
                     break

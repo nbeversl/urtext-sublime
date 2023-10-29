@@ -57,16 +57,16 @@ class UrtextBuffer:
                     continue
 
                 if symbol_type == 'pointer':
-                    symbols[match.span()[0] + start_position] = {}
-                    symbols[match.span()[0] + start_position]['contents'] = get_id_from_link(match.group())
-                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+                    symbols[match.start() + start_position] = {}
+                    symbols[match.start() + start_position]['contents'] = get_id_from_link(match.group())
+                    symbols[match.start() + start_position]['type'] = symbol_type
                 elif symbol_type == 'compact_node':
-                    symbols[match.span()[0] + start_position+ len(match.group(1))] = {}
-                    symbols[match.span()[0] + start_position + len(match.group(1))]['type'] = symbol_type
-                    symbols[match.span()[0] + start_position + len(match.group(1))]['contents'] = match.group(3)
+                    symbols[match.start() + start_position + len(match.group(1))] = {}
+                    symbols[match.start() + start_position + len(match.group(1))]['type'] = symbol_type
+                    symbols[match.start() + start_position + len(match.group(1))]['contents'] = match.group(3)
                 else:
-                    symbols[match.span()[0] + start_position] = {}
-                    symbols[match.span()[0] + start_position]['type'] = symbol_type
+                    symbols[match.start() + start_position] = {}
+                    symbols[match.start() + start_position]['type'] = symbol_type
 
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
@@ -101,13 +101,12 @@ class UrtextBuffer:
                 continue
 
             elif symbols[position]['type'] == 'opening_wrapper':
-                if position > 0:
-                    if from_compact:
-                        nested_levels[nested].append([last_position-1, position-1])
-                    else:
-                        nested_levels[nested].append([last_position, position])
+                # if position == 0:
+                #     nested_levels[nested].append([0, 0])
+                if from_compact:
+                    nested_levels[nested].append([last_position-1, position-1])
                 else:
-                    nested_levels[nested].append([0, 0])
+                    nested_levels[nested].append([last_position, position])
                 position += 1 #wrappers exist outside range
                 nested += 1
 
