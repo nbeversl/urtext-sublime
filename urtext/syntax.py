@@ -75,13 +75,13 @@ metadata_op_not_equals = r'!='
 metadata_op_contains = r'\?'
 metadata_op_is_like = r'~'
 metadata_ops_or = r'\|'
-metadata_assigner = r''+metadata_assignment_operator
+metadata_assigner = '::'
 metadata_end_marker = r';'
 metadata_entry_modifiers = r'[+]?\*{0,2}'
 metadata_key = r'[\w_\?\!\#\d-]+?'
-metadata_values = r'[^\n;]*($|\n|;)'
+metadata_values = r'[^\n;]+($|\n|;)'
 metadata_entry = r''.join([
-    metadata_entry_modifiers, 
+    metadata_entry_modifiers,
     metadata_key,
     metadata_assigner,
     metadata_values

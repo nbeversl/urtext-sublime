@@ -105,7 +105,7 @@ class UrtextBuffer:
                     if from_compact:
                         nested_levels[nested].append([last_position-1, position-1])
                     else:
-                        nested_levels[nested].append([last_position, position-1])
+                        nested_levels[nested].append([last_position, position])
                 else:
                     nested_levels[nested].append([0, 0])
                 position += 1 #wrappers exist outside range
