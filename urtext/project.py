@@ -1045,28 +1045,54 @@ class UrtextProject:
         if os.path.exists(folder):
             sys.path.append(folder)
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
-                s = importlib.import_module(module_file.replace('.py',''))
-                if 'urtext_directives' in dir(s):
-                    directives = s.urtext_directives
-                    if not isinstance(directives, list):
-                        directives = [directives]
-                    for d in directives:
-                        new_directive = make_directive(d)
-                        for n in d.name:                            
-                            self.directives[n] = new_directive
-                                                            
+                try:
+                    s = importlib.import_module(module_file.replace('.py',''))
+                    if 'urtext_directives' in dir(s):
+                        directives = s.urtext_directives
+                        if not isinstance(directives, list):
+                            directives = [directives]
+                        for d in directives:
+                            new_directive = make_directive(d)
+                            for n in d.name:                            
+                                self.directives[n] = new_directive
+                except Exception as e:
+                    message = ''.join([
+                            '\nDirective in file ',
+                            syntax.file_link_opening_wrapper,
+                            os.path.join(folder, module_file),
+                            syntax.link_closing_wrapper,
+                            ' encountered the following error: \n', 
+                            str(e),
+                            ])
+                    self._log_item(
+                        'project_settings', 
+                        message)
+                                
     def _get_extensions_from_folder(self, folder):
         if os.path.exists(folder):
             sys.path.append(folder)
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
-                s = importlib.import_module(module_file.replace('.py',''))
-                if 'urtext_extensions' in dir(s):
-                    extensions = s.urtext_extensions
-                    if not isinstance(extensions, list):
-                        extensions = [extensions]
-                    for e in extensions:
-                        for n in e.name:
-                            self.extensions[n] = make_extension(e)(self)
+                try:
+                    s = importlib.import_module(module_file.replace('.py',''))
+                    if 'urtext_extensions' in dir(s):
+                        extensions = s.urtext_extensions
+                        if not isinstance(extensions, list):
+                            extensions = [extensions]
+                        for e in extensions:
+                            for n in e.name:
+                                self.extensions[n] = make_extension(e)(self)
+                except Exception as e:
+                    message = ''.join([
+                            '\nExtension in file ',
+                            syntax.file_link_opening_wrapper,
+                            os.path.join(folder, module_file),
+                            syntax.link_closing_wrapper,
+                            ' encountered the following error: \n', 
+                            str(e),
+                            ])
+                    self._log_item(
+                        'project_settings', 
+                        message)
 
     def get_home(self):
         if self.settings['home'] in self.nodes:
