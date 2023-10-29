@@ -102,6 +102,8 @@ disallowed_title_characters = [
     r'\r',
     r'`',
     r'\^',
+    r'\[\[',
+    r'\]\]',
 ]
 title_pattern = r'^([^' + r''.join(disallowed_title_characters) + ']+)'
 id_pattern = r'([^\|>\n\r]+)'
