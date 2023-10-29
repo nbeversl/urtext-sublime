@@ -148,18 +148,16 @@ class TraverseFileTree(EventListener):
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
 
-			link = self._UrtextProjectList.handle_link(
-	            full_line, 
-	            tree_view.file_name(),
-	            return_target_only=True)
+			link = self._UrtextProjectList.current_project.parse_link(
+	            full_line)
 
 			# if there are no links on this line:
 			if not link or link['kind'] != 'NODE':  
 				return
 
-			node_title = link['link']
-			filename = self._UrtextProjectList.current_project.get_file_name(node_title)
-			position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
+			node_id = link['node_id']
+			filename = self._UrtextProjectList.current_project.get_file_name(node_id)
+			position = self._UrtextProjectList.current_project.nodes[node_id].start_position
 			
 			""" If the tree is linking to another part of its own file """
 			if filename == this_file:
