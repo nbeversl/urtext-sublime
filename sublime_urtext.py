@@ -67,16 +67,22 @@ def insert_text(text):
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
         view.run_command("insert", {"characters": text})
+        return True
+    return False
 
 def save_current():
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
         view.run_command('save')
+        return True
+    return False
 
 def save_file(filename):
     view = sublime.active_window().find_open_file(filename)
     if view:
         view.run_command('save')
+        return True
+    return False
 
 def set_clipboard(text):
     sublime.set_clipboard(text)
@@ -98,6 +104,8 @@ def set_buffer(filename, contents):
             'end' :view.size(),
             'replacement_text' : contents
             })
+        return True
+    return False
 
 def get_buffer(node_id=None):
     global _UrtextProjectList

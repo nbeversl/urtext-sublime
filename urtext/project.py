@@ -1567,8 +1567,7 @@ class UrtextProject:
 
     def run_editor_method(self, method_name, *args, **kwargs):
         if method_name in self.editor_methods:
-            self.editor_methods[method_name](*args, **kwargs)
-            return True
+            return self.editor_methods[method_name](*args, **kwargs)
         print('No editor method available for "%s"' % method_name)
         return False
 
