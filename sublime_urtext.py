@@ -50,15 +50,6 @@ def open_file_to_position(filename, position, node_range=None):
             else:
                 sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
 
-        def highlight_region(view, node_range):
-            view.add_regions(
-                'highlight',
-                [sublime.Region(node_range[0], node_range[1])],
-                scope="region.yellowish")
-            sublime.set_timeout(
-                lambda: view.erase_regions('highlight'), 
-                200)
-
         focus_position(new_view, position)
 
         return new_view
@@ -737,6 +728,15 @@ def preview_urtext_node(node_id):
             
             focus_position(preview, node_position)
 
+def highlight_region(view, node_range):
+    view.add_regions(
+        'highlight',
+        [sublime.Region(node_range[0], node_range[1])],
+        scope="region.yellowish")
+    sublime.set_timeout(
+        lambda: view.erase_regions('highlight'), 
+        200)
+            
 def position_node(position, focus=True, view=None): 
     if not view:
         window = sublime.active_window()
