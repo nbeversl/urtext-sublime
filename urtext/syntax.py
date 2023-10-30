@@ -59,7 +59,7 @@ file_link_opening_wrapper = ''.join([
 # Base Patterns
 bullet = r'^([^\S\n]*?)•'
 closing_wrapper = r'(?<!\\)' + re.escape(node_closing_wrapper)
-dd_flag = '((-[\w_]+)|(-\*))(\s|$)'
+dd_flag = '((-[\w_]+)|\*)(\s|$)'
 dd_flags = r''.join([
     '(^|\s)(',
     dd_flag,

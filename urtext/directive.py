@@ -15,7 +15,7 @@ class UrtextDirective:
     DynamicOutput = DynamicOutput
 
     def __init__(self, project):
-        self.keys = []
+        self.keys_with_flags = []
         self.flags = []
         self.links = []
         self.params = []
@@ -136,13 +136,3 @@ class UrtextDirective:
             if f in [k[0] for k in self.params_dict.keys()]:
                 return True
         return False
-
-    def key_value(self, param, operators):
-        operator = operators.search(param)
-        if operator:
-            operator = operator.group()
-            key, value = param.split(operator)
-            key = key.lower().strip()
-            value = [v.strip() for v in self.syntax.metadata_ops_or_c.split(value)]
-            return key, value, operator
-        return None, None, None

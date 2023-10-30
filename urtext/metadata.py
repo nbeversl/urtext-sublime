@@ -198,7 +198,6 @@ class NodeMetadata:
     def get_first_value(self, 
         keyname, 
         use_timestamp=False):
-        
         keyname = keyname.lower()
         if keyname not in self.entries_dict:
             return None
