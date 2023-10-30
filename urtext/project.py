@@ -1361,7 +1361,7 @@ class UrtextProject:
                         try:
                             value = float(value)
                         except ValueError:
-                            value = 99999999
+                            value = float('inf')
  
                     if k in self.settings['case_sensitive']:
                         results.extend([

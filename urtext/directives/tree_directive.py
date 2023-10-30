@@ -25,7 +25,7 @@ class Tree(UrtextDirective):
 
     def dynamic_output(self, start_point):
         if self.have_flags('*'):
-            self.depth = 999999
+            self.depth = float('inf')
         
         start_point = start_point.tree_node
 

@@ -77,7 +77,7 @@ class Collect:
 									try:
 										sort_value = float(value)
 									except ValueError: 
-										sort_value = 99999999
+										sort_value = float('inf')
 								else:
 									sort_value = str(sort_value)
 			

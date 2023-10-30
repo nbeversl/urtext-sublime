@@ -21,7 +21,7 @@ class NodeList:
 		contents = []
 		for n in node_list:		
 			if self.tree.have_flags('*'):
-				self.tree.depth = 99999
+				self.tree.depth = float('inf')
 			else:
 				if self.argument_string:
 					try:

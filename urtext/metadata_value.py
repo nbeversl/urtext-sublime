@@ -27,7 +27,12 @@ class MetadataValue:
         try:
             return float(self.text)
         except:
-            return None
+            return float('inf')
+
+    def __lt__(self, other):
+        if self.text:
+            return self.text < other.text
+        return self.num() < other.num()
 
     def log(self):
         print('text: %s' % ( 
