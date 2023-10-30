@@ -150,7 +150,7 @@ class UrtextBuffer:
                         'Removed stray closing wrapper at %s. ' % str(position))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_contents(contents)
-                    return self.lex_and_parse(contents)
+                    return self.lex_and_parse()
 
                 position += 1 #wrappers exist outside range
                 node = self.add_node(
@@ -215,7 +215,7 @@ class UrtextBuffer:
                  ' ',
                  contents[position:]])
             self._set_contents(contents)
-            return self.lex_and_parse(contents)
+            return self.lex_and_parse()
 
         return nested_levels, child_group, nested
 
