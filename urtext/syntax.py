@@ -37,6 +37,10 @@ urtext_message_opening_wrapper = '<!'
 urtext_message_closing_wrapper = '!>'
 timestamp_opening_wrapper = '<'
 timestamp_closing_wrapper = '>'
+timestamp = r''.join([
+    timestamp_opening_wrapper,
+    r'([^-/<\s][^=<]+?)',
+    timestamp_closing_wrapper])
 title_marker = ' _'
 metadata_assignment_operator = '::'
 metadata_closing_marker = ';'
@@ -55,8 +59,20 @@ file_link_opening_wrapper = ''.join([
 # Base Patterns
 bullet = r'^([^\S\n]*?)•'
 closing_wrapper = r'(?<!\\)' + re.escape(node_closing_wrapper)
-dd_flag = '((^\\s)-[\w_]+)+|\*'
-dd_key = r'([^\-][\w\._]+)(\s' + dd_flag + ')?(\s|$|;)'
+dd_flag = '((-[\w_]+)|(-\*))(\s|$)'
+dd_flags = r''.join([
+    '(^|\s)(',
+    dd_flag,
+    ')+'
+    ])
+dd_key = r'([^\-][\w\._]+)'
+dd_key_with_opt_flags = r''.join([
+    dd_key,
+    '\s*?',
+    '(',
+    dd_flags,
+    ')?',
+    ])
 dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break
@@ -113,7 +129,7 @@ disallowed_title_characters = [
 title_pattern = r'^([^' + r''.join(disallowed_title_characters) + ']+)'
 id_pattern = r'([^\|>\n\r]+)'
 
-# for syntax highlighting only:
+# (for syntax highlighting only)
 sh_metadata_key = metadata_key + '(?='+metadata_assigner+')'
 sh_metadata_values = r'(?<=::)[^\n};@]+;?'
 sh_metadata_key_c = re.compile(sh_metadata_key)
@@ -163,10 +179,7 @@ node_pointer = r''.join([
     '(?!>)'
     ])
 node_title = r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
-timestamp = r''.join([
-    timestamp_opening_wrapper,
-    r'([^-/<\s][^=<]+?)',
-    timestamp_closing_wrapper])
+
 file_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['file'],
@@ -180,14 +193,34 @@ urtext_messages = r''.join([
     re.escape(urtext_message_closing_wrapper),
     '\n?'
     ])
-
+metadata_ops = r'(' + r'|'.join([
+            metadata_op_before,
+            metadata_op_after,
+            metadata_op_equals,
+            metadata_op_not_equals,
+            metadata_op_contains,
+            metadata_op_is_like,
+        ]) + r')'
+dd_key_op_value = r''.join([
+    '(',
+    metadata_key,
+    ')',
+    '\s*',
+    metadata_ops,
+    '((',
+    metadata_values,
+    ')|(',
+    timestamp,
+    '))',
+    ])
 # Compiled Patterns
 any_link_or_pointer_c = re.compile(any_link_or_pointer)
 bullet_c = re.compile(bullet)
 compact_node_c = re.compile(compact_node, flags=re.MULTILINE)
 closing_wrapper_c = re.compile(closing_wrapper)
-dd_flag_c = re.compile(dd_flag)
-dd_key_c = re.compile(dd_key)
+dd_flags_c = re.compile(dd_flags)
+dd_key_with_opt_flags = re.compile(dd_key_with_opt_flags)
+dd_key_op_value_c = re.compile(dd_key_op_value)
 dynamic_def_c = re.compile(dynamic_def, flags=re.DOTALL)
 file_link_c = re.compile(file_link)
 embedded_syntax_open_c = re.compile(embedded_syntax_open, flags=re.DOTALL)
@@ -201,15 +234,9 @@ hash_meta_c = re.compile(hash_meta)
 metadata_arg_delimiter_c = re.compile(metadata_arg_delimiter)
 metadata_entry_c = re.compile(metadata_entry, flags=re.DOTALL)
 metadata_key_only_c = re.compile(metadata_key_only, flags=re.DOTALL)
-metadata_ops = re.compile(r'(' + r'|'.join([
-            metadata_op_before,
-            metadata_op_after,
-            metadata_op_equals,
-            metadata_op_not_equals,
-            metadata_op_contains,
-            metadata_op_is_like
-        ]) + r')')
 
+
+metadata_ops_c = re.compile(metadata_ops)
 metadata_ops_or_c = re.compile(metadata_ops_or)
 metadata_separator_pattern_c = re.compile(metadata_separator_pattern)
 meta_to_node_c = re.compile(meta_to_node, flags=re.DOTALL)

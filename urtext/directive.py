@@ -69,33 +69,52 @@ class UrtextDirective:
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
         argument_string = self._parse_links(argument_string)
-        argument_string = self._parse_keys(argument_string)
-        # argument_string = self._parse_flags(argument_string)
+        arguments = self.syntax.metadata_arg_delimiter_c.split(argument_string)     
+        # print(arguments)
+        for arg in arguments:
+            arg = arg.strip()
 
-        for argument in self.syntax.metadata_arg_delimiter_c.split(
-                argument_string):
+            key_op_value = syntax.dd_key_op_value_c.match(arg)          
+            if key_op_value:
+                key = key_op_value.group(1)
+                op = key_op_value.group(2)
+                value = key_op_value.group(3)
+                # print(arg)
+                # print('KEY, OP, VALUE:')
+                # print(key,op,value)
+                self.params.append((key,value,op))
+                continue
 
+            key_with_opt_flags = syntax.dd_key_with_opt_flags.match(arg)
+            if key_with_opt_flags:
+                key = key_with_opt_flags.group(1).strip()
+                flags = []
+                #TODO works, could be improved:
+                if len(key_with_opt_flags.groups()) > 1:
+                    flags = key_with_opt_flags.group().replace(key,'',1).split(' ')
+                    flags = [f.strip() for f in flags if f]
+                # print(arg)
+                # print('KEY, FLAGS:')
+                # print(key, flags)
+                self.keys_with_flags.append((key, flags))
+                continue
 
-            key, value, operator = self.key_value(
-                argument,
-                self.syntax.metadata_ops)
-            if value:
-                for v in value:
-                    self.params.append((key,v,operator))
-            else:
-                self.arguments.append(argument.strip())
+            flags = syntax.dd_flags_c.match(arg)
+            if flags:
+                flags = flags.group().split(' ')
+                flags = [f.strip() for f in flags if f]
+                self.flags.extend(flags)
+                continue
+
+            print('OTHER ARG:')
+            print(arg)
+
+            self.arguments.append(arg.strip())
 
         for param in self.params:
             self.params_dict.setdefault(param[0], [])
             self.params_dict[param[0]].extend(param[1:])
         
-    def _parse_flags(self, argument_string):
-        for f in self.syntax.dd_flag_c.finditer(argument_string):
-            flag = f.group().strip()
-            self.flags.append(flag)
-            argument_string = argument_string.replace(flag, '')
-        return argument_string
-
     def _parse_links(self, argument_string):
         for l in self.syntax.any_link_or_pointer_c.finditer(argument_string):
             link = l.group().strip()
@@ -117,16 +136,6 @@ class UrtextDirective:
             if f in [k[0] for k in self.params_dict.keys()]:
                 return True
         return False
-
-    def _parse_keys(self, argument_string):
-        for k in self.syntax.dd_key_c.finditer(argument_string):
-            key = k.group(1).strip()
-            flag = None
-            if k.group(2):
-                flag = k.group(2).strip()
-            self.keys.append((key, flag))
-            argument_string = argument_string.replace(key, '', 1)
-        return argument_string
 
     def key_value(self, param, operators):
         operator = operators.search(param)
