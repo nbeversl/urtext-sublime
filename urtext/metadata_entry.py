@@ -35,6 +35,8 @@ class MetadataEntry:  # container for a single metadata entry
             if not isinstance(values, list):
                 values = [values]
             self.meta_values = values
+        for v in self.meta_values:
+            v.entry = self
    
     def ints(self):
         parts = self.value.split[' ']

@@ -197,22 +197,28 @@ class NodeMetadata:
 
     def get_first_value(self, 
         keyname, 
+        order_by=None,
         use_timestamp=False):
-        entries = self.get_entries(keyname)
-        if not entries:
-            return None
+
+        values = self.get_values(
+            keyname, 
+            order_by=order_by)
+        if not values:
+            return
+        
+        value = values[0]
 
         if use_timestamp or keyname in self.project.settings['use_timestamp']:
-            if keyname in SINGLE_VALUES:
-                return self.entries_dict[keyname][0].meta_values[0].timestamp
-            if entries[0].meta_values[0].timestamp:
-                return entries[0].meta_values[0].timestamp
-            return default_date
+            return value.timestamp if value.timestamp else default_date
 
-        return entries[0].meta_values[0].text
+        if keyname in self.project.settings['numerical_keys']:
+            return value.num()
+
+        return value.text
 
     def get_values(self, 
         keyname,
+        order_by=None,
         use_timestamp=False,
         lower=False,
         convert_nodes_to_links=False):
@@ -236,7 +242,27 @@ class NodeMetadata:
                 if v.text:
                     v.text = v.text.lower()
 
-        return list(set(values))
+        values = list(set(values))
+
+        values = sorted(values)
+
+        if order_by:
+            if order_by == '-alpha':
+                values = sorted(
+                    values,
+                    key = lambda v: v.text if v.text else '')
+
+            if order_by in ['-n', '-num', '-number']:
+                values = sorted(
+                    values,
+                    key = lambda v: v.num())
+
+            if order_by in ['-pos','-position']:
+                values = sorted(
+                    values,
+                    key = lambda v: v.entry.start_position)
+
+        return values
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
