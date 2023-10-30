@@ -23,7 +23,6 @@ class UrtextBuffer:
         self.nodes = []
         self.contents = contents
         self.root_node = None
-        self.alias_nodes = [] #todo should be in tree extension
         self.messages = []
         self.project = project
         self.meta_to_node = []
