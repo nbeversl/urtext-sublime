@@ -70,7 +70,6 @@ class UrtextDirective:
         self.argument_string = argument_string.strip()
         argument_string = self._parse_links(argument_string)
         arguments = self.syntax.metadata_arg_delimiter_c.split(argument_string)     
-        # print(arguments)
         for arg in arguments:
             arg = arg.strip()
 
@@ -79,9 +78,6 @@ class UrtextDirective:
                 key = key_op_value.group(1)
                 op = key_op_value.group(2)
                 value = key_op_value.group(3)
-                # print(arg)
-                # print('KEY, OP, VALUE:')
-                # print(key,op,value)
                 self.params.append((key,value,op))
                 continue
 
@@ -93,9 +89,6 @@ class UrtextDirective:
                 if len(key_with_opt_flags.groups()) > 1:
                     flags = key_with_opt_flags.group().replace(key,'',1).split(' ')
                     flags = [f.strip() for f in flags if f]
-                # print(arg)
-                # print('KEY, FLAGS:')
-                # print(key, flags)
                 self.keys_with_flags.append((key, flags))
                 continue
 
@@ -105,9 +98,6 @@ class UrtextDirective:
                 flags = [f.strip() for f in flags if f]
                 self.flags.extend(flags)
                 continue
-
-            print('OTHER ARG:')
-            print(arg)
 
             self.arguments.append(arg.strip())
 
