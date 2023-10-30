@@ -149,6 +149,7 @@ class UrtextBuffer:
                         'Removed stray closing wrapper at %s. ' % str(position))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_contents(contents)
+                    print('FROM LINE 152 in BUFFER')
                     return self.lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -214,6 +215,7 @@ class UrtextBuffer:
                  ' ',
                  contents[position:]])
             self._set_contents(contents)
+            print('FROM LINE 218 in BUFFER')            
             return self.lex_and_parse()
 
         return nested_levels, child_group, nested
