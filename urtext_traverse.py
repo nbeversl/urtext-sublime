@@ -1,5 +1,5 @@
-from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command
-from .sublime_urtext import UrtextTextCommand
+from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command, UrtextTextCommand, highlight_region
+
 from sublime_plugin import EventListener
 import Urtext.urtext.syntax as syntax
 import sublime
@@ -148,19 +148,21 @@ class TraverseFileTree(EventListener):
 			# Get the current line and find links
 			full_line = view.substr(view.line(view.sel()[0]))
 
-			link = self._UrtextProjectList.handle_link(
-	            full_line, 
-	            tree_view.file_name(),
-	            return_target_only=True)
+			link = self._UrtextProjectList.current_project.parse_link(
+	            full_line)
 
 			# if there are no links on this line:
 			if not link or link['kind'] != 'NODE':  
 				return
 
-			node_title = link['link']
-			filename = self._UrtextProjectList.current_project.get_file_name(node_title)
-			position = self._UrtextProjectList.current_project.nodes[node_title].start_position()
-			
+			node_id = link['node_id']
+			filename = self._UrtextProjectList.current_project.get_file_name(node_id)
+			position = self._UrtextProjectList.current_project.nodes[node_id].start_position
+			node_range = [
+				self._UrtextProjectList.current_project.nodes[node_id].start_position,
+				self._UrtextProjectList.current_project.nodes[node_id].end_position
+				]
+
 			""" If the tree is linking to another part of its own file """
 			if filename == this_file:
 				
@@ -183,7 +185,7 @@ class TraverseFileTree(EventListener):
 					duplicate_file_view.sel().add(sublime.Region(position, position))
 					r = duplicate_file_view.text_to_layout(position)
 					duplicate_file_view.set_viewport_position(r)
-					
+					highlight_region(duplicate_file_view, node_range)
 					self.return_to_left(duplicate_file_view, tree_view)
 					duplicate_file_view.settings().set('traverse', 'false')
 					return
@@ -216,6 +218,7 @@ class TraverseFileTree(EventListener):
 				file_view.set_viewport_position(r)
 
 				file_view.sel().add(position)
+				highlight_region(file_view, node_range)
 				window.focus_group(self.tree_group)
 
 	def find_filename_in_window(self, filename, window):

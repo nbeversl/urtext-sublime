@@ -101,12 +101,15 @@ class UrtextBuffer:
                 continue
 
             elif symbols[position]['type'] == 'opening_wrapper':
-                # if position == 0:
-                #     nested_levels[nested].append([0, 0])
                 if from_compact:
                     nested_levels[nested].append([last_position-1, position-1])
                 else:
-                    nested_levels[nested].append([last_position, position])
+                    if position == 0:
+                        nested_levels[nested].append([0, 0])
+                        nested += 1 
+                        nested_levels[nested] = []
+                    else:
+                        nested_levels[nested].append([last_position, position-1])
                 position += 1 #wrappers exist outside range
                 nested += 1
 

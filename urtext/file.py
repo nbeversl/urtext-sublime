@@ -59,16 +59,16 @@ class UrtextFile(UrtextBuffer):
             if existing_contents == new_contents:
                 return False
 
-        self.contents = new_contents
-        if self.project.run_editor_method(
-            'set_buffer',
-            self.filename,
-            new_contents):
+        # self.contents = new_contents
+        # self.project.run_editor_method(
+        #     'set_buffer',
+        #     self.filename,
+        #     new_contents)
             
-            if self.project.run_editor_method(
-                'save_file',
-                self.filename):
-                return True
+        #     if self.project.run_editor_method(
+        #         'save_file',
+        #         self.filename):
+        #         return True
 
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)

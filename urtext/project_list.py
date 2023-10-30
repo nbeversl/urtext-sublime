@@ -59,8 +59,7 @@ class ProjectList():
             string, 
             filename, 
             col_pos=0,
-            file_pos=0,
-            return_target_only=False):
+            file_pos=0):
 
         """
         Given a line of text, looks for a link to a node or project
@@ -78,8 +77,7 @@ class ProjectList():
             if not self.set_current_project(project_name): return None
             return self.current_project.handle_link(
                 string, 
-                col_pos=col_pos,
-                return_target_only=return_target_only)
+                col_pos=col_pos)
          
         """ Otherwise, set the project, search the link for a link in the current project """
         if filename:
@@ -87,8 +85,7 @@ class ProjectList():
             if self.current_project:
                 return self.current_project.handle_link( 
                     string,
-                    col_pos=col_pos,
-                    return_target_only=return_target_only)
+                    col_pos=col_pos)
 
     def on_modified(self, filename):
         project = self._get_project_from_path(
