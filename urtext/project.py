@@ -104,8 +104,8 @@ class UrtextProject:
             os.path.dirname(os.path.abspath(__file__)),
             'extensions')
 
-        self._get_extensions_from_folder(extensions_folder)
-        self._get_directives_from_folder(directives_folder)
+        self._get_extensions_from_folder(extensions_folder, None)
+        self._get_directives_from_folder(directives_folder, None)
         
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
@@ -1000,12 +1000,16 @@ class UrtextProject:
 
             if entry.keyname == 'extensions':
                 for v in entry.text_values():
-                    self._get_extensions_from_folder(v)
+                    self._get_extensions_from_folder(
+                        v,
+                        self.nodes[node.id].filename)
                 continue
 
             if entry.keyname == 'directives':
                 for v in entry.text_values():
-                    self._get_directives_from_folder(v)
+                    self._get_directives_from_folder(
+                        v, 
+                        self.nodes[node.id].filename)
                 continue
  
             if entry.keyname in single_values_settings:
@@ -1038,7 +1042,7 @@ class UrtextProject:
             else:
                 self.settings[k] = replacements[k]
 
-    def _get_directives_from_folder(self, folder):
+    def _get_directives_from_folder(self, folder, filename):
         if os.path.exists(folder):
             sys.path.append(folder)
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
@@ -1062,10 +1066,10 @@ class UrtextProject:
                             str(e),
                             ])
                     self._log_item(
-                        'project_settings', 
+                        filename, 
                         message)
                                 
-    def _get_extensions_from_folder(self, folder):
+    def _get_extensions_from_folder(self, folder, filename):
         if os.path.exists(folder):
             sys.path.append(folder)
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
@@ -1088,7 +1092,7 @@ class UrtextProject:
                             str(e),
                             ])
                     self._log_item(
-                        'project_settings', 
+                        filename, 
                         message)
 
     def get_home(self):
