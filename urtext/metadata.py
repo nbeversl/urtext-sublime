@@ -198,10 +198,9 @@ class NodeMetadata:
     def get_first_value(self, 
         keyname, 
         use_timestamp=False):
-        keyname = keyname.lower()
-        if keyname not in self.entries_dict:
+        entries = self.get_entries(keyname)
+        if not entries:
             return None
-        entries = self.entries_dict[keyname]
 
         if use_timestamp or keyname in self.project.settings['use_timestamp']:
             if keyname in SINGLE_VALUES:
@@ -209,10 +208,6 @@ class NodeMetadata:
             if entries[0].meta_values[0].timestamp:
                 return entries[0].meta_values[0].timestamp
             return default_date
-
-        #TODO update: when would this happen?
-        if len(entries) and not entries[0].meta_values:
-            return None
 
         return entries[0].meta_values[0].text
 
