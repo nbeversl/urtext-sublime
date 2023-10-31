@@ -98,6 +98,14 @@ class UrtextDirective:
                 flags = [f.strip() for f in flags if f]
                 self.flags.extend(flags)
                 continue
+            
+            hash_value = syntax.dd_hash_meta_c.match(arg)
+            if hash_value:
+                hash_value = hash_value.group()[1:]
+                self.params.append((
+                    self.project.settings['hash_key'],
+                    hash_value,
+                    '='))
 
             self.arguments.append(arg.strip())
 

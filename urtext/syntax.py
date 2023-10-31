@@ -65,7 +65,8 @@ dd_flags = r''.join([
     dd_flag,
     ')+'
     ])
-dd_key = r'([^\-][\w\._]+)'
+hash_key = r'#'
+dd_key = r'([^\'' + hash_key + '][\w\._]+)'
 dd_key_with_opt_flags = r''.join([
     dd_key,
     '\s*?',
@@ -77,7 +78,6 @@ dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break
 format_key = r'\$_?[\.A-Za-z0-9_-]*'
-hash_key = r'#'
 node_link_opening_wrapper_match = r''.join([
     link_opening_character_regex,
     node_link_modifier_group,
@@ -150,6 +150,7 @@ any_link_or_pointer = r''.join([
 compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
+dd_hash_meta = hash_key + r'[A-Z,a-z].*'
 node_link = ''.join([
     node_link_opening_wrapper_match,
     '(',
@@ -219,6 +220,7 @@ bullet_c = re.compile(bullet)
 compact_node_c = re.compile(compact_node, flags=re.MULTILINE)
 closing_wrapper_c = re.compile(closing_wrapper)
 dd_flags_c = re.compile(dd_flags)
+dd_hash_meta_c = re.compile(dd_hash_meta)
 dd_key_with_opt_flags = re.compile(dd_key_with_opt_flags)
 dd_key_op_value_c = re.compile(dd_key_op_value)
 dynamic_def_c = re.compile(dynamic_def, flags=re.DOTALL)
