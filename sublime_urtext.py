@@ -340,37 +340,36 @@ class UrtextEventListeners(EventListener):
 
     @refresh_project_event_listener
     def on_post_save(self, view):
-        if view and view.file_name():
+        if view and view.file_name() and self._UrtextProjectList:
             self._UrtextProjectList.on_modified(view.file_name())
 
     @refresh_project_event_listener
     def on_activated(self, view):
-        if view.file_name():
+        if view.file_name() and self._UrtextProjectList:
             self._UrtextProjectList.visit_node(
                 view.file_name(),
                 get_node_id(view))
 
     def on_hover(self, view, point, hover_zone):
-        if view.is_folded(sublime.Region(point, point)):
-            if _UrtextProjectList:
-                for r in view.folded_regions():
-                    if point in [r.a, r.b]:
-                        contents = view.export_to_html(
-                            sublime.Region(r.a,r.b))
+        if view.is_folded(sublime.Region(point, point)) and self._UrtextProjectList:
+            for r in view.folded_regions():
+                if point in [r.a, r.b]:
+                    contents = view.export_to_html(
+                        sublime.Region(r.a,r.b))
 
-                def unfold_region(href_region):
-                    points = href_region.split('-')
-                    region = sublime.Region(int(points[0]), int(points[1]))
-                    view.unfold(region)
-                    view.hide_popup()
+            def unfold_region(href_region):
+                points = href_region.split('-')
+                region = sublime.Region(int(points[0]), int(points[1]))
+                view.unfold(region)
+                view.hide_popup()
 
-                contents += '<a href="%s-%s">unfold</a>' % (r.a, r.b)
+            contents += '<a href="%s-%s">unfold</a>' % (r.a, r.b)
 
-                view.show_popup(contents, 
-                    max_width=512, 
-                    max_height=512, 
-                    location=file_pos,
-                    on_navigate=unfold_region)
+            view.show_popup(contents, 
+                max_width=512, 
+                max_height=512, 
+                location=file_pos,
+                on_navigate=unfold_region)
 
 class UrtextViewEventListener(ViewEventListener):
 
