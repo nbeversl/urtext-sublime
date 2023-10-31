@@ -238,24 +238,12 @@ class NodeMetadata:
                     v.text = v.text.lower()
 
         values = list(set(values))
-
         values = sorted(values)
 
-        if order_by:
-            if order_by == '-alpha':
-                values = sorted(
-                    values,
-                    key = lambda v: v.text if v.text else '')
-
-            if order_by in ['-n', '-num', '-number']:
-                values = sorted(
-                    values,
-                    key = lambda v: v.num())
-
-            if order_by in ['-pos','-position']:
-                values = sorted(
-                    values,
-                    key = lambda v: v.entry.start_position)
+        if order_by in ['-pos','-position']:
+            values = sorted(
+                values,
+                key = lambda v: v.entry.start_position)
 
         return values
 
