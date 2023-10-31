@@ -10,11 +10,6 @@ else:
     from urtext.metadata_entry import MetadataEntry
     from urtext.metadata_value import MetadataValue
 
-SINGLE_VALUES = [
-    '_oldest_timestamp',
-    '_newest_timestamp',
-    ]
-
 class NodeMetadata:
 
     def __init__(self, 
