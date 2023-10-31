@@ -28,9 +28,8 @@ class UrtextBuffer:
         self.meta_to_node = []
     
     def lex_and_parse(self):
-        symbols = self.lex(self.contents)
-        self.parse(self.contents, symbols)
-        self.file_length = len(self.contents)
+        symbols = self.lex(self._get_contents())
+        self.parse(self._get_contents(), symbols)
         self.propagate_timestamps(self.root_node)
         for node in self.nodes:
             node.buffer = self
@@ -215,7 +214,8 @@ class UrtextBuffer:
                  ' ',
                  contents[position:]])
             self._set_contents(contents)
-            print('FROM LINE 218 in BUFFER')            
+            print('FROM LINE 218 in BUFFER')
+            print(self.filename)            
             return self.lex_and_parse()
 
         return nested_levels, child_group, nested
@@ -243,8 +243,6 @@ class UrtextBuffer:
             compact=compact,
             nested=nested)
         
-        new_node.get_contents = self._get_contents
-        new_node.set_contents = self._set_contents
         new_node.ranges = ranges
         new_node.start_position = ranges[0][0]
         new_node.end_position = ranges[-1][1]
@@ -255,8 +253,8 @@ class UrtextBuffer:
         return new_node
 
     def clear_messages_and_parse(self):
-        cleared_contents = self.clear_messages(self.contents)
-        if cleared_contents != self.contents:
+        cleared_contents = self.clear_messages(self._get_contents())
+        if cleared_contents != self._get_contents():
             self._set_contents(cleared_contents)
         self.lex_and_parse()
         self.write_messages()
@@ -269,7 +267,6 @@ class UrtextBuffer:
           
     def _set_contents(self, contents, compare=False):
         self.contents = contents
-        return
 
     def write_messages(self, messages=None):
         if not messages and not self.messages: return False
@@ -355,7 +352,6 @@ class UrtextBuffer:
 
         self.nodes = {}
         self.root_node = None
-        self.file_length = 0
         self.messages.append(message +' at position '+ str(position))
 
         print(''.join([ 
