@@ -66,7 +66,7 @@ dd_flags = r''.join([
     ')+'
     ])
 hash_key = r'#'
-dd_key = r'([^\'' + hash_key + '][\w\._]+)'
+dd_key = r'([^\'' + hash_key + virtual_target_marker + '][\w\._]+)'
 dd_key_with_opt_flags = r''.join([
     dd_key,
     '\s*?',
