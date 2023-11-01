@@ -69,7 +69,7 @@ class UrtextFile(UrtextBuffer):
         #         'save_file',
         #         self.filename):
         #         return True
-
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
+        self.contents = new_contents
         return True

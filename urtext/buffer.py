@@ -204,18 +204,16 @@ class UrtextBuffer:
 
             last_position = position
         
-        if not from_compact and nested > 0:
+        if not from_compact and nested >= 0:
             self.messages.append(
                 'Appended closing bracket to close opening bracket at %s. %s'  % 
                 ( str(position), self.user_delete_string) )
             contents = ''.join([contents[:position],
-                 ' ',
-                 syntax.node_closing_wrapper,
-                 ' ',
-                 contents[position:]])
+                ' ',
+                syntax.node_closing_wrapper,
+                ' ',
+                contents[position:]])
             self._set_contents(contents)
-            print('FROM LINE 218 in BUFFER')
-            print(self.filename)            
             return self.lex_and_parse()
 
         return nested_levels, child_group, nested
@@ -269,8 +267,9 @@ class UrtextBuffer:
         self.contents = contents
 
     def write_messages(self, messages=None):
-        if not messages and not self.messages: return False
-        if messages: 
+        if not messages and not self.messages:
+            return False
+        if messages:
             self.messages = messages
         new_contents = self.clear_messages(self._get_contents())
 
@@ -281,7 +280,7 @@ class UrtextBuffer:
                 '\n',
                 timestamp,
                 '\n',
-                '\n'.join(messages),
+                '\n'.join(self.messages),
                 '\n',
                 syntax.urtext_message_closing_wrapper,
                 '\n'
