@@ -21,7 +21,6 @@ class NodeQuery:
 							self.dynamic_definition.source_id].parent.id)
 				break
 
-
 		if not added_nodes:	
 			added_nodes = set([])
 			if self.have_flags('*'):

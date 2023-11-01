@@ -73,6 +73,7 @@ class UrtextDynamicDefinition:
 				op.set_dynamic_definition(self)
 				op.parse_argument_string(argument_string)	
 				self.operations.append(op)
+				continue
 
 			if func in ['TARGET', '>']:
 				output_target = syntax.virtual_target_match_c.match(argument_string)
@@ -104,7 +105,7 @@ class UrtextDynamicDefinition:
 
 		if 'SORT' not in [op.name[0] for op in self.operations]:
 			op = self.project.directives['SORT'](self.project)
-			op.parse_argument_string('_oldest_timestamp')
+			op.parse_argument_string('title')
 			op.set_dynamic_definition(self)
 			self.operations.append(op)
 			self.phases.append(220)

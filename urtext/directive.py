@@ -106,6 +106,7 @@ class UrtextDirective:
                     self.project.settings['hash_key'],
                     hash_value,
                     '='))
+                continue
 
             self.arguments.append(arg.strip())
 
