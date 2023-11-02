@@ -24,7 +24,11 @@ class PopNode:
         param_string, 
         source_filename, 
         file_pos):
-        
+
+        if not self.project.compile:
+            print('Project not yet compiled.')
+            return        
+
         if source_filename not in self.project.files:
             print(source_filename, 'not in project')
             return
