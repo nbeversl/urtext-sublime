@@ -113,6 +113,10 @@ class PullNode:
         destination_filename, 
         file_pos):
 
+        if not self.project.compile:
+            print('Project not yet compiled.')
+            return        
+
         link = self.project.parse_link(
             string,
             file_pos=file_pos)
