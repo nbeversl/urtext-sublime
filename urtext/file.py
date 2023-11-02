@@ -71,4 +71,7 @@ class UrtextFile(UrtextBuffer):
         #         return True
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
+        self.project.run_editor_method(
+            'refresh_open_file',
+            self.filename)
         return True
