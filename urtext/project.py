@@ -1343,16 +1343,16 @@ class UrtextProject:
                                 convert_nodes_to_links=True)])
                         continue
 
-                    use_timestamp = False
-                    if isinstance(value, UrtextTimestamp):
-                        use_timestamp = True
-
                     if k in self.settings['numerical_keys']:
                         try:
                             value = float(value)
                         except ValueError:
                             value = float('inf')
  
+                    use_timestamp = False
+                    if isinstance(value, UrtextTimestamp):
+                        use_timestamp = True
+
                     if k in self.settings['case_sensitive']:
                         results.extend([
                             n for n in self.nodes if 
@@ -1363,18 +1363,17 @@ class UrtextProject:
                         if isinstance(value, str):
                             value = value.lower()
                         for n in self.nodes.values():
-                            values = n.metadata.get_values(
+                            found_values = n.metadata.get_values(
                                 k,
-                                use_timestamp=use_timestamp,
-                                lower=True)
+                                use_timestamp=use_timestamp)
                             if use_timestamp:
-                                if value in [v.timestamp for v in values]:
+                                if value in [v.timestamp for v in found_values]:
                                     results.append(n.id)
                             else:
-                                if value in [v.text for v in values]:
+                                if value in [v.text for v in found_values]:
                                     results.append(n.id)
 
-        results=list(set(results))            
+        results = list(set(results))
         if as_nodes:
             return [self.nodes[n] for n in results]
         return results

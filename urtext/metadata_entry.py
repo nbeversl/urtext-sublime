@@ -81,7 +81,7 @@ class MetadataEntry:  # container for a single metadata entry
         values = []
         for v in self.meta_values:
             values.append((
-                v.text if not lower else v.text.lower(),
+                v.text if not lower else v.text_lower,
                 v.timestamp
                 ))
         return values

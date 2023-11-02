@@ -22,6 +22,7 @@ class MetadataValue:
             if t.datetime:
                 self.timestamp = t
         self.text = value_string
+        self.text_lower = value_string.lower()
 
     def num(self):
         try:

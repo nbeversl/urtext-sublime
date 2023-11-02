@@ -191,31 +191,27 @@ class NodeMetadata:
                 end_position=inline_timestamps[-1].end_position)
 
     def get_first_value(self, 
-        keyname, 
-        order_by=None,
+        keyname,
+        order_by='default',
         use_timestamp=False):
 
         values = self.get_values(
             keyname, 
             order_by=order_by)
-        if not values:
-            return
+
+        if values:
         
-        value = values[0]
+            value = values[0]
 
-        if use_timestamp or keyname in self.project.settings['use_timestamp']:
-            return value.timestamp if value.timestamp else default_date
+            if use_timestamp or keyname in self.project.settings['use_timestamp']:
+                return value.timestamp if value.timestamp else default_date
 
-        if keyname in self.project.settings['numerical_keys']:
-            return value.num()
-
-        return value.text
+            return value.text
 
     def get_values(self, 
         keyname,
         order_by=None,
         use_timestamp=False,
-        lower=False,
         convert_nodes_to_links=False):
 
         values = []
@@ -229,21 +225,17 @@ class NodeMetadata:
                         e.meta_values[0].id,
                         syntax.link_closing_wrapper])) 
                 continue
-            for v in e.meta_values:
-                values.append(v)
-
-        if lower:
-            for v in values:
-                if v.text:
-                    v.text = v.text.lower()
+            values.extend(e.meta_values)
 
         values = list(set(values))
-        values = sorted(values)
 
         if order_by in ['-pos','-position']:
             values = sorted(
                 values,
                 key = lambda v: v.entry.start_position)
+
+        if order_by == 'default':
+            values = sorted(values)
 
         return values
 
