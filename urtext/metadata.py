@@ -234,8 +234,8 @@ class NodeMetadata:
                 values,
                 key = lambda v: v.entry.start_position)
 
-        if order_by == 'default':
-            values = sorted(values)
+        # if order_by == 'default':
+        #     values = sorted(values)
 
         return values
 

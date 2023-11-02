@@ -121,8 +121,8 @@ class Tree(UrtextDirective):
 
             for meta_key in next_content.needs_other_format_keys:
                 next_content.other_format_keys[
-                    meta_key] = sorted(urtext_node.get_extended_values(
-                        meta_key))
+                    meta_key] = urtext_node.get_extended_values(
+                        meta_key)
 
             if level == 0:
                 prefix = pre
