@@ -282,7 +282,6 @@ class UrtextNode:
             replacement_contents,
             file_contents[file_range_to_replace[1]:]])
         self.file._set_contents(new_file_contents)
-        self.project._parse_file(self.filename)
 
     def append_content(self, appended_content):
         file_contents = self.file._get_contents()

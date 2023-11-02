@@ -30,7 +30,6 @@ class PopNode:
             return
 
         self.project.run_editor_method('save_file', source_filename)
-        self.project._on_modified(source_filename, bypass=True)
 
         popped_node_id = self.project.get_node_id_from_position(
             source_filename,
@@ -154,7 +153,6 @@ class PullNode:
                 ])
             self.project.files[source_filename]._set_contents(
                 updated_source_file_contents)
-            self.project._on_modified(source_filename, bypass=True)
         else:
             self.project._delete_file(source_filename)
 

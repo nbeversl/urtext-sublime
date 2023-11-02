@@ -73,7 +73,6 @@ class UrtextProject:
         self.editor_methods = editor_methods
         self.is_async = True
         #self.is_async = False # development
-        self.event_listeners_should_continue = True
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -1139,16 +1138,12 @@ class UrtextProject:
                 links = re.findall(pattern + original_id, new_contents)
                 for link in links:
                     new_contents = new_contents.replace(link, replacement, 1)
-            if self.files[filename]._set_contents(
-                new_contents):
-                return self.execute(self._on_modified, filename)
+            self.files[filename]._set_contents(new_contents)
 
     def on_modified(self, filename, bypass=False):    
         return self.execute(self._on_modified, filename, bypass=bypass)
     
     def _on_modified(self, filename, bypass=False):
-        if not self.event_listeners_should_continue and not bypass:
-            return
         if self.compiled:
             modified_files = [filename]
             self._parse_file(filename)
@@ -1167,7 +1162,7 @@ class UrtextProject:
         return self.execute(self._visit_node, node_id)
 
     def _visit_node(self, node_id):
-        if node_id in self.nodes and self.compiled and self.event_listeners_should_continue:
+        if node_id in self.nodes and self.compiled:
             filename = self.nodes[node_id].filename
             self._run_hook('on_node_visited', node_id)
             for dd in list(self.dynamic_definitions.values()):
@@ -1187,7 +1182,7 @@ class UrtextProject:
             filename)
 
     def _visit_file(self, filename):
-        if filename in self.files and self.compiled and self.event_listeners_should_continue:
+        if filename in self.files and self.compiled:
             modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
