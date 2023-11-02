@@ -25,7 +25,7 @@ class PopNode:
         source_filename, 
         file_pos):
 
-        if not self.project.compile:
+        if not self.project.compiled:
             print('Project not yet compiled.')
             return        
 
@@ -113,7 +113,7 @@ class PullNode:
         destination_filename, 
         file_pos):
 
-        if not self.project.compile:
+        if not self.project.compiled:
             print('Project not yet compiled.')
             return        
 
