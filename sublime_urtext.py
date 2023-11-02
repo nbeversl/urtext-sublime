@@ -154,7 +154,7 @@ def open_http_link(link):
 def refresh_open_file(filename):
     view = sublime.active_window().find_open_file(filename)
     if view:
-        view.run_command('reopeon')
+        view.run_command('reopen')
 
 def close_current():
     if sublime.active_window() and sublime.active_window().active_view():

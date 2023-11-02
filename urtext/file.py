@@ -67,8 +67,7 @@ class UrtextFile(UrtextBuffer):
 
             if self.project.run_editor_method(
                 'save_file',
-                self.filename,
-                new_contents):
+                self.filename):
                 return True
 
         with open(self.filename, 'w', encoding='utf-8') as theFile:
