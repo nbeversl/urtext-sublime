@@ -81,14 +81,10 @@ class PopNode:
         with open(source_filename, 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
         self.project.run_editor_method(
-            'refresh_open_file',
-            source_filename)
-        self.project.run_editor_method(
             'set_buffer',
             source_filename,
             remaining_node_contents)
         self.project._parse_file(source_filename)
-        # self.project._on_modified(source_filename, bypass=True)
  
 class PullNode:
 
@@ -177,7 +173,6 @@ class PullNode:
             wrapped_contents)
 
         self.project.files[destination_filename]._set_contents(destination_file_contents)
-        self.project.run_editor_method('refresh_open_file', destination_filename)
 
         self.project.run_editor_method(
             'set_buffer',

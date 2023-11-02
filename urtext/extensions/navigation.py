@@ -75,7 +75,11 @@ class Navigation:
 					node_id))
 
 	def on_file_deleted(self, filename):
-		return self.reverse()
+		for node_id in self.project_list_instance.navigation:
+			if node_id not in self.project.nodes:
+				if self.project_list_instance.navigation.index(node_id) < self.project_list_instance.nav_index:
+					self.project_list_instance.nav_index -= 1
+				self.project_list_instance.navigation.remove(node_id)
 
 	def on_node_id_changed(self, old_id, new_id):
 		for index, item in enumerate(

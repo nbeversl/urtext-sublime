@@ -275,7 +275,6 @@ class UrtextProject:
                     contents = contents.replace(old_link, rewrites[old_link])
                 if self.files[filename]._set_contents(contents):
                     self._parse_file(filename)
-                    self.run_editor_method('refresh_open_file', filename)
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -314,9 +313,6 @@ class UrtextProject:
                                 if self.files[filename]._set_contents(
                                     replaced_contents):
                                   self._parse_file(filename)
-                                  self.run_editor_method(
-                                    'refresh_open_file', 
-                                    filename)
 
     def _check_file_for_duplicates(self, file_obj, known_ids=[]):
 
@@ -1195,7 +1191,6 @@ class UrtextProject:
             modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
-            self._refresh_modified_files(modified_files)
             return modified_files
 
     def _sync_file_list(self):
@@ -1452,12 +1447,6 @@ class UrtextProject:
                     modified_files.append(self.nodes[target].filename)
 
         return modified_files
-
-    def _refresh_modified_files(self, files):
-        for file in files:
-            self.run_editor_method(
-                'refresh_open_file',
-                file)
 
     def _direct_output(self, output, target, dd):
         node_link = syntax.node_link_or_pointer_c.match(target)

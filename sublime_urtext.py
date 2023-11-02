@@ -151,11 +151,6 @@ def open_http_link(link):
     if not success:
         self.log('Could not open tab using your "web_browser_path" setting')       
 
-def refresh_open_file(filename):
-    view = sublime.active_window().find_open_file(filename)
-    if view:
-        view.run_command('reopen')
-
 def close_current():
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
@@ -180,7 +175,6 @@ editor_methods = {
     'set_buffer' : set_buffer,
     'replace' : replace,
     'popup' : show_popup,
-    'refresh_open_file' : refresh_open_file,
     'close_current': close_current,
     'write_to_console' : print,
     'status_message' : show_status,
