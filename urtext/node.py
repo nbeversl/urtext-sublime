@@ -80,7 +80,7 @@ class UrtextNode:
         stripped_contents, replaced_contents = strip_embedded_syntaxes(replaced_contents)
 
         self.get_links(contents=replaced_contents)
-        self.metadata = self.urtext_metadata(self, self.project)        
+        self.metadata = self.urtext_metadata(self, self.project)    
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         self.title = self.set_title(stripped_contents)
         if not stripped_contents.strip().replace(self.title,'').strip(' _'):
@@ -108,13 +108,19 @@ class UrtextNode:
     def get_date(self, date_keyword):
         return self.metadata.get_date(date_keyword)
 
-    def contents(self, 
+    def contents(self,
+        stripped=True,
         strip_first_line_title=False):
 
+        if stripped:
+            contents = self.stripped_contents
+        else:
+            contents = self.full_contents
+
         if strip_first_line_title:
-            return self.strip_first_line_title(self.stripped_contents)
+            return self.strip_first_line_title(contents)
         
-        return self.stripped_contents
+        return contents
 
     def links_ids(self):
         return [get_id_from_link(link) for link in self.links]        
@@ -249,11 +255,28 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def set_content(self, contents):
+    def set_content(self, new_contents, preserve_title=True):
+        node_contents = self.strip_first_line_title(self.full_contents)
         file_contents = self.file._get_contents()
+        
+        if preserve_title and self.first_line_title:
+            new_node_contents = ''.join([ 
+                ' ',
+                self.title,
+                new_contents,
+                node_contents,
+                ])
+        else: 
+            new_node_contents = ''.join([
+                new_contents,
+                node_contents
+                ])
+
+        file_contents = self.file._get_contents()
+
         new_file_contents = ''.join([
             file_contents[:self.start_position],
-            contents,
+            new_contents,
             file_contents[self.end_position:]])
         return self.file._set_contents(new_file_contents)
 
@@ -311,7 +334,7 @@ class UrtextNode:
         new_file_contents = ''.join([
             file_contents[:self.start_position], # omit opening
             new_node_contents,
-            file_contents[self.end_position:]])         
+            file_contents[self.end_position:]]) 
         return self.file._set_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents): 

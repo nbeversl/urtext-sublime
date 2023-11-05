@@ -121,17 +121,20 @@ class UrtextDynamicDefinition:
 			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
-	def process_output(self, max_phase=700):
+	def process_output(self,
+		phases_to_process=[],
+		outcome=[],
+		max_phase=800):
 
-		outcome = []
-		phases_to_process = [p for p in phases if p <= max_phase]
+		if not len(phases_to_process):
+			phases_to_process = [p for p in phases if p <= max_phase]
+
 		all_operations = sorted(
 			list(self.operations), 
 			key = lambda op: op.phase)
 
 		for p in phases_to_process:	
 			if p == 200: 
-				# convert node_id list to node objects for remaining processing
 				self.included_nodes = outcome
 				outcome = [
 					self.project.nodes[nid] for nid in outcome if (

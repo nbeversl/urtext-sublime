@@ -87,6 +87,7 @@ class UrtextProject:
         self.compiled = False
         self.excluded_files = []
         self.home_requested = False
+        self.variables = {}
         self.executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)        
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
