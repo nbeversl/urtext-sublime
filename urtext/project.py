@@ -866,14 +866,14 @@ class UrtextProject:
         http_link_present = False
         http_link = url_match(string)
         if http_link:
-            if col_pos < http_link.end():
+            if col_pos <= http_link.end():
                 http_link_present = True
                 link_start = http_link.start()
                 link_end = http_link.end()
                 http_link = full_match = http_link.group().strip()
 
         for match in syntax.any_link_or_pointer_c.finditer(string):
-            if col_pos < match.end():
+            if col_pos <= match.end():
                 if http_link_present and (
                     link_end < match.end()) and (
                     link_end < match.start()):
