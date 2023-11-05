@@ -53,7 +53,7 @@ class ReindexFiles:
                         filename_template[i] = ''                
                 else:
                     filename_template[i] = ' '.join([
-                        str(s) for s in root_node.metadata.get_values(
+                        v.text for v in root_node.metadata.get_values(
                             filename_template[i])])
 
             if filename_template in [ [], [''] ]:
