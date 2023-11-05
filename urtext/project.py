@@ -1098,14 +1098,16 @@ class UrtextProject:
         pairs = []
         for n in self.nodes.values():
             for k in n.metadata.get_keys():
-               values = n.metadata.get_values(k)
-               if k == '#':
-                    k = self.settings['hash_key']
-               for v in values:
+                values = n.metadata.get_values(k)
+                assigner = syntax.metadata_assignment_operator
+                if k == self.settings['hash_key']:
+                    k = '#'
+                    assigner = ''                   
+                for v in values:
                     pairs.append(''.join([
                         k,
-                        syntax.metadata_assignment_operator,
-                        str(v)
+                        assigner,
+                        v.text, # num would need to be converted to text anyway
                         ]))
 
         return list(set(pairs))

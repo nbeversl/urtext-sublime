@@ -365,6 +365,27 @@ class UrtextEventListeners(EventListener):
                 location=file_pos,
                 on_navigate=unfold_region)
 
+    @refresh_project_event_listener
+    def on_query_completions(self, view, prefix, locations):
+        if self._UrtextProjectList and self._UrtextProjectList.current_project:
+            current_path = os.path.dirname(view.file_name())
+            if self._UrtextProjectList.get_project(current_path):
+                subl_completions = []
+                proj_completions = self._UrtextProjectList.get_all_meta_pairs()
+                for c in proj_completions:
+                    if '::' in c:
+                        t = c.split('::')
+                        if len(t) > 1:
+                            subl_completions.append([t[1]+'\t'+c, c])
+                    elif c[0] == '#':
+                        subl_completions.append(['#'+c[1:]+'\t'+c, c])
+                for t in self._UrtextProjectList.current_project.title_completions():
+                    subl_completions.append([t[0],t[1]])
+                return (subl_completions, 
+                    sublime.INHIBIT_WORD_COMPLETIONS,
+                    sublime.DYNAMIC_COMPLETIONS
+                    )
+
 class UrtextViewEventListener(ViewEventListener):
 
     def on_deactivated(self):
@@ -519,7 +540,7 @@ class NodeBrowserMenu:
             for single_project in projects:
                 self.menu.extend(single_project.all_nodes(as_nodes=True))
 
-        for node in self.menu:  # there is probably a better way to copy this list.
+        for node in self.menu:  # TODO there is probably a better way to copy this list.
             timestamp = node.metadata.get_oldest_timestamp()
             if timestamp:
                 timestamp = timestamp.wrapped_string
