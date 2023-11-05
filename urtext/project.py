@@ -927,7 +927,6 @@ class UrtextProject:
         return node_id in self.nodes
 
     def _log_item(self, filename, message):
-        self.messages.setdefault(filename, [])
         if message not in self.messages[filename]:
             self.messages[filename].append(message)
         if self.settings['console_log']: print(str(filename)+' : '+ message)
@@ -1232,7 +1231,9 @@ class UrtextProject:
         any_duplicate_ids = self._parse_file(filename)
         
         if any_duplicate_ids:
-            self._log_item(filename, 'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
+            self._log_item(
+                filename, 
+                'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
             raise DuplicateIDs()
 
         return self.execute(self._compile)
@@ -1478,7 +1479,7 @@ class UrtextProject:
                 return self.run_editor_method('insert_at_next_line', output)
             if virtual_target == '@log':
                 return self._log_item(
-                    None, 
+                    self.nodes[dd.source_id].filename,
                     output)
             if virtual_target == '@console':
                 return self.run_editor_method('write_to_console', output)
