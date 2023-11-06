@@ -166,7 +166,7 @@ class UrtextProject:
         
         new_file = self.urtext_file(filename, self)
         if not new_file.root_node:
-            print('%s has no root node, dropping' % filename)
+            self._log_item(filename, '%s has no root node, dropping')
             self.excluded_files.append(filename)
             return False
 
@@ -801,13 +801,29 @@ class UrtextProject:
             col_pos=col_pos)
 
         if not link:
-            if not self.compiled: message = "Project is still compiling"
-            else: message = "No link"
+            if not self.compiled:
+                message = "Project is still compiling"
+            else:
+                message = "No link"
             return self.run_editor_method('popup', message)
 
         if not link['kind']:
-            if not self.compiled: return print('Project is still compiling')
-            return print('No node ID, web link, or file found on this line.')
+            if not self.compiled:
+                self.run_editor_method(
+                    'popup',
+                    'Project is still compiling')
+            return self.run_editor_method(
+                'popup',
+                'No link found')
+
+        if link['kind'] == 'MISSING':
+            if not self.compiled:
+                self.run_editor_method(
+                    'popup',
+                    'Project is still compiling')
+            return self.run_editor_method(
+                'popup', 
+                'Link is not is not in the project.')
 
         if link['kind'] == 'NODE':
             return self.open_node(
@@ -816,8 +832,13 @@ class UrtextProject:
 
         if link['kind'] == 'ACTION':
             if link['node_id'] not in self.nodes:
-                if not self.compiled: return print('Project is still compiling')
-                return print('Node ' + link['node_id'] + ' is not in the project')
+                if not self.compiled:
+                    return self.run_editor_method(
+                        'popup',
+                        'Project is still compiling')
+                return self.run_editor_method(
+                    'popup',
+                    'Node ' + link['node_id'] + ' is not in the project')
             else:
                 for dd in self.get_dynamic_defs(source=link['node_id']):
                     if dd.source_id == link['node_id']:
@@ -921,9 +942,11 @@ class UrtextProject:
         return node_id in self.nodes
 
     def _log_item(self, filename, message):
+        self.messages.setdefault(filename, [])
         if message not in self.messages[filename]:
             self.messages[filename].append(message)
-        if self.settings['console_log']: print(str(filename)+' : '+ message)
+        if self.settings['console_log']:
+            print(str(filename)+' : '+ message)
         
     def timestamp(self, date=None, as_string=False):
         """ 
@@ -1007,7 +1030,9 @@ class UrtextProject:
                         try:
                             self.settings[entry.keyname] = int(v)
                         except:
-                            print(v + ' not an integer')
+                            self._log_item(
+                                entry.filename,
+                                'In dynamic definition, "' + v + '" is not an integer')
                     else:
                         self.settings[entry.keyname] = v
                 continue
