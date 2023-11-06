@@ -22,6 +22,7 @@ class Sort:
 						reverse=reverse)
 					)
 				nodes = [n for n in nodes if n not in group_to_sort]
+			sorted_nodes.extend(nodes)
 			return sorted_nodes
 		return nodes
 
