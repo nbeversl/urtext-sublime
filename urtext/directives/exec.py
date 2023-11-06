@@ -14,8 +14,6 @@ class Exec:
 
 	name = ["EXEC"]
 	phase = 350
-	UrtextExtension = UrtextExtension
-	UrtextDirective = UrtextDirective
 
 	def dynamic_output(self, input_contents):
 		node_to_exec = get_id_from_link(self.argument_string)
@@ -34,7 +32,6 @@ class Exec:
 					return message
 				except Exception as e:
 					sys.stdout = old_stdout
-					print(str(e))
 					return str(e)
 
 		return '(no Python code found)'
