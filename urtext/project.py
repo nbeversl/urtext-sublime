@@ -189,7 +189,7 @@ class UrtextProject:
                             # check each new id for similarity to the old one
                             changed_ids[old_node_ids[index]] = new_node_ids[index]
                             # else:
-                            # try to map old to new. This is the hard part
+                            #TODO try to map old to new.
 
         for node in new_file.nodes:
             self._add_node(node)
@@ -315,7 +315,6 @@ class UrtextProject:
                                   self._parse_file(filename)
 
     def _check_file_for_duplicates(self, file_obj, known_ids=[]):
-
         duplicate_nodes = []
         changed_ids = {}
         messages = []
@@ -323,49 +322,44 @@ class UrtextProject:
         
         # resolve duplicates in same file
         file_node_ids = [n.id for n in file_obj.nodes]
-        for node in list(file_obj.nodes):
+        for node in file_obj.get_ordered_nodes():
             if node.id == '(untitled)' or file_node_ids.count(node.id) > 1:
                 resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
                 if not resolved_id:
                     duplicate_nodes.append(node.id)
-                    messages.append(
-                        'Cannot resolve duplicate ID in this file "%s"' % node.id)
                     del node
                     continue
                 changed_ids[node.id] = resolved_id
                 node.apply_id(resolved_id)
+                existing_nodes.append(resolved_id)
+                file_node_ids = [n.id for n in file_obj.nodes]
+            else:
+                existing_nodes.append(node.id)
 
         # resolve duplicates in project
-        for node in list(file_obj.nodes):
+        for node in file_obj.get_ordered_nodes():
             if node.id in known_ids:
                 continue
             if self._is_duplicate_id(node.id):
-                resolved_existing_id = None
-                if syntax.parent_identifier not in node.id:
-                    resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
-                    if not resolved_id:
-                        del node
-                        continue
-                    changed_ids[node.id] = resolved_id
-                    node.apply_id(resolved_id)
-                else:
-                    resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
-                    if not resolved_id:
-                        duplicate_nodes.append(node.id)
-                        del node
-                        continue
-                    changed_ids[node.id] = resolved_id
-                    node.apply_id(resolved_id)
+                resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
+                if not resolved_id:
+                    duplicate_nodes.append(node.id)
+                    del node
+                    continue
+                changed_ids[node.id] = resolved_id
+                node.apply_id(resolved_id)
+                existing_nodes.append(resolved_id)
 
         if duplicate_nodes:
             for duplicate in duplicate_nodes:
                 message = ''.join([
                         'Dropping duplicate node ID "',
                         duplicate,
-                        '"\n',
+                        '"',
                         ])
                 self._log_item(file_obj.filename, message)
-                messages.append(message)
+                if message not in messages:
+                    messages.append(message)
 
         if messages:
             file_obj.write_messages(messages=messages)

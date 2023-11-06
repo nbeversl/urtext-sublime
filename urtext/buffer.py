@@ -215,6 +215,10 @@ class UrtextBuffer:
             self._set_contents(contents)
             return self.lex_and_parse()
 
+        for node in self.nodes:
+            node.filename =self.filename
+            node.file = self
+
         return nested_levels, child_group, nested
 
     def add_node(self, 
@@ -251,18 +255,18 @@ class UrtextBuffer:
 
     def clear_messages_and_parse(self):
         cleared_contents = self.clear_messages(self._get_contents())
-        if cleared_contents != self._get_contents():
-            self._set_contents(cleared_contents)
+        self._set_contents(cleared_contents, run_on_modified=False)
         self.lex_and_parse()
         self.write_messages()
-        for node in self.nodes:
-            node.filename = self.filename
-            node.file = self
 
     def _get_contents(self):
         return self.contents
           
-    def _set_contents(self, contents, compare=False):
+    def _set_contents(self, contents, compare=False, run_on_modified=False):
+        self.project.run_editor_method(
+            'set_buffer',
+            self.filename,
+            contents)
         self.contents = contents
 
     def write_messages(self, messages=None):
@@ -271,41 +275,36 @@ class UrtextBuffer:
         if messages:
             self.messages = messages
         new_contents = self.clear_messages(self._get_contents())
+        timestamp = self.project.timestamp(as_string=True)
+        messages = ''.join([ 
+            syntax.urtext_message_opening_wrapper,
+            '\n',
+            timestamp,
+            '\n',
+            '\n'.join(self.messages),
+            '\n',
+            syntax.urtext_message_closing_wrapper,
+            '\n'
+            ])
 
-        if self.messages:
-            timestamp = self.project.timestamp(as_string=True)
-            messages = ''.join([ 
-                syntax.urtext_message_opening_wrapper,
-                '\n',
-                timestamp,
-                '\n',
-                '\n'.join(self.messages),
-                '\n',
-                syntax.urtext_message_closing_wrapper,
-                '\n'
-                ])
+        message_length = len(messages)
+        
+        for n in re.finditer('position \d{1,10}', messages):
+            old_n = int(n.group().strip('position '))
+            new_n = old_n + message_length
+            messages = messages.replace(str(old_n), str(new_n))
+             
+        new_contents = ''.join([
+            messages,
+            new_contents,
+            ])
 
-            message_length = len(messages)
-            
-            for n in re.finditer('position \d{1,10}', messages):
-                old_n = int(n.group().strip('position '))
-                new_n = old_n + message_length
-                messages = messages.replace(str(old_n), str(new_n))
-                 
-            new_contents = ''.join([
-                messages,
-                new_contents,
-                ])
-
-        self._set_contents(new_contents, compare=False)
+        self._set_contents(new_contents, compare=False, run_on_modified=False)
         # TODO: make DRY
         self.nodes = []
         self.root_node = None
         self.lex_and_parse()
-        for node in self.nodes:
-            node.filename =self.filename
-            node.file = self
-
+        
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
             if self.user_delete_string not in contents:

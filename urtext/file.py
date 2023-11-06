@@ -52,7 +52,11 @@ class UrtextFile(UrtextBuffer):
             self.contents[range[1]:],
             ]))
 
-    def _set_contents(self, new_contents, compare=True): 
+    def _set_contents(self,
+        new_contents,
+        compare=True,
+        run_on_modified=True):
+
         new_contents = '\n'.join(new_contents.splitlines())
         if compare:
             existing_contents = self._get_contents()
@@ -60,11 +64,13 @@ class UrtextFile(UrtextBuffer):
                 return False
 
         self.contents = new_contents
-        if self.project.run_editor_method(
+
+        buffer_updated = self.project.run_editor_method(
             'set_buffer',
             self.filename,
-            new_contents):
+            new_contents)
 
+        if buffer_updated and run_on_modified:
             if self.project.run_editor_method(
                 'save_file',
                 self.filename):
@@ -72,5 +78,6 @@ class UrtextFile(UrtextBuffer):
 
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
-        self.project._on_modified(self.filename)
+        if run_on_modified:
+            self.project._on_modified(self.filename)
         return True
