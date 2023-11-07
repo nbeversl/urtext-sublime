@@ -815,24 +815,20 @@ class UrtextProject:
                 message = "Project is still compiling"
             else:
                 message = "No link"
-            return self.run_editor_method('popup', message)
+            return self.handle_info_message(message)
 
         if not link['kind']:
             if not self.compiled:
-                self.run_editor_method(
-                    'popup',
+                self.handle_info_message(
                     'Project is still compiling')
-            return self.run_editor_method(
-                'popup',
+            return self.handle_info_message(
                 'No link found')
 
         if link['kind'] == 'MISSING':
             if not self.compiled:
-                self.run_editor_method(
-                    'popup',
+                self.handle_info_message(
                     'Project is still compiling')
-            return self.run_editor_method(
-                'popup', 
+            return self.handle_info_message( 
                 'Link is not is not in the project.')
 
         if link['kind'] == 'NODE':
@@ -843,11 +839,9 @@ class UrtextProject:
         if link['kind'] == 'ACTION':
             if link['node_id'] not in self.nodes:
                 if not self.compiled:
-                    return self.run_editor_method(
-                        'popup',
+                    return self.handle_info_message(
                         'Project is still compiling')
-                return self.run_editor_method(
-                    'popup',
+                return self.handle_info_message(
                     'Node ' + link['node_id'] + ' is not in the project')
             else:
                 for dd in self.get_dynamic_defs(source=link['node_id']):
@@ -1318,8 +1312,7 @@ class UrtextProject:
                 self.nodes[dd.source_id].filename,
                 self.nodes[dd.source_id].get_file_position(dd.position))
             return self.visit_node(dd.source_id)        
-        self.run_editor_method(
-            'popup',
+        self.handle_info_message(
             'No dynamic definition for "%s"' % target_id
             )
 
@@ -1610,7 +1603,7 @@ class UrtextProject:
             if link:
                 self.run_editor_method('set_clipboard', link)
         else:
-            self.run_editor_method('popup', 'No Node found here')
+            self.handle_info_message('No Node found here')
 
     def run_editor_method(self, method_name, *args, **kwargs):
         if method_name in self.editor_methods:
