@@ -538,7 +538,7 @@ class NodeBrowserMenu:
             self.menu = nodes
         else:
             for single_project in projects:
-                self.menu.extend(single_project.all_nodes(as_nodes=True))
+                self.menu.extend(single_project.sort_for_node_browser(as_nodes=True))
 
         for node in self.menu:  # TODO there is probably a better way to copy this list.
             timestamp = node.metadata.get_oldest_timestamp()

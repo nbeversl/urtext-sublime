@@ -9,7 +9,7 @@ class Sort:
 			for key_with_flags in self.keys_with_flags:
 				key, flags = key_with_flags
 				reverse = '-r' in flags or '-reverse' in flags
-				flags = remove_reverse(flags)
+				flags = strip_reverse(flags)
 				group_to_sort = [n for n in nodes if n.metadata.get_values(key)]
 				sorted_nodes.extend(
 					sorted(
@@ -61,7 +61,7 @@ class Sort:
 			return tuple(nt)
 		return tuple(t)
 
-def remove_reverse(flags):
+def strip_reverse(flags):
 	flags=list(flags)
 	while '-r' in flags:
 		flags.remove('-r')

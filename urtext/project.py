@@ -716,12 +716,22 @@ class UrtextProject:
     def handle_error_message(self, message):
         self.run_editor_method('error_message', message)
 
-    def all_nodes(self, 
-        as_nodes=False):
+    def sort_for_node_browser(self, as_nodes=False):
+        return self._sort_nodes(
+            list(self.nodes.values()),
+            self.settings['node_browser_sort'],
+            as_nodes=as_nodes)
 
-        remaining_nodes = list(self.nodes.values())
+    def sort_for_meta_browser(self, nodes, as_nodes=False):
+        return self._sort_nodes(
+            nodes,
+            self.settings['meta_browser_sort'],
+            as_nodes=as_nodes)
+
+    def _sort_nodes(self, nodes, keys, as_nodes=False):
+        remaining_nodes = nodes
         sorted_nodes = []
-        for k in self.settings['node_browser_sort']:
+        for k in keys:
             use_timestamp = k in self.settings['use_timestamp']
             node_group = [
                 r for r in remaining_nodes if r.metadata.get_first_value(
@@ -736,9 +746,9 @@ class UrtextProject:
                     reverse=use_timestamp)
                 sorted_nodes.extend(node_group)
                 remaining_nodes = list(set(remaining_nodes) - set(node_group))
-        sorted_nodes.extend(remaining_nodes)
+        sorted_nodes.extend(remaining_nodes)  
         if not as_nodes:
-            return [n.id for n in sorted_nodes if n.id in self.nodes]
+            return [n.id for n in sorted_nodes]      
         return sorted_nodes
 
     def all_files(self):
