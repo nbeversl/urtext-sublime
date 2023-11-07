@@ -28,6 +28,7 @@ replace_settings = [
     'file_index_sort',
     'filenames',
     'node_browser_sort',
+    'meta_browser_sort',
     'filename_datestamp_format',
     'exclude_files' ]
 
@@ -77,6 +78,7 @@ def default_project_settings():
         'keyless_timestamp' : True,
         'new_file_node_format' : '$timestamp\n$cursor',
         'new_file_line_pos' : 2,
+        'meta_browser_sort' : ['_oldest_timestamp'],
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : 'timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
