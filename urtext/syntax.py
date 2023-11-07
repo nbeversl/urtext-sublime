@@ -39,7 +39,7 @@ timestamp_opening_wrapper = '<'
 timestamp_closing_wrapper = '>'
 timestamp = r''.join([
     timestamp_opening_wrapper,
-    r'([^-/<\s][^=<]+?)',
+    r'([^-\/<\s][^=<]+?)',
     timestamp_closing_wrapper])
 title_marker = ' _'
 metadata_assignment_operator = '::'
@@ -152,7 +152,8 @@ any_link_or_pointer = r''.join([
     ])
 compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
-hash_meta = r'(?:^|\s)'+ hash_key + r'[A-Z,a-z].*?\b'
+hash_meta = r'(?:^|\s)'+ hash_key + r'([A-Z,a-z][^-\s]*)((-' + timestamp + ')|\b)'
+
 dd_hash_meta = hash_key + r'[A-Z,a-z].*'
 node_link = ''.join([
     node_link_opening_wrapper_match,

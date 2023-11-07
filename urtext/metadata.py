@@ -70,11 +70,15 @@ class NodeMetadata:
                 1)
 
         for m in syntax.hash_meta_c.finditer(parsed_contents):
-            value = syntax.hash_key_c.sub('',m.group()).strip()
+            values = [MetadataValue(syntax.hash_key_c.sub('',m.group(1)).strip())]
             keyname = self.project.settings['hash_key']
+            timestamp = m.group(3)
+            if timestamp:
+                values.append(MetadataValue(timestamp[1:]))
+
             self.add_entry(
                 keyname,
-                [MetadataValue(value)], 
+                values,
                 self.node,
                 start_position=m.start(), 
                 end_position=m.start() + len(m.group()))
