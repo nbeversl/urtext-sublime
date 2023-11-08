@@ -8,6 +8,8 @@ single_values_settings = [
     'title',
     'new_file_node_format',
     'hash_key',
+    'meta_browser_key',
+    'meta_browser_sort_keys_by',
     'filename_datestamp_format',
     'new_file_line_pos',
     'title_length',
@@ -78,6 +80,8 @@ def default_project_settings():
         'keyless_timestamp' : True,
         'new_file_node_format' : '$timestamp\n$cursor',
         'new_file_line_pos' : 2,
+        'meta_browser_key': None,
+        'meta_browser_sort_keys_by': 'alpha', # 'frequency'
         'meta_browser_sort' : ['_oldest_timestamp'],
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : 'timestamp',

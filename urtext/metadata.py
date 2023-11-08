@@ -160,7 +160,10 @@ class NodeMetadata:
             self.entries_dict[key].append(e)
 
     def get_keys(self, exclude=[]):
-        return [k for k in self.entries_dict.keys() if k not in exclude]
+        keys = {}
+        for k in self.entries_dict.keys():
+            keys[k] = len(self.entries_dict[k])
+        return keys
 
     def get_entries(self, keyname):
         keyname = keyname.lower()

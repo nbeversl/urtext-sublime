@@ -1139,7 +1139,7 @@ class UrtextProject:
     def get_all_meta_pairs(self):
         pairs = []
         for n in self.nodes.values():
-            for k in n.metadata.get_keys():
+            for k in n.metadata.get_keys().keys():
                 values = n.metadata.get_values(k)
                 assigner = syntax.metadata_assignment_operator
                 if k == self.settings['hash_key']:
@@ -1302,13 +1302,27 @@ class UrtextProject:
                 for n in list(self.nodes)]
 
     def get_all_keys(self):
-        keys = []
+        key_occurrences = {}
         exclude = self.settings['exclude_from_star']
         exclude.extend(self.settings.keys())
+
         for node in list(self.nodes.values()):
-            keys.extend(node.metadata.get_keys(exclude=exclude)
-            )
-        return list(set(keys))
+            node_keys = node.metadata.get_keys(exclude=exclude)
+            for key in node_keys:
+                key_occurrences.setdefault(key,0)
+                key_occurrences[key] +=  node_keys[key]
+
+        unique_keys = key_occurrences.keys()
+
+        if self.settings['meta_browser_sort_keys_by'] == 'frequency':
+            unique_keys = sorted(
+                unique_keys,
+                key=lambda key: key_occurrences[key],
+                reverse=True)
+        else:
+            unique_keys = sorted(unique_keys)
+
+        return unique_keys
 
     def get_all_values_for_key(self, 
         key,

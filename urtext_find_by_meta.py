@@ -4,17 +4,21 @@ class FindByMetaCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        self.tagnames = self._UrtextProjectList.current_project.get_all_keys()
-        self.view.window().show_quick_panel(
-            self.tagnames, 
-            self.list_values)
+        if not self._UrtextProjectList.current_project.has_meta_browser_key():
+            self.tagnames = self._UrtextProjectList.current_project.get_all_keys()
+            self.view.window().show_quick_panel(
+                self.tagnames, 
+                self.list_values)
+        else:
+            self.tagnames = [self._UrtextProjectList.current_project.settings['meta_browser_key']]
+            self.list_values(0)
 
     def list_values(self, index):
         self.selected_tag = self.tagnames[index]
         self.values = self._UrtextProjectList.current_project.get_all_values_for_key(
             self.selected_tag)
-        self.values.insert(0, ('< all >', None))
-
+        if len(self.values):
+            self.values.insert(0, ('< all >', None))
         values_as_text = [' '.join([
             v[0], 
             v[1].unwrapped_string if v[1] else '',
