@@ -60,6 +60,7 @@ class UrtextNode:
         self.dynamic = False
         self.id = None
         self.pointers = []
+        self.display_detail = ''
         self.links = []
         self.root_node = root
         self.compact = compact

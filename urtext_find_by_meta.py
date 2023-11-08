@@ -26,32 +26,33 @@ class FindByMetaCommand(UrtextTextCommand):
             self.display_files)
 
     def display_files(self, index):
-        selected_value = self.values[index]
-        if selected_value[0]:
-            if selected_value[0] == '< all >':
-                selected_value = '*'
+        if self.values:
+            selected_value = self.values[index]
+            if selected_value[0]:
+                if selected_value[0] == '< all >':
+                    selected_value = '*'
+                else:
+                    selected_value = selected_value[0]
             else:
-                selected_value = selected_value[0]
-        else:
-            selected_value = selected_value[1]
+                selected_value = selected_value[1]
 
-        nodes = self._UrtextProjectList.current_project.get_by_meta(
-                    self.selected_tag, 
-                    selected_value, 
-                    '=',
+            nodes = self._UrtextProjectList.current_project.get_by_meta(
+                        self.selected_tag, 
+                        selected_value, 
+                        '=',
+                        as_nodes=True)
+
+            sorted_nodes = self._UrtextProjectList.current_project.sort_for_meta_browser(
+                    nodes,
                     as_nodes=True)
 
-        sorted_nodes = self._UrtextProjectList.current_project.sort_for_meta_browser(
-                nodes,
-                as_nodes=True)
+            self.menu = NodeBrowserMenu(
+                self._UrtextProjectList,
+                nodes=sorted_nodes)
 
-        self.menu = NodeBrowserMenu(
-            self._UrtextProjectList,
-            nodes=sorted_nodes)
-
-        show_panel(self.view.window(),
-            self.menu.display_menu,
-            self.open_the_node)
+            show_panel(self.view.window(),
+                self.menu.display_menu,
+                self.open_the_node)
 
     def open_the_node(self, selected_option):
         if selected_option == -1:

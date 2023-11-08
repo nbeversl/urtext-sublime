@@ -474,7 +474,7 @@ class UrtextProject:
 
             self._run_hook('on_file_dropped', filename)
 
-            for node in list(self.files[filename].nodes):    
+            for node in list(self.files[filename].nodes):
                 if node.id in self.nodes:
                     self._remove_sub_tags(node.id)
                     self.remove_dynamic_defs(node.id)
@@ -716,13 +716,24 @@ class UrtextProject:
     def handle_error_message(self, message):
         self.run_editor_method('error_message', message)
 
-    def sort_for_node_browser(self, as_nodes=False):
+    def sort_for_node_browser(self, nodes=None, as_nodes=False):
+        if not nodes:
+            nodes = list(self.nodes.values())
         return self._sort_nodes(
-            list(self.nodes.values()),
+            nodes,
             self.settings['node_browser_sort'],
             as_nodes=as_nodes)
 
+    def has_meta_browser_key(self):
+        return 'meta_browser_key' in self.settings and self.settings['meta_browser_key']
+
     def sort_for_meta_browser(self, nodes, as_nodes=False):
+        if self.has_meta_browser_key():
+            nodes = [n for n in nodes if n.metadata.get_first_value(self.settings['meta_browser_key'])]
+            return self._sort_nodes(
+                nodes,
+                [self.settings['meta_browser_key']],
+                as_nodes=as_nodes)
         return self._sort_nodes(
             nodes,
             self.settings['meta_browser_sort'],
@@ -753,7 +764,7 @@ class UrtextProject:
                     else:
                         node.display_detail = k+'::'+detail
                 sorted_nodes.extend(node_group)
-                remaining_nodes = list(set(remaining_nodes) - set(node_group))
+            remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)  
         if not as_nodes:
             return [n.id for n in sorted_nodes]      
@@ -979,7 +990,7 @@ class UrtextProject:
             date.strftime(self.settings['timestamp_format']))
 
     def _get_settings_from(self, node):
-      
+
         replacements = {}
         for entry in node.metadata.entries():
    
@@ -1001,7 +1012,7 @@ class UrtextProject:
 
             if entry.keyname == 'recurse_subfolders':
                 values = entry.text_values()
-                if values:
+                if values and self.settings['paths']:
                     self.settings['paths'][0]['recurse_subfolders'] = to_boolean(values[0]) 
                 continue
 
