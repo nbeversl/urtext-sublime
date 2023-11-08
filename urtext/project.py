@@ -1317,7 +1317,7 @@ class UrtextProject:
         if self.settings['meta_browser_sort_keys_by'] == 'frequency':
             unique_keys = sorted(
                 unique_keys,
-                key=lambda key: key_occurrences[key],
+                key=lambda key: key_occurrences[key] if key in key_occurrences else 0,
                 reverse=True)
         else:
             unique_keys = sorted(unique_keys)
