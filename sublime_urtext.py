@@ -540,15 +540,9 @@ class NodeBrowserMenu:
             for single_project in projects:
                 self.menu.extend(single_project.sort_for_node_browser(as_nodes=True))
 
-        for node in self.menu:  # TODO there is probably a better way to copy this list.
-            timestamp = node.metadata.get_oldest_timestamp()
-            if timestamp:
-                timestamp = timestamp.wrapped_string
-            else:
-                timestamp = ''
-            self.display_menu.append(
-                (node.id[:characters],
-                ' - '.join([node.project.title(),timestamp])))
+        self.display_menu = [(
+            node.id[:characters],
+            node.display_detail) for node in self.menu]
 
 def show_panel(window, menu, main_callback, on_highlight=None):
     """ shows a quick panel with an option to cancel if -1 """

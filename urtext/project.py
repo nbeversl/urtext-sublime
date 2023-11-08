@@ -744,6 +744,14 @@ class UrtextProject:
                         k,
                         use_timestamp=use_timestamp),
                     reverse=use_timestamp)
+                for node in node_group:
+                    detail = node.metadata.get_first_value(
+                        k,
+                        use_timestamp=use_timestamp)
+                    if use_timestamp:
+                        node.display_detail = detail.wrapped_string
+                    else:
+                        node.display_detail = k+'::'+detail
                 sorted_nodes.extend(node_group)
                 remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)  
@@ -1510,7 +1518,7 @@ class UrtextProject:
         if target in self.nodes: #fallback
             self._set_node_contents(target, output)
             return target
-        
+
     """ Metadata Handling """
  
     def _add_sub_tags(self, 
