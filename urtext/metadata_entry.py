@@ -1,5 +1,4 @@
 import os
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     import Urtext.urtext.syntax as syntax
 else:
@@ -38,46 +37,14 @@ class MetadataEntry:  # container for a single metadata entry
         for v in self.meta_values:
             v.entry = self
    
-    def ints(self):
-        parts = self.value.split[' ']
-        ints = []
-        for b in parts:
-            try:
-                ints.append(int(b))
-            except:
-                continue
-        return ints
-
     def text_values(self):
         if self.is_node:
-            return ''.join([
-                syntax.link_opening_wrapper,
-                self.value.title,
-                syntax.link_closing_wrapper ])
+            return make_node_link(self.value.title)
         return [v.text for v in self.meta_values if v.text]
-
-    def num_values(self):
-        if self.is_node:
-            return ''.join([
-                syntax.link_opening_wrapper,
-                self.value.title,
-                syntax.link_closing_wrapper ])
-        return [v.num() for v in self.meta_values if v.num()]
-
-    def get_timestamps(self, as_string=False):
-        timestamps = sorted([
-            v.timestamp for v in self.meta_values if v.timestamp],
-            key=lambda t: t.datetime)
-        if as_string:
-            return [t.unwrapped_string for t in timestamps]
-        return timestamps
 
     def values_with_timestamps(self, lower=False):
         if self.is_node:
-            return ''.join([
-                syntax.link_opening_wrapper,
-                self.value.title,
-                syntax.link_closing_wrapper])
+            return make_node_link(self.value.title)
         values = []
         for v in self.meta_values:
             values.append((
@@ -98,3 +65,9 @@ class MetadataEntry:  # container for a single metadata entry
                 value.log()
         print('-------------------------')
 
+
+def make_node_link(title):
+    return ''.join([
+        syntax.link_opening_wrapper,
+        title,
+        syntax.link_closing_wrapper])
