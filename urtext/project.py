@@ -1357,7 +1357,7 @@ class UrtextProject:
                     ])) 
                 for n in list(self.nodes)]
 
-    def get_all_keys(self):
+    def get_keys_with_frequency(self):
         key_occurrences = {}
         exclude = self.settings['exclude_from_star']
         exclude.extend(self.settings.keys())
@@ -1368,6 +1368,10 @@ class UrtextProject:
                 key_occurrences.setdefault(key,0)
                 key_occurrences[key] +=  node_keys[key]
 
+        return key_occurrences
+
+    def get_all_keys(self):
+        key_occurrences = self.get_keys_with_frequency()
         unique_keys = key_occurrences.keys()
 
         if self.settings['meta_browser_sort_keys_by'] == 'frequency':
