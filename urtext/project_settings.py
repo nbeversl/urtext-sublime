@@ -15,6 +15,15 @@ single_values_settings = [
     'title_length',
     'filename_title_length' ]
 
+evaluated_only_at_compile = [
+    'paths',
+    'file_extensions'
+]
+
+not_cleared = [
+    'other_entry_points'
+]
+
 single_boolean_values_settings = [
     'always_oneline_meta',
     'preformat',
@@ -24,7 +33,8 @@ single_boolean_values_settings = [
     'keyless_timestamp',
     'file_node_timestamp',
     'contents_strip_outer_whitespace',
-    'contents_strip_internal_whitespace',]
+    'contents_strip_internal_whitespace'
+]
 
 replace_settings = [
     'file_index_sort',
@@ -66,7 +76,7 @@ def default_project_settings():
             '_newest_timestamp', 
             '_oldest_timestamp', 
             '_breadcrumb',
-            'def'],        
+            'def'],
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
         'file_index_sort': ['_oldest_timestamp'],
@@ -76,7 +86,6 @@ def default_project_settings():
         'hash_key': '#',
         'home': None,
         'import': False,
-        'initial_project': None,
         'keyless_timestamp' : True,
         'new_file_node_format' : '$timestamp\n$cursor',
         'new_file_line_pos' : 2,

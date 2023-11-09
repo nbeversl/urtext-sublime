@@ -82,6 +82,7 @@ class UrtextProject:
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
+        self.project_settings_nodes = {}
         self.extensions = {}
         self.directives = {}
         self.compiled = False
@@ -991,9 +992,17 @@ class UrtextProject:
 
     def _get_settings_from(self, node):
 
+        self._remove_settings_from(node)
+        self.project_settings_nodes.setdefault(node.id,{})
+
         replacements = {}
         for entry in node.metadata.entries():
    
+            if self.compiled and entry.keyname in evaluated_only_at_compile:
+                continue
+
+            self.project_settings_nodes[node.id][entry.keyname] = entry.text_values()
+
             if entry.keyname in replace_settings:
                 replacements.setdefault(entry.keyname, [])
                 replacements[entry.keyname].extend(entry.text_values())
@@ -1060,7 +1069,6 @@ class UrtextProject:
                         self.settings[entry.keyname] = v
                 continue
 
-
             if entry.keyname in single_boolean_values_settings:
                 values = entry.text_values()
                 if values:
@@ -1079,6 +1087,39 @@ class UrtextProject:
             else:
                 self.settings[k] = replacements[k]
 
+    def _remove_settings_from(self, node):
+        if node.id in self.project_settings_nodes:
+            for setting in self.project_settings_nodes[node.id]:
+                if setting in not_cleared:
+                    continue
+                for value in self.project_settings_nodes[node.id][setting]:
+                    if not self._setting_is_elsewhere(
+                        setting,
+                        value,
+                        node.id) and ( 
+                        setting in self.settings):
+                            if setting in single_values_settings:
+                                del self.settings[setting]
+                            else:
+                                self.settings[setting].remove(value)                            
+                            if setting == 'extensions':
+                                for v in entry.text_values():
+                                    self._remove_extensions_from_folder(v)
+                            if setting == 'directives':
+                                    self._remove_directives_from_folder(v)
+                            if (setting not in self.settings or 
+                                not self.settings[setting]) and (
+                                setting in default_project_settings().keys()):
+                                self.settings[setting] = default_project_settings()[setting]
+            del self.project_settings_nodes[node.id]
+
+    def _setting_is_elsewhere(self, settings, value, omit_node):
+        for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
+            if setting in self.project_settings_nodes[node_id]:
+                if value in self.project_settings_nodes[node_id][setting]:
+                    return True
+        return False
+
     def _get_directives_from_folder(self, folder, filename):
         if os.path.exists(folder):
             sys.path.append(folder)
@@ -1093,6 +1134,7 @@ class UrtextProject:
                             new_directive = make_directive(d)
                             for n in d.name:                            
                                 self.directives[n] = new_directive
+                                self.directives[n].folder = folder
                 except Exception as e:
                     message = ''.join([
                             '\nDirective in file ',
@@ -1119,6 +1161,7 @@ class UrtextProject:
                         for e in extensions:
                             for n in e.name:
                                 self.extensions[n] = make_extension(e)(self)
+                                self.extensions[n].folder = folder
                 except Exception as e:
                     message = ''.join([
                             '\nExtension in file ',
@@ -1131,6 +1174,19 @@ class UrtextProject:
                     self._log_item(
                         filename, 
                         message)
+
+    def _remove_directives_from_folder(self, folder):
+        for directive in self.directives.values():
+            if directive.folder == folder:
+                for n in directive.name:
+                    self.directives.remove(n)
+
+    def _remove_extensions_from_folder(self, folder):
+        for extensions in self.extensions.values():
+            if extension.folder == folder:
+                for n in extension.name:
+                    self.directives.remove(n)
+
 
     def get_home(self):
         if self.settings['home'] in self.nodes:
