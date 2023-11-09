@@ -13,6 +13,7 @@ class UrtextDirective:
     phase = 0
     syntax = syntax
     DynamicOutput = DynamicOutput
+    name = []
 
     def __init__(self, project):
         self.keys_with_flags = []
@@ -24,6 +25,7 @@ class UrtextDirective:
         self.project = project
         self.argument_string = None
         self.dynamic_definition = None
+        self.folder = None
 
     def execute(self):
         return

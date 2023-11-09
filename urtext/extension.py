@@ -8,9 +8,11 @@ class UrtextExtension:
 
     phase = 0
     syntax = syntax
+    name = []
     
     def __init__(self, project):
         self.project = project
+        self.folder = None
 
     def after_project_initialized(self):
         return
