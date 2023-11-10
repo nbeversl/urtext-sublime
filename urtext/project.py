@@ -72,7 +72,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -1366,7 +1366,7 @@ class UrtextProject:
             node_keys = node.metadata.get_keys(exclude=exclude)
             for key in node_keys:
                 key_occurrences.setdefault(key,0)
-                key_occurrences[key] +=  node_keys[key]
+                key_occurrences[key] += node_keys[key]
 
         return key_occurrences
 
@@ -1377,23 +1377,46 @@ class UrtextProject:
         if self.settings['meta_browser_sort_keys_by'] == 'frequency':
             return sorted(
                 unique_keys,
-                key=lambda key: key_occurrences[key] if key in key_occurrences else 0,
+                key=lambda key: key_occurrences[key],
                 reverse=True)
         else:
             return sorted(unique_keys)
 
-    def get_all_values_for_key(self, 
+    def get_all_values_for_key_with_frequency(self, 
+        key,
+        lower=False):
+
+        values = {}
+        for node in self.nodes.values():
+            values_occurrences = node.metadata.get_values_with_frequency(key)
+            for v in values_occurrences:
+                values.setdefault(v, 0)
+                values[v] += values_occurrences[v]
+
+        return values
+        # for e in entries:
+        #     values.extend(e.values_with_timestamps(lower=lower))
+        # return list(set(values))
+
+    def get_all_values_for_key(self,
         key,
         lower=False,
-        substitute_timestamp=True):
+        order_by=None,
+        substitute_timestamp=False):
 
-        entries = []
-        for node in self.nodes.values():
-            entries.extend(node.metadata.get_entries(key))
-        values = []
-        for e in entries:
-            values.extend(e.values_with_timestamps(lower=lower))
-        return list(set(values))
+        value_occurrences = self.get_all_values_for_key_with_frequency(
+            key, 
+            lower=lower)
+
+        unique_values = value_occurrences.keys()
+
+        if order_by == 'frequency':
+            return sorted(
+                unique_values,
+                key=lambda v: value_occurrences[v],
+                reverse=True)
+        return sorted(unique_values)
+
 
     def go_to_dynamic_definition(self, target_id):
         if target_id in self.dynamic_definitions:
@@ -1473,16 +1496,13 @@ class UrtextProject:
                     if k in self.settings['case_sensitive']:
                         results.extend([
                             n for n in self.nodes if 
-                                value in [v.text for v in self.nodes[n].metadata.get_values(
-                                    k,
-                                    use_timestamp=use_timestamp) if v.text]])
+                                value in [
+                                v.text for v in self.nodes[n].metadata.get_values(k) if v.text]])
                     else:
                         if isinstance(value, str):
                             value = value.lower()
                         for n in self.nodes.values():
-                            found_values = n.metadata.get_values(
-                                k,
-                                use_timestamp=use_timestamp)
+                            found_values = n.metadata.get_values(k)
                             if use_timestamp:
                                 if value in [v.timestamp for v in found_values]:
                                     results.append(n.id)

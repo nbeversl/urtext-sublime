@@ -45,13 +45,7 @@ class MetadataEntry:  # container for a single metadata entry
     def values_with_timestamps(self, lower=False):
         if self.is_node:
             return make_node_link(self.value.title)
-        values = []
-        for v in self.meta_values:
-            values.append((
-                v.text if not lower else v.text_lower,
-                v.timestamp
-                ))
-        return values
+        return [(v.text if not lower else v.text_lower, v.timestamp) for v in self.meta_values]
 
     def log(self):
         print('key: %s' % self.keyname)

@@ -207,7 +207,6 @@ class NodeMetadata:
             order_by=order_by)
 
         if values:
-        
             value = values[0]
 
             if use_timestamp or keyname in self.project.settings['use_timestamp']:
@@ -215,36 +214,50 @@ class NodeMetadata:
 
             return value.text
 
-    def get_values(self, 
+    def get_values_with_frequency(self, 
         keyname,
-        order_by=None,
-        use_timestamp=False,
         convert_nodes_to_links=False):
 
-        values = []
+        values = {}
+
         entries = self.get_entries(keyname)
 
         for e in entries:
             if e.is_node:
                 if convert_nodes_to_links:
-                    values.append(''.join([
+                    node_link = ''.join([
                         syntax.link_opening_wrapper,
                         e.meta_values[0].id,
-                        syntax.link_closing_wrapper])) 
+                        syntax.link_closing_wrapper])
+                    values.setdefault(node_link, 0)
+                    values[node_link] += 1
                 continue
-            values.extend(e.meta_values)
-
-        values = list(set(values))
-
-        if order_by in ['-pos','-position']:
-            values = sorted(
-                values,
-                key = lambda v: v.entry.start_position)
-
-        # if order_by == 'default':
-        #     values = sorted(values)
+            for v in e.meta_values:
+                values.setdefault(v, 0)
+                values[v] +=1 
 
         return values
+
+    def get_values(self,
+        keyname,
+        order_by=None,
+        convert_nodes_to_links=False):
+
+        values_occurrences = self.get_values_with_frequency(
+            keyname,
+            convert_nodes_to_links=convert_nodes_to_links)
+
+        unique_values = values_occurrences.keys()
+
+        if order_by in ['-pos','-position']:
+            return sorted(
+                unique_values,
+                key = lambda v: v.entry.start_position)
+
+        if order_by == 'default':
+            return sorted(unique_values)
+
+        return list(unique_values)
 
     def get_matching_entries(self, keyname, value):
         entries = self.get_entries(keyname)
