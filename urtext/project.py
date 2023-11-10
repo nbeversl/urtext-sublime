@@ -72,7 +72,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
