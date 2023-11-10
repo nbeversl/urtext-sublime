@@ -1394,29 +1394,19 @@ class UrtextProject:
                 values[v] += values_occurrences[v]
 
         return values
-        # for e in entries:
-        #     values.extend(e.values_with_timestamps(lower=lower))
-        # return list(set(values))
 
-    def get_all_values_for_key(self,
+    def get_all_values_for_key(self, 
         key,
         lower=False,
-        order_by=None,
-        substitute_timestamp=False):
+        substitute_timestamp=True):
 
-        value_occurrences = self.get_all_values_for_key_with_frequency(
-            key, 
-            lower=lower)
-
-        unique_values = value_occurrences.keys()
-
-        if order_by == 'frequency':
-            return sorted(
-                unique_values,
-                key=lambda v: value_occurrences[v],
-                reverse=True)
-        return sorted(unique_values)
-
+        entries = []
+        for node in self.nodes.values():
+            entries.extend(node.metadata.get_entries(key))
+        values = []
+        for e in entries:
+            values.extend(e.values_with_timestamps(lower=lower))
+        return list(set(values))
 
     def go_to_dynamic_definition(self, target_id):
         if target_id in self.dynamic_definitions:
@@ -1507,7 +1497,7 @@ class UrtextProject:
                                 if value in [v.timestamp for v in found_values]:
                                     results.append(n.id)
                             else:
-                                if value in [v.text for v in found_values]:
+                                if value in [v.text_lower for v in found_values]:
                                     results.append(n.id)
 
         results = list(set(results))
