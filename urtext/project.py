@@ -1131,10 +1131,8 @@ class UrtextProject:
                         if not isinstance(directives, list):
                             directives = [directives]
                         for d in directives:
-                            new_directive = make_directive(d)
-                            for n in d.name:                            
-                                self.directives[n] = new_directive
-                                self.directives[n].folder = folder
+                            new_directive = self.add_directive(d)
+                            self.directives[n].folder = folder
                 except Exception as e:
                     message = ''.join([
                             '\nDirective in file ',
@@ -1160,7 +1158,7 @@ class UrtextProject:
                             extensions = [extensions]
                         for e in extensions:
                             for n in e.name:
-                                self.extensions[n] = make_extension(e)(self)
+                                self.add_extension(e)
                                 self.extensions[n].folder = folder
                 except Exception as e:
                     message = ''.join([
@@ -1711,6 +1709,18 @@ class UrtextProject:
             return self.editor_methods[method_name](*args, **kwargs)
         print('No editor method available for "%s"' % method_name)
         return False
+    
+    def add_directive(self, directive):
+        class newClass(directive, UrtextDirective):
+            pass
+        for n in newClass.name:
+            self.directives[n] = newClass
+
+    def add_extension(self, extension):
+        class newClass(extension, UrtextExtension):
+            pass
+        for n in newClass.name:
+            self.extensions[n] = newClass(self)
 
 class DuplicateIDs(Exception):
     """ duplicate IDS """
@@ -1731,10 +1741,6 @@ def to_boolean(text):
         return True
     return False
 
-def all_subclasses(cls):
-    return set(cls.__subclasses__()).union(
-        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
-
 def make_link(string):
     return ''.join([
         syntax.link_opening_wrapper,
@@ -1744,12 +1750,4 @@ def make_link(string):
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
 
-def make_directive(directive):
-    class newClass(directive, UrtextDirective):
-        pass
-    return newClass
 
-def make_extension(extension):
-    class newClass(extension, UrtextExtension):
-        pass
-    return newClass
