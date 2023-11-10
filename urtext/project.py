@@ -1131,8 +1131,7 @@ class UrtextProject:
                         if not isinstance(directives, list):
                             directives = [directives]
                         for d in directives:
-                            new_directive = self.add_directive(d)
-                            self.directives[n].folder = folder
+                            self.add_directive(d, folder=folder)
                 except Exception as e:
                     message = ''.join([
                             '\nDirective in file ',
@@ -1157,9 +1156,7 @@ class UrtextProject:
                         if not isinstance(extensions, list):
                             extensions = [extensions]
                         for e in extensions:
-                            for n in e.name:
-                                self.add_extension(e)
-                                self.extensions[n].folder = folder
+                            self.add_extension(e, folder=folder)
                 except Exception as e:
                     message = ''.join([
                             '\nExtension in file ',
@@ -1710,15 +1707,17 @@ class UrtextProject:
         print('No editor method available for "%s"' % method_name)
         return False
     
-    def add_directive(self, directive):
+    def add_directive(self, directive, folder=None):
         class newClass(directive, UrtextDirective):
             pass
+        newClass.folder = folder
         for n in newClass.name:
             self.directives[n] = newClass
 
-    def add_extension(self, extension):
+    def add_extension(self, extension, folder=None):
         class newClass(extension, UrtextExtension):
             pass
+        newClass.folder = folder
         for n in newClass.name:
             self.extensions[n] = newClass(self)
 
