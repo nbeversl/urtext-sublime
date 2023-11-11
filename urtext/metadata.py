@@ -70,11 +70,10 @@ class NodeMetadata:
                 1)
 
         for m in syntax.hash_meta_c.finditer(parsed_contents):
-            values = [MetadataValue(syntax.hash_key_c.sub('',m.group(1)).strip())]
+            value = m.group().strip().replace('-',' ')
+            value = value[1:]
             keyname = self.project.settings['hash_key']
-            timestamp = m.group(3)
-            if timestamp:
-                values.append(MetadataValue(timestamp[1:]))
+            values = [MetadataValue(value)]
 
             self.add_entry(
                 keyname,

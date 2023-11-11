@@ -1385,8 +1385,8 @@ class UrtextProject:
         for node in self.nodes.values():
             values_occurrences = node.metadata.get_values_with_frequency(key)
             for v in values_occurrences:
-                values.setdefault(v, 0)
-                values[v] += values_occurrences[v]
+                values.setdefault(v.text, 0)
+                values[v.text] += values_occurrences[v]
 
         return values
 
@@ -1395,13 +1395,23 @@ class UrtextProject:
         lower=False,
         substitute_timestamp=True):
 
-        entries = []
-        for node in self.nodes.values():
-            entries.extend(node.metadata.get_entries(key))
-        values = []
-        for e in entries:
-            values.extend(e.values_with_timestamps(lower=lower))
-        return list(set(values))
+        """
+        return tuple of (value.text, value.timestamp)
+        """
+
+        value_occurrences = self.get_all_values_for_key_with_frequency(
+            key,
+            lower=lower)
+
+        unique_values = value_occurrences.keys()
+
+        if self.settings['meta_browser_sort_values_by'] == 'frequency':
+            return sorted(
+                unique_values,
+                key=lambda value: value_occurrences[value],
+                reverse=True)
+
+        return sorted(unique_values)
 
     def go_to_dynamic_definition(self, target_id):
         if target_id in self.dynamic_definitions:

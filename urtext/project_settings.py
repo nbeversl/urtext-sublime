@@ -10,6 +10,7 @@ single_values_settings = [
     'hash_key',
     'meta_browser_key',
     'meta_browser_sort_keys_by',
+    'meta_browser_sort_values_by',
     'filename_datestamp_format',
     'new_file_line_pos',
     'title_length',
@@ -90,7 +91,8 @@ def default_project_settings():
         'new_file_node_format' : '$timestamp\n$cursor',
         'new_file_line_pos' : 2,
         'meta_browser_key': None,
-        'meta_browser_sort_keys_by': 'alpha', # 'frequency'
+        'meta_browser_sort_keys_by': 'alpha', # or 'frequency'
+        'meta_browser_sort_values_by' : 'alpha', # 'or 'frequency'
         'meta_browser_sort' : ['_oldest_timestamp'],
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : 'timestamp',
