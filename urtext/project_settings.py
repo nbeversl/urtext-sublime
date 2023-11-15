@@ -38,7 +38,6 @@ single_boolean_values_settings = [
 ]
 
 replace_settings = [
-    'file_index_sort',
     'filenames',
     'node_browser_sort',
     'meta_browser_sort',
@@ -80,7 +79,6 @@ def default_project_settings():
             'def'],
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
-        'file_index_sort': ['_oldest_timestamp'],
         'filename_datestamp_format':'%m-%d-%Y %I:%M %p',
         'file_node_timestamp' : True,
         'filename_title_length': 100,
