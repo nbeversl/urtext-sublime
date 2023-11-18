@@ -606,6 +606,8 @@ class UrtextProject:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0])
                 new_node_contents = title + ''.join(new_node_contents)
+                if cursor_pos < len(new_node_contents) - 1:
+                    new_node_contents += ' ' 
         else:
             if one_line == None:
                 one_line = self.settings['always_oneline_meta']
