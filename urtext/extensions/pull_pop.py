@@ -26,12 +26,12 @@ class PopNode:
         file_pos):
 
         if not self.project.compiled:
-            print('Project not yet compiled.')
-            return        
+            return self.project.handle_info_message(
+                'Project not yet compiled.')
 
         if source_filename not in self.project.files:
-            print(source_filename, 'not in project')
-            return
+            return self.project.handle_info_message(
+                '%s not in project' % source_filename)
 
         self.project.run_editor_method('save_file', source_filename)
 
@@ -40,21 +40,22 @@ class PopNode:
             file_pos)
  
         if not popped_node_id:
-            print('No node ID or duplicate Node ID')
-            return
+            return self.project.handle_info_message(
+                'No node ID or duplicate Node ID')
         
         if popped_node_id not in self.project.nodes:
-            print(popped_node_id, 'not in project')
-            return
+            return self.project.handle_info_message(
+                '%s not in project' % popped_node_id)
 
         if self.project.nodes[popped_node_id].root_node:
-            print(popped_node_id+ ' is already a root node.')
-            return
+            return self.project.handle_info_message(
+                '%s is already a root node.' % popped_node_id)
     
         start = self.project.nodes[popped_node_id].start_position
         end = self.project.nodes[popped_node_id].end_position
         source_file_contents = self.project.files[source_filename]._get_contents()
         popped_node_contents = source_file_contents[start:end].strip()
+        pre_offset = 2 if self.project.nodes[popped_node_id].compact else 1
         
         if self.project.settings['breadcrumb_key']:
             parent_id = self.project.nodes[popped_node_id].parent.id
@@ -73,7 +74,7 @@ class PopNode:
         new_file_node = self.project.new_file_node(contents=popped_node_contents)
 
         remaining_node_contents = ''.join([
-            source_file_contents[:start - 1],
+            source_file_contents[:start - pre_offset],
             self.syntax.link_opening_wrapper,
             new_file_node['id'],
             self.syntax.pointer_closing_wrapper,
@@ -114,16 +115,16 @@ class PullNode:
         file_pos):
 
         if not self.project.compiled:
-            print('Project not yet compiled.')
-            return        
+            return self.project.handle_info_message(
+                'Project not yet compiled.')
 
         link = self.project.parse_link(
             string,
             file_pos=file_pos)
 
         if not link or link['kind'] != 'NODE':
-            print('link is not a node')
-            return
+            return self.project.handle_info_message(
+                'link is not a node')
 
         source_id = link['node_id']
         if source_id not in self.project.nodes: 
@@ -134,18 +135,18 @@ class PullNode:
             file_pos)
 
         if not destination_node:
-            print('No destination node found here')
-            return
+            return self.project.handle_info_message(
+                'No destination node found here')
 
         if self.project.nodes[destination_node].dynamic:
-            print('Not pulling content into a dynamic node')
-            return
+            return self.project.handle_info_message(
+                'Not pulling content into a dynamic node')
 
         source_filename = self.project.nodes[source_id].filename
         for ancestor in self.project.nodes[destination_node].tree_node.ancestors:
             if ancestor.name == source_id:
-                print('Cannot pull a node into its own child or descendant.')
-                return
+                return self.project.handle_info_message(
+                    'Cannot pull a node into its own child or descendant.')
         self.project._parse_file(source_filename)
 
         start = self.project.nodes[source_id].start_position
