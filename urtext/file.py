@@ -57,7 +57,6 @@ class UrtextFile(UrtextBuffer):
         compare=True,
         run_on_modified=True):
 
-        new_contents = '\n'.join(new_contents.splitlines())
         if compare:
             existing_contents = self._get_contents()
             if existing_contents == new_contents:

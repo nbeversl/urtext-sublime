@@ -163,11 +163,13 @@ class ProjectList():
 
     def visit_file(self, filename):
         self.set_current_project(filename)
-        return self.current_project.visit_file(filename)
+        if self.current_project:
+            return self.current_project.visit_file(filename)
 
     def visit_node(self, filename, node_id):
         self.set_current_project(filename)
-        return self.current_project.visit_node(node_id)
+        if self.current_project:
+            return self.current_project.visit_node(node_id)
 
     def new_project_in_path(self, path):
         if os.path.exists(path):

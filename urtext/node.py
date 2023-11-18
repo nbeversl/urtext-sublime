@@ -181,7 +181,7 @@ class UrtextNode:
             return t
 
         first_non_blank_line = None
-        contents_lines = contents.strip().split('\n')       
+        contents_lines = contents.strip().split('\n')
         for line in contents_lines:
             first_non_blank_line = line.strip()
             first_non_blank_line = strip_nested_links(first_non_blank_line).strip()
