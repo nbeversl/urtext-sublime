@@ -131,13 +131,14 @@ class UrtextNode:
 
     def resolve_duplicate_id(self, existing_nodes=[]):
         if self.parent:
-            resolved_id = ''.join([
-                    self.title,
-                    syntax.parent_identifier,
-                    self.parent.title
-                ])
-            if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
-                return resolved_id
+            if self.parent.title != '(untitled)':
+                resolved_id = ''.join([
+                        self.title,
+                        syntax.parent_identifier,
+                        self.parent.title
+                    ])
+                if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
+                    return resolved_id
 
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
             if parent_oldest_timestamp:

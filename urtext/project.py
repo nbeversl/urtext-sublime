@@ -324,24 +324,29 @@ class UrtextProject:
         # resolve duplicates in same file
         file_node_ids = [n.id for n in file_obj.nodes]
         for node in file_obj.get_ordered_nodes():
-            if node.id == '(untitled)' or file_node_ids.count(node.id) > 1:
-                resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
-                if not resolved_id:
-                    duplicate_nodes.append(node.id)
-                    del node
-                    continue
-                changed_ids[node.id] = resolved_id
-                node.apply_id(resolved_id)
-                existing_nodes.append(resolved_id)
+            nodes_to_resolve = []
+            if node.id == '(untitled)' or file_node_ids.count(node.title) > 1:
+                nodes_to_resolve.append(node)
+                nodes_to_resolve.extend([n for n in file_obj.nodes if n.title == node.title])
+            if nodes_to_resolve:
+                for n in nodes_to_resolve:
+                    resolved_id = n.resolve_duplicate_id(existing_nodes=existing_nodes)
+                    if not resolved_id:
+                        duplicate_nodes.append(n.id)
+                        del n
+                        continue
+                    changed_ids[n.id] = resolved_id
+                    n.apply_id(resolved_id)
+                    existing_nodes.append(resolved_id)
                 file_node_ids = [n.id for n in file_obj.nodes]
             else:
                 existing_nodes.append(node.id)
 
         # resolve duplicates in project
         for node in file_obj.get_ordered_nodes():
-            if node.id in known_ids:
-                continue
             if self._is_duplicate_id(node.id):
+                if node.id in known_ids:
+                    continue
                 resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
                 if not resolved_id:
                     duplicate_nodes.append(node.id)
