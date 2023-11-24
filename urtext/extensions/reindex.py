@@ -120,7 +120,7 @@ class RenameSingleFile(ReindexFiles):
                     0)
 
 def strip_illegal_characters(filename):
-    for c in ['<', '>', ':', '"', '/', '\\', '|', '?','*', '.', ';']:
+    for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
         filename = filename.replace(c,' ')
     return filename
 
