@@ -8,10 +8,15 @@ class UrtextAnyTree:
 
     name = ["TREE_EXTENSION"]
 
+    def __init__(self, project):
+        super().__init__(project)
+        self.treed_nodes = []
+
     def on_file_added(self, filename):
         for node in self.project.files[filename].nodes:
             node.tree_node = Node(node.id)
             node.tree_node.position = self.project.nodes[node.id].start_position
+            self.treed_nodes.append(node)
         self.project.files[filename].alias_nodes = []
         for node in self.project.files[filename].nodes:
             for pointer in node.pointers:
@@ -24,12 +29,14 @@ class UrtextAnyTree:
 
     def on_node_id_changed(self, old_node_id, new_node_id):
         if new_node_id in self.project.nodes:
-            self.project.nodes[new_node_id].tree_node.name = new_node_id
+            self.project.nodes[new_node_id].tree_node = Node(new_node_id)
 
     def on_file_dropped(self, filename):
         for node in self.project.files[filename].nodes:
-            node.tree_node.parent = None
-            del node.tree_node
+            if node in self.treed_nodes:
+                self.treed_nodes.remove(node)
+                node.tree_node.parent = None
+                del node.tree_node
         for a in self.project.files[filename].alias_nodes:
             a.parent = None
             a.children = []
