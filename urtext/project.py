@@ -120,7 +120,7 @@ class UrtextProject:
             for file in self._get_included_files():
                 self._parse_file(file)
         elif os.path.exists(self.entry_point):
-            self.entry_path = os.path.dirname(self.entry_point)            
+            self.entry_path = os.path.dirname(self.entry_point)      
             self._parse_file(self.entry_point)
         else:
             return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
@@ -326,59 +326,71 @@ class UrtextProject:
         
         # resolve duplicates in file/buffer
         file_node_ids = [n.id for n in file_obj.nodes]
-        duplicate_nodes[file_obj.filename] = []
         for node in [n for n in file_obj.get_ordered_nodes() if not n.resolved]:
-            nodes_to_resolve = []         
+            nodes_to_resolve = []
             if file_node_ids.count(node.title) > 1:
                 nodes_to_resolve = [n for n in file_obj.nodes if n.title == node.title]
             elif node.title == '(untitled)':
                 nodes_to_resolve.append(node)
             if nodes_to_resolve:
                 for n in nodes_to_resolve:
-                    resolved_id = n.resolve_duplicate_id()
+                    resolved_id = n.resolve_duplicate_id(existing_ids=file_node_ids)
                     if not resolved_id:
+                        duplicate_nodes.setdefault(file_obj.filename, [])
                         duplicate_nodes[file_obj.filename].append(n.id)
                         del n
                         continue
                     changed_ids[n.id] = resolved_id
                     n.apply_id(resolved_id)
-                file_node_ids = [n.id for n in file_obj.nodes]
+                    file_node_ids = [n.id for n in file_obj.nodes]
 
         # resolve duplicates in project
         for node in file_obj.get_ordered_nodes():
             duplicate_title_nodes = self._get_duplicate_titles(node.title)
+            # try to keep the ones in duplicate_title_nodes first
+            # There should never be more than one, because resolution (this method)
+            # happens on every file parts
             if duplicate_title_nodes:
-                duplicate_title_nodes.append(node)
-                for n in duplicate_title_nodes:
+                for n in duplicate_title_nodes :
+                    old_id = n.id
                     resolved_id = n.resolve_duplicate_id()
                     if not resolved_id:
                         duplicate_nodes.setdefault(n.filename, [])
+                        # Here, instead, we need to pass it ANOTHER file in which
+                        # the node is duplicated.
                         duplicate_nodes[n.filename].append(n.id)
                         del n
                         continue
-                    changed_ids[n.id] = resolved_id
-                    self._run_hook('on_node_id_changed', n.id, resolved_id)
+                    changed_ids[old_id] = resolved_id
+                    if old_id in self.nodes:
+                        del self.nodes[old_id]
                     n.apply_id(resolved_id)
+                    self.nodes[resolved_id] = n
+                    self._run_hook('on_node_id_changed', old_id, resolved_id)
 
         for filename in duplicate_nodes:
             messages = []
             for duplicate in duplicate_nodes[filename]:
+                if filename == file_obj.filename:
+                    duplicate_location = 'same file'
+                else:
+                    duplicate_location = ''.join([
+                        syntax.file_link_opening_wrapper,
+                        filename,
+                        syntax.link_closing_wrapper
+                    ])
                 message = ''.join([
                         'Dropping duplicate node ID "',
                         duplicate,
                         '"',
                         ' duplicated in ',
-                        syntax.file_link_opening_wrapper,
-                        filename,
-                        syntax.link_closing_wrapper
+                        duplicate_location
                         ])
-                self._log_item(filename, message)
+                self._log_item(file_obj.filename, message)
                 if message not in messages:
                     messages.append(message)
-            print(filename)
-            print(messages)
-            if messages and filename in self.files:
-                self.files[filename].write_messages(messages=messages)            
+            if messages:
+                file_obj.write_messages(messages=messages)            
 
         return changed_ids
 
@@ -993,15 +1005,14 @@ class UrtextProject:
     def _get_settings_from(self, node):
 
         self._clear_settings_from(node)
-        self.project_settings_nodes[node.id] = {}
-
+        self.project_settings_nodes[node] = {}
         replacements = {}
         for entry in node.metadata.entries():
    
             if self.compiled and entry.keyname in evaluated_only_at_compile:
                 continue
 
-            self.project_settings_nodes[node.id][entry.keyname] = entry.text_values()
+            self.project_settings_nodes[node][entry.keyname] = entry.text_values()
 
             if entry.keyname in replace_settings:
                 replacements[entry.keyname] = [e for e in entry.text_values()]
@@ -1087,16 +1098,16 @@ class UrtextProject:
                 self.settings[k] = replacements[k]
 
     def _clear_settings_from(self, node):
-        if node.id in self.project_settings_nodes:
+        if node in self.project_settings_nodes:
             for setting in self.project_settings_nodes[node.id]:
                 if setting in not_cleared:
                     continue
                 for value in self.project_settings_nodes[node.id][setting]:
                     if not self._setting_is_elsewhere(
                         setting,
-                        value,
-                        node.id) and ( 
+                        node) and ( 
                         setting in self.settings):
+                            print('RESETTING ', value)
                             if setting in single_values_settings:
                                 del self.settings[setting]
                             elif value in self.settings[setting]:
@@ -1110,13 +1121,14 @@ class UrtextProject:
                                 not self.settings[setting]) and (
                                 setting in default_project_settings().keys()):
                                 self.settings[setting] = default_project_settings()[setting]
-            del self.project_settings_nodes[node.id]
+            del self.project_settings_nodes[node]
 
-    def _setting_is_elsewhere(self, setting, value, omit_node):
+    def _setting_is_elsewhere(self, setting, omit_node):
         for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
+            print(self.project_settings_nodes[node_id])
             if setting in self.project_settings_nodes[node_id]:
-                if value in self.project_settings_nodes[node_id][setting]:
-                    return True
+                return True
+
         return False
 
     def _get_directives_from_folder(self, folder, filename):

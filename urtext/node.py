@@ -131,7 +131,7 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
-    def resolve_duplicate_id(self):
+    def resolve_duplicate_id(self, existing_ids=[]):
         if self.resolved:
            return self.id
         if self.parent:
@@ -141,7 +141,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         self.parent.title
                     ])
-                if resolved_id not in self.project.nodes:
+                if resolved_id not in self.project.nodes and resolved_id not in existing_ids:
                     self.resolved = True
                     return resolved_id
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
@@ -151,7 +151,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
-                if resolved_id not in self.project.nodes:
+                if resolved_id not in self.project.nodes and resolved_id not in existing_ids:
                     self.resolved = True
                     return resolved_id
         timestamp = self.metadata.get_oldest_timestamp()
@@ -161,7 +161,7 @@ class UrtextNode:
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in self.project.nodes:
+            if resolved_id not in self.project.nodes and resolved_id not in existing_ids:
                 self.resolved = True
                 return resolved_id
 
