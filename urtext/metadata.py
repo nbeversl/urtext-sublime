@@ -282,10 +282,10 @@ class NodeMetadata:
             return timestamp.datetime
         return default_date
       
-    def clear_from_source(self, source_node_id):
+    def clear_from_source(self, source_node):
         for k in self.entries_dict:
             for entry in self.entries_dict[k]:
-                if entry.from_node == source_node_id:
+                if entry.from_node == source_node:
                     self.entries_dict[k].remove(entry)
     
     def convert_hash_keys(self):

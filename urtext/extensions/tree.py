@@ -58,8 +58,8 @@ class UrtextAnyTree:
                     self.project.nodes[node_to_tag],
                     from_node=entry.from_node, 
                     tag_descendants=entry.tag_descendants)
-                if node_to_tag not in self.project.nodes[entry.from_node].target_nodes:
-                    self.project.nodes[entry.from_node].target_nodes.append(node_to_tag)
+                if node_to_tag not in entry.from_node.target_nodes:
+                    entry.from_node.target_nodes.append(node_to_tag)
 
             visited_nodes.append(uid)        
             

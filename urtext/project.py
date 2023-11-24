@@ -233,7 +233,7 @@ class UrtextProject:
                 self._add_dynamic_definition(dd)
 
             for entry in node.metadata.entries():
-                entry.from_node = node.id
+                entry.from_node = node
                 if entry.tag_children:
                     self._add_sub_tags(entry)
                     self.dynamic_metadata_entries.append(entry)
@@ -685,7 +685,7 @@ class UrtextProject:
 
     def remove_dynamic_metadata_entries(self, node_id):
         for entry in list(self.dynamic_metadata_entries):
-            if entry.from_node == node_id:
+            if entry.from_node == self.nodes[node_id]:
                 self.dynamic_metadata_entries.remove(entry)
 
     def open_node(self, node_id, position=None):
@@ -1628,7 +1628,7 @@ class UrtextProject:
 
         if visited_nodes == None:
             visited_nodes = []
-        source_node_id = entry.from_node
+        source_node_id = entry.from_node.id
         if next_node:
             source_node_id = next_node           
 
@@ -1653,8 +1653,8 @@ class UrtextProject:
                     tag_self=True,
                     from_node=entry.from_node,
                     tag_descendants=entry.tag_descendants)
-                if node_to_tag not in self.nodes[entry.from_node].target_nodes:
-                    self.nodes[entry.from_node].target_nodes.append(node_to_tag)
+                if node_to_tag not in entry.from_node.target_nodes:
+                    entry.from_node.target_nodes.append(node_to_tag)
             
             visited_nodes.append(uid)
             
@@ -1669,9 +1669,10 @@ class UrtextProject:
             entry)
 
     def _remove_sub_tags(self, source_id):
-        for target_id in self.nodes[source_id].target_nodes:
+        source_node = self.nodes[source_id]
+        for target_id in source_node.target_nodes:
              if target_id in self.nodes:
-                 self.nodes[target_id].metadata.clear_from_source(source_id) 
+                 self.nodes[target_id].metadata.clear_from_source(source_node) 
 
     def title(self):
         return self.settings['project_title'] 

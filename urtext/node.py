@@ -90,12 +90,13 @@ class UrtextNode:
         self.apply_id(self.title)
         for d in self.dynamic_definitions:
             d.source_node = self
+        for entry in self.metadata.entries():
+            entry.from_node = self
+
         self.stripped_contents = stripped_contents    
 
     def apply_id(self, new_id):
         self.id = new_id
-        for entry in self.metadata.entries():
-            entry.from_node = new_id #TODO could be optimized, just using node, not ID
 
     def get_file_position(self, node_position): 
         node_length = 0
