@@ -52,6 +52,12 @@ class UrtextFile(UrtextBuffer):
             self.contents[range[1]:],
             ]))
 
+    def clear_messages_and_parse(self):
+        cleared_contents = self.clear_messages(self._get_contents())
+        self._set_contents(cleared_contents)
+        self.lex_and_parse()
+        self.write_messages()
+
     def _set_contents(self,
         new_contents,
         compare=True,
