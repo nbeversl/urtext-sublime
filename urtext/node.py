@@ -87,16 +87,13 @@ class UrtextNode:
         self.title = self.set_title(stripped_contents)
         if not stripped_contents.strip().replace(self.title,'').strip(' _'):
             self.title_only = True
-        self.apply_id(self.title)
+        self.id = self.title
         for d in self.dynamic_definitions:
             d.source_node = self
         for entry in self.metadata.entries():
             entry.from_node = self
 
         self.stripped_contents = stripped_contents    
-
-    def apply_id(self, new_id):
-        self.id = new_id
 
     def get_file_position(self, node_position): 
         node_length = 0

@@ -251,36 +251,36 @@ class UrtextProject:
             self._reverify_links(filename)
 
     def _reverify_links(self, filename):
-        for node in self.files[filename].nodes:
-            rewrites = {}
-            for link in list(node.links):
-                node_id = get_id_from_link(link)
-                suffix = ' ' +link[-2:].strip()
-                if node_id not in self.nodes:
-                    id_only = node_id.split(syntax.parent_identifier)[0]                
-                    if id_only not in self.nodes and link not in rewrites:
-                        rewrites[link] = ''.join([
-                                syntax.missing_link_opening_wrapper,
+        if filename in self.files:
+            for node in [n for n in self.files[filename].nodes if not n.dynamic]:
+                rewrites = {}
+                for link in list(node.links):
+                    node_id = get_id_from_link(link)
+                    suffix = ' ' +link[-2:].strip()
+                    if node_id not in self.nodes:
+                        id_only = node_id.split(syntax.parent_identifier)[0]                
+                        if id_only not in self.nodes and link not in rewrites:
+                            rewrites[link] = ''.join([
+                                    syntax.missing_link_opening_wrapper,
+                                    id_only,
+                                    suffix
+                                ])
+                        elif link not in rewrites:
+                            rewrites[link] = ''.join([
+                                syntax.link_opening_wrapper,
                                 id_only,
+                                suffix])
+                    elif syntax.missing_link_opening_wrapper in link:
+                        rewrites[link] = ''.join([
+                                syntax.link_opening_wrapper,
+                                node_id,
                                 suffix
                             ])
-                    elif link not in rewrites:
-                        rewrites[link] = ''.join([
-                            syntax.link_opening_wrapper,
-                            id_only,
-                            suffix])
-                elif syntax.missing_link_opening_wrapper in link:
-                    rewrites[link] = ''.join([
-                            syntax.link_opening_wrapper,
-                            node_id,
-                            suffix
-                        ])
-            if rewrites:
-                contents = self.files[filename]._get_contents()
-                for old_link in rewrites:
-                    contents = contents.replace(old_link, rewrites[old_link])
-                if self.files[filename]._set_contents(contents):
-                    self._parse_file(filename)
+                if rewrites:
+                    contents = self.files[filename]._get_contents()
+                    for old_link in rewrites:
+                        contents = contents.replace(old_link, rewrites[old_link])
+                    self.files[filename]._set_contents(contents)
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -316,9 +316,7 @@ class UrtextProject:
                                     'on_node_id_changed',
                                     node_id,
                                     links_to_change[node_id])
-                                if self.files[filename]._set_contents(
-                                    replaced_contents):
-                                  self._parse_file(filename)
+                                self.files[filename]._set_contents(replaced_contents)
 
     def _check_file_for_duplicates(self, file_obj):
         duplicate_nodes = {}
@@ -341,8 +339,8 @@ class UrtextProject:
                         del n
                         continue
                     changed_ids[n.id] = resolved_id
-                    n.apply_id(resolved_id)
-                    file_node_ids = [n.id for n in file_obj.nodes]
+                    n.id = resolved_id
+                    file_node_ids = [file_node.id for file_node in file_obj.nodes]
 
         # resolve duplicates in project
         for node in file_obj.get_ordered_nodes():
@@ -364,7 +362,7 @@ class UrtextProject:
                     changed_ids[old_id] = resolved_id
                     if old_id in self.nodes:
                         del self.nodes[old_id]
-                    n.apply_id(resolved_id)
+                    n.id = resolved_id
                     self.nodes[resolved_id] = n
                     self._run_hook('on_node_id_changed', old_id, resolved_id)
 
@@ -469,7 +467,6 @@ class UrtextProject:
         """
         if node_id in self.nodes:
             if self.nodes[node_id].set_content(contents):
-                self._parse_file(self.nodes[node_id].filename)
                 if node_id in self.nodes:
                     return self.nodes[node_id].filename
         return False
