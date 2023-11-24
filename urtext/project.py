@@ -156,7 +156,7 @@ class UrtextProject:
         self.handle_info_message(
             '"'+self.settings['project_title']+'" compiled')
 
-    def _parse_file(self, filename):
+    def _parse_file(self, filename, buffer_contents=None):
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
@@ -164,10 +164,16 @@ class UrtextProject:
         if filename in self.files:
             old_node_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
         self._drop_file(filename)
-        
-        new_file = self.urtext_file(filename, self)
+
+        if buffer_contents != None:
+            new_file = UrtextBuffer(self, buffer_contents)
+            new_file.filename = filename
+            new_file.clear_messages_and_parse()
+
+        else:        
+            new_file = self.urtext_file(filename, self)
         if not new_file.root_node:
-            self._log_item(filename, '%s has no root node, dropping')
+            self._log_item(filename, '%s has no root node, dropping' % filename)
             self.excluded_files.append(filename)
             return False
 
@@ -191,7 +197,6 @@ class UrtextProject:
                             changed_ids[old_node_ids[index]] = new_node_ids[index]
                             # else:
                             #TODO try to map old to new.
-
         for node in new_file.nodes:
             self._add_node(node)
 
@@ -315,60 +320,66 @@ class UrtextProject:
                                     replaced_contents):
                                   self._parse_file(filename)
 
-    def _check_file_for_duplicates(self, file_obj, known_ids=[]):
-        duplicate_nodes = []
+    def _check_file_for_duplicates(self, file_obj):
+        duplicate_nodes = {}
         changed_ids = {}
-        messages = []
-        existing_nodes = [n for n in self.nodes if n not in known_ids]
         
-        # resolve duplicates in same file
+        # resolve duplicates in file/buffer
         file_node_ids = [n.id for n in file_obj.nodes]
-        for node in file_obj.get_ordered_nodes():
-            nodes_to_resolve = []
-            if node.id == '(untitled)' or file_node_ids.count(node.title) > 1:
+        duplicate_nodes[file_obj.filename] = []
+        for node in [n for n in file_obj.get_ordered_nodes() if not n.resolved]:
+            nodes_to_resolve = []         
+            if file_node_ids.count(node.title) > 1:
+                nodes_to_resolve = [n for n in file_obj.nodes if n.title == node.title]
+            elif node.title == '(untitled)':
                 nodes_to_resolve.append(node)
-                nodes_to_resolve.extend([n for n in file_obj.nodes if n.title == node.title])
             if nodes_to_resolve:
                 for n in nodes_to_resolve:
-                    resolved_id = n.resolve_duplicate_id(existing_nodes=existing_nodes)
+                    resolved_id = n.resolve_duplicate_id()
                     if not resolved_id:
-                        duplicate_nodes.append(n.id)
+                        duplicate_nodes[file_obj.filename].append(n.id)
                         del n
                         continue
                     changed_ids[n.id] = resolved_id
                     n.apply_id(resolved_id)
-                    existing_nodes.append(resolved_id)
                 file_node_ids = [n.id for n in file_obj.nodes]
-            else:
-                existing_nodes.append(node.id)
 
         # resolve duplicates in project
         for node in file_obj.get_ordered_nodes():
-            if self._is_duplicate_id(node.id):
-                if node.id in known_ids:
-                    continue
-                resolved_id = node.resolve_duplicate_id(existing_nodes=existing_nodes)
-                if not resolved_id:
-                    duplicate_nodes.append(node.id)
-                    del node
-                    continue
-                changed_ids[node.id] = resolved_id
-                node.apply_id(resolved_id)
-                existing_nodes.append(resolved_id)
+            duplicate_title_nodes = self._get_duplicate_titles(node.title)
+            if duplicate_title_nodes:
+                duplicate_title_nodes.append(node)
+                for n in duplicate_title_nodes:
+                    resolved_id = n.resolve_duplicate_id()
+                    if not resolved_id:
+                        duplicate_nodes.setdefault(n.filename, [])
+                        duplicate_nodes[n.filename].append(n.id)
+                        del n
+                        continue
+                    changed_ids[n.id] = resolved_id
+                    self._run_hook('on_node_id_changed', n.id, resolved_id)
+                    n.apply_id(resolved_id)
 
-        if duplicate_nodes:
-            for duplicate in duplicate_nodes:
+        for filename in duplicate_nodes:
+            messages = []
+            for duplicate in duplicate_nodes[filename]:
                 message = ''.join([
                         'Dropping duplicate node ID "',
                         duplicate,
                         '"',
+                        ' duplicated in ',
+                        syntax.file_link_opening_wrapper,
+                        filename,
+                        syntax.link_closing_wrapper
                         ])
-                self._log_item(file_obj.filename, message)
+                self._log_item(filename, message)
                 if message not in messages:
                     messages.append(message)
+            print(filename)
+            print(messages)
+            if messages and filename in self.files:
+                self.files[filename].write_messages(messages=messages)            
 
-        if messages:
-            file_obj.write_messages(messages=messages)
         return changed_ids
 
     def _add_dynamic_definition(self, definition):
@@ -951,13 +962,16 @@ class UrtextProject:
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
 
+    def _get_duplicate_titles(self, node_title):
+        return [n for n in self.nodes.values() if n.title == node_title]
+
     def _log_item(self, filename, message):
         self.messages.setdefault(filename, [])
         if message not in self.messages[filename]:
             self.messages[filename].append(message)
         if self.settings['console_log']:
             print(str(filename)+' : '+ message)
-        
+
     def timestamp(self, date=None, as_string=False):
         """ 
         Returns a timestamp in the format set in project_settings, or the default 
@@ -1673,19 +1687,9 @@ class UrtextProject:
         filename,
         include_project=False):
 
-        known_ids = []
-        if filename in self.files:
-            known_ids = [n.id for n in self.files[filename].nodes]
+        self._parse_file(filename, buffer_contents=buffer_contents)
 
-        buffer = UrtextBuffer(self, buffer_contents)
-        buffer.filename = filename
-        buffer.clear_messages_and_parse()
-        
-        duplicated_ids = self._check_file_for_duplicates(
-            buffer,
-            known_ids=known_ids)
-        node_id = None
-        for node in buffer.nodes:
+        for node in self.files[filename].nodes:
             for r in node.ranges:
                 if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                     node_id = node.id

@@ -74,6 +74,7 @@ class UrtextNode:
         self.first_line_title = False
         self.title_from_marker = False
         self.nested = nested
+        self.resolved = False
         
         contents = strip_errors(contents)
         self.full_contents = contents
@@ -129,7 +130,9 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
-    def resolve_duplicate_id(self, existing_nodes=[]):
+    def resolve_duplicate_id(self):
+        if self.resolved:
+           return self.id
         if self.parent:
             if self.parent.title != '(untitled)':
                 resolved_id = ''.join([
@@ -137,9 +140,9 @@ class UrtextNode:
                         syntax.parent_identifier,
                         self.parent.title
                     ])
-                if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
+                if resolved_id not in self.project.nodes:
+                    self.resolved = True
                     return resolved_id
-
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
             if parent_oldest_timestamp:
                 resolved_id = ''.join([
@@ -147,9 +150,9 @@ class UrtextNode:
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
-            if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
-                return resolved_id
-
+                if resolved_id not in self.project.nodes:
+                    self.resolved = True
+                    return resolved_id
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
             resolved_id = ''.join([
@@ -157,7 +160,8 @@ class UrtextNode:
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in existing_nodes and resolved_id not in [n.id for n in self.buffer.nodes]:
+            if resolved_id not in self.project.nodes:
+                self.resolved = True
                 return resolved_id
 
     def get_links(self, contents):
