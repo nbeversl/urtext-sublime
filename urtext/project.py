@@ -224,7 +224,7 @@ class UrtextProject:
                 self._get_settings_from(node)     
 
             for dd in node.dynamic_definitions:
-                dd.source_id = node.id
+                dd.source_node = node
                 self._add_dynamic_definition(dd)
 
             for entry in node.metadata.entries():
@@ -389,10 +389,10 @@ class UrtextProject:
             if virtual_target:
                 target = virtual_target.group()
                 if target == "@self":
-                    if definition.source_id in self.dynamic_definitions:
-                        self._reject_definition(definition.source_id, definition)
+                    if definition.source_node.id in self.dynamic_definitions:
+                        self._reject_definition(definition.source_node.id, definition)
                     else:
-                        self.dynamic_definitions[definition.source_id] = definition
+                        self.dynamic_definitions[definition.source_node.id] = definition
                 else:
                     self.virtual_outputs.setdefault(target, [])
                     self.virtual_outputs[target].append(definition)
@@ -405,15 +405,15 @@ class UrtextProject:
                 syntax.link_closing_wrapper,
                 '\nalready has a definition in ', 
                 syntax.link_opening_wrapper,
-                self.dynamic_definitions[target_id].source_id,
+                self.dynamic_definitions[target_id].source_node.id,
                 syntax.link_closing_wrapper,
                 '\nskipping the definition in ',
                 syntax.link_opening_wrapper,
-                definition.source_id,
+                definition.source_node.id,
                 syntax.link_closing_wrapper,
             ])
         self._log_item(
-            self.nodes[definition.source_id].filename, 
+            self.nodes[definition.source_node.id].filename, 
             message)
 
     def _add_node(self, new_node):
@@ -646,30 +646,30 @@ class UrtextProject:
             return '• ' + contents.strip() + metadata_block
 
     def get_dynamic_defs(self, 
-        target=None, 
-        source=None):
+        target_node=None, 
+        source_node=None):
         defs = []
-        if target and target in self.dynamic_definitions:
-            defs.append(self.dynamic_definitions[target])
-        if source:
+        if target_node and target_node.id in self.dynamic_definitions:
+            defs.append(self.dynamic_definitions[target_node.id])
+        if source_node:
             for dd in self.dynamic_definitions.values():        
-                if dd.source_id == source:
+                if dd.source_node.id == source_node.id:
                     defs.append(dd)
         for target in self.virtual_outputs:
             for dd in self.virtual_outputs[target]:
-                if source and dd.source_id == source:
+                if source_node and dd.source_node.id == source_node.id:
                     defs.append(dd)
-                elif not source:
+                elif not source_node:
                     defs.append(dd)
         return defs
 
     def remove_dynamic_defs(self, node_id):
         for target in list(self.dynamic_definitions):
-            if self.dynamic_definitions[target].source_id == node_id: 
+            if self.dynamic_definitions[target].source_node.id == node_id: 
                 del self.dynamic_definitions[target]
         for target in self.virtual_outputs:
             for dd in self.virtual_outputs[target]:
-                if dd.source_id == node_id:
+                if dd.source_node.id == node_id:
                     del dd
 
     def remove_dynamic_metadata_entries(self, node_id):
@@ -849,13 +849,14 @@ class UrtextProject:
                 return self.handle_info_message(
                     'Node ' + link['node_id'] + ' is not in the project')
             else:
-                for dd in self.get_dynamic_defs(source=link['node_id']):
-                    if dd.source_id == link['node_id']:
-                        output = dd.process(flags=['-link_clicked'])
-                        if output not in [False, None]:
-                            for target in dd.targets:
-                                target_output = dd.preserve_title_if_present(target) + output
-                                self._direct_output(target_output, target, dd)
+                if link['node_id'] in self.nodes:
+                    for dd in self.get_dynamic_defs(source_node=self.nodes[link['node_id']]):
+                        if dd.source_node.id == link['node_id']:
+                            output = dd.process(flags=['-link_clicked'])
+                            if output not in [False, None]:
+                                for target in dd.targets:
+                                    target_output = dd.preserve_title_if_present(target) + output
+                                    self._direct_output(target_output, target, dd)
                             # TODO
                             # if modified_file:
                             #     modified_files.append(modified_file)
@@ -1405,9 +1406,9 @@ class UrtextProject:
             dd = self.dynamic_definitions[target_id]
             self.run_editor_method(
                 'open_file_to_position',
-                self.nodes[dd.source_id].filename,
-                self.nodes[dd.source_id].get_file_position(dd.position))
-            return self.visit_node(dd.source_id)        
+                self.nodes[dd.source_node.id].filename,
+                self.nodes[dd.source_node.id].get_file_position(dd.position))
+            return self.visit_node(dd.source_node.id)        
         self.handle_info_message(
             'No dynamic definition for "%s"' % target_id
             )
@@ -1532,7 +1533,7 @@ class UrtextProject:
         modified_files = []
         processed_targets = []
         for node in self.files[filename].nodes:
-            for dd in self.get_dynamic_defs(target=node.id, source=node.id):
+            for dd in self.get_dynamic_defs(target_node=node, source_node=node):
                 new_targets = []
                 for d in dd.targets + dd.target_ids:
                     if d in processed_targets:
@@ -1586,15 +1587,15 @@ class UrtextProject:
         if virtual_target:
             virtual_target = virtual_target.group()
             if virtual_target == '@self':
-                if self._set_node_contents(dd.source_id, output):
-                    return dd.source_id
+                if self._set_node_contents(dd.source_node.id, output):
+                    return dd.source_node.id
             if virtual_target == '@clipboard':
                 return self.run_editor_method('set_clipboard', output)
             if virtual_target == '@next_line':
                 return self.run_editor_method('insert_at_next_line', output)
             if virtual_target == '@log':
                 return self._log_item(
-                    self.nodes[dd.source_id].filename,
+                    self.nodes[dd.source_node.id].filename,
                     output)
             if virtual_target == '@console':
                 return self.run_editor_method('write_to_console', output)

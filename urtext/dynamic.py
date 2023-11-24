@@ -54,7 +54,7 @@ class UrtextDynamicDefinition:
 		self.returns_text = True
 		self.param_string = param_string
 		self.init_self(param_string)	
-		self.source_id = None # set by node once compiled
+		self.source_node = None # set by node once compiled
 		if not self.show: self.show = '$_link\n'
 
 	def init_self(self, contents):
@@ -177,14 +177,14 @@ class UrtextDynamicDefinition:
 		self.flags = flags
 
 		for target_id in self.target_ids:
-			if self.source_id not in self.project.nodes:
+			if self.source_node.id not in self.project.nodes:
 				continue
 			if target_id not in self.project.nodes:
-				filename = self.project.nodes[self.source_id].filename
+				filename = self.project.nodes[self.source_node.id].filename
 				self.project._log_item(filename, ''.join([
 							'Dynamic node definition in ',
 							syntax.link_opening_wrapper,
-							self.source_id,
+							self.source_node.id,
 							syntax.link_closing_wrapper,
 							'\n',
 							'points to nonexistent node ',

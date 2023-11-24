@@ -126,7 +126,7 @@ class PullNode:
             return self.project.handle_info_message(
                 'link is not a node')
 
-        source_id = link['node_id']
+        source_node = self.project.nodes[link['node_id']]
         if source_id not in self.project.nodes: 
             return
         
