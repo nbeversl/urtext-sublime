@@ -325,7 +325,7 @@ class UrtextProject:
 
         # resolve untitled nodes
         for node in file_obj.get_ordered_nodes():
-            if node.id == '(untitled)':
+            if node.title == '(untitled)':
                 resolved_id = node.resolve_id()
                 if not resolved_id:
                     untitled_nodes.append(node.id)
