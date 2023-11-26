@@ -26,6 +26,7 @@ class UrtextBuffer:
         self.messages = []
         self.project = project
         self.meta_to_node = []
+        self.reparse = False
     
     def lex_and_parse(self):
         symbols = self.lex(self._get_contents())

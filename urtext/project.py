@@ -96,6 +96,7 @@ class UrtextProject:
         self.execute(self._initialize_project)
     
     def _initialize_project(self):
+        self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
 
         directives_folder = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -153,8 +154,7 @@ class UrtextProject:
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
         self._run_hook('after_project_initialized')
-        self.handle_info_message(
-            '"'+self.settings['project_title']+'" compiled')
+        self.handle_info_message('"%s" compiled' % self.settings['project_title'])
 
     def _parse_file(self, filename, buffer_contents=None):
         if self._filter_filenames(filename) == None:
@@ -173,7 +173,7 @@ class UrtextProject:
                 node.filename = filename
             if new_file.filename in self.files:
                 known_ids = [n.id for n in new_file.nodes]
-        else:        
+        else:
             new_file = self.urtext_file(filename, self)
 
         self._drop_file(filename)
@@ -188,6 +188,9 @@ class UrtextProject:
             new_file, 
             known_ids=known_ids,
             old_ids=old_node_ids)
+
+        if not new_file.reparse:
+            return
 
         if old_node_ids:
             new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
@@ -397,7 +400,7 @@ class UrtextProject:
                             'Dropping duplicate node ID "',
                             node.id,
                             '"',
-                            ' duplicated in file ',
+                            ' already exists in file ',
                             syntax.file_link_opening_wrapper,
                             duplicate_titled_nodes[0].filename,
                             syntax.link_closing_wrapper,
@@ -416,6 +419,9 @@ class UrtextProject:
         
         if messages:
             file_obj.write_messages(messages=messages)
+            file_obj.reparse = False
+        else:
+            file_obj.reparse = True
 
         return changed_ids
 
@@ -1282,6 +1288,8 @@ class UrtextProject:
             modified_files = [filename]
             self._parse_file(filename)
             if filename in self.files:
+                if not self.files[filename].reparse:
+                    return []
                 modified_files.extend(
                     self._compile_file(
                     filename,
