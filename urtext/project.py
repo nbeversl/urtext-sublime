@@ -160,19 +160,17 @@ class UrtextProject:
         if self._filter_filenames(filename) == None:
             return self._add_to_excluded_files(filename)
 
-        old_node_ids = []
+        existing_file_ids = []
         if filename in self.files:
-            old_node_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
+            existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
 
-        known_ids = []
+        allocated_ids = []
         if buffer_contents != None:
             new_file = UrtextBuffer(self, buffer_contents)
             new_file.filename = filename
             new_file.clear_messages_and_parse()
             for node in new_file.nodes:
                 node.filename = filename
-            if new_file.filename in self.files:
-                known_ids = [n.id for n in new_file.nodes]
         else:
             new_file = self.urtext_file(filename, self)
 
@@ -186,26 +184,25 @@ class UrtextProject:
 
         changed_ids = self._check_file_for_duplicates(
             new_file, 
-            known_ids=known_ids,
-            old_ids=old_node_ids)
+            existing_file_ids=existing_file_ids)
 
         if not new_file.reparse:
             return
 
-        if old_node_ids:
+        if existing_file_ids:
             new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
-            if len(old_node_ids) == len(new_node_ids):
-                for index in range(0, len(old_node_ids)): # existing links are all we care about
-                    if old_node_ids[index] == new_node_ids[index]:
+            if len(existing_file_ids) == len(new_node_ids):
+                for index in range(0, len(existing_file_ids)): # existing links are all we care about
+                    if existing_file_ids[index] == new_node_ids[index]:
                         continue # id stayed the same
                     else:
-                        if new_node_ids[index] in old_node_ids:
+                        if new_node_ids[index] in existing_file_ids:
                             # proably only the order changed.
                             # don't have to do anything
                             continue
                         else:
                             # check each new id for similarity to the old one
-                            changed_ids[old_node_ids[index]] = new_node_ids[index]
+                            changed_ids[existing_file_ids[index]] = new_node_ids[index]
                             # else:
                             #TODO try to map old to new.
         for node in new_file.nodes:
@@ -329,7 +326,7 @@ class UrtextProject:
                                     links_to_change[node_id])
                                 self.files[filename]._set_contents(replaced_contents)
 
-    def _check_file_for_duplicates(self, file_obj, known_ids=[], old_ids=[]):
+    def _check_file_for_duplicates(self, file_obj, existing_file_ids=[]):
         messages = []
         changed_ids = {}
 
@@ -356,16 +353,12 @@ class UrtextProject:
                 changed_ids[node.id] = resolved_id
                 node.id = resolved_id
 
-        # resolve duplicate titles withnin file/buffer
-        file_node_ids = [file_node.id for file_node in file_obj.nodes]
-        nodes_to_resolve = [n for n in file_obj.nodes if file_node_ids.count(n.title) > 1]
+
+        # resolve duplicate titles within file/buffer
+        new_file_node_ids = [file_node.id for file_node in file_obj.nodes]
+        nodes_to_resolve = [n for n in file_obj.nodes if new_file_node_ids.count(n.title) > 1]
         for n in nodes_to_resolve:
-            existing_ids = list(self.nodes)
-            if known_ids:
-                existing_ids.extend(known_ids)
-            else:
-                existing_ids.extend(file_node_ids)
-            resolved_id = n.resolve_id(existing_ids=existing_ids)
+            resolved_id = n.resolve_id(allocated_ids=new_file_node_ids)
             if not resolved_id:
                 file_node_ids.remove(n.id)
                 message = ''.join([
@@ -379,14 +372,16 @@ class UrtextProject:
                     messages.append(message)
                     del n
                     continue
+            new_file_node_ids = [file_node.id for file_node in file_obj.nodes]
             changed_ids[n.id] = resolved_id
             n.id = resolved_id
 
         # resolve duplicate titles in project
-        existing_ids = list(self.nodes)
-        duplicate_titled_nodes_in_proj = {}
+        # Here we want to make sure that if another node was dropped because of a duplicate
+        # title, and this file got to keep it, it still gets to keep it. Files 
+        allocated_ids = list(self.nodes)
         for node in file_obj.get_ordered_nodes():
-            if node.id in existing_ids: # it's allow to keep its previous ones.
+            if node.id in existing_file_ids: # it's allow to keep its previous ones.
                 continue
             duplicate_titled_nodes = self._get_duplicate_titles(node)
             # should not be necessary:
@@ -394,7 +389,7 @@ class UrtextProject:
                 duplicate_titled_nodes.remove(node)
             if duplicate_titled_nodes:
                 old_id = node.id
-                resolved_id = node.resolve_id(existing_ids=existing_ids)
+                resolved_id = node.resolve_id(allocated_ids=allocated_ids)
                 if not resolved_id:
                     message = ''.join([
                             'Dropping duplicate node ID "',

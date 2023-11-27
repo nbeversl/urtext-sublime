@@ -128,11 +128,11 @@ class UrtextNode:
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
-    def resolve_id(self, existing_ids=None):
+    def resolve_id(self, allocated_ids=None):
         if self.resolved:
            return self.id
-        if not existing_ids:
-            existing_ids = self.project.nodes
+        if not allocated_ids:
+            allocated_ids = self.project.nodes
         if self.parent:
             if self.parent.title != '(untitled)':
                 resolved_id = ''.join([
@@ -140,7 +140,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         self.parent.title
                     ])
-                if resolved_id in existing_ids:
+                if resolved_id not in allocated_ids:
                     self.resolved = True
                     return resolved_id
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
@@ -150,7 +150,7 @@ class UrtextNode:
                         syntax.parent_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
-                if resolved_id not in existing_ids:
+                if resolved_id not in allocated_ids:
                     self.resolved = True
                     return resolved_id
         timestamp = self.metadata.get_oldest_timestamp()
@@ -160,7 +160,7 @@ class UrtextNode:
                 syntax.parent_identifier,
                 timestamp.unwrapped_string, 
                 ])
-            if resolved_id not in existing_ids:
+            if resolved_id not in allocated_ids:
                 self.resolved = True
                 return resolved_id
 
