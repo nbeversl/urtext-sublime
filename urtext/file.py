@@ -75,7 +75,7 @@ class UrtextFile(UrtextBuffer):
             self.filename,
             new_contents)
 
-        if buffer_updated and run_on_modified and self.reparse:
+        if buffer_updated and run_on_modified and not self.errors:
             if self.project.run_editor_method(
                 'save_file',
                 self.filename):
@@ -83,6 +83,6 @@ class UrtextFile(UrtextBuffer):
 
         with open(self.filename, 'w', encoding='utf-8') as theFile:
             theFile.write(new_contents)
-        if run_on_modified and self.reparse:
+        if run_on_modified and not self.errors:
             self.project._on_modified(self.filename)
         return True
