@@ -21,7 +21,6 @@ single_boolean_values_settings = [
 
 single_values_settings = [
     'home',
-    'filenames',
     'filename_datestamp_format',
     'filename_title_length',
     'node_date_keyname',

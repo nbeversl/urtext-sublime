@@ -10,7 +10,7 @@ class ReindexFiles:
     def rename_all_files(self):
         return self.project.execute(
             self._rename_file_nodes,
-            self.project.all_files())
+            self.project.files)
 
     def _rename_file_nodes(self, filenames):
         """ Rename a file or list of files by metadata """
@@ -19,7 +19,6 @@ class ReindexFiles:
 
         used_names = []
         renamed_files = {}
-        
         for old_filename in filenames:
 
             if old_filename not in self.project.files:
@@ -31,7 +30,6 @@ class ReindexFiles:
 
             root_node = self.project.files[old_filename].root_node
             filename_template = list(self.project.settings['filenames'])
-            
             for i in range(0,len(filename_template)):
                 
                 if filename_template[i].lower() == 'title':

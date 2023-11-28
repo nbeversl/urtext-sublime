@@ -27,7 +27,6 @@ import concurrent.futures
 import threading
 import importlib
 import sys
-import inspect
 from .url import url_match
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
