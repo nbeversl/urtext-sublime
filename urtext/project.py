@@ -72,7 +72,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -702,7 +702,6 @@ class UrtextProject:
     def remove_dynamic_defs(self, node_id):
         for target in list(self.dynamic_definitions):
             if self.dynamic_definitions[target].source_node.id == node_id:
-                print('removing def for', target)
                 del self.dynamic_definitions[target]
         for target in self.virtual_outputs:
             for dd in self.virtual_outputs[target]:
