@@ -291,7 +291,7 @@ class UrtextBuffer:
         message_length = len(messages)
         
         for n in re.finditer('position \d{1,10}', messages):
-            old_n = int(n.group().strip('position '))
+            old_n = int(n.group().replace('position ',''))
             new_n = old_n + message_length
             messages = messages.replace(str(old_n), str(new_n))
              

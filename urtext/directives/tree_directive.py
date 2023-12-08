@@ -142,8 +142,7 @@ class Tree(UrtextDirective):
 
         if self.dynamic_definition.excluded_nodes:
 
-            node_id = tree_node.name.strip('ALIA$')
-
+            node_id = tree_node.name.replace('ALIA$','')
             if node_id in self.dynamic_definition.excluded_nodes:
                 return True
 

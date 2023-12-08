@@ -10,7 +10,8 @@ class MaxLength:
 				length = int(length)
 			except:
 				self.project._log_item(					
-					self.project.nodes[self.dynamic_definition.source_id].filename,
+					self.project.nodes[
+						self.dynamic_definition.source_node.id].filename,
 					'MAX_LENGTH directive does not contain a number')
 				return contents
 			contents = contents.split('\n')			

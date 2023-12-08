@@ -23,7 +23,7 @@ class NodeQuery:
 			if self.have_flags('*'):
 				added_nodes = set([node_id for node_id in self.project.nodes])
 			added_nodes = added_nodes.union(_build_group_and(
-					self.project, 
+					self.project,
 					self.params, 
 					self.dynamic_definition,
 					include_dynamic=self.have_flags('-dynamic'))

@@ -85,7 +85,7 @@ class UrtextNode:
         self.metadata = self.urtext_metadata(self, self.project)    
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         self.title = self.set_title(stripped_contents)
-        if not stripped_contents.strip().replace(self.title,'').strip(' _'):
+        if not stripped_contents.strip().replace(self.title,'').replace(' _',''):
             self.title_only = True
         self.id = self.title
         for d in self.dynamic_definitions:
