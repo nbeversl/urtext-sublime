@@ -448,12 +448,11 @@ class NodeBrowserCommand(UrtextTextCommand):
             preview_urtext_node(self.menu.menu[index].id)
         else:
             self.selection_has_changed = True
-            #workaround for Sublime text bug
 
     def open_the_file(self, index):
         node = self.menu.menu[index]
         self._UrtextProjectList.set_current_project(node.project.title())
-        self._UrtextProjectList.current_project.open_node(node.id)   
+        self._UrtextProjectList.current_project.open_node(node.id)
 
 class BacklinksBrowser(NodeBrowserCommand):
 
@@ -470,8 +469,8 @@ class BacklinksBrowser(NodeBrowserCommand):
                 nodes=backlinks)
 
             show_panel(
-                self.view.window(), 
-                self.menu.display_menu, 
+                self.view.window(),
+                self.menu.display_menu,
                 self.open_the_file)
 
 class ForwardlinksBrowser(NodeBrowserCommand):
@@ -714,6 +713,38 @@ class ToPreviousNodeCommand(UrtextTextCommand):
             self.view.sel().clear()
             self.view.sel().add(all_previous_opening_wrappers[-1])
             position_node(all_previous_opening_wrappers[-1])
+
+class FileOutlineDropdown(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        if self._UrtextProjectList.current_project and (
+            self.view.file_name() in self._UrtextProjectList.current_project.files):
+            ordered_file_nodes = self._UrtextProjectList.current_project.files[
+                self.view.file_name()].get_ordered_nodes()
+
+            self.menu = NodeBrowserMenu(
+                self._UrtextProjectList,
+                project=self._UrtextProjectList.current_project,
+                nodes=ordered_file_nodes)
+
+            self.menu.display_menu = ['  ' * n.nested + n.id for n in ordered_file_nodes]
+            self.selection_has_changed = False
+            show_panel(
+                self.view.window(), 
+                self.menu.display_menu, 
+                self.open_the_node,
+                on_highlight=self.on_highlight)
+
+    def open_the_node(self, index):
+        node = self.menu.menu[index]
+        self._UrtextProjectList.current_project.open_node(node.id) 
+
+    def on_highlight(self, index):
+        if self.selection_has_changed:
+            preview_urtext_node(self.menu.menu[index].id)
+        else:
+            self.selection_has_changed = True  
 
 """
 Utility functions
