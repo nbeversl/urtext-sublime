@@ -49,7 +49,7 @@ metadata_separator_syntax = ''.join([space, metadata_separator, space])
 other_project_link_prefix = '=>'
 dynamic_def_opening_wrapper = '[['
 dynamic_def_closing_wrapper = ']]'
-parent_identifier = ' ^ '
+resolution_identifier = ' ^ '
 virtual_target_marker = '@'
 file_link_opening_wrapper = ''.join([
     link_opening_character,

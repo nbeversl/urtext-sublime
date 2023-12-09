@@ -127,7 +127,7 @@ class PullNode:
                 'link is not a node')
 
         source_node = self.project.nodes[link['node_id']]
-        if source_id not in self.project.nodes: 
+        if source_node.id not in self.project.nodes: 
             return
         
         destination_node = self.project.get_node_id_from_position(
@@ -142,20 +142,20 @@ class PullNode:
             return self.project.handle_info_message(
                 'Not pulling content into a dynamic node')
 
-        source_filename = self.project.nodes[source_id].filename
+        source_filename = self.project.nodes[source_node.id].filename
         for ancestor in self.project.nodes[destination_node].tree_node.ancestors:
-            if ancestor.name == source_id:
+            if ancestor.name == source_node.id:
                 return self.project.handle_info_message(
                     'Cannot pull a node into its own child or descendant.')
         self.project._parse_file(source_filename)
 
-        start = self.project.nodes[source_id].start_position
-        end = self.project.nodes[source_id].end_position
+        start = self.project.nodes[source_node.id].start_position
+        end = self.project.nodes[source_node.id].end_position
 
         source_file_contents = self.project.files[source_filename]._get_contents()
 
         delete = False
-        if not self.project.nodes[source_id].root_node:
+        if not self.project.nodes[source_node.id].root_node:
             updated_source_file_contents = ''.join([
                 source_file_contents[0:end],
                 source_file_contents[end:len(source_file_contents)]

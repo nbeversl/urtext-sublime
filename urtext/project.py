@@ -264,21 +264,21 @@ class UrtextProject:
         if filename in self.files:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
-                for link in list(node.links):
+                for link in node.links:
                     node_id = get_id_from_link(link)
-                    suffix = ' ' +link[-2:].strip()
+                    suffix = ' ' +link[-2:].strip() # preserve link/pointer                        
                     if node_id not in self.nodes:
-                        id_only = node_id.split(syntax.parent_identifier)[0]                
-                        if id_only not in self.nodes and link not in rewrites:
+                        title_only = node_id.split(syntax.resolution_identifier)[0]                
+                        if title_only not in self.nodes and link not in rewrites:
                             rewrites[link] = ''.join([
                                     syntax.missing_link_opening_wrapper,
-                                    id_only,
+                                    title_only,
                                     suffix
                                 ])
                         elif link not in rewrites:
                             rewrites[link] = ''.join([
                                 syntax.link_opening_wrapper,
-                                id_only,
+                                title_only,
                                 suffix])
                     elif syntax.missing_link_opening_wrapper in link:
                         rewrites[link] = ''.join([
@@ -299,34 +299,33 @@ class UrtextProject:
     def _rewrite_changed_links(self, changed_ids):
         for old_id in list(changed_ids.keys()):
             new_id = changed_ids[old_id]
-            if new_id in list(self.nodes):
-                for project_node in list(self.nodes):
+            if new_id in self.nodes:
+                for project_node in [n for n in self.nodes.values() if not n.dynamic]:
+                    if project_node.id not in self.nodes:
+                        continue
                     links_to_change = {}
-                    if project_node not in self.nodes:
-                        continue
-                    if self.nodes[project_node].dynamic:
-                        continue
-                    for link in self.nodes[project_node].links:
+                    for link in project_node.links:
                         link = get_id_from_link(link)
                         if link == old_id:
                             links_to_change[link] = new_id
                     if links_to_change:
-                        filename = self.nodes[project_node].filename
-                        contents = self.files[filename]._get_contents()
-                        
+                        contents = self.files[project_node.filename]._get_contents()
                         for node_id in list(links_to_change.keys()):
                             replaced_contents = contents
                             node_id_regex = re.escape(node_id)
-                            replaced_contents = re.sub(                        
-                                syntax.node_link_opening_wrapper_match + node_id_regex + syntax.link_closing_wrapper,
-                                make_link(links_to_change[node_id]),
-                                replaced_contents)
+                            replaced_contents = re.sub(''.join([
+                                    syntax.node_link_opening_wrapper_match,
+                                    node_id_regex,
+                                    syntax.link_closing_wrapper
+                                ]),
+                                make_link(links_to_change[node_id]), replaced_contents)
                             if replaced_contents != contents:
                                 self._run_hook(
                                     'on_node_id_changed',
                                     node_id,
                                     links_to_change[node_id])
-                                self.files[filename]._set_contents(replaced_contents)
+                                self.files[project_node.filename]._set_contents(
+                                    replaced_contents)
 
     def _check_file_for_duplicates(self, file_obj, existing_file_ids=[]):
         messages = []

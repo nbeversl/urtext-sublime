@@ -78,11 +78,10 @@ class UrtextNode:
         
         contents = strip_errors(contents)
         self.full_contents = contents
+        stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
+        self.get_links(contents=stripped_contents)
         stripped_contents, replaced_contents = self.parse_dynamic_definitions(contents)
-        stripped_contents, replaced_contents = strip_embedded_syntaxes(replaced_contents)
-
-        self.get_links(contents=replaced_contents)
-        self.metadata = self.urtext_metadata(self, self.project)    
+        self.metadata = self.urtext_metadata(self, self.project)
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         self.title = self.set_title(stripped_contents)
         if not stripped_contents.strip().replace(self.title,'').replace(' _',''):
@@ -137,7 +136,7 @@ class UrtextNode:
             if self.parent.title != '(untitled)':
                 resolved_id = ''.join([
                         self.title,
-                        syntax.parent_identifier,
+                        syntax.resolution_identifier,
                         self.parent.title
                     ])
                 if resolved_id not in allocated_ids:
@@ -147,7 +146,7 @@ class UrtextNode:
             if parent_oldest_timestamp:
                 resolved_id = ''.join([
                         self.title,
-                        syntax.parent_identifier,
+                        syntax.resolution_identifier,
                         parent_oldest_timestamp.unwrapped_string
                     ])
                 if resolved_id not in allocated_ids:
@@ -157,7 +156,7 @@ class UrtextNode:
         if timestamp:
             resolved_id = ''.join([
                 self.title,
-                syntax.parent_identifier,
+                syntax.resolution_identifier,
                 timestamp.unwrapped_string, 
                 ])
             if resolved_id not in allocated_ids:
