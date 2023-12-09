@@ -211,6 +211,9 @@ class NodeMetadata:
             if use_timestamp or keyname in self.project.settings['use_timestamp']:
                 return value.timestamp if value.timestamp else default_date
 
+            if keyname in self.project.settings['numerical_keys']:
+                return value.num()
+
             return value.text
 
     def get_values_with_frequency(self, 
@@ -218,9 +221,7 @@ class NodeMetadata:
         convert_nodes_to_links=False):
 
         values = {}
-
         entries = self.get_entries(keyname)
-
         for e in entries:
             if e.is_node:
                 if convert_nodes_to_links:
@@ -234,7 +235,6 @@ class NodeMetadata:
             for v in e.meta_values:
                 values.setdefault(v, 0)
                 values[v] +=1 
-
         return values
 
     def get_values(self,

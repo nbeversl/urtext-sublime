@@ -804,7 +804,7 @@ class UrtextProject:
                     if use_timestamp:
                         node.display_detail = detail.wrapped_string
                     else:
-                        node.display_detail = k+'::'+detail
+                        node.display_detail = k+'::'+str(detail)
                 sorted_nodes.extend(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.extend(remaining_nodes)  
