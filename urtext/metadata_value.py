@@ -39,7 +39,7 @@ class MetadataValue:
     def true(self):
         if self.text:
             if self.text.lower() in [
-                'yes', 'true', 'y']:
+                'yes', 'true', 'y', 'on']:
                 return True
         return False
 
