@@ -19,7 +19,7 @@ class UrtextBuffer:
     urtext_node = UrtextNode
     user_delete_string = USER_DELETE_STRING
 
-    def __init__(self, project, contents):
+    def __init__(self, project, filename, contents):
         self.nodes = []
         self.contents = contents
         self.root_node = None
@@ -27,6 +27,7 @@ class UrtextBuffer:
         self.project = project
         self.meta_to_node = []
         self.errors = True
+        self.filename = filename
     
     def lex_and_parse(self):
         symbols = self.lex(self._get_contents())
@@ -263,7 +264,11 @@ class UrtextBuffer:
     def _get_contents(self):
         return self.contents
           
-    def _set_contents(self, contents, compare=False, run_on_modified=False):
+    def _set_contents(self,
+        contents,
+        compare=False,
+        run_on_modified=False):
+
         self.project.run_editor_method(
             'set_buffer',
             self.filename,
@@ -300,7 +305,11 @@ class UrtextBuffer:
             new_contents,
             ])
 
-        self._set_contents(new_contents, compare=False, run_on_modified=False)
+        self._set_contents(
+            new_contents,
+            compare=False,
+            run_on_modified=False)
+
         # TODO: make DRY
         self.nodes = []
         self.root_node = None

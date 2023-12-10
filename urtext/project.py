@@ -58,6 +58,7 @@ class UrtextProject:
 
     urtext_file = UrtextFile
     urtext_node = UrtextNode
+    urtext_buffer = UrtextBuffer
 
     def __init__(self, 
         entry_point, 
@@ -166,7 +167,7 @@ class UrtextProject:
 
         allocated_ids = []
         if buffer_contents != None:
-            new_file = UrtextBuffer(self, buffer_contents)
+            new_file = UrtextBuffer(self, filename, buffer_contents)
             new_file.filename = filename
             new_file.clear_messages_and_parse()
             for node in new_file.nodes:
@@ -253,7 +254,7 @@ class UrtextProject:
                     changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
 
-        return True
+        return new_file
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -522,6 +523,7 @@ class UrtextProject:
             self._remove_sub_tags(node.id)
             self.remove_dynamic_defs(node.id)
             self.remove_dynamic_metadata_entries(node.id)
+            self._clear_settings_from(node)
             del self.nodes[node.id]
 
 
@@ -1101,7 +1103,10 @@ class UrtextProject:
 
             if entry.keyname not in self.settings:
                 self.settings[str(entry.keyname)] = []
-                self.settings[str(entry.keyname)].extend(entry.text_values())
+                if entry.meta_values[0].is_node:                    
+                    self.settings[str(entry.keyname)] = entry.meta_values[0]
+                else:
+                    self.settings[str(entry.keyname)].extend(entry.text_values())
                 continue
 
         for k in replacements.keys():
@@ -1112,24 +1117,33 @@ class UrtextProject:
 
     def _clear_settings_from(self, node):
         if node in self.project_settings_nodes:
-            for setting in self.project_settings_nodes[node.id]:
+            for setting in self.project_settings_nodes[node]:
                 if setting in not_cleared:
                     continue
-                for value in self.project_settings_nodes[node.id][setting]:
+                
+                for value in self.project_settings_nodes[node][setting]:
                     if not self._setting_is_elsewhere(
                         setting,
                         node) and ( 
                         setting in self.settings):
-                            print('RESETTING ', value)
                             if setting in single_values_settings:
+                                del self.settings[setting]
+                                continue                        
+                            elif type(value) not in [str, int, float]:
+                                del self.settings[setting]
+                                continue
+                            elif isinstance(self.settings[setting], UrtextNode):
                                 del self.settings[setting]
                             elif value in self.settings[setting]:
                                 self.settings[setting].remove(value)                        
+                                continue
                             if setting == 'extensions':
                                 for v in entry.text_values():
                                     self._remove_extensions_from_folder(v)
+                                continue
                             if setting == 'directives':
-                                    self._remove_directives_from_folder(v)
+                                self._remove_directives_from_folder(v)
+                                continue
                             if (setting not in self.settings or 
                                 not self.settings[setting]) and (
                                 setting in default_project_settings().keys()):
@@ -1137,8 +1151,7 @@ class UrtextProject:
             del self.project_settings_nodes[node]
 
     def _setting_is_elsewhere(self, setting, omit_node):
-        for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
-            print(self.project_settings_nodes[node_id])
+        for node in [n for n in self.project_settings_nodes if n != omit_node]:
             if setting in self.project_settings_nodes[node_id]:
                 return True
 

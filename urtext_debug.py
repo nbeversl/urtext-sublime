@@ -12,34 +12,36 @@ class DebugCommand(sublime_plugin.TextCommand):
             self.view.sel()[0].a)
 
         if not node_id:
-            print('No Node found here')
-            return
-        print('UNTITLED:')
-        print(self._UrtextProjectList.current_project.nodes[node_id].untitled)
-        print('DYNAMIC:')
-        print(self._UrtextProjectList.current_project.nodes[node_id].dynamic)
-        print('NODE ID')
-        print(node_id)
-        print('LINKS')
-        print(self._UrtextProjectList.current_project.nodes[node_id].links)
-        print('METADATA')
-        self._UrtextProjectList.current_project.nodes[node_id].metadata.log()
-        print('Ranges')
+            return print('No Node found here')
+        print('UNTITLED: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].untitled)
+        print('DYNAMIC: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].dynamic)
+        print('NODE ID: %s' % node_id)
+        print('First line title: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
+        print('NESTED: %s' %
+            str(self._UrtextProjectList.current_project.nodes[node_id].nested))
+        print('RANGES: ')
         print(self._UrtextProjectList.current_project.nodes[node_id].ranges)
-        print('Root')
-        print(self._UrtextProjectList.current_project.nodes[node_id].root_node)
-        print('Compact')
-        print(self._UrtextProjectList.current_project.nodes[node_id].compact)
-        print('EXPORTS')
+        print('ROOT: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].root_node)
+        print('Compact: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].compact)
+        print('IS META: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].is_meta)
+        print('NODE PARENT: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].parent)
+        print('TREE PARENT: %s' %
+            self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
+        print('LINKS: ')
+        print(self._UrtextProjectList.current_project.nodes[node_id].links)
+        print('METADATA: ')
+        print(self._UrtextProjectList.current_project.nodes[node_id].metadata.log())
+        print('EXPORTS:')
         print(self._UrtextProjectList.current_project.nodes[node_id].export_points)
-        print('NODE PARENT')
-        print(self._UrtextProjectList.current_project.nodes[node_id].parent)
-        print('TREE PARENT')
-        print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
-        print('TREE CHILDREN')
+        print('TREE CHILDREN:')
         print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
-        print('First line title')
-        print(self._UrtextProjectList.current_project.nodes[node_id].first_line_title)
         print('------------------------')
 
 class NoAsync(sublime_plugin.TextCommand):

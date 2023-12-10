@@ -199,11 +199,13 @@ class NodeMetadata:
     def get_first_value(self, 
         keyname,
         order_by='default',
-        use_timestamp=False):
+        use_timestamp=False,
+        convert_nodes_to_links=False):
 
         values = self.get_values(
             keyname, 
-            order_by=order_by)
+            order_by=order_by,
+            convert_nodes_to_links=convert_nodes_to_links)
 
         if values:
             value = values[0]
@@ -213,8 +215,8 @@ class NodeMetadata:
 
             if keyname in self.project.settings['numerical_keys']:
                 return value.num()
-
-            return value.text
+ 
+            return value
 
     def get_values_with_frequency(self, 
         keyname,

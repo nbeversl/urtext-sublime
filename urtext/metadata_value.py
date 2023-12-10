@@ -23,6 +23,7 @@ class MetadataValue:
                 self.timestamp = t
         self.text = value_string
         self.text_lower = value_string.lower()
+        self.is_node = False
 
     def num(self):
         try:
@@ -34,6 +35,13 @@ class MetadataValue:
         if self.text:
             return self.text < other.text
         return self.num() < other.num()
+
+    def true(self):
+        if self.text:
+            if self.text.lower() in [
+                'yes', 'true', 'y']:
+                return True
+        return False
 
     def log(self):
         print('text: %s' % ( 
