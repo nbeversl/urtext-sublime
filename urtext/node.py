@@ -183,7 +183,7 @@ class UrtextNode:
         """
         t = self.metadata.get_first_value('title')
         if t:
-            return t
+            return t.text
 
         first_non_blank_line = None
         contents_lines = contents.strip().split('\n')

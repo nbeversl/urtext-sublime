@@ -773,7 +773,8 @@ class UrtextProject:
 
     def sort_for_meta_browser(self, nodes, as_nodes=False):
         if self.has_meta_browser_key():
-            nodes = [n for n in nodes if n.metadata.get_first_value(self.settings['meta_browser_key'])]
+            nodes = [n for n in nodes if n.metadata.get_first_value(
+                self.settings['meta_browser_key'])]
             return self._sort_nodes(
                 nodes,
                 [self.settings['meta_browser_key']],
