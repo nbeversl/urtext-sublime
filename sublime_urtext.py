@@ -98,22 +98,12 @@ def set_buffer(filename, contents):
         return True
     return False
 
-def get_buffer(node_id=None):
-    global _UrtextProjectList
-    if _UrtextProjectList:
-        if node_id and node_id in _UrtextProjectList.current_project.nodes:
-            filename = _UrtextProjectList.current_project.nodes[node_id].filename
-            target_view = None
-            for view in sublime.active_window().views():
-                if view.file_name() == filename:
-                    target_view = view
-                    break
-            if target_view:
-                return target_view.substr(sublime.Region(0, view.size()))
-        else:
-            view = sublime.active_window().active_view()
-            if view:
-                return view.substr(sublime.Region(0, view.size()))
+def get_buffer(filename=None):
+    if filename:
+        view = sublime.active_window().find_open_file(filename)
+    else:
+        view = sublime.active_window().active_view()
+    return view.substr(sublime.Region(0, view.size()))
 
 def show_status(message):
     window = sublime.active_window()
