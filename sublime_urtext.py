@@ -193,7 +193,8 @@ def refresh_project_text_command(change_project=True):
                 return function(args[0])
             
             window = sublime.active_window()
-            if not window: return print('NO ACTIVE WINDOW')
+            if not window:
+                return print('NO ACTIVE WINDOW')
             
             view = window.active_view()
             window_id = window.id()
