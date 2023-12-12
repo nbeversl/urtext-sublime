@@ -105,7 +105,6 @@ def default_project_settings():
         'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 
         'title_length':255,
         'use_timestamp': [ 
-            'updated', 
             'timestamp', 
             'inline_timestamp', 
             '_oldest_timestamp', 

@@ -593,7 +593,7 @@ class UrtextProject:
             filename = os.path.join(path, filename)
         else:
             filename = os.path.join(self.entry_path, filename)
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(contents)  
         self._parse_file(filename)
 
@@ -1121,7 +1121,6 @@ class UrtextProject:
             for setting in self.project_settings_nodes[node]:
                 if setting in not_cleared:
                     continue
-                
                 for value in self.project_settings_nodes[node][setting]:
                     if not self._setting_is_elsewhere(
                         setting,
