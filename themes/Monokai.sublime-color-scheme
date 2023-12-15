@@ -98,7 +98,7 @@
 	/* Main syntax */
 			{
 	  			"scope":"urtext",
-	  			"background": "var(background)",
+	  			"background": "var(raw)",
 	  		},
 	  		{   "scope": "link_title.urtext",
 	  			"font_style":"bold",

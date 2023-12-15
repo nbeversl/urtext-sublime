@@ -871,7 +871,7 @@ class UrtextProject:
                 self.handle_info_message(
                     'Project is still compiling')
             return self.handle_info_message( 
-                'Link is not is not in the project.')
+                'Link is not in the project.')
 
         if link['kind'] == 'NODE':
             return self.open_node(
@@ -1276,7 +1276,7 @@ class UrtextProject:
         return self.execute(self._on_modified, filename, bypass=bypass)
     
     def _on_modified(self, filename, bypass=False):
-        if self.compiled:
+        if self.compiled and filename in self._get_included_files():
             if self._parse_file(filename):
                 modified_files = [filename]
                 if filename in self.files:
