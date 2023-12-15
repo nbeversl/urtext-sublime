@@ -284,11 +284,10 @@ class UrtextBuffer:
         timestamp = self.project.timestamp(as_string=True)
         messages = ''.join([ 
             syntax.urtext_message_opening_wrapper,
-            '\n',
-            timestamp,
-            '\n',
+            ' ',
             '\n'.join(self.messages),
-            '\n',
+            timestamp,
+            ' ',
             syntax.urtext_message_closing_wrapper,
             '\n'
             ])

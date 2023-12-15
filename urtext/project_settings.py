@@ -33,7 +33,6 @@ single_values_settings = [
     'meta_browser_key',
     'meta_browser_sort_keys_by',
     'meta_browser_sort_values_by',
-    'new_file_line_pos',
     'project_title',
     'title_length',
     ] + single_boolean_values_settings
@@ -47,10 +46,8 @@ replace_settings = [ #i.e. can be array, but replace, don't extend
 ]
 
 integers_settings = [
-    'new_file_line_pos',
     'title_length',
     'filename_title_length',
-    'new_file_line_pos'
 ]
 
 def default_project_settings(): 
@@ -89,7 +86,6 @@ def default_project_settings():
         'import': False,
         'keyless_timestamp' : True,
         'new_file_node_format' : '$timestamp\n$cursor',
-        'new_file_line_pos' : 2,
         'meta_browser_key': None,
         'meta_browser_sort_keys_by': 'alpha', # or 'frequency'
         'meta_browser_sort_values_by' : 'alpha', # 'or 'frequency'

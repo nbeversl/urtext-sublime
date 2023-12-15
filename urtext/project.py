@@ -1151,7 +1151,7 @@ class UrtextProject:
             del self.project_settings_nodes[node]
 
     def _setting_is_elsewhere(self, setting, omit_node):
-        for node in [n for n in self.project_settings_nodes if n != omit_node]:
+        for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
             if setting in self.project_settings_nodes[node_id]:
                 return True
 

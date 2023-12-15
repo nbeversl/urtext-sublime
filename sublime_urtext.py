@@ -98,12 +98,15 @@ def set_buffer(filename, contents):
         return True
     return False
 
-def get_buffer(filename=None):
+def get_buffer(filename):
+    view = None
     if filename:
         view = sublime.active_window().find_open_file(filename)
     else:
         view = sublime.active_window().active_view()
-    return view.substr(sublime.Region(0, view.size()))
+    if view:
+        return view.substr(sublime.Region(0, view.size()))
+    print('NO VIEW')
 
 def show_status(message):
     window = sublime.active_window()
@@ -570,7 +573,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            get_buffer(),
+            get_buffer(self.view.file_name()),
             self.view.sel()[0].a,
             self.view.file_name())
 
@@ -579,7 +582,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
     @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            get_buffer(),
+            get_buffer(self.view.file_name()),
             self.view.sel()[0].a,
             include_project=True)
 
