@@ -152,7 +152,14 @@ any_link_or_pointer = r''.join([
     ])
 compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
-hash_meta = r'(?:^|\s)'+ hash_key + r'([A-Z,a-z][^-\s]*)(-' + timestamp + ')?'
+hash_meta = r''.join([
+    '(?:^|\s)',
+    metadata_entry_modifiers,
+    hash_key,
+    '([A-Z,a-z][^-\s]*)(-',
+    timestamp,
+    ')?'
+    ])
 
 dd_hash_meta = hash_key + r'[A-Z,a-z].*'
 node_link = ''.join([

@@ -141,7 +141,12 @@ contexts:
       pop: 1
 
   shorthand_meta:
-    - match: '(?:^|\s)#[A-Z,a-z].*?\b'
+    - meta_scope: metadata_entry.urtext
+    - match: '(?:^|\s)(\+)?(\*{1,2})?#[A-Z,a-z].*?\b'
+      captures:
+        1: tag_self.urtext
+        2: tag_descendants.urtext
+        3: meta_key.urtext
       scope: hash_meta.urtext
 
   datestamp:

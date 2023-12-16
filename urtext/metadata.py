@@ -30,23 +30,8 @@ class NodeMetadata:
                     syntax.metadata_assigner, 
                     1)
             value_list = syntax.metadata_separator_pattern_c.split(contents)
-            
-            tag_self=False
-            tag_children=False
-            tag_descendants=False
-            if not syntax.metadata_tag_self_c.match(keyname[0]) and ( 
-                not syntax.metadata_tag_desc_c.match(keyname[0])):
-                tag_self=True
-            else:
-                if syntax.metadata_tag_self_c.match(keyname[0]):
-                    tag_self = True
-                    keyname = keyname[1:]
-                if syntax.metadata_tag_desc_c.match(keyname[0]):
-                    tag_children = True
-                    keyname = keyname[1:]
-                if syntax.metadata_tag_desc_c.match(keyname[0]):
-                    tag_descendants = True
-                    keyname = keyname[1:]
+        
+            tag_self, tag_children, tag_descendants, keyname = determine_desc_tagging(keyname)
 
             value_list = [v.strip() for v in value_list]
 
@@ -70,17 +55,26 @@ class NodeMetadata:
                 1)
 
         for m in syntax.hash_meta_c.finditer(parsed_contents):
-            value = m.group().strip().replace('-',' ')
+
+            tag_self=False
+            tag_children=False
+            tag_descendants=False
+            
+            entry = m.group().strip()
+            tag_self, tag_children, tag_descendants, entry = determine_desc_tagging(entry)
+            value = entry.strip().replace('-',' ')
             value = value[1:]
-            keyname = self.project.settings['hash_key']
-            values = [MetadataValue(value)]
 
             self.add_entry(
-                keyname,
-                values,
+                self.project.settings['hash_key'],
+                [MetadataValue(value)],
                 self.node,
+                tag_self=tag_self,
+                tag_children=tag_children,
+                tag_descendants=tag_descendants,
                 start_position=m.start(), 
                 end_position=m.start() + len(m.group()))
+            
             parsed_contents = parsed_contents.replace(
                 m.group(),
                 ' '*len(m.group()),
@@ -318,3 +312,28 @@ class NodeMetadata:
     def log(self):
         for entry in self.entries():
             entry.log()
+
+
+def determine_desc_tagging(string):
+
+    tag_self=False
+    tag_children=False
+    tag_descendants=False
+    
+    if not syntax.metadata_tag_self_c.match(string[0]) and ( 
+        not syntax.metadata_tag_desc_c.match(string[0])):
+        tag_self=True
+    else:
+        if syntax.metadata_tag_self_c.match(string[0]):
+            tag_self = True
+            string = string[1:]
+        if syntax.metadata_tag_desc_c.match(string[0]):
+            tag_children = True
+            string = string[1:]
+        if syntax.metadata_tag_desc_c.match(string[0]):
+            tag_descendants = True
+            string = string[1:]
+
+    return tag_self, tag_children, tag_descendants, string
+
+
