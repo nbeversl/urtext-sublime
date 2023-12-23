@@ -93,7 +93,7 @@ def default_project_settings():
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : 'timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
-        'open_with_system' : ['pdf'],
+        'open_with_editor' : [],
         'other_entry_points' : [],
         'paths': [],
         'project_title' : None,

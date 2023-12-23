@@ -597,15 +597,16 @@ class UrtextProject:
             f.write(contents)  
         self._parse_file(filename)
 
-        #possibly should be sent in a thread:
-        self._run_hook('on_new_file_node', 
-            self.files[filename].root_node.id)
+        if filename in self.files:
+            #TODO possibly should be sent in a thread:
+            self._run_hook('on_new_file_node', 
+                self.files[filename].root_node.id)
 
-        return { 
-                'filename' : filename, 
-                'id' : self.files[filename].root_node.id,
-                'cursor_pos' : cursor_pos
-                }
+            return { 
+                    'filename' : filename, 
+                    'id' : self.files[filename].root_node.id,
+                    'cursor_pos' : cursor_pos
+                    }
 
     def new_inline_node(self, 
         date=None, 
@@ -897,12 +898,15 @@ class UrtextProject:
                             # TODO
                             # if modified_file:
                             #     modified_files.append(modified_file)
-        if link['kind'] == 'SYSTEM':
-            return self.run_editor_method('open_external_file', 
-                os.path.join(self.entry_path, link['link']))
-
-        if link['kind'] == 'EDITOR_LINK':
-            return self.run_editor_method('open_file_in_editor', link['link'])
+        if link['kind'] == 'FILE':
+            if os.path.exists(link['link']):
+                return self.run_editor_method(
+                    'open_external_file', 
+                    link['link'])            
+            else:
+                return self.run_editor_method(
+                    'open_external_file', 
+                    os.path.join(self.entry_path, link['link']))
         
         if link['kind'] == 'HTTP':
             return self.run_editor_method('open_http_link', link['link'])
@@ -969,10 +973,9 @@ class UrtextProject:
                 else:
                     kind = 'MISSING'
             if kind == 'FILE':
-                kind = 'EDITOR_LINK'
-                if os.path.splitext(return_link)[1][1:] in self.settings['open_with_system']:
-                    kind = 'SYSTEM'
                 return_link = return_link[2:-2].strip()
+                if return_link[0] == '~':
+                    return_link = os.path.expanduser(return_link)
 
         return {
             'kind' : kind, 
