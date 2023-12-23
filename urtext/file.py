@@ -36,6 +36,10 @@ class UrtextFile(UrtextBuffer):
                 self.filename,
                 syntax.file_link_closing_wrapper]), 0)
             return None
+        except TimeoutError:
+            return print('Timed out reading %s' % self.filename)
+        except FileNotFoundError:
+            return print('Cannot read file from storage %s' % self.filename)
         return full_file_contents
 
     def _insert_contents(self, inserted_contents, position):
