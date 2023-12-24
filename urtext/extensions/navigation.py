@@ -22,7 +22,7 @@ class Navigation:
 			else: 
 				self.project_list_instance.nav_index += 1
 
-			if self.project_list_instance.nav_index == len(
+			if self.project_list_instance.nav_index >= len(
 				self.project_list_instance.navigation):
 					self.project_list_instance.nav_index -= 1			
 					return print('index is already at the end')

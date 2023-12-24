@@ -261,10 +261,13 @@ class UrtextBuffer:
         return new_node
 
     def clear_messages_and_parse(self):
-        cleared_contents = self.clear_messages(self._get_contents())
-        self._set_contents(cleared_contents, run_on_modified=False)
-        self.lex_and_parse()
-        self.write_messages()
+        contents = self._get_contents()
+        if contents:
+            self.clear_messages(contents)
+            if cleared_contents:
+                self._set_contents(cleared_contents, run_on_modified=False)
+                self.lex_and_parse()
+                self.write_messages()
 
     def _get_contents(self):
         return self.contents

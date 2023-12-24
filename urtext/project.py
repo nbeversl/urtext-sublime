@@ -40,7 +40,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.extensions
-    from Urtext.urtext.utils import get_id_from_link
+    import Urtext.urtext.utils as utils
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -52,7 +52,7 @@ else:
     import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.extensions
-    from urtext.utils import get_id_from_link
+    import urtext.utils as utils
 
 class UrtextProject:
 
@@ -266,7 +266,7 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    node_id = get_id_from_link(link)
+                    node_id = utils.get_id_from_link(link)
                     suffix = ' ' +link[-2:].strip() # preserve link/pointer                        
                     if node_id not in self.nodes:
                         title_only = node_id.split(syntax.resolution_identifier)[0]                
@@ -306,7 +306,7 @@ class UrtextProject:
                         continue
                     links_to_change = {}
                     for link in project_node.links:
-                        link = get_id_from_link(link)
+                        link = utils.get_id_from_link(link)
                         if link == old_id:
                             links_to_change[link] = new_id
                     if links_to_change:
@@ -593,8 +593,7 @@ class UrtextProject:
             filename = os.path.join(path, filename)
         else:
             filename = os.path.join(self.entry_path, filename)
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(contents)  
+        utils.write_file_contents(filename, contents)
         self._parse_file(filename)
 
         if filename in self.files:
@@ -666,7 +665,7 @@ class UrtextProject:
                 if date == None:
                     date = datetime.datetime.now() 
                 if self.settings['keyless_timestamp'] == True:
-                    new_node_contents += self.timestamp(date).unwrapped_string + ' '
+                    new_node_contents += ' ' + self.timestamp(date).wrapped_string + ' '
                 elif self.settings['node_date_keyname']:
                     metadata[self.settings['node_date_keyname']] = self.timestamp(date)
 
@@ -963,7 +962,7 @@ class UrtextProject:
                         break
             else:
                 kind = 'NODE'
-                node_id = get_id_from_link(full_match)
+                node_id = utils.get_id_from_link(full_match)
                 if node_id in self.nodes:
                     if match.group(7):
                         dest_position = self.nodes[node_id].start_position + int(match.group(7)[1:])
@@ -1618,7 +1617,7 @@ class UrtextProject:
     def _direct_output(self, output, target, dd):
         node_link = syntax.node_link_or_pointer_c.match(target)
         if node_link:
-            node_id = get_id_from_link(node_link.group())
+            node_id = utils.get_id_from_link(node_link.group())
         else:
             node_id = target
         if node_id in self.nodes:
@@ -1628,13 +1627,12 @@ class UrtextProject:
 
         target_file = syntax.file_link_c.match(target)
         if target_file:
-            filename = get_id_from_link(target_file)
+            filename = utils.get_id_from_link(target_file)
             filename = os.path.join(self.entry_point, filename)
             #? TODO -- If the file is an export, need to make sure it is remembered
             # when parsed so duplicate titles can be avoided
             #self.exports[filename] = dynamic_definition
-            with open(filename, 'w', encoding='utf-8' ) as f:
-                f.write(output)
+            utils.write_file_contents(filename, output)
             return filename
         virtual_target = syntax.virtual_target_match_c.match(target)
         if virtual_target:

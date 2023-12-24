@@ -1,10 +1,12 @@
 import os 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .buffer import UrtextBuffer
+    import Urtext.urtext.utils as utils
     import Urtext.urtext.syntax as syntax 
 else:
     from urtext.buffer import UrtextBuffer
     import urtext.syntax as syntax
+    import urtext.utils as syntax
 
 class UrtextFile(UrtextBuffer):
    
@@ -57,10 +59,12 @@ class UrtextFile(UrtextBuffer):
             ]))
 
     def clear_messages_and_parse(self):
-        cleared_contents = self.clear_messages(self._get_contents())
-        self._set_contents(cleared_contents)
-        self.lex_and_parse()
-        self.write_messages()
+        contents = self._get_contents()
+        if contents:
+            cleared_contents = self.clear_messages(contents)
+            self._set_contents(cleared_contents)
+            self.lex_and_parse()
+            self.write_messages()
 
     def _set_contents(self,
         new_contents,
@@ -85,8 +89,7 @@ class UrtextFile(UrtextBuffer):
                 self.filename):
                     return True
 
-        with open(self.filename, 'w', encoding='utf-8') as theFile:
-            theFile.write(new_contents)
+        utils.write_file_contents(self.filename, new_contents)
         if run_on_modified and not self.errors:
             self.project._on_modified(self.filename)
         return True

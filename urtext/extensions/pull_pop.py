@@ -71,8 +71,8 @@ class PopNode:
 
         self.project._drop_file(source_filename) #important
 
-        new_file_node = self.project.new_file_node(contents=popped_node_contents)
-
+        new_file_node = self.project.new_file_node(
+            contents=popped_node_contents)
         remaining_node_contents = ''.join([
             source_file_contents[:start - pre_offset],
             self.syntax.link_opening_wrapper,
@@ -81,7 +81,8 @@ class PopNode:
             '\n' if self.project.nodes[new_file_node['id']].compact else '',
             source_file_contents[end + 1:]
             ])
-
+        if os.path.exists(source_filename):
+            os.remove(source_filename)
         with open(source_filename, 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
         self.project.run_editor_method(
