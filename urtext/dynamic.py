@@ -17,13 +17,16 @@ along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 import os
+import datetime
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	from .utils import force_list, get_id_from_link
 	import Urtext.urtext.syntax as syntax
+	from .timestamp import UrtextTimestamp
 else:
 	from urtext.utils import force_list, get_id_from_link
 	import urtext.syntax as syntax
+	from urtext.timestamp import UrtextTimestamp
 
 phases = [
 	000, # Pre-checks, such as WHEN()
@@ -103,13 +106,6 @@ class UrtextDynamicDefinition:
 			self.operations.append(op)
 			self.phases.append(300)
 
-		if 'SORT' not in [op.name[0] for op in self.operations]:
-			op = self.project.directives['SORT'](self.project)
-			op.parse_argument_string('title')
-			op.set_dynamic_definition(self)
-			self.operations.append(op)
-			self.phases.append(220)
-
 		if all(i < 300 or i > 600 for i in self.phases):
 			self.returns_text = False
 
@@ -140,6 +136,18 @@ class UrtextDynamicDefinition:
 					self.project.nodes[nid] for nid in outcome if (
 						nid in self.project.nodes)
 					]
+				outcome = sorted(
+					outcome,
+					key=lambda node: node.title)
+				outcome = sorted(
+					outcome,
+					key=lambda node: node.metadata.get_first_value(
+							'_oldest_timestamp').datetime if (
+								node.metadata.get_first_value('_oldest_timestamp')) else (
+							datetime.datetime(
+								1,1,1,
+								tzinfo=datetime.timezone.utc)),
+					reverse=True)
 
 			next_phase = p + 100
 			ops_this_phase = [op for op in all_operations if p <= op.phase < next_phase]
