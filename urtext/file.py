@@ -6,7 +6,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
 else:
     from urtext.buffer import UrtextBuffer
     import urtext.syntax as syntax
-    import urtext.utils as syntax
+    import urtext.utils as utils
 
 class UrtextFile(UrtextBuffer):
    
