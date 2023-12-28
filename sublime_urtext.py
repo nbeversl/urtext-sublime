@@ -584,6 +584,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
             get_buffer(self.view.file_name()),
             self.view.sel()[0].a,
+            self.view.file_name(),
             include_project=True)
 
 class NewFileNodeCommand(UrtextTextCommand):

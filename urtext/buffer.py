@@ -263,7 +263,7 @@ class UrtextBuffer:
     def clear_messages_and_parse(self):
         contents = self._get_contents()
         if contents:
-            self.clear_messages(contents)
+            cleared_contents = self.clear_messages(contents)
             if cleared_contents:
                 self._set_contents(cleared_contents, run_on_modified=False)
                 self.lex_and_parse()

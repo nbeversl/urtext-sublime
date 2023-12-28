@@ -645,7 +645,7 @@ class UrtextProject:
 
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
-                cursor_pos = len(new_node_contents[0])
+                cursor_pos = len(new_node_contents[0]) -1
                 new_node_contents = title + ''.join(new_node_contents)
                 if cursor_pos < len(new_node_contents) - 1:
                     new_node_contents += ' ' 
