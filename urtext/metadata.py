@@ -361,11 +361,20 @@ def get_extended_metadata(extended_keyname, node):
                 if extended_keyname[0] in node.project.settings['use_timestamp']:
                     if v.timestamp:
                         values.append(v.timestamp.unwrapped_string)
-                if v.is_node:
+                elif v.is_node:
                     values.append(v.contents())
+                else:
+                    values.append(v.text)
+                continue
+            if len(extended_keyname) == 2 and extended_keyname[1] in [
+                'timestamp',
+                'timestamps'
+                ] and v.timestamp:
+                values.append(v.timestamp.unwrapped_string) 
                 continue
             if v.is_node:
                 values.extend(get_extended_metadata(
                     extended_keyname[1:],
                     v))
-    return values
+    values = sorted(values)
+    return list(set(values))
