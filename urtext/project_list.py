@@ -76,7 +76,8 @@ class ProjectList():
         if project_name:
             if not self.set_current_project(project_name): return None
             return self.current_project.handle_link(
-                string, 
+                string,
+                filename,
                 col_pos=col_pos)
          
         """ Otherwise, set the project, search the link for a link in the current project """
@@ -85,6 +86,7 @@ class ProjectList():
             if self.current_project:
                 return self.current_project.handle_link( 
                     string,
+                    filename,
                     col_pos=col_pos)
 
     def on_modified(self, filename):

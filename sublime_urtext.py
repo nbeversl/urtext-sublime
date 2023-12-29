@@ -106,7 +106,6 @@ def get_buffer(filename):
         view = sublime.active_window().active_view()
     if view:
         return view.substr(sublime.Region(0, view.size()))
-    print('NO VIEW')
 
 def show_status(message):
     window = sublime.active_window()
@@ -397,7 +396,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
         link = _UrtextProjectList.handle_link(
             line, 
             self.view.file_name(),
-            cursor)
+            col_pos=cursor)
                             
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
@@ -573,7 +572,6 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            get_buffer(self.view.file_name()),
             self.view.sel()[0].a,
             self.view.file_name())
 
@@ -582,7 +580,6 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
     @refresh_project_text_command()
     def run(self):
         self._UrtextProjectList.current_project.editor_copy_link_to_node(
-            get_buffer(self.view.file_name()),
             self.view.sel()[0].a,
             self.view.file_name(),
             include_project=True)

@@ -161,6 +161,11 @@ class UrtextProject:
             self._add_to_excluded_files(filename)
             return False
 
+        if self.compiled:
+            buffer_contents = self.run_editor_method(
+                'get_buffer',
+                filename)
+
         existing_file_ids = []
         if filename in self.files:
             existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
@@ -845,11 +850,13 @@ class UrtextProject:
         return links
 
     def handle_link(self, 
-        string, 
+        string,
+        filename,
         col_pos=0):
 
         link = self.parse_link(
             string,
+            filename,
             col_pos=col_pos)
 
         if not link:
@@ -913,7 +920,8 @@ class UrtextProject:
         return link
 
     def parse_link(self, 
-        string, 
+        string,
+        filename,
         col_pos=0,
         file_pos=None):
 
@@ -923,10 +931,11 @@ class UrtextProject:
         node_id = None
         dest_position = None
         full_match = None
-        filename = None
         return_link = None
         link_start = None
         link_end = None
+
+        self._parse_file(filename)
 
         http_link_present = False
         http_link = url_match(string)
@@ -1720,12 +1729,11 @@ class UrtextProject:
         self.run_editor_method('insert_text', self.timestamp(as_string=True))
 
     def editor_copy_link_to_node(self, 
-        buffer_contents, 
         position,
         filename,
         include_project=False):
 
-        self._parse_file(filename, buffer_contents=buffer_contents)
+        self._parse_file(filename)
 
         for node in self.files[filename].nodes:
             for r in node.ranges:
