@@ -225,7 +225,7 @@ class UrtextProject:
         for entry in new_file.meta_to_node:
             keyname = entry.group(1)
             source_node = self.get_node_id_from_position(
-                filename, 
+                filename,
                 entry.span()[0])
             target_node = self.get_node_id_from_position(
                 filename, 
@@ -234,7 +234,7 @@ class UrtextProject:
                 keyname,
                 [self.nodes[target_node]],
                 self.nodes[source_node],
-                start_position=self.nodes[target_node].start_position - (len(keyname) + 3),
+                start_position=self.nodes[target_node].start_position,
                 end_position=self.nodes[target_node].end_position,
                 is_node=True)
             self.nodes[target_node].is_meta = True
@@ -1734,8 +1734,9 @@ class UrtextProject:
         filename,
         include_project=False):
 
-        self._parse_file(filename)
+        self._parse_file(filename, try_buffer=True)
 
+        node_id=None
         for node in self.files[filename].nodes:
             for r in node.ranges:
                 if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.

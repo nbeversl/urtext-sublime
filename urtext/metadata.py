@@ -218,6 +218,7 @@ class NodeMetadata:
 
         values = {}
         entries = self.get_entries(keyname)
+
         for e in entries:
             if e.is_node:
                 if convert_nodes_to_links:
@@ -227,6 +228,9 @@ class NodeMetadata:
                         syntax.link_closing_wrapper])
                     values.setdefault(node_link, 0)
                     values[node_link] += 1
+                else:
+                    values.setdefault(e.meta_values[0].contents(), 0)
+                    values[e.meta_values[0].contents()] += 1
                 continue
             for v in e.meta_values:
                 values.setdefault(v, 0)
@@ -254,61 +258,16 @@ class NodeMetadata:
 
         return list(unique_values)
 
-    def get_extended_values(self, meta_keys):
+    def get_extended_values(self, extended_key):
         """
-        from an extended key, returns all values
+        from an optionally extended key, returns the value(s) as a formatted string
         """
-        if '.' in meta_keys:
-            meta_keys = meta_keys.split('.')
-        elif not isinstance(meta_keys, list):
-            meta_keys = [meta_keys]
-        values = []
-
-        for index, k in enumerate(meta_keys):
-
-            # handle single system keys
-            if k in [
-                '_oldest_timestamp', 
-                '_newest_timestamp',
-                'inline_timestamp']:
-                timestamp_entries = self.get_entries(k)
-                if timestamp_entries:
-                    values.append(
-                        timestamp_entries[0].meta_values[0].timestamp.unwrapped_string)
-                continue
-
-            entries = self.get_entries(k)
-            for e in entries:
-                for v in e.meta_values:
-                    # handle an ending key set to use timestamp
-                    # last dot-key
-                    if ( 
-                        index == len(meta_keys) - 1 and (
-                            k in self.project.settings['use_timestamp'] ) ) or (
-                        index < len(meta_keys) - 1  and ( 
-                            meta_keys[index+1] in ['timestamp','timestamps'])
-                        ):
-                            if v.timestamp:
-                                values.append(v.timestamp.unwrapped_string)
-                            continue
-
-                        # handle any key asking to use the timestamp
-
-                if e.is_node:
-                    values.append(''.join([
-                            syntax.link_opening_wrapper,
-                            e.meta_values[0].title,
-                            syntax.link_closing_wrapper
-                        ]))
-                    continue
-                if v.text:
-                    values.append(v.text)
-        
+        if '.' not in extended_key:
+            extended_keyname = [extended_key]
+        else:
+            extended_keyname = extended_key.split('.')
+        values = get_extended_metadata(extended_keyname, self.node)        
         values = list(set(values))
-        # values = sorted(
-        #     values,
-        #     key=lambda v: str(v))
-
         return syntax.metadata_separator_syntax.join(values)
 
     def get_matching_entries(self, keyname, value):
@@ -393,4 +352,20 @@ def determine_desc_tagging(string):
 
     return tag_self, tag_children, tag_descendants, string
 
-
+def get_extended_metadata(extended_keyname, node):
+    entries = node.metadata.get_entries(extended_keyname[0])
+    values = []
+    for e in entries:
+        for v in e.meta_values:
+            if len(extended_keyname) == 1:
+                if extended_keyname[0] in node.project.settings['use_timestamp']:
+                    if v.timestamp:
+                        values.append(v.timestamp.unwrapped_string)
+                if v.is_node:
+                    values.append(v.contents())
+                continue
+            if v.is_node:
+                values.extend(get_extended_metadata(
+                    extended_keyname[1:],
+                    v))
+    return values

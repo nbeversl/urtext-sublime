@@ -114,7 +114,7 @@ class UrtextBuffer:
                             last_position += 1
                             #consecutive bracket nodes, i.e. }{
                             continue
-                        nested_levels[nested].append([last_position, position-1])
+                        nested_levels[nested].append([last_position, position])
                 position += 1 #wrappers exist outside range
                 nested += 1
 
