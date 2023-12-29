@@ -156,12 +156,12 @@ class UrtextProject:
         self._run_hook('after_project_initialized')
         self.handle_info_message('"%s" compiled' % self.settings['project_title'])
 
-    def _parse_file(self, filename, buffer_contents=None):
+    def _parse_file(self, filename, try_buffer=False):
         if self._filter_filenames(filename) == None:
             self._add_to_excluded_files(filename)
             return False
 
-        if self.compiled:
+        if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
                 filename)
@@ -171,7 +171,7 @@ class UrtextProject:
             existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
 
         allocated_ids = []
-        if buffer_contents != None:
+        if try_buffer and buffer_contents:
             new_file = UrtextBuffer(self, filename, buffer_contents)
             new_file.filename = filename
             new_file.clear_messages_and_parse()
@@ -935,7 +935,7 @@ class UrtextProject:
         link_start = None
         link_end = None
 
-        self._parse_file(filename)
+        self._parse_file(filename, try_buffer=True)
 
         http_link_present = False
         http_link = url_match(string)

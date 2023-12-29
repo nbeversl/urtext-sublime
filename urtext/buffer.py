@@ -151,8 +151,6 @@ class UrtextBuffer:
                 else:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
-                    self.messages.append(
-                        'Removed stray closing wrapper at %s. ' % str(position))
                     contents = contents[:position] + contents[position + 1:]
                     self._set_contents(contents)
                     return self.lex_and_parse()
@@ -211,9 +209,6 @@ class UrtextBuffer:
             last_position = position
         
         if not from_compact and nested >= 0:
-            self.messages.append(
-                'Appended closing bracket to close opening bracket at %s. %s'  % 
-                ( str(position), self.user_delete_string) )
             contents = ''.join([contents[:position],
                 ' ',
                 syntax.node_closing_wrapper,
