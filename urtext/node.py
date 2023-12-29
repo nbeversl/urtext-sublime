@@ -371,58 +371,6 @@ class UrtextNode:
             contents = contents.replace(syntax.title_marker,'',1)
         return contents
 
-    def get_extended_values(self, meta_keys):
-        """
-        from an extended key, returns all values
-        """
-        if '.' in meta_keys:
-            meta_keys = meta_keys.split('.')
-        elif not isinstance(meta_keys, list):
-            meta_keys = [meta_keys]
-        values = []
-
-        for index, k in enumerate(meta_keys):
-
-            # handle single system keys
-            if k in [
-                '_oldest_timestamp', 
-                '_newest_timestamp',
-                'inline_timestamp']:
-                timestamp_entries = self.metadata.get_entries(k)
-                if timestamp_entries:
-                    values.append(timestamp_entries[0].meta_values[0].timestamp.unwrapped_string)
-                continue
-
-            entries = self.metadata.get_entries(k)
-            for e in entries:
-
-                for v in e.meta_values:
-                    # handle an ending key set to use timestamp
-                    # last dot-key 
-                    if ( 
-                        index == len(meta_keys) - 1 and (
-                            k in self.project.settings['use_timestamp'] ) ) or (
-                        index < len(meta_keys) - 1  and ( 
-                            meta_keys[index+1] in ['timestamp','timestamps'])
-                        ):
-                            if v.timestamp:
-                                values.append(v.timestamp.unwrapped_string)
-                            continue
-
-                        # handle any key asking to use the timestamp
-
-                if e.is_node:
-                    values.append(''.join([
-                            syntax.link_opening_wrapper,
-                            e.meta_values[0].title,
-                            syntax.link_closing_wrapper
-                        ]))
-                    continue
-                if v.text:
-                    values.append(v.text)
-
-        return syntax.metadata_separator_syntax.join(list(set(values)))
-
 def strip_contents(contents, 
     preserve_length=False, 
     include_backtick=True,

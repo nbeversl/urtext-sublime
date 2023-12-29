@@ -147,7 +147,7 @@ class Collect:
 				for meta_key in next_content.needs_other_format_keys:
 					next_content.other_format_keys[
                     meta_key] = self.project.nodes[
-						item['node_id']].get_extended_values(
+						item['node_id']].metadata.get_extended_values(
                         meta_key)
 
 				collection.extend([next_content.output()])
