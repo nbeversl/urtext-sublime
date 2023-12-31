@@ -126,7 +126,7 @@ class DynamicOutput():
             if self.project_settings['contents_strip_outer_whitespace']:
                 contents = contents.strip()
             if self.project_settings['contents_strip_internal_whitespace']:
-                contents =  strip_internal_whitespace(contents)
+                contents = strip_internal_whitespace(contents)
             suffix = ''
             if contents_match.group(1):
                 suffix = contents_match.group(1)                        

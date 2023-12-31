@@ -4,7 +4,7 @@ evaluated_only_at_compile = [
 ]
 
 not_cleared = [
-    'other_entry_points'
+    'other_entry_points' #needed?
 ]
 
 single_boolean_values_settings = [
@@ -13,8 +13,6 @@ single_boolean_values_settings = [
     'console_log',
     'import',
     'atomic_rename',
-    'keyless_timestamp',
-    'file_node_timestamp',
     'contents_strip_outer_whitespace',
     'contents_strip_internal_whitespace'
 ]
@@ -58,12 +56,9 @@ def default_project_settings():
         'breadcrumb_key' : '',
         'case_sensitive': [
             'title',
-            'notes',
-            'comments',
             'project_title',
             'timestamp_format',
             'filenames',
-            'weblink',
             'timestamp',],
         'console_log': False,
         'contents_strip_internal_whitespace' : True,
@@ -71,17 +66,15 @@ def default_project_settings():
         'device_keyname' : '',
         'exclude_files': [],
         'exclude_from_star': [
-            'title', 
+            'title',
             '_newest_timestamp', 
             '_oldest_timestamp', 
-            '_breadcrumb',
-            'def'],
+            '_inline_timestamp', 
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
-        'filename_datestamp_format':'%m-%d-%Y %I:%M %p',
-        'file_node_timestamp' : True,
+        'filename_datestamp_format':'%m-%d-%Y %I-%M %p',
         'filename_title_length': 100,
-        'hash_key': '#',
+        'hash_key': 'keyword',
         'home': None,
         'import': False,
         'keyless_timestamp' : True,
