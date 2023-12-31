@@ -70,6 +70,7 @@ def default_project_settings():
             '_newest_timestamp', 
             '_oldest_timestamp', 
             '_inline_timestamp', 
+            ],
         'filenames': ['title'],
         'file_extensions' : ['.urtext'],
         'filename_datestamp_format':'%m-%d-%Y %I-%M %p',
