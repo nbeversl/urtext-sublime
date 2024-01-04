@@ -1568,8 +1568,8 @@ class UrtextProject:
 
     def _run_hook(self, hook_name, *args):
         for ext in self.extensions.values():
-            hook = getattr(ext, hook_name)
-            if callable(hook):
+            hook = getattr(ext, hook_name, None)
+            if hook and callable(hook):
                 hook(*args)
 
     """ Project Compile """

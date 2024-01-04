@@ -122,6 +122,8 @@ class UrtextDynamicDefinition:
 		outcome=[],
 		max_phase=800):
 
+		self.project._run_hook('on_dynamic_def_process_started', self)
+
 		if not len(phases_to_process):
 			phases_to_process = [p for p in phases if p <= max_phase]
 
@@ -167,6 +169,7 @@ class UrtextDynamicDefinition:
 					outcome = new_outcome
 
 		self.flags = []
+		self.project._run_hook('on_dynamic_def_process_ended', self)
 		return outcome		
 
 	def have_flags(self, flag):
