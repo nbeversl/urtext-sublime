@@ -4,14 +4,13 @@ evaluated_only_at_compile = [
 ]
 
 not_cleared = [
-    'other_entry_points' #needed?
+    'other_entry_points'
 ]
 
 single_boolean_values_settings = [
     'always_oneline_meta',
     'preformat',
     'console_log',
-    'import',
     'atomic_rename',
     'contents_strip_outer_whitespace',
     'contents_strip_internal_whitespace'
@@ -35,7 +34,8 @@ single_values_settings = [
     'title_length',
     ] + single_boolean_values_settings
 
-replace_settings = [ #i.e. can be array, but replace, don't extend
+replace_settings = [
+    #i.e. can be array, but replace, don't extend
     'filenames',
     'node_browser_sort',
     'meta_browser_sort',
@@ -77,26 +77,22 @@ def default_project_settings():
         'filename_title_length': 100,
         'hash_key': 'keyword',
         'home': None,
-        'import': False,
-        'keyless_timestamp' : True,
         'new_file_node_format' : '$timestamp\n$cursor',
         'meta_browser_key': None,
         'meta_browser_sort_keys_by': 'alpha', # or 'frequency'
         'meta_browser_sort_values_by' : 'alpha', # 'or 'frequency'
         'meta_browser_sort' : ['_oldest_timestamp'],
         'node_browser_sort' : ['_oldest_timestamp'],
-        'node_date_keyname' : 'timestamp',
+        'node_date_keyname' : '_oldest_timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
-        'open_with_editor' : [],
         'other_entry_points' : [],
         'paths': [],
         'project_title' : None,
-        'recurse_folders': False,
         'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 
         'title_length':255,
         'use_timestamp': [ 
             'timestamp', 
-            'inline_timestamp', 
+            '_inline_timestamp', 
             '_oldest_timestamp', 
             '_newest_timestamp'],
     }

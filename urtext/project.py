@@ -591,8 +591,7 @@ class UrtextProject:
             date=date,
             contents=contents,
             contents_format=contents_format,
-            metadata=metadata,
-            include_timestamp=self.settings['file_node_timestamp'])
+            metadata=metadata)
         
         filename = filename + '.urtext'
         if path:
@@ -638,17 +637,19 @@ class UrtextProject:
         title='',
         contents_format=None,
         metadata=None,
-        one_line=None,
-        include_timestamp=False):
+        one_line=None):
 
         cursor_pos = 0
         if contents == None:
             contents = ''
 
         if contents_format:
-            new_node_contents = contents_format.replace('$timestamp', self.timestamp().wrapped_string)
-            new_node_contents = new_node_contents.replace('$device_keyname', platform.node() )
-
+            new_node_contents = contents_format.replace(
+                '$timestamp',
+                self.timestamp().wrapped_string)
+            new_node_contents = new_node_contents.replace(
+                '$device_keyname',
+                platform.node())
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0]) -1
@@ -666,15 +667,6 @@ class UrtextProject:
                 metadata[self.settings['device_keyname']] = platform.node()
 
             new_node_contents = contents
-
-            if include_timestamp:
-                if date == None:
-                    date = datetime.datetime.now() 
-                if self.settings['keyless_timestamp'] == True:
-                    new_node_contents += ' ' + self.timestamp(date).wrapped_string + ' '
-                elif self.settings['node_date_keyname']:
-                    metadata[self.settings['node_date_keyname']] = self.timestamp(date)
-
             new_node_contents += self.urtext_node.build_metadata(metadata, one_line=one_line)
 
         return new_node_contents, title, cursor_pos
