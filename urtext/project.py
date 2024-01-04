@@ -809,7 +809,8 @@ class UrtextProject:
                 sorted_nodes.update(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
         sorted_nodes.update(remaining_nodes)  
-        sorted_nodes = list(sorted)
+        sorted_nodes = list(sorted_nodes
+            )
         if not as_nodes:
             return [n.id for n in sorted_nodes]      
         return sorted_nodes
