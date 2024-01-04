@@ -113,7 +113,8 @@ class UrtextDirective:
             self.arguments.append(arg.strip())
 
         for param in self.params:
-            self.params_dict.setdefault(param[0], [])
+
+            self.params_dict[param[0]] = self.params_dict.get(param[0], [])
             self.params_dict[param[0]].extend(param[1:])
         
     def _parse_links(self, argument_string):

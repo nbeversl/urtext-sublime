@@ -172,7 +172,7 @@ class UrtextBuffer:
                     node.pointers = pointers[nested]
                     del pointers[nested]
                 
-                child_group.setdefault(nested,[])
+                child_group[nested] = child_group.get(nested, [])
                 child_group[nested].append(node)
                 if nested in nested_levels:
                     del nested_levels[nested]
@@ -200,7 +200,7 @@ class UrtextBuffer:
                     root_node.pointers = pointers[nested]
                     del pointers[nested]
 
-                child_group.setdefault(nested,[])
+                child_group[nested] = child_group.get(nested, [])
                 child_group[nested].append(root_node)
                 del nested_levels[nested]
                 nested -= 1

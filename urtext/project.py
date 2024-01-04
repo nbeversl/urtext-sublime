@@ -784,7 +784,7 @@ class UrtextProject:
 
     def _sort_nodes(self, nodes, keys, as_nodes=False):
         remaining_nodes = nodes
-        sorted_nodes = []
+        sorted_nodes = set()
         for k in keys:
             use_timestamp = k in self.settings['use_timestamp']
             node_group = [
@@ -806,9 +806,10 @@ class UrtextProject:
                         node.display_detail = detail.wrapped_string
                     else:
                         node.display_detail = k+'::'+str(detail)
-                sorted_nodes.extend(node_group)
+                sorted_nodes.update(node_group)
             remaining_nodes = list(set(remaining_nodes) - set(node_group))
-        sorted_nodes.extend(remaining_nodes)  
+        sorted_nodes.update(remaining_nodes)  
+        sorted_nodes = list(sorted)
         if not as_nodes:
             return [n.id for n in sorted_nodes]      
         return sorted_nodes
@@ -838,7 +839,7 @@ class UrtextProject:
     def get_all_links(self):
         links = {}
         for node in self.nodes.values():
-            links.setdefault(node.filename, [])
+            links[node.filename] = links.get(node.filename, [])
             links[node.filename].extend(node.links)
         return links
 
@@ -1401,7 +1402,7 @@ class UrtextProject:
         for node in list(self.nodes.values()):
             node_keys = node.metadata.get_keys(exclude=exclude)
             for key in node_keys:
-                key_occurrences.setdefault(key,0)
+                key_occurrences[key] = key_occurrences.get(key, 0)
                 key_occurrences[key] += node_keys[key]
 
         return key_occurrences
@@ -1426,7 +1427,7 @@ class UrtextProject:
         for node in self.nodes.values():
             values_occurrences = node.metadata.get_values_with_frequency(key)
             for v in values_occurrences:
-                values.setdefault(v.text, 0)
+                values[v.text]= values.get(v.text, 0)
                 values[v.text] += values_occurrences[v]
 
         return values
@@ -1440,15 +1441,15 @@ class UrtextProject:
         return tuple of (value.text, value.timestamp)
         """
 
-        value_occurrences = self.get_all_values_for_key_with_frequency(
-            key,
-            lower=lower)
+        values = []
+        for node in self.nodes.values():
+            values.extend(node.metadata.get_values(key))
 
-        unique_values = value_occurrences.keys()
+        values = list(set(values))
 
         if self.settings['meta_browser_sort_values_by'] == 'frequency':
             return sorted(
-                unique_values,
+                values,
                 key=lambda value: value_occurrences[value],
                 reverse=True)
 
@@ -1474,7 +1475,7 @@ class UrtextProject:
         
         if not isinstance(values, list):
             values = [values]
-        results = []
+        results = set()
 
         if operator in ['before','after']:            
             compare_date = date_from_timestamp(values[0][1:-1])
@@ -1499,12 +1500,11 @@ class UrtextProject:
 
         elif key == '_links_to':
             for v in values:
-                results.extend(self.get_links_to(v))
+                results.update(self.get_links_to(v))
 
         elif key == '_links_from':
             for v in values:
-                results.extend(self.get_links_from(v))
-
+                results.update(self.get_links_from(v))
         else:
             if key == '*':
                 keys = self.get_all_keys()
@@ -1513,7 +1513,7 @@ class UrtextProject:
             for k in keys:
                 for value in values:
                     if value == '*':
-                        results.extend([n for n in self.nodes if 
+                        results.update([n for n in self.nodes if 
                             self.nodes[n].metadata.get_values(
                                 k,
                                 convert_nodes_to_links=True)])
@@ -1530,7 +1530,7 @@ class UrtextProject:
                         use_timestamp = True
 
                     if k in self.settings['case_sensitive']:
-                        results.extend([
+                        results.update([
                             n for n in self.nodes if 
                                 value in [
                                 v.text for v in self.nodes[n].metadata.get_values(k) if v.text]])
@@ -1541,12 +1541,12 @@ class UrtextProject:
                             found_values = n.metadata.get_values(k)
                             if use_timestamp:
                                 if value in [v.timestamp for v in found_values]:
-                                    results.append(n.id)
+                                    results.udpate([n.id])
                             else:
                                 if value in [v.text_lower for v in found_values]:
-                                    results.append(n.id)
+                                    results.update([n.id])
 
-        results = list(set(results))
+        results = list(results)
         if as_nodes:
             return [self.nodes[n] for n in results]
         return results
