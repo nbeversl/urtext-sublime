@@ -269,7 +269,6 @@ class UrtextBuffer:
           
     def _set_contents(self,
         contents,
-        compare=False,
         run_on_modified=False):
 
         self.project.run_editor_method(
@@ -309,7 +308,6 @@ class UrtextBuffer:
 
         self._set_contents(
             new_contents,
-            compare=False,
             run_on_modified=False)
 
         # TODO: make DRY
