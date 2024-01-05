@@ -786,7 +786,7 @@ class UrtextProject:
 
     def _sort_nodes(self, nodes, keys, as_nodes=False):
         remaining_nodes = nodes
-        sorted_nodes = set()
+        sorted_nodes = []
         for k in keys:
             use_timestamp = k in self.settings['use_timestamp']
             node_group = [
@@ -808,11 +808,8 @@ class UrtextProject:
                         node.display_detail = detail.wrapped_string
                     else:
                         node.display_detail = k+'::'+str(detail)
-                sorted_nodes.update(node_group)
-            remaining_nodes = list(set(remaining_nodes) - set(node_group))
-        sorted_nodes.update(remaining_nodes)  
-        sorted_nodes = list(sorted_nodes
-            )
+                sorted_nodes.extend(node_group)
+        sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])  
         if not as_nodes:
             return [n.id for n in sorted_nodes]      
         return sorted_nodes
