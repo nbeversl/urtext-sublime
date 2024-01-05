@@ -1441,19 +1441,15 @@ class UrtextProject:
         return tuple of (value.text, value.timestamp)
         """
 
-        values = []
-        for node in self.nodes.values():
-            values.extend(node.metadata.get_values(key))
-
-        values = list(set(values))
-
+        values_occurrences = self.get_all_values_for_key_with_frequency(key)
+        values = values_occurrences.keys()
         if self.settings['meta_browser_sort_values_by'] == 'frequency':
             return sorted(
                 values,
-                key=lambda value: value_occurrences[value],
+                key=lambda value: values_occurrences[value],
                 reverse=True)
 
-        return sorted(unique_values)
+        return sorted(values)
 
     def go_to_dynamic_definition(self, target_id):
         if target_id in self.dynamic_definitions:
