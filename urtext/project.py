@@ -107,6 +107,8 @@ class UrtextProject:
             'extensions')
 
         self._get_extensions_from_folder(extensions_folder, None)
+        self._get_extensions_from_folder(directives_folder, None)
+        self._get_directives_from_folder(extensions_folder, None)
         self._get_directives_from_folder(directives_folder, None)
         
         num_file_extensions = len(self.settings['file_extensions'])
