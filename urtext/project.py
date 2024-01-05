@@ -1499,7 +1499,7 @@ class UrtextProject:
 
                 for v in values:
                     if v.lower() in lower_contents:
-                        results.append(node.id)
+                        results.add(node.id)
 
         elif key == '_links_to':
             for v in values:
