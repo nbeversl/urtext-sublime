@@ -917,6 +917,7 @@ class UrtextProject:
         string,
         filename,
         col_pos=0,
+        try_buffer=True,
         file_pos=None):
 
         kind = None
@@ -929,7 +930,7 @@ class UrtextProject:
         link_start = None
         link_end = None
 
-        self._parse_file(filename, try_buffer=True)
+        self._parse_file(filename, try_buffer=try_buffer)
 
         http_link_present = False
         http_link = url_match(string)

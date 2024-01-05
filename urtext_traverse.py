@@ -149,7 +149,9 @@ class TraverseFileTree(EventListener):
 
 			link = self._UrtextProjectList.current_project.parse_link(
 	            full_line,
-	            col_pos=cursor)
+	            this_file,
+	            col_pos=cursor,
+	            try_buffer=False)
 			# if there are no links on this line:
 			if not link or link['kind'] != 'NODE':  
 				return
