@@ -4,14 +4,14 @@ class Sort:
 	phase = 220
 		
 	def dynamic_output(self, nodes):
-		sorted_nodes = set()
+		sorted_nodes = []
 		if self.keys_with_flags:
 			for key_with_flags in self.keys_with_flags:
 				key, flags = key_with_flags
 				reverse = '-r' in flags or '-reverse' in flags
 				flags = strip_reverse(flags)
 				group_to_sort = [n for n in nodes if n.metadata.get_values(key)]
-				sorted_nodes.update(
+				sorted_nodes.extend(
 					sorted(
 						group_to_sort,
 						key=lambda node: self.sort_values(
@@ -22,8 +22,8 @@ class Sort:
 						reverse=reverse)
 					)
 				nodes = [n for n in nodes if n not in group_to_sort]
-			sorted_nodes.update(nodes)
-			return list(sorted_nodes)
+			sorted_nodes.extend(nodes)
+			return sorted_nodes
 		return nodes
 
 	def sort_values(self, 
