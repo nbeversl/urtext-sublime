@@ -39,9 +39,6 @@ class NodeQuery:
 		if self.have_flags('-is_meta'):
 			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
 		
-		# if self.have_flags('-is_not_meta'):
-		# 	added_nodes = set([node_id for node_id in added_nodes if not self.project.nodes[node_id].is_meta])
-
 		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
 			passed_nodes.discard(target_id)  
@@ -73,8 +70,8 @@ def _build_group_and(
 	dd,
 	include_dynamic=False):
 
-	found_sets = []
-	new_group = set([])
+	found_sets = set()
+	new_group = set()
 	for group in params:
 		key, value, operator = group
 		if key.lower() == 'id' and operator == '=':
@@ -87,7 +84,7 @@ def _build_group_and(
 			if value == "@parent" and dd.source_node.parent:
 				value = dd.source_node.parent.id
 			new_group = set(project.get_by_meta(key, value, operator))
-		found_sets.append(new_group)
+		found_sets.update(new_group)
 	
 	for this_set in found_sets:
 		new_group = new_group.intersection(this_set)

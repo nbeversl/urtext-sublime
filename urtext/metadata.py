@@ -260,8 +260,8 @@ class NodeMetadata:
                 else:
                     values.add(e.meta_values[0])
                 continue
-            for v in e.meta_values:
-                values.add(v)
+            values.update(e.meta_values)
+
         if order_by in ['-pos','-position']:
             return sorted(
                 list(values),
