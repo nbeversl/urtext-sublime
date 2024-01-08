@@ -83,7 +83,7 @@ def _build_group_and(
 		else:
 			if value == "@parent" and dd.source_node.parent:
 				value = dd.source_node.parent.id
-			new_group = project.get_by_meta(key, value, operator)
+			new_group = set(project.get_by_meta(key, value, operator))
 		found_sets.append(new_group)
 	
 	for this_set in found_sets:
