@@ -39,7 +39,6 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .extension import UrtextExtension
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
-    import Urtext.urtext.extensions
     import Urtext.urtext.utils as utils
 else:
     from anytree import Node, PreOrderIter, RenderTree
@@ -51,7 +50,6 @@ else:
     from urtext.extension import UrtextExtension
     import urtext.syntax as syntax
     from urtext.project_settings import *
-    import urtext.extensions
     import urtext.utils as utils
 
 class UrtextProject:
@@ -72,7 +70,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -98,22 +96,14 @@ class UrtextProject:
     def _initialize_project(self):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
 
-        directives_folder = os.path.join(
+        self._get_features_from_folder(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            'directives')
-        
-        extensions_folder = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'extensions')
-
-        self._get_extensions_from_folder(extensions_folder, None)
-        self._get_extensions_from_folder(directives_folder, None)
-        self._get_directives_from_folder(extensions_folder, None)
-        self._get_directives_from_folder(directives_folder, None)
-        
+            'features'), None)
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
-        
+        print(self.directives)
+        print(self.extensions)
+
         if os.path.exists(self.entry_point) and os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point
             self.settings['paths'].append({
@@ -1055,19 +1045,22 @@ class UrtextProject:
             if entry.keyname == 'recurse_subfolders':
                 values = entry.text_values()
                 if values and self.settings['paths']:
-                    self.settings['paths'][0]['recurse_subfolders'] = to_boolean(values[0]) 
+                    self.settings['paths'][0]['recurse_subfolders'] = to_boolean(values[0])
                 continue
 
             if entry.keyname == 'paths':
                 if entry.is_node:
+                    print('YEP')
                     for n in entry.meta_values[0].children:
                         path = n.metadata.get_first_value('path')
+                        print('FROM SETTGINGS')
+                        print(path)
                         recurse = n.metadata.get_first_value('recurse_subfolders')
                         if path and path not in [entry['path'] for entry in self.settings['paths']]:
                             self.settings['paths'].append({
-                                'path' : path,
+                                'path': path,
                                 'recurse_subfolders': True if recurse.lower() in ['yes', 'true'] else False
-                                })
+                            })
                 continue
 
             if entry.keyname == 'other_entry_points':
@@ -1075,20 +1068,13 @@ class UrtextProject:
                     self.project_list.add_project(v)
                 continue
 
-            if entry.keyname == 'extensions':
+            if entry.keyname == 'features':
                 for v in entry.text_values():
-                    self._get_extensions_from_folder(
+                    self._get_features_from_folder(
                         v,
                         self.nodes[node.id].filename)
                 continue
 
-            if entry.keyname == 'directives':
-                for v in entry.text_values():
-                    self._get_directives_from_folder(
-                        v, 
-                        self.nodes[node.id].filename)
-                continue
- 
             if entry.keyname in single_values_settings:
                 for v in entry.text_values():
                     if entry.keyname in integers_settings:
@@ -1105,12 +1091,12 @@ class UrtextProject:
             if entry.keyname in single_boolean_values_settings:
                 values = entry.text_values()
                 if values:
-                    self.settings[entry.keyname] = to_boolean(values[0]) 
+                    self.settings[entry.keyname] = to_boolean(values[0])
                 continue
 
             if entry.keyname not in self.settings:
                 self.settings[str(entry.keyname)] = []
-                if entry.meta_values[0].is_node:                    
+                if entry.meta_values[0].is_node:
                     self.settings[str(entry.keyname)] = entry.meta_values[0]
                 else:
                     self.settings[str(entry.keyname)].extend(entry.text_values())
@@ -1143,12 +1129,9 @@ class UrtextProject:
                             elif value in self.settings[setting]:
                                 self.settings[setting].remove(value)                        
                                 continue
-                            if setting == 'extensions':
+                            if setting == 'features':
                                 for v in entry.text_values():
-                                    self._remove_extensions_from_folder(v)
-                                continue
-                            if setting == 'directives':
-                                self._remove_directives_from_folder(v)
+                                    self._remove_features_from_folder(v)
                                 continue
                             if (setting not in self.settings or 
                                 not self.settings[setting]) and (
@@ -1163,7 +1146,7 @@ class UrtextProject:
 
         return False
 
-    def _get_directives_from_folder(self, folder, filename):
+    def _get_features_from_folder(self, folder, filename):
         if os.path.exists(folder):
             sys.path.append(folder)
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
@@ -1175,25 +1158,6 @@ class UrtextProject:
                             directives = [directives]
                         for d in directives:
                             self.add_directive(d, folder=folder)
-                except Exception as e:
-                    message = ''.join([
-                            '\nDirective in file ',
-                            syntax.file_link_opening_wrapper,
-                            os.path.join(folder, module_file),
-                            syntax.link_closing_wrapper,
-                            ' encountered the following error: \n', 
-                            str(e),
-                            ])
-                    self._log_item(
-                        filename, 
-                        message)
-                                
-    def _get_extensions_from_folder(self, folder, filename):
-        if os.path.exists(folder):
-            sys.path.append(folder)
-            for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
-                try:
-                    s = importlib.import_module(module_file.replace('.py',''))
                     if 'urtext_extensions' in dir(s):
                         extensions = s.urtext_extensions
                         if not isinstance(extensions, list):
@@ -1202,7 +1166,7 @@ class UrtextProject:
                             self.add_extension(e, folder=folder)
                 except Exception as e:
                     message = ''.join([
-                            '\nExtension in file ',
+                            '\nFeature in file ',
                             syntax.file_link_opening_wrapper,
                             os.path.join(folder, module_file),
                             syntax.link_closing_wrapper,
@@ -1213,18 +1177,15 @@ class UrtextProject:
                         filename, 
                         message)
 
-    def _remove_directives_from_folder(self, folder):
+    def _remove_features_from_folder(self, folder):
         for directive in self.directives.values():
             if directive.folder == folder:
                 for n in directive.name:
                     self.directives.remove(n)
-
-    def _remove_extensions_from_folder(self, folder):
-        for extensions in self.extensions.values():
+        for extension in self.extensions.values():
             if extension.folder == folder:
                 for n in extension.name:
-                    self.directives.remove(n)
-
+                    self.extensions.remove(n)
 
     def get_home(self):
         if self.settings['home'] in self.nodes:

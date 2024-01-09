@@ -14,7 +14,7 @@ else:
 """
 Tree
 """   
-class Tree(UrtextDirective):
+class TreeDirective(UrtextDirective):
 
     phase = 310
     name = ['TREE']
@@ -26,7 +26,8 @@ class Tree(UrtextDirective):
     def dynamic_output(self, start_point):
         if self.have_flags('*'):
             self.depth = float('inf')
-        
+        print('STRAT POINT IS ')
+        print(start_point)
         start_point = start_point.tree_node
 
         pointers = self._has_pointers(start_point)
@@ -202,3 +203,5 @@ class Tree(UrtextDirective):
                 new_node.parent = new_root
 
         return new_root
+
+urtext_directives = [TreeDirective]

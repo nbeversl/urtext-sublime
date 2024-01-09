@@ -101,7 +101,7 @@ class UrtextDynamicDefinition:
 		if not has_text_output(self.operations):
 			# add simple list output if none supplied
 			op = self.project.directives['TREE'](self.project)
-			op.parse_argument_string('1')	
+			op.parse_argument_string('1')
 			op.set_dynamic_definition(self)
 			self.operations.append(op)
 			self.phases.append(300)
