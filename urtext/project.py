@@ -101,8 +101,6 @@ class UrtextProject:
             'features'), None)
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
-        print(self.directives)
-        print(self.extensions)
 
         if os.path.exists(self.entry_point) and os.path.isdir(self.entry_point):
             self.entry_path = self.entry_point

@@ -11,4 +11,4 @@ class When:
 				return True
 		return False
 
-urtext_directives = [ When ]
+urtext_directives = [When]

@@ -10,4 +10,4 @@ class Limit:
 				return nodes[:number]
 		return nodes
 
-urtext_directives=[Limit]
+urtext_directives=Limit
