@@ -1194,13 +1194,16 @@ class UrtextProject:
                 assigner = syntax.metadata_assignment_operator
                 if k == self.settings['hash_key']:
                     k = '#'
-                    assigner = ''                   
+                    assigner = ''                 
                 for v in values:
-                    pairs.append(''.join([
-                        k,
-                        assigner,
-                        v.text, # num would need to be converted to text anyway
-                        ]))
+                    if v.is_node:
+                        pairs.append(make_link(v.id))
+                    else:
+                        pairs.append(''.join([
+                            k,
+                            assigner,
+                            v.text, # num would need to be converted to text anyway
+                            ]))
 
         return list(set(pairs))
 
