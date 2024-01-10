@@ -3,10 +3,8 @@ import re
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
     import Urtext.urtext.node
-    import Urtext.urtext.syntax as syntax
 else:
     import urtext.node
-    import urtext.syntax as syntax
 
 class UrtextExport:
 
@@ -201,7 +199,7 @@ class UrtextExport:
 
         matches = []
         locations = []
-        for m in syntax.node_pointer_c.finditer(text):
+        for m in self.syntax.node_pointer_c.finditer(text):
             if not self.is_escaped(escaped_regions, (m.start(), m.end())):
                locations.append((text.find(m.group()), m.group()))
         return locations
@@ -298,7 +296,7 @@ class UrtextExport:
     def replace_node_links(self, contents):
         """ replace node links, including titled ones, with exported versions """
 
-        node_links = syntax.node_link_c.finditer(contents)
+        node_links = self.syntax.node_link_c.finditer(contents)
         for match in node_links:
             node_id = match.group(2) 
             if node_id not in self.project.nodes:                    
@@ -315,7 +313,7 @@ class UrtextExport:
 
     def replace_file_links(self, contents, escaped_regions):
         to_replace = []
-        for link in syntax.file_link_c.finditer(contents):
+        for link in self.syntax.file_link_c.finditer(contents):
             if not self.is_escaped(escaped_regions, (link.start(), link.end())):
                 to_replace.append(link)
         for link in to_replace:
