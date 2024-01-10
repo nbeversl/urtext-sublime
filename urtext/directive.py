@@ -61,8 +61,6 @@ class UrtextDirective:
         return ''
 
     def _dynamic_output(self, input_contents):
-        print(self.name)
-        print(self.dynamic_definition.source_node.id)
         if self.should_continue():
             return self.dynamic_output(input_contents)
         return False

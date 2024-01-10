@@ -1048,11 +1048,8 @@ class UrtextProject:
 
             if entry.keyname == 'paths':
                 if entry.is_node:
-                    print('YEP')
                     for n in entry.meta_values[0].children:
                         path = n.metadata.get_first_value('path')
-                        print('FROM SETTGINGS')
-                        print(path)
                         recurse = n.metadata.get_first_value('recurse_subfolders')
                         if path and path not in [entry['path'] for entry in self.settings['paths']]:
                             self.settings['paths'].append({

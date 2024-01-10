@@ -23,10 +23,11 @@ class TreeDirective:
     def dynamic_output(self, start_points):
         if self.have_flags('*'):
             self.depth = float('inf')
-        try:
-            self.depth = int(self.argument_string)
-        except:
-            self.depth = 1
+        else:
+            try:
+                self.depth = int(self.argument_string)
+            except:
+                self.depth = 1
 
         tree_render = ''
         for start_point in start_points:

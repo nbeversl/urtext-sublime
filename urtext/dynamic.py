@@ -164,9 +164,6 @@ class UrtextDynamicDefinition:
 				outcome = accumulated_text
 			else:
 				for operation in ops_this_phase:
-					print(p)
-					print('OUTCOME IS')
-					print(outcome)
 					new_outcome = operation._dynamic_output(outcome)					
 					if new_outcome == False:
 						return False
