@@ -99,6 +99,9 @@ class UrtextProject:
         self._get_features_from_folder(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'features'), None)
+        self._get_features_from_folder(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'core'), None)
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
