@@ -1329,8 +1329,7 @@ class UrtextProject:
             self._log_item(
                 filename, 
                 'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
-            raise DuplicateIDs()
-
+            return
         return self.execute(self._compile)
 
     def drop_file(self, filename):
@@ -1718,11 +1717,6 @@ class UrtextProject:
         newClass.folder = folder
         for n in newClass.name:
             self.extensions[n] = newClass(self)
-
-class DuplicateIDs(Exception):
-    """ duplicate IDS """
-    def __init__(self):
-        pass
 
 """ 
 Helpers 
