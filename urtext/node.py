@@ -81,7 +81,7 @@ class UrtextNode:
         self.full_contents = contents
         stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
         self.get_links(contents=stripped_contents)
-        stripped_contents, replaced_contents = self.parse_dynamic_definitions(contents)
+        stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         self.title = self.set_title(stripped_contents)
