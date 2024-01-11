@@ -65,8 +65,12 @@ class NodeMetadata:
             value = entry.strip().replace('-',' ')
             value = value[1:]
 
+            keyname = '#'
+            if self.project.compiled:
+                keyname = self.project.settings['hash_key']
+
             self.add_entry(
-                self.project.settings['hash_key'],
+                keyname,
                 [MetadataValue(value)],
                 self.node,
                 tag_self=tag_self,
