@@ -96,7 +96,7 @@ contexts:
         0: escape_marker.urtext
 
     # Any other
-    - match: '%%\w*?'
+    - match: '%%\w*'
       embed: Packages/Text/text.sublime-syntax
       scope: embed_marker.urtext
       embed_scope: text.urtext
