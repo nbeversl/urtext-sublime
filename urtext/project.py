@@ -331,7 +331,7 @@ class UrtextProject:
         messages = []
         changed_ids = {}
 
-        # resolve untitled nodes
+        # resolve '(untitled)' nodes
         for node in [f for f in file_obj.nodes if f.title == '(untitled)']:
             resolved_id = node.resolve_id()
             if not resolved_id:
@@ -434,6 +434,9 @@ class UrtextProject:
                 '\nalready has a definition in ', 
                 syntax.link_opening_wrapper,
                 self.dynamic_definitions[target_id].source_node.id,
+                '\n in file ',
+                syntax.file_link_opening_wrapper,
+                self.dynamic_definitions[target_id].source_node.filename,
                 syntax.link_closing_wrapper,
                 '\nskipping the definition in ',
                 syntax.link_opening_wrapper,
@@ -480,18 +483,7 @@ class UrtextProject:
                         return self.nodes[node_id].filename
         return False
 
-    def _adjust_ranges(self, filename, from_position, amount): # future
-        """ 
-        adjust the ranges of all nodes in the given file 
-        a given amount, from a given position
-        """
-        for node_id in self.files[filename].nodes:
-            number_ranges = len(self.nodes[node_id].ranges)
-            for index in range(number_ranges):
-                this_range = self.nodes[node_id].ranges[index]
-                if from_position >= this_range[0]:
-                    self.nodes[node_id].ranges[index][0] -= amount
-                    self.nodes[node_id].ranges[index][1] -= amount
+
 
     def _mark_dynamic_nodes(self):
         for target in self.dynamic_definitions:
@@ -520,8 +512,8 @@ class UrtextProject:
     def _drop_node(self, node):
         if node.id in self.nodes:
             self._remove_sub_tags(node.id)
-            self.remove_dynamic_defs(node.id)
-            self.remove_dynamic_metadata_entries(node.id)
+            self._remove_dynamic_defs(node.id)
+            self._remove_dynamic_metadata_entries(node.id)
             self._clear_settings_from(node)
             del self.nodes[node.id]
 
@@ -706,7 +698,7 @@ class UrtextProject:
                     defs.append(dd)
         return defs
 
-    def remove_dynamic_defs(self, node_id):
+    def _remove_dynamic_defs(self, node_id):
         for target in list(self.dynamic_definitions):
             if self.dynamic_definitions[target].source_node.id == node_id:
                 del self.dynamic_definitions[target]
@@ -715,7 +707,7 @@ class UrtextProject:
                 if dd.source_node.id == node_id:
                     self.virtual_outputs[target].remove(dd)
 
-    def remove_dynamic_metadata_entries(self, node_id):
+    def _remove_dynamic_metadata_entries(self, node_id):
         for entry in list(self.dynamic_metadata_entries):
             if entry.from_node == self.nodes[node_id]:
                 self.dynamic_metadata_entries.remove(entry)
@@ -902,9 +894,6 @@ class UrtextProject:
                                 for target in dd.targets:
                                     target_output = dd.preserve_title_if_present(target) + output
                                     self._direct_output(target_output, target, dd)
-                            # TODO
-                            # if modified_file:
-                            #     modified_files.append(modified_file)
         if link['kind'] == 'FILE':
             if os.path.exists(link['link']):
                 return self.run_editor_method(
@@ -1137,20 +1126,16 @@ class UrtextProject:
                         node) and ( 
                         setting in self.settings):
                             if setting in single_values_settings:
-                                del self.settings[setting]
-                                continue                        
+                                del self.settings[setting]                     
                             elif type(value) not in [str, int, float]:
                                 del self.settings[setting]
-                                continue
                             elif isinstance(self.settings[setting], UrtextNode):
                                 del self.settings[setting]
                             elif value in self.settings[setting]:
                                 self.settings[setting].remove(value)                        
-                                continue
                             if setting == 'features':
                                 for v in entry.text_values():
                                     self._remove_features_from_folder(v)
-                                continue
                             if (setting not in self.settings or 
                                 not self.settings[setting]) and (
                                 setting in default_project_settings().keys()):
