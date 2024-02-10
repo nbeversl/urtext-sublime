@@ -580,7 +580,7 @@ class UrtextProject:
 
         filename = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        contents, node_id, cursor_pos = self._new_node(
+        new_node_contents, node_id, cursor_pos = self._new_node(
             date=date,
             contents=contents,
             contents_format=contents_format,
@@ -591,7 +591,22 @@ class UrtextProject:
             filename = os.path.join(path, filename)
         else:
             filename = os.path.join(self.entry_path, filename)
-        utils.write_file_contents(filename, contents)
+        utils.write_file_contents(filename, new_node_contents)
+        new_file = self.urtext_file(filename, self)
+        
+        duplicates = self._check_file_for_duplicates(new_file)
+        if new_file.errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
+            if contents == None:
+                new_node_contents, node_id, cursor_pos = self._new_node(
+                    date=date,
+                    contents=contents,
+                    add_seconds_to_timestamp=True,
+                    contents_format=contents_format,
+                    metadata=metadata)
+            utils.write_file_contents(filename, new_node_contents)
+            new_file = self.urtext_file(filename, self)
+            duplicates = self._check_file_for_duplicates(new_file)
+
         self._parse_file(filename)
 
         if filename in self.files:
@@ -629,6 +644,7 @@ class UrtextProject:
         contents=None,
         title='',
         contents_format=None,
+        add_seconds_to_timestamp=False,
         metadata=None,
         one_line=None):
 
@@ -639,7 +655,7 @@ class UrtextProject:
         if contents_format:
             new_node_contents = contents_format.replace(
                 '$timestamp',
-                self.timestamp().wrapped_string)
+                self.timestamp(add_seconds=add_seconds_to_timestamp).wrapped_string)
             new_node_contents = new_node_contents.replace(
                 '$device_keyname',
                 platform.node())
@@ -997,7 +1013,7 @@ class UrtextProject:
         if self.compiled and self.settings['console_log']:
             print(str(filename)+' : '+ message)
 
-    def timestamp(self, date=None, as_string=False):
+    def timestamp(self, date=None, as_string=False, add_seconds=False):
         """ 
         Returns a timestamp in the format set in project_settings, or the default 
         """
@@ -1005,15 +1021,19 @@ class UrtextProject:
             date = datetime.datetime.now(
                 datetime.timezone.utc
                 ).astimezone()
+        ts_format = self.settings['timestamp_format']
+        if add_seconds:
+            if '%' in self.settings['timestamp_format'] and '%S' not in self.settings['timestamp_format']:
+                ts_format = ts_format.replace('%M', '%M:%S')
         if as_string:
             return ''.join([
                 syntax.timestamp_opening_wrapper,
-                date.strftime(self.settings['timestamp_format']),
+                date.strftime(ts_format),
                 syntax.timestamp_closing_wrapper,
                 ])
 
         return UrtextTimestamp(
-            date.strftime(self.settings['timestamp_format']))
+            date.strftime(ts_format))
 
     def _get_settings_from(self, node):
 

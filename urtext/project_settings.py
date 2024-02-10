@@ -77,7 +77,7 @@ def default_project_settings():
         'filename_title_length': 100,
         'hash_key': 'keyword',
         'home': None,
-        'new_file_node_format' : '$timestamp\n$cursor',
+        'new_file_node_format' : '$timestamp\n$cursor ',
         'meta_browser_key': None,
         'meta_browser_sort_keys_by': 'alpha', # or 'frequency'
         'meta_browser_sort_values_by' : 'alpha', # 'or 'frequency'
