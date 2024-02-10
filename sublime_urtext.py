@@ -597,16 +597,19 @@ class NewFileNodeCommand(UrtextTextCommand):
             return
         self._UrtextProjectList.set_current_project(path)
         new_node = self._UrtextProjectList.current_project.new_file_node(path=path)
-        new_view = self.view.window().open_file(new_node['filename'])
+        if new_node:
+            new_view = self.view.window().open_file(new_node['filename'])
 
-        def set_cursor(new_view):
-            if not new_view.is_loading():
-                new_view.sel().clear()
-                new_view.sel().add(sublime.Region(int(new_node['cursor_pos']),int(new_node['cursor_pos'])))
-            else:
-                sublime.set_timeout(lambda: set_cursor(new_view), 50) 
+            def set_cursor(new_view):
+                if not new_view.is_loading():
+                    new_view.sel().clear()
+                    new_view.sel().add(sublime.Region(int(new_node['cursor_pos']),int(new_node['cursor_pos'])))
+                else:
+                    sublime.set_timeout(lambda: set_cursor(new_view), 50) 
 
-        set_cursor(new_view)
+            set_cursor(new_view)
+        else: #temporary
+            print('NEW FILE NODE NOT CREATED')
 
 class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
