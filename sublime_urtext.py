@@ -596,27 +596,15 @@ class NewFileNodeCommand(UrtextTextCommand):
         if not path:
             return
         self._UrtextProjectList.set_current_project(path)
-        new_node = self._UrtextProjectList.current_project.new_file_node(path=path)
-        if new_node:
-            new_view = self.view.window().open_file(new_node['filename'])
-
-            def set_cursor(new_view):
-                if not new_view.is_loading():
-                    new_view.sel().clear()
-                    new_view.sel().add(sublime.Region(int(new_node['cursor_pos']),int(new_node['cursor_pos'])))
-                else:
-                    sublime.set_timeout(lambda: set_cursor(new_view), 50) 
-
-            set_cursor(new_view)
-        else: #temporary
-            print('NEW FILE NODE NOT CREATED')
+        self._UrtextProjectList.current_project.new_file_node(path=path)
 
 class InsertLinkToNewNodeCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
         new_node = self._UrtextProjectList.current_project.new_file_node(
-            path=os.path.dirname(self.view.file_name()))
+            path=os.path.dirname(self.view.file_name()),
+            open_file=False)
         self.view.run_command("insert", {"characters":'| ' + new_node['id'] + ' >'})
         self.view.run_command('save')  # TODO insert notification
 

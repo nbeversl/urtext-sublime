@@ -561,7 +561,8 @@ class UrtextProject:
         path=None,
         contents=None,
         metadata={}, 
-        one_line=None):
+        one_line=None,
+        open_file=True):
 
         contents_format = None
         if contents == None:
@@ -605,6 +606,10 @@ class UrtextProject:
             #TODO possibly should be sent in a thread:
             self._run_hook('on_new_file_node', 
                 self.files[filename].root_node.id)
+
+            if open_file:
+                self.open_node(self.files[filename].root_node.id,
+                    position=cursor_pos)
 
             return { 
                     'filename' : filename, 
@@ -735,7 +740,6 @@ class UrtextProject:
             )
         return self.visit_node(node_id)
 
-    
     def open_home(self):
         if not self.get_home():
             if not self.compiled:
