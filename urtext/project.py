@@ -995,7 +995,7 @@ class UrtextProject:
         return node_id in self.nodes
 
     def _find_duplicate_title(self, node):
-        for n in self.nodes:
+        for n in list(self.nodes):
             if n.title == node.title:
                 return node
 
