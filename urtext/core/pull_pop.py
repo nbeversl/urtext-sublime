@@ -72,7 +72,8 @@ class PopNode:
         self.project._drop_file(source_filename) #important
 
         new_file_node = self.project.new_file_node(
-            contents=popped_node_contents)
+            contents=popped_node_contents,
+            open_file=False)
         remaining_node_contents = ''.join([
             source_file_contents[:start - pre_offset],
             self.syntax.link_opening_wrapper,

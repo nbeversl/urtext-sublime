@@ -53,7 +53,7 @@ def default_project_settings():
     return {  
         'always_oneline_meta': False,
         'atomic_rename' : False,
-        'breadcrumb_key' : '',
+        'breadcrumb_key' : 'popped_from',
         'case_sensitive': [
             'title',
             'project_title',
