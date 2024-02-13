@@ -49,10 +49,8 @@ class UrtextAnyTree:
         node_id,
         entry, 
         next_node=None, 
-        visited_nodes=None):
+        visited_nodes=[]):
     
-        visited_nodes = []
-
         for pointer in self.project.nodes[node_id].pointers:
             uid = node_id + pointer['id']
             if uid in visited_nodes:
