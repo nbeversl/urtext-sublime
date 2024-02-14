@@ -55,6 +55,14 @@ file_link_opening_wrapper = ''.join([
     link_opening_character,
     link_modifiers['file'],
     space])
+project_link=r''.join([other_project_link_prefix,'\"([^\"]+?)\"'])
+
+node_link_opening_wrapper_match = r''.join([
+    '(?<!")',
+    link_opening_character_regex,
+    node_link_modifier_group,
+    r'\s'
+    ])
 
 # Base Patterns
 bullet = r'^([^\S\n]*?)•'
@@ -78,11 +86,6 @@ dynamic_def = r'(?:\[\[)([^\]]*?)(?:\]\])'
 embedded_syntax_open = r'%%\w+'
 embedded_syntax_close = r'%%'+pattern_break
 format_key = r'\$_?[\.A-Za-z0-9_-]*'
-node_link_opening_wrapper_match = r''.join([
-    link_opening_character_regex,
-    node_link_modifier_group,
-    r'\s'
-    ])
 metadata_arg_delimiter = r';|\r'
 metadata_op_before = r'before'
 metadata_op_after = r'after'
@@ -264,6 +267,7 @@ node_link_or_pointer_c = re.compile(node_link_or_pointer)
 opening_wrapper_c = re.compile(opening_wrapper)
 pointer_closing_wrapper_c = re.compile(pointer_closing_wrapper)
 preformat_c = re.compile(preformat, flags=re.DOTALL)
+project_link_c = re.compile(project_link, flags=re.DOTALL)
 subnode_regexp_c = re.compile(sub_node, flags=re.DOTALL)
 timestamp_c = re.compile(timestamp)
 title_regex_c = re.compile(title_pattern)

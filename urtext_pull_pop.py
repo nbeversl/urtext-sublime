@@ -8,7 +8,7 @@ class PopNodeCommand(UrtextTextCommand):
         if self.view.file_name():
             r = self._UrtextProjectList.current_project.extensions[
                 'POP_NODE'
-                ].pop_node(
+                ].pop_node_from_editor(
                     self.view.substr(self.view.line(self.view.sel()[0])),
                     self.view.file_name(),
                     self.view.sel()[0].a + 1)

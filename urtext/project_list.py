@@ -79,7 +79,7 @@ class ProjectList():
                 string,
                 filename,
                 col_pos=col_pos)
-         
+
         """ Otherwise, set the project, search the link for a link in the current project """
         if filename:
             self.set_current_project(os.path.dirname(filename))
@@ -104,7 +104,7 @@ class ProjectList():
 
     def _get_project_from_title(self, title):
         for project in self.projects:
-            if title == project.settings['project_title']:
+            if title == project.title():
                 return project
 
     def get_project(self, title_or_path):
@@ -118,9 +118,9 @@ class ProjectList():
         if not project:
             return
         if ( not self.current_project ) or ( 
-            project.settings['project_title'] != self.current_project.settings['project_title'] ) :
+            project.title() != self.current_project.title() ) :
            self.current_project = project
-           print('Switched to project: ' + self.current_project.settings['project_title'])
+           print('Switched to project: ' + self.current_project.title())
         return project
 
     def build_contextual_link(self, 
@@ -146,7 +146,7 @@ class ProjectList():
                 link = ''.join([
                     syntax.other_project_link_prefix,
                     '"',
-                    project.settings['project_title'],
+                    project.title(),
                     '"',
                     link])
             return link
@@ -154,8 +154,19 @@ class ProjectList():
     def project_titles(self):
         titles = []
         for project in self.projects:
-            titles.append(project.settings['project_title'])
+            titles.append(project.title())
         return titles
+
+    def get_project_title_from_link(self, target):
+        match = syntax.project_link_c.search(target)
+        if match:
+            return match.group(1).strip()
+        return target
+
+    def get_project_from_link(self, target):
+        project_name = self.get_project_title_from_link(target)
+        project = self.get_project(project_name)
+        return project if project else None
 
     def get_current_project(self, path):
         for project in self.projects:
@@ -181,7 +192,7 @@ class ProjectList():
             print('%s does not exist' % path) 
 
     def move_file(self, 
-        filename, 
+        old_filename, 
         destination_project_name_or_path,
         replace_links=True):
 
@@ -197,35 +208,33 @@ class ProjectList():
             print('Destination project `'+ destination_project_name_or_path +'` was not found.')
             return None
 
-        if filename not in self.current_project.files:
-            print('File '+ filename +' not included in the current project.')
+        if old_filename not in self.current_project.files:
+            print('File '+ old_filename +' not included in the current project.')
             return None
 
-        affected_nodes = list(self.current_project.files[filename].nodes)        
-        self.current_project.drop_file(filename)
-        os.rename(
-            filename,
-            os.path.join(
-                destination_project.settings['paths'][0]['path'],
-                os.path.basename(filename))
-            )
+        affected_nodes = list(self.current_project.files[old_filename].nodes)        
+        self.current_project.drop_file(old_filename)
+        new_filename = os.path.join(
+            destination_project.settings['paths'][0]['path'],
+            os.path.basename(old_filename))
+        os.rename(old_filename, new_filename)
         """
         add_file() will raise an exception if the file makes
         duplicate nodes in the destination project
         """
         try:
-            destination_project.add_file(filename)    
-        except:
-            #TODO handle
+            destination_project.add_file(new_filename)    
+        except Exception:
+            print('EXCEPTION project_list line 210 #todo handle')
+            print(Exception)
             return None
  
         if replace_links:
             for node in affected_nodes:
                 self.replace_links(
-                    self.current_project.settings['project_title'],
-                    destination_project.settings['project_title'],                   
+                    self.current_project.title(),
+                    destination_project.title(),                   
                     node.id)
-
         return True
 
     def get_all_meta_pairs(self):
@@ -237,16 +246,21 @@ class ProjectList():
                     meta_values.append(pair)
         return meta_values
 
-    def replace_links(self, old_project_path_or_title, new_project_path_or_title, node_id):
+    def replace_links(self,
+        old_project_path_or_title,
+        new_project_path_or_title,
+        node_id):
         old_project = self.get_project(old_project_path_or_title)
         new_project = self.get_project(new_project_path_or_title)
-        old_project.replace_links(node_id, new_project=new_project.settings['project_title'])
+        old_project.replace_links(
+            node_id,
+            new_project=new_project.title())
     
     def titles(self):
         title_list = {}
         for project in self.projects:
             for node_id in project.nodes:
-                title_list[project.nodes[node_id].title] = (project.settings['project_title'], node_id)
+                title_list[project.nodes[node_id].title] = (project.title(), node_id)
         return title_list
 
     def is_in_export(self, filename, position):

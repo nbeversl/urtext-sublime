@@ -85,7 +85,7 @@ def default_project_settings():
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : '_oldest_timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
-        'other_project_entry_points' : [],
+        'other_entry_points' : [],
         'paths': [],
         'project_title' : None,
         'timestamp_format':'%a., %b. %d, %Y, %I:%M %p %Z', 

@@ -9,21 +9,24 @@ class PopNode:
         super().__init__(project)
         self.running = False
 
-    def pop_node(self,
+    def pop_node_from_editor(self,
         param_string, 
         source_filename, 
-        file_pos):
+        file_pos,
+        breadcrumb=None):
 
         return self.project.execute(
             self._pop_node,
             param_string, 
             source_filename, 
-            file_pos)
+            file_pos,
+            from_project=None)
 
-    def _pop_node(self,
+    def _pop_node_from_editor(self,
         param_string, 
         source_filename, 
-        file_pos):
+        file_pos,
+        from_project=None):
 
         if not self.project.compiled:
             return self.project.handle_info_message(
@@ -50,24 +53,42 @@ class PopNode:
         if self.project.nodes[popped_node_id].root_node:
             return self.project.handle_info_message(
                 '%s is already a root node.' % popped_node_id)
-    
+
+        self._pop_node(popped_node_id, from_project=from_project)
+
+    def _pop_node(self, popped_node_id, rewrite_buffer=True, from_project=None):
+
+        source_filename = self.project.nodes[popped_node_id].filename
         start = self.project.nodes[popped_node_id].start_position
         end = self.project.nodes[popped_node_id].end_position
         source_file_contents = self.project.files[source_filename]._get_contents()
         popped_node_contents = source_file_contents[start:end].strip()
         pre_offset = 2 if self.project.nodes[popped_node_id].compact else 1
-        
+
         if self.project.settings['breadcrumb_key']:
-            parent_id = self.project.nodes[popped_node_id].parent.id
-            popped_node_contents += ''.join([
+            from_project_link = ''
+            if from_project:
+                popped_node_contents += ''.join([
                 '\n',
                 self.project.settings['breadcrumb_key'],
                 self.syntax.metadata_assignment_operator,
-                self.syntax.link_opening_wrapper,
-                self.project.nodes[parent_id].id,
-                self.syntax.link_closing_wrapper,
+                self.syntax.other_project_link_prefix,
+                '"', from_project, '"'
                 ' ',
                 self.project.timestamp().wrapped_string]);
+
+            else:
+                parent_id = self.project.nodes[popped_node_id].parent.id
+                popped_node_contents += ''.join([
+                    '\n',
+                    self.project.settings['breadcrumb_key'],
+                    self.syntax.metadata_assignment_operator,
+                    from_project_link,
+                    self.syntax.link_opening_wrapper,
+                    self.project.nodes[parent_id].id,
+                    self.syntax.link_closing_wrapper,
+                    ' ',
+                    self.project.timestamp().wrapped_string]);
 
         self.project._drop_file(source_filename) #important
 
@@ -86,10 +107,11 @@ class PopNode:
             os.remove(source_filename)
         with open(source_filename, 'w', encoding='utf-8') as f:
             f.write(remaining_node_contents)
-        self.project.run_editor_method(
-            'set_buffer',
-            source_filename,
-            remaining_node_contents)
+        if rewrite_buffer:
+            self.project.run_editor_method(
+                'set_buffer',
+                source_filename,
+                remaining_node_contents)
         self.project._parse_file(source_filename)
  
 class PullNode:

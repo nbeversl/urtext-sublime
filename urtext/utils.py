@@ -17,11 +17,12 @@ def force_list(thing):
 
 def get_id_from_link(target):
     match = syntax.any_link_or_pointer_c.search(target)
-    if match: return match.group(6).strip()
+    if match:
+        return match.group(6).strip()
     return target
 
 def write_file_contents(filename, contents):
     if os.path.exists(filename):
         os.remove(filename)    
     with open(filename, 'w', encoding='utf-8' ) as f:
-        f.write(contents)
+        f.write(contents)    

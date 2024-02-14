@@ -431,6 +431,7 @@ class UrtextProject:
                 '\nalready has a definition in ', 
                 syntax.link_opening_wrapper,
                 self.dynamic_definitions[target_id].source_node.id,
+                syntax.link_closing_wrapper,
                 '\n in file ',
                 syntax.file_link_opening_wrapper,
                 self.dynamic_definitions[target_id].source_node.filename,
@@ -1177,6 +1178,7 @@ class UrtextProject:
                             ' encountered the following error: \n', 
                             str(e),
                             ])
+                    print(message)
                     self._log_item(
                         filename, 
                         message)
@@ -1225,25 +1227,34 @@ class UrtextProject:
     def replace_links(self, original_id, new_id='', new_project=''):
         if not new_id and not new_project:
             return None
-        replacement = '>'+original_id
+        if not new_id:
+            new_id = original_id
+        pattern_to_replace = r''.join([
+                syntax.node_link_opening_wrapper_match,
+                original_id,
+                syntax.link_closing_wrapper
+            ])
         if new_id:
-            replacement = '>'+new_id
+            replacement = ''.join([
+                syntax.link_opening_wrapper,
+                new_id,
+                syntax.link_closing_wrapper
+                ])
         if new_project:
-            replacement = '=>"'+new_project+'"'+replacement
-        
-        #TODO factor regexes out into syntax.py
-        patterns_to_replace = [
-            r'\|.*?\s>{1,2}',   # replace title markers before anything else
-            r'[^\}]>>',         # then node pointers
-            r'[^\}]>' ]         # finally node links
-
+            replacement = ''.join([
+                syntax.other_project_link_prefix,
+                '"',new_project,'"',
+                syntax.link_opening_wrapper,
+                new_id,
+                syntax.link_closing_wrapper,
+            ])
         for filename in list(self.files):
-            contents = self.files[filename]._get_contents()
-            new_contents = contents
-            for pattern in patterns_to_replace:
-                links = re.findall(pattern + original_id, new_contents)
-                for link in links:
-                    new_contents = new_contents.replace(link, replacement, 1)
+            to_replace = pattern_to_replace
+            new_contents = self.files[filename]._get_contents()
+            for pointer in re.finditer(to_replace+'>', new_contents):
+                new_contents = new_contents.replace(pointer.group(), replacement, 1)
+            for link in re.finditer(to_replace, new_contents):
+                new_contents = new_contents.replace(link.group(), replacement, 1)
             self.files[filename]._set_contents(new_contents)
 
     def on_modified(self, filename, bypass=False):
@@ -1332,14 +1343,13 @@ class UrtextProject:
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
-        any_duplicate_ids = self._parse_file(filename)
-        
+        any_duplicate_ids = self._parse_file(filename)        
         if any_duplicate_ids:
             self._log_item(
                 filename, 
                 'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
             return
-        return self.execute(self._compile)
+        return self.execute(self._compile_file(filename))
 
     def drop_file(self, filename):
         self.execute(self._drop_file, filename)

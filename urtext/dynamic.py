@@ -32,7 +32,7 @@ phases = [
 	000, # Pre-checks, such as WHEN()
 	100, # Queries, building and sorting list of nodes included/excluded
 	200, # Expects list of node objects. Sorting, limiting, transforming the node list.
-	300, # Expects list of node objects. Convert selected nodes to text output
+	300, # Expects list of node objects. Outputs selected nodes to text output
 	400, # Adding header/footer, preserving other elements as needed
 	500, # Transform built text further (exports, etc.)
 	600, # currently unused

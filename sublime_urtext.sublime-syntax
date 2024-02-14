@@ -211,6 +211,7 @@ contexts:
     - include: asterisk
     - include: var-word
     - include: at-marker
+    - include: other-project-link
     - match: <[^!\s-]
       push: datestamp
     - match: \)
