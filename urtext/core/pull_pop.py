@@ -13,14 +13,14 @@ class PopNode:
         param_string, 
         source_filename, 
         file_pos,
-        breadcrumb=None):
+        from_project=None):
 
         return self.project.execute(
-            self._pop_node,
+            self._pop_node_from_editor,
             param_string, 
             source_filename, 
             file_pos,
-            from_project=None)
+            from_project=from_project)
 
     def _pop_node_from_editor(self,
         param_string, 
@@ -146,6 +146,7 @@ class PullNode:
 
         link = self.project.parse_link(
             string,
+            destination_filename,
             file_pos=file_pos)
 
         if not link or link['kind'] != 'NODE':
