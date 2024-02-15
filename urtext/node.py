@@ -73,7 +73,6 @@ class UrtextNode:
             d.source_node = self
         for entry in self.metadata.entries():
             entry.from_node = self
-
         self.stripped_contents = stripped_contents    
 
     def get_file_position(self, node_position): 

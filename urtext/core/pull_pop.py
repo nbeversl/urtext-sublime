@@ -64,16 +64,19 @@ class PopNode:
         source_file_contents = self.project.files[source_filename]._get_contents()
         popped_node_contents = source_file_contents[start:end].strip()
         pre_offset = 2 if self.project.nodes[popped_node_id].compact else 1
+        parent_id = self.project.nodes[popped_node_id].parent.id
 
         if self.project.settings['breadcrumb_key']:
-            from_project_link = ''
             if from_project:
                 popped_node_contents += ''.join([
                 '\n',
                 self.project.settings['breadcrumb_key'],
                 self.syntax.metadata_assignment_operator,
                 self.syntax.other_project_link_prefix,
-                '"', from_project, '"'
+                '"', from_project, '"',
+                self.syntax.link_opening_wrapper,
+                parent_id,
+                self.syntax.link_closing_wrapper,
                 ' ',
                 self.project.timestamp().wrapped_string]);
 
@@ -83,9 +86,8 @@ class PopNode:
                     '\n',
                     self.project.settings['breadcrumb_key'],
                     self.syntax.metadata_assignment_operator,
-                    from_project_link,
                     self.syntax.link_opening_wrapper,
-                    self.project.nodes[parent_id].id,
+                    parent_id,
                     self.syntax.link_closing_wrapper,
                     ' ',
                     self.project.timestamp().wrapped_string]);

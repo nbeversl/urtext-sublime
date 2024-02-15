@@ -133,6 +133,7 @@ contexts:
     - meta_scope: meta_value.urtext
     - match: <
       push: datestamp
+    - include: other-project-link
     - include: meta-key-terminator
     - include: tagvalue-separator
     - include: node_link
