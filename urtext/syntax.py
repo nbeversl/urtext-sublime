@@ -21,7 +21,10 @@ missing_link_opening_wrapper = ''.join([
     ])
 link_modifiers_regex = {}
 for modifier in link_modifiers:
-    link_modifiers_regex[modifier] = re.escape(link_modifiers[modifier])
+    link_modifiers_regex[modifier] = ''.join([
+        r'(?<=\|)',
+        re.escape(link_modifiers[modifier])
+        ])
 link_modifier_group = r'(' + '|'.join(
     ['(' + m + ')' for m in link_modifiers_regex.values()]
     ) + ')?'
@@ -145,7 +148,7 @@ metadata_flags_c = re.compile(metadata_flags)
 # Composite match patterns
 any_link_or_pointer = r''.join([
     link_opening_character_regex,
-    link_modifier_group,
+    '(', link_modifier_group, ')',
     '\s',
     '(',
     id_pattern,
@@ -267,6 +270,11 @@ node_pointer_c = re.compile(node_pointer)
 node_title_c = re.compile(node_title, flags=re.MULTILINE)
 metadata_assigner_c = re.compile(metadata_assigner)
 node_link_c = re.compile(node_link)
+link_modifiers_regex_c = {
+    'action': re.compile(link_modifiers_regex['action']),
+    'missing': re.compile(link_modifiers_regex['missing']),
+    'file': re.compile(link_modifiers_regex['file']),
+}
 node_link_or_pointer_c = re.compile(node_link_or_pointer)
 opening_wrapper_c = re.compile(opening_wrapper)
 pointer_closing_wrapper_c = re.compile(pointer_closing_wrapper)

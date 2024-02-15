@@ -951,8 +951,8 @@ class UrtextProject:
                 kind = 'NODE'
                 node_id = utils.get_id_from_link(full_match)
                 if node_id in self.nodes:
-                    if match.group(7):
-                        dest_position = self.nodes[node_id].start_position + int(match.group(7)[1:])
+                    if match.group(8):
+                        dest_position = self.nodes[node_id].start_position + int(match.group(8)[1:])
                     else:
                         dest_position = self.nodes[node_id].start_position
                     filename = self.nodes[node_id].filename
