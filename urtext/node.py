@@ -61,8 +61,8 @@ class UrtextNode:
         contents = strip_errors(contents)
         self.full_contents = contents
         stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
-        replaced_contents = self.get_links(replaced_contents)
         stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
+        stripped_contents, replaced_contents = self.get_links(replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         self.title = self.set_title(stripped_contents)
@@ -145,16 +145,22 @@ class UrtextNode:
                 self.resolved = True
                 return resolved_id
 
-    def get_links(self, stripped_contents):
-        for link in syntax.node_link_or_pointer_c.finditer(stripped_contents):
+    def get_links(self, contents):
+        stripped_contents = contents
+        replaced_contents = contents
+        for link in syntax.node_link_or_pointer_c.finditer(contents):
             self.links.append(link.group())
             stripped_contents = stripped_contents.replace(
+                link.group(), '', 1)
+            replaced_contents = replaced_contents.replace(
                 link.group(), ' '*len(link.group()), 1)        
-        for link in syntax.project_link_with_node_c.finditer(stripped_contents):
+        for link in syntax.project_link_with_node_c.finditer(contents):
             self.links.append(link.group())
             stripped_contents = stripped_contents.replace(
+                link.group(), '', 1)        
+            replaced_contents = replaced_contents.replace(
                 link.group(), ' '*len(link.group()), 1)
-        return stripped_contents
+        return stripped_contents, replaced_contents
 
     def set_title(self, contents):
         """
