@@ -144,6 +144,11 @@ sh_metadata_key_c = re.compile(sh_metadata_key)
 sh_metadata_values_c = re.compile(sh_metadata_values)
 metadata_flags = r'\+?\*{1,2}(?=' + metadata_key + ')' 
 metadata_flags_c = re.compile(metadata_flags)
+link_modifiers_regex_c = {
+    'action': re.compile(link_modifiers_regex['action']),
+    'missing': re.compile(link_modifiers_regex['missing']),
+    'file': re.compile(link_modifiers_regex['file']),
+}
 
 # Composite match patterns
 any_link_or_pointer = r''.join([
@@ -270,11 +275,6 @@ node_pointer_c = re.compile(node_pointer)
 node_title_c = re.compile(node_title, flags=re.MULTILINE)
 metadata_assigner_c = re.compile(metadata_assigner)
 node_link_c = re.compile(node_link)
-link_modifiers_regex_c = {
-    'action': re.compile(link_modifiers_regex['action']),
-    'missing': re.compile(link_modifiers_regex['missing']),
-    'file': re.compile(link_modifiers_regex['file']),
-}
 node_link_or_pointer_c = re.compile(node_link_or_pointer)
 opening_wrapper_c = re.compile(opening_wrapper)
 pointer_closing_wrapper_c = re.compile(pointer_closing_wrapper)
