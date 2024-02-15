@@ -38,10 +38,10 @@ class ProjectList():
                 self.projects.append(project)
 
     def handle_link(self, 
-            string, 
-            filename, 
-            col_pos=0,
-            file_pos=0):
+        string, 
+        filename, 
+        col_pos=0,
+        file_pos=0):
 
         """
         Given a line of text, looks for a link to a node or project
@@ -50,13 +50,16 @@ class ProjectList():
         this should be done by the calling method.
         """
         node_id = None
+        string = string.strip()
         link = project_link_r.search(string)
         project_name = link.group(2)
         node_id = link.group(4)
-
         """ If a project name has been specified, locate the project and node """
         if project_name:
-            if not self.set_current_project(project_name): return None
+            if not self.set_current_project(project_name):
+                self.current_project.run_editor_method('popup',
+                    'Project is not available.')
+                return None
             return self.current_project.handle_link(
                 string,
                 filename,

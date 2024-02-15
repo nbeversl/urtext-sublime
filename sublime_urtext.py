@@ -157,7 +157,7 @@ editor_methods = {
     'save_file': save_file,
 }
 
-def refresh_project_text_command(change_project=True):
+def refresh_project_text_command(change_project=True, mouse=False, new_file_node=False):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
@@ -170,7 +170,8 @@ def refresh_project_text_command(change_project=True):
             edit = args[1]
 
             _UrtextProjectList = initialize_project_list(view)
-            if not _UrtextProjectList: return None
+            if not _UrtextProjectList:
+                return None
             
             if not change_project:
                 args[0].edit = edit
@@ -199,12 +200,11 @@ def refresh_project_text_command(change_project=True):
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
+                if mouse:
+                    return function(args[0], edit, **kwargs)
                 return function(args[0])
-
             return None
-
         return wrapper
-
     return middle
 
 def refresh_project_event_listener(function):
@@ -376,25 +376,22 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         line, cursor = get_line_and_cursor(self.view)
-        link = _UrtextProjectList.handle_link(
+        link = self._UrtextProjectList.handle_link(
             line, 
             self.view.file_name(),
             col_pos=cursor)
                             
 class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
+    @refresh_project_text_command(mouse=True)
     def run(self, edit, **kwargs):
-
-        if not _UrtextProjectList:
-            return
         click_position = self.view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
         region = self.view.line(click_position)
         file_pos = region.a
         full_line_region = self.view.full_line(region)
         row, col_pos = self.view.rowcol(click_position)
         full_line = self.view.substr(sublime.Region(full_line_region.a-1, full_line_region.b))
-
-        link = _UrtextProjectList.handle_link(
+        link = self._UrtextProjectList.handle_link(
             full_line,
             self.view.file_name(),
             col_pos=col_pos)
