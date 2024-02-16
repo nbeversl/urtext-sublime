@@ -43,7 +43,8 @@ class UrtextProject:
     def __init__(self, 
         entry_point, 
         project_list=None, 
-        editor_methods={}):
+        editor_methods={},
+        new_file_node=False):
 
         self.settings = default_project_settings()
         self.project_list = project_list
@@ -73,9 +74,9 @@ class UrtextProject:
             max_workers=1)        
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)
-        self.execute(self._initialize_project)
+        self.execute(self._initialize_project, new_file_node=new_file_node)
     
-    def _initialize_project(self):
+    def _initialize_project(self, new_file_node=False):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
 
         self._get_features_from_folder(os.path.join(
@@ -108,7 +109,7 @@ class UrtextProject:
                 if file not in self.files:
                     self._parse_file(file)
 
-        if len(self.nodes) == 0:
+        if len(self.nodes) == 0 and not new_file_node:
             return self.handle_error_message(
                 '\n'.join([
                     'No Urtext files are in this folder.',

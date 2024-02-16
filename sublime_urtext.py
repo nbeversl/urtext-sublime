@@ -169,7 +169,8 @@ def refresh_project_text_command(change_project=True, mouse=False, new_file_node
             view = args[0].view
             edit = args[1]
 
-            _UrtextProjectList = initialize_project_list(view)
+            _UrtextProjectList = initialize_project_list(view,
+                new_file_node=new_file_node)
             if not _UrtextProjectList:
                 return None
             
@@ -238,7 +239,7 @@ def refresh_project_event_listener(function):
 
     return wrapper
 
-def initialize_project_list(view, reload_projects=False):
+def initialize_project_list(view, reload_projects=False, new_file_node=False):
 
     global _UrtextProjectList
 
@@ -249,7 +250,7 @@ def initialize_project_list(view, reload_projects=False):
     if not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(folder)
+            _UrtextProjectList.add_project(folder, new_file_node=new_file_node)
         else:
             _UrtextProjectList = ProjectList(
                 folder,
@@ -257,7 +258,7 @@ def initialize_project_list(view, reload_projects=False):
     elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(current_path)
+            _UrtextProjectList.add_project(current_path, new_file_node=new_file_node)
         else:
             _UrtextProjectList = ProjectList(
                 current_path,
@@ -566,7 +567,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
 class NewFileNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command()
+    @refresh_project_text_command(new_file_node=True)
     def run(self):
         path = None
         if self.view and self.view.file_name():

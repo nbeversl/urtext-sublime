@@ -25,7 +25,7 @@ class ProjectList():
         self.editor_methods = editor_methods
         self.add_project(entry_point)
 
-    def add_project(self, path):
+    def add_project(self, path, new_file_node=False):
         """ recursively add folders """
         paths = []
         for p in self.projects:
@@ -34,7 +34,8 @@ class ProjectList():
             if os.path.basename(path) not in ['urtext_files']:
                 project = UrtextProject(path, 
                     project_list=self,
-                    editor_methods=self.editor_methods)
+                    editor_methods=self.editor_methods,
+                    new_file_node=new_file_node)
                 self.projects.append(project)
 
     def handle_link(self, 
