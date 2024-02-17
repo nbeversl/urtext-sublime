@@ -115,6 +115,7 @@ class PopNode:
                 source_filename,
                 remaining_node_contents)
         self.project._parse_file(source_filename)
+        return new_file_node['filename']
  
 class PullNode:
 

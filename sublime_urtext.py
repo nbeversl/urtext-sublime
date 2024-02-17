@@ -157,7 +157,7 @@ editor_methods = {
     'save_file': save_file,
 }
 
-def refresh_project_text_command(change_project=True, mouse=False, new_file_node=False):
+def refresh_project_text_command(change_project=True, mouse=False, new_file_node_created=False):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
@@ -170,7 +170,7 @@ def refresh_project_text_command(change_project=True, mouse=False, new_file_node
             edit = args[1]
 
             _UrtextProjectList = initialize_project_list(view,
-                new_file_node=new_file_node)
+                new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
             
@@ -239,7 +239,7 @@ def refresh_project_event_listener(function):
 
     return wrapper
 
-def initialize_project_list(view, reload_projects=False, new_file_node=False):
+def initialize_project_list(view, reload_projects=False, new_file_node_created=False):
 
     global _UrtextProjectList
 
@@ -250,7 +250,7 @@ def initialize_project_list(view, reload_projects=False, new_file_node=False):
     if not folders and view.file_name():
         folder = os.path.dirname(view.file_name())
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(folder, new_file_node=new_file_node)
+            _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
         else:
             _UrtextProjectList = ProjectList(
                 folder,
@@ -258,7 +258,7 @@ def initialize_project_list(view, reload_projects=False, new_file_node=False):
     elif folders:
         current_path = folders[0]
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(current_path, new_file_node=new_file_node)
+            _UrtextProjectList.add_project(current_path, new_file_node_created=new_file_node_created)
         else:
             _UrtextProjectList = ProjectList(
                 current_path,
@@ -567,7 +567,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
 class NewFileNodeCommand(UrtextTextCommand):
 
-    @refresh_project_text_command(new_file_node=True)
+    @refresh_project_text_command(new_file_node_created=True)
     def run(self):
         path = None
         if self.view and self.view.file_name():

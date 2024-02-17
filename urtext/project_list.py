@@ -24,19 +24,22 @@ class ProjectList():
         self.current_project = None
         self.editor_methods = editor_methods
         self.add_project(entry_point)
+        for project in self.projects:
+            project.initialize()
+        for project in self.projects:
+            project.compile()
 
-    def add_project(self, path, new_file_node=False):
+    def add_project(self, path, new_file_node_created=False):
         """ recursively add folders """
         paths = []
         for p in self.projects:
             paths.extend([entry['path'] for entry in p.settings['paths']])
         if path not in paths:
-            if os.path.basename(path) not in ['urtext_files']:
-                project = UrtextProject(path, 
-                    project_list=self,
-                    editor_methods=self.editor_methods,
-                    new_file_node=new_file_node)
-                self.projects.append(project)
+            project = UrtextProject(path, 
+                project_list=self,
+                editor_methods=self.editor_methods,
+                new_file_node_created=new_file_node_created)
+            self.projects.append(project)
 
     def handle_link(self, 
         string, 
@@ -179,6 +182,7 @@ class ProjectList():
 
     def move_file(self, 
         old_filename, 
+        source_project_name_or_path,
         destination_project_name_or_path,
         replace_links=True):
 
@@ -187,6 +191,8 @@ class ProjectList():
         node ID duplication in the new project location, and 
         optionally replacing links to every affected node.
         """
+        source_project = self.get_project(
+            source_project_name_or_path)
         destination_project = self.get_project(
             destination_project_name_or_path)
 
@@ -194,12 +200,12 @@ class ProjectList():
             print('Destination project `'+ destination_project_name_or_path +'` was not found.')
             return None
 
-        if old_filename not in self.current_project.files:
+        if old_filename not in source_project.files:
             print('File '+ old_filename +' not included in the current project.')
             return None
 
-        affected_nodes = list(self.current_project.files[old_filename].nodes)        
-        self.current_project.drop_file(old_filename)
+        affected_nodes = list(source_project.files[old_filename].nodes)        
+        source_project.drop_file(old_filename)
         new_filename = os.path.join(
             destination_project.settings['paths'][0]['path'],
             os.path.basename(old_filename))
@@ -218,7 +224,7 @@ class ProjectList():
         if replace_links:
             for node in affected_nodes:
                 self.replace_links(
-                    self.current_project.title(),
+                    source_project.title(),
                     destination_project.title(),                   
                     node.id)
         return True

@@ -44,7 +44,7 @@ class UrtextProject:
         entry_point, 
         project_list=None, 
         editor_methods={},
-        new_file_node=False):
+        new_file_node_created=False):
 
         self.settings = default_project_settings()
         self.project_list = project_list
@@ -74,11 +74,13 @@ class UrtextProject:
             max_workers=1)        
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)
-        self.execute(self._initialize_project, new_file_node=new_file_node)
+        self.new_file_node_created = new_file_node_created
     
-    def _initialize_project(self, new_file_node=False):
-        self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
+    def initialize(self):
+        self.execute(self._initialize)        
 
+    def _initialize(self):
+        self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self._get_features_from_folder(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'features'), None)
@@ -98,6 +100,10 @@ class UrtextProject:
                 self._parse_file(file)
         elif os.path.exists(self.entry_point):
             self.entry_path = os.path.dirname(self.entry_point)      
+            self.settings['paths'].append({
+                'path' : self.entry_path,
+                'recurse' : False
+                })
             self._parse_file(self.entry_point)
         else:
             return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
@@ -109,7 +115,7 @@ class UrtextProject:
                 if file not in self.files:
                     self._parse_file(file)
 
-        if len(self.nodes) == 0 and not new_file_node:
+        if len(self.nodes) == 0 and not self.new_file_node_created:
             return self.handle_error_message(
                 '\n'.join([
                     'No Urtext files are in this folder.',
@@ -121,16 +127,10 @@ class UrtextProject:
             node.metadata.convert_node_links()
 
         self._mark_dynamic_nodes()
-        
-        self._compile() ## TODO fix
-        if len(self.extensions) > 0 or len(self.directives) > 0:
-            self._compile()
-
-        self.compiled = True
-        self.last_compile_time = time.time() - self.time
-        self.time = time.time()
         self._run_hook('after_project_initialized')
-        self.handle_info_message('"%s" compiled' % self.settings['project_title'])
+
+    def compile(self):
+        self.execute(self._compile, len(self.directives), len(self.extensions))
 
     def _parse_file(self, filename, try_buffer=False):
         if self._filter_filenames(filename) == None:
@@ -1533,16 +1533,28 @@ class UrtextProject:
 
     """ Project Compile """
 
-    def _compile(self, events=['-project_compiled']):
-        self._verify_links_globally()
+    def _compile(self, 
+        num_directives,
+        num_extensions,
+        events=['-project_compiled']):
+        
         self._add_all_sub_tags()
         for file in [f for f in self.files if not self.files[f].errors]:
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
+        if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
+            return self._compile(len(self.directives), len(self.extensions))
+        else:
+            return self._after_compile()
 
+    def _after_compile(self):
+        self._verify_links_globally()
+        self.compiled = True
+        self.last_compile_time = time.time() - self.time
+        self.time = time.time()
+        self.handle_info_message('"%s" compiled' % self.settings['project_title'])
+   
     def _compile_file(self, filename, events=[]):
-        if self.files[filename].errors:
-            return []
         modified_targets = []
         modified_files = []
         processed_targets = []
