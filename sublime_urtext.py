@@ -137,6 +137,11 @@ def close_file(filename):
         view.set_scratch(True)
         view.close()
 
+def retarget_view(old_filename, new_filename):
+    view = sublime.active_window().find_open_file(old_filename)
+    if view:
+        view.retarget(new_filename)
+
 editor_methods = {
     'open_file_to_position' : open_file_to_position,
     'error_message' : sublime.error_message,
@@ -155,6 +160,7 @@ editor_methods = {
     'status_message' : show_status,
     'close_file': close_file,
     'save_file': save_file,
+    'retarget_view' : retarget_view,
 }
 
 def refresh_project_text_command(change_project=True, mouse=False, new_file_node_created=False):

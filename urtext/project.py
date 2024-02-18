@@ -855,7 +855,8 @@ class UrtextProject:
                 'Link is not in the project.')
 
         if link['kind'] == 'NODE':
-            return self.open_node(
+            self.project_list.set_current_project(link['project'])
+            return self.project_list.current_project.open_node(
                 link['node_id'],
                 position=link['dest_position'])
 

@@ -220,13 +220,19 @@ class ProjectList():
             print('EXCEPTION project_list line 210 #todo handle')
             print(Exception)
             return None
- 
+
         if replace_links:
             for node in affected_nodes:
                 self.replace_links(
                     source_project.title(),
                     destination_project.title(),                   
                     node.id)
+        source_project._run_hook('on_file_moved_to_other_project',
+            old_filename,
+            new_filename)
+
+        self.run_editor_method('retarget_view', old_filename, new_filename)
+
         return True
 
     def get_all_meta_pairs(self):
@@ -273,3 +279,9 @@ class ProjectList():
         if not project:
             project = self.current_project
         project.delete_file(file_name)
+
+    def run_editor_method(self, method_name, *args, **kwargs):
+        if method_name in self.editor_methods:
+            return self.editor_methods[method_name](*args, **kwargs)
+        print('No editor method available for "%s"' % method_name)
+        return False
