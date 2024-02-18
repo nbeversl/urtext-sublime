@@ -31,15 +31,18 @@ class ProjectList():
 
     def add_project(self, path, new_file_node_created=False):
         """ recursively add folders """
-        paths = []
-        for p in self.projects:
-            paths.extend([entry['path'] for entry in p.settings['paths']])
-        if path not in paths:
-            project = UrtextProject(path, 
-                project_list=self,
-                editor_methods=self.editor_methods,
-                new_file_node_created=new_file_node_created)
-            self.projects.append(project)
+        if os.path.exists(path):
+            paths = []
+            for p in self.projects:
+                paths.extend([entry['path'] for entry in p.settings['paths']])
+            if path not in paths:
+                project = UrtextProject(path, 
+                    project_list=self,
+                    editor_methods=self.editor_methods,
+                    new_file_node_created=new_file_node_created)
+                self.projects.append(project)
+        else:
+            print('No path %s' % path )
 
     def handle_link(self, 
         string, 
