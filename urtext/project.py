@@ -90,21 +90,22 @@ class UrtextProject:
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
-        if os.path.exists(self.entry_point) and os.path.isdir(self.entry_point):
-            self.entry_path = self.entry_point
-            self.settings['paths'].append({
-                'path' : self.entry_point,
-                'recurse' : False
-                })
-            for file in self._get_included_files():
-                self._parse_file(file)
-        elif os.path.exists(self.entry_point):
-            self.entry_path = os.path.dirname(self.entry_point)      
-            self.settings['paths'].append({
-                'path' : self.entry_path,
-                'recurse' : False
-                })
-            self._parse_file(self.entry_point)
+        if os.path.exists(self.entry_point):
+            if os.path.isdir(self.entry_point):
+                self.settings['paths'].append({
+                    'path' : self.entry_point,
+                    'recurse' : False
+                    })
+                for file in self._get_included_files():
+                    self._parse_file(file)
+            else:
+                self._parse_file(self.entry_point)
+            if len(self.nodes):
+                self.entry_path = os.path.dirname(self.entry_point)      
+                self.settings['paths'].append({
+                    'path' : self.entry_path,
+                    'recurse' : False
+                    })
         else:
             return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
 
@@ -259,8 +260,7 @@ class UrtextProject:
                             rewrites[link] = ''.join([
                                 syntax.missing_link_opening_wrapper,
                                 title_only,
-                                suffix
-                            ])
+                                suffix])
                         elif link not in rewrites:
                             rewrites[link] = ''.join([
                                 syntax.link_opening_wrapper,
@@ -270,8 +270,7 @@ class UrtextProject:
                         rewrites[link] = ''.join([
                                 syntax.link_opening_wrapper,
                                 node_id,
-                                suffix
-                            ])
+                                suffix])
                 if rewrites:
                     contents = self.files[filename]._get_contents()
                     for old_link in rewrites:
@@ -467,8 +466,6 @@ class UrtextProject:
                         return self.nodes[node_id].filename
         return False
 
-
-
     def _mark_dynamic_nodes(self):
         for target in self.dynamic_definitions:
             if target in self.nodes:
@@ -501,7 +498,6 @@ class UrtextProject:
             self._clear_settings_from(node)
             del self.nodes[node.id]
 
-
     def delete_file(self, filename):
         return self.execute(
             self._delete_file, 
@@ -529,10 +525,7 @@ class UrtextProject:
                 'on_file_renamed', 
                 old_filename, 
                 new_filename)
-    
-    """ 
-    filtering files to skip 
-    """
+
     def _filter_filenames(self, filename):
         if filename in ['urtext_files','.git']:
             return None            
@@ -913,6 +906,7 @@ class UrtextProject:
         return_link = None
         link_start = None
         link_end = None
+        project = self
 
         self._parse_file(filename, try_buffer=try_buffer)
 
@@ -940,6 +934,7 @@ class UrtextProject:
         if http_link and not urtext_link:
             kind ='HTTP'
             return_link = http_link
+            project = None
 
         if urtext_link:
             return_link = urtext_link
@@ -950,19 +945,22 @@ class UrtextProject:
                         break
             else:
                 kind = 'NODE'
+                if match.group(2):
+                    project = self.project_list.get_project(match.group(2))
                 node_id = utils.get_id_from_link(full_match)
-                if node_id in self.nodes:
-                    if match.group(8):
-                        dest_position = self.nodes[node_id].start_position + int(match.group(8)[1:])
+                if node_id in project.nodes:
+                    if match.group(10):
+                        dest_position = project.nodes[node_id].start_position + int(match.group(10)[1:])
                     else:
-                        dest_position = self.nodes[node_id].start_position
-                    filename = self.nodes[node_id].filename
+                        dest_position = project.nodes[node_id].start_position
+                    filename = project.nodes[node_id].filename
                 else:
                     kind = 'MISSING'
             if kind == 'FILE':
                 return_link = return_link[2:-2].strip()
                 if return_link[0] == '~':
                     return_link = os.path.expanduser(return_link)
+                project = None
 
         return {
             'kind' : kind, 
@@ -973,6 +971,7 @@ class UrtextProject:
             'link_end_position': link_end,
             'dest_position' : dest_position,
             'full_match' : full_match,
+            'project': project.title() if project else None,
             }
             
     def _is_duplicate_id(self, node_id):
@@ -1404,7 +1403,6 @@ class UrtextProject:
         """
         return tuple of (value.text, value.timestamp)
         """
-
         values_occurrences = self.get_all_values_for_key_with_frequency(key)
         values = values_occurrences.keys()
         if self.settings['meta_browser_sort_values_by'] == 'frequency':
@@ -1757,5 +1755,3 @@ def make_link(string):
 
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
-
-
