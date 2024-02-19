@@ -548,7 +548,7 @@ class UrtextProject:
                 "utf-8"
                 ).decode("unicode_escape")
 
-        filename = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        filename = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 
         new_node_contents, node_id, cursor_pos = self._new_node(
             date=date,
