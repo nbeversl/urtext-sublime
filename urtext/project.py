@@ -1576,14 +1576,14 @@ class UrtextProject:
                                 targeted_output, 
                                 target, 
                                 dd)
+                            if target in self.nodes:
+                                self.nodes[target].dynamic = True
                             if modified_target and modified_target not in modified_targets:
                                 modified_targets.append(modified_target)
 
-        for target in modified_targets:
-            if target in self.nodes:
-                self.nodes[target].dynamic = True
-                if self.nodes[target].filename not in modified_files:
-                    modified_files.append(self.nodes[target].filename)
+        for target in modified_targets:        
+            if self.nodes[target].filename not in modified_files:
+                modified_files.append(self.nodes[target].filename)
 
         return modified_files
 
