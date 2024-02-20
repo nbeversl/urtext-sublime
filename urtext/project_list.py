@@ -112,6 +112,7 @@ class ProjectList():
         if ( not self.current_project ) or ( 
             project.title() != self.current_project.title() ) :
            self.current_project = project
+           # self.run_editor_method('set_window_folder', self.current_project.settings['paths'][0])
            print('Switched to project: ' + self.current_project.title())
         return project
 
@@ -207,7 +208,7 @@ class ProjectList():
             print('File '+ old_filename +' not included in the current project.')
             return None
 
-        affected_nodes = list(source_project.files[old_filename].nodes)        
+        moved_nodes = list(source_project.files[old_filename].nodes)        
         source_project.drop_file(old_filename)
         new_filename = os.path.join(
             destination_project.settings['paths'][0]['path'],
@@ -218,25 +219,25 @@ class ProjectList():
         duplicate nodes in the destination project
         """
         try:
-            destination_project.add_file(new_filename)    
+            changed_ids = destination_project.add_file(new_filename) 
         except Exception:
-            print('EXCEPTION project_list line 210 #todo handle')
-            print(Exception)
             return None
 
         if replace_links:
-            for node in affected_nodes:
-                self.replace_links(
-                    source_project.title(),
-                    destination_project.title(),                   
-                    node.id)
+            for moved_node in moved_nodes:
+                nodes_with_links = source_project.get_links_to(moved_node.id, as_nodes=True)
+                for node_with_link in nodes_with_links:
+                    node_with_link.replace_links(
+                        moved_node.id,
+                        new_project=destination_project.title())
+
         source_project._run_hook('on_file_moved_to_other_project',
             old_filename,
             new_filename)
 
         self.run_editor_method('retarget_view', old_filename, new_filename)
 
-        return True
+        return changed_ids
 
     def get_all_meta_pairs(self):
         meta_values = []
