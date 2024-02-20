@@ -561,18 +561,11 @@ class UrtextProject:
             metadata=metadata)
         
         filename += '.urtext'
-        print('PATH IS')
-        print(path)
-        print('FILENAME IS')
-        print(filename)
-        print('ENTRY PATH IS')
-        print(self.entry_path)
         if path:
             filename = os.path.join(path, filename)
         else:
             filename = os.path.join(self.entry_path, filename)
 
-        # BUG HERE - file might get overwritten. Small chance.
         if os.path.isfile(filename):
             suffix = 2
             resolved_filename = filename
@@ -1585,9 +1578,6 @@ class UrtextProject:
         if target_file:
             filename = utils.get_id_from_link(target_file)
             filename = os.path.join(self.entry_point, filename)
-            #? TODO -- If the file is an export, need to make sure it is remembered
-            # when parsed so duplicate titles can be avoided
-            #self.exports[filename] = dynamic_definition
             utils.write_file_contents(filename, output)
             return filename
         virtual_target = syntax.virtual_target_match_c.match(target)

@@ -64,6 +64,7 @@ class PopNode:
         source_file_contents = self.project.files[source_filename]._get_contents()
         popped_node_contents = source_file_contents[start:end].strip()
         pre_offset = 2 if self.project.nodes[popped_node_id].compact else 1
+        post_offset = 0 if self.project.nodes[popped_node_id].compact else 1
         parent_id = self.project.nodes[popped_node_id].parent.id
         popped_node_is_compact = self.project.nodes[popped_node_id].compact
         
@@ -110,7 +111,7 @@ class PopNode:
             source_file_contents[:start - pre_offset],
             insertion,
             '\n' if popped_node_is_compact else '',
-            source_file_contents[end + 1:]
+            source_file_contents[end + post_offset:]
             ])
         if os.path.exists(source_filename):
             os.remove(source_filename)

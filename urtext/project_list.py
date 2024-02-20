@@ -290,7 +290,7 @@ class ProjectList():
         return False
 
     def can_use_extension(self, feature_name):
-        if self.current_project and feature in self.current_project.extensions:
+        if self.current_project and feature_name in self.current_project.extensions:
             return True
         print('%s not available' % feature_name)
         return False
