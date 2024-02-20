@@ -147,6 +147,8 @@ class UrtextNode:
     def get_links(self, contents):
         stripped_contents = contents
         replaced_contents = contents
+        # bug here
+        # for link in syntax.any_link_or_pointer_c.finditer(contents):
         for link in syntax.node_link_or_pointer_c.finditer(contents):
             self.links.append(link.group())
             stripped_contents = stripped_contents.replace(

@@ -53,7 +53,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -101,11 +101,17 @@ class UrtextProject:
             else:
                 self._parse_file(self.entry_point)
             if len(self.nodes):
-                self.entry_path = os.path.dirname(self.entry_point)      
+                self.entry_path = os.path.dirname(self.entry_point)
+                print('ENTRY PATH INITIALLY')
+                print(self.entry_path)
+                print(self.entry_point)     
                 self.settings['paths'].append({
                     'path' : self.entry_path,
                     'recurse' : False
                     })
+            else:
+                print('NOPE!')
+                print(self.entry_point)
         else:
             return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
 
@@ -237,7 +243,7 @@ class UrtextProject:
                     changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
 
-        return new_file
+        return new_file, changed_ids
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -556,11 +562,27 @@ class UrtextProject:
             contents_format=contents_format,
             metadata=metadata)
         
-        filename = filename + '.urtext'
+        filename += '.urtext'
+        print('PATH IS')
+        print(path)
+        print('FILENAME IS')
+        print(filename)
+        print('ENTRY PATH IS')
+        print(self.entry_path)
         if path:
             filename = os.path.join(path, filename)
         else:
             filename = os.path.join(self.entry_path, filename)
+
+        # BUG HERE - file might get overwritten. Small chance.
+        if os.path.isfile(filename):
+            suffix = 2
+            resolved_filename = filename
+            while os.path.isfile(resolved_filename):
+                resolved_filename = filename.replace('.urtext', ' (dup name %s).urtext' % str(suffix))
+                suffix += 1
+            filename = resolved_filename
+
         utils.write_file_contents(filename, new_node_contents)
         new_file = self.urtext_file(filename, self)
         
@@ -805,7 +827,6 @@ class UrtextProject:
         links_to = [i for i in list(self.nodes) if to_id in self.nodes[i].links_ids()]
         if as_nodes:
             return [self.nodes[n] for n in links_to]
-        return links_to
 
     def get_links_from(self, from_id, as_nodes=False):
         if from_id in self.nodes:
@@ -1501,7 +1522,7 @@ class UrtextProject:
         events=['-project_compiled']):
         
         self._add_all_sub_tags()
-        for file in [f for f in self.files if not self.files[f].errors]:
+        for file in list([f for f in self.files if not self.files[f].errors]):
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
         if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
@@ -1520,6 +1541,7 @@ class UrtextProject:
         modified_targets = []
         modified_files = []
         processed_targets = []
+
         for node in self.files[filename].nodes:
             for dd in self.get_dynamic_defs(target_node=node, source_node=node):
                 new_targets = []

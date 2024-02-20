@@ -112,7 +112,6 @@ class ProjectList():
         if ( not self.current_project ) or ( 
             project.title() != self.current_project.title() ) :
            self.current_project = project
-           # self.run_editor_method('set_window_folder', self.current_project.settings['paths'][0])
            print('Switched to project: ' + self.current_project.title())
         return project
 
