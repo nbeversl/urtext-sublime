@@ -360,9 +360,36 @@ class UrtextNode:
         return contents
 
     def descendants(self):
-        n = node_descendants(self)
-        print('DESC', n)
-        return n
+        return node_descendants(self)
+
+    def replace_links(self, original_id, new_id='', new_project=''):
+        if not new_id and not new_project:
+            return None
+        if not new_id:
+            new_id = original_id
+        pattern_to_replace = r''.join([
+            syntax.node_link_opening_wrapper_match,
+            re.escape(original_id),
+            syntax.link_closing_wrapper
+        ])
+        if new_id:
+            replacement = ''.join([
+                syntax.link_opening_wrapper,
+                new_id,
+                syntax.link_closing_wrapper
+                ])
+        if new_project:
+            replacement = ''.join([
+                syntax.other_project_link_prefix,
+                '"', new_project,'"',
+                syntax.link_opening_wrapper,
+                new_id,
+                syntax.link_closing_wrapper,
+            ])
+        new_contents = self.contents(stripped=False)
+        for link in re.finditer(pattern_to_replace, new_contents):
+            new_contents = new_contents.replace(link.group(), replacement, 1)
+        self.set_content(new_contents)
 
 def node_descendants(node, known_descendants=[]):
     # differentiate between pointer and "real" descendants

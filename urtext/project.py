@@ -1209,39 +1209,6 @@ class UrtextProject:
             node_id = random.choice(list(self.nodes))
             self.open_node(node_id)
         return None
-    
-    def replace_links(self, original_id, new_id='', new_project=''):
-        if not new_id and not new_project:
-            return None
-        if not new_id:
-            new_id = original_id
-        pattern_to_replace = r''.join([
-                syntax.node_link_opening_wrapper_match,
-                original_id,
-                syntax.link_closing_wrapper
-            ])
-        if new_id:
-            replacement = ''.join([
-                syntax.link_opening_wrapper,
-                new_id,
-                syntax.link_closing_wrapper
-                ])
-        if new_project:
-            replacement = ''.join([
-                syntax.other_project_link_prefix,
-                '"',new_project,'"',
-                syntax.link_opening_wrapper,
-                new_id,
-                syntax.link_closing_wrapper,
-            ])
-        for filename in list(self.files):
-            to_replace = pattern_to_replace
-            new_contents = self.files[filename]._get_contents()
-            for pointer in re.finditer(to_replace+'>', new_contents):
-                new_contents = new_contents.replace(pointer.group(), replacement, 1)
-            for link in re.finditer(to_replace, new_contents):
-                new_contents = new_contents.replace(link.group(), replacement, 1)
-            self.files[filename]._set_contents(new_contents)
 
     def on_modified(self, filename, bypass=False):
         return self.execute(self._on_modified, filename, bypass=bypass)
