@@ -26,3 +26,9 @@ def write_file_contents(filename, contents):
         os.remove(filename)    
     with open(filename, 'w', encoding='utf-8' ) as f:
         f.write(contents)    
+
+def get_path_from_link(link):
+    match = syntax.file_link_c.match(link)
+    if match:
+        return match.group(1)
+    return link

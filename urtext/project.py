@@ -1046,27 +1046,27 @@ class UrtextProject:
                     self.settings['paths'][0]['recurse_subfolders'] = to_boolean(values[0])
                 continue
 
-            if entry.keyname == 'paths':
-                if entry.is_node:
-                    for n in entry.meta_values[0].children:
-                        path = n.metadata.get_first_value('path')
-                        recurse = n.metadata.get_first_value('recurse_subfolders')
-                        if path and path not in [entry['path'] for entry in self.settings['paths']]:
-                            self.settings['paths'].append({
-                                'path': path,
-                                'recurse_subfolders': True if recurse.lower() in ['yes', 'true'] else False
-                            })
+            if entry.keyname == 'paths' and entry.is_node:
+                for n in entry.meta_values[0].children:
+                    path = n.metadata.get_first_value('path')
+                    recurse = n.metadata.get_first_value('recurse_subfolders')
+                    if path and path not in [entry['path'] for entry in self.settings['paths']]:
+                        self.settings['paths'].append({
+                            'path': path,
+                            'recurse_subfolders': True if recurse.lower() in ['yes', 'true'] else False
+                        })
                 continue
 
             if entry.keyname == 'other_entry_points':
                 for v in entry.text_values():
-                    self.project_list.add_project(v)
+                    self.project_list.add_project(
+                        utils.get_path_from_link(v))
                 continue
 
             if entry.keyname == 'features':
                 for v in entry.text_values():
                     self._get_features_from_folder(
-                        v,
+                        utils.get_path_from_link(v),
                         self.nodes[node.id].filename)
                 continue
 
@@ -1296,13 +1296,9 @@ class UrtextProject:
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
-        any_duplicate_ids = self._parse_file(filename)        
-        if any_duplicate_ids:
-            self._log_item(
-                filename, 
-                'File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
-            return
-        return self.execute(self._compile_file(filename))
+        new_file, changed_ids = self._parse_file(filename)        
+        self.execute(self._compile_file(filename))
+        return changed_ids
 
     def drop_file(self, filename):
         self.execute(self._drop_file, filename)
