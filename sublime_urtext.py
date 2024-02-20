@@ -161,7 +161,6 @@ editor_methods = {
     'close_file': close_file,
     'save_file': save_file,
     'retarget_view' : retarget_view,
-    'set_window_folder': set_window_folder,
 }
 
 def refresh_project_text_command(mouse=False, new_file_node_created=False):
@@ -175,15 +174,12 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
             
             view = args[0].view
             edit = args[1]
+            window = sublime.active_window()
 
-            _UrtextProjectList = initialize_project_list(view,
+            _UrtextProjectList = initialize_project_list(window,
                 new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
-                        
-            window = sublime.active_window()            
-            view = window.active_view()
-            window_id = window.id()
 
             # get the current project first from the view
             if view and view.file_name():
@@ -219,7 +215,6 @@ def refresh_project_event_listener(function):
         if not window: return
         
         view = window.active_view()
-        window_id = window.id()
 
         if view and view.file_name():
             current_path = os.path.dirname(view.file_name())
@@ -238,29 +233,32 @@ def refresh_project_event_listener(function):
 
     return wrapper
 
-def initialize_project_list(view, reload_projects=False, new_file_node_created=False):
+def initialize_project_list(window, reload_projects=False, new_file_node_created=False):
 
     global _UrtextProjectList
 
     if reload_projects:
         _UrtextProjectList = None
 
-    folders = view.window().folders()
-    if not folders and view.file_name():
+    folders = window.folders()
+    view = window.active_view()
+    if not folders and view and view.file_name():
         folder = os.path.dirname(view.file_name())
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+            if not _UrtextProjectList.set_current_project(folder):
+                _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
         else:
             _UrtextProjectList = ProjectList(
                 folder,
                 editor_methods=editor_methods)    
     elif folders:
-        current_path = folders[0]
+        folder = folders[0]
         if _UrtextProjectList:
-            _UrtextProjectList.add_project(current_path, new_file_node_created=new_file_node_created)
+            if not _UrtextProjectList.set_current_project(folder):
+                _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
         else:
             _UrtextProjectList = ProjectList(
-                current_path,
+                folder,
                 editor_methods=editor_methods)
 
     elif not _UrtextProjectList:
@@ -613,7 +611,7 @@ class UrtextReloadProjectCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        if initialize_project_list(self.view, reload_projects=True) == None:
+        if initialize_project_list(self.window, reload_projects=True) == None:
             print('No Urtext Project')
             return None
 
