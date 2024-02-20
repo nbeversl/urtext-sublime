@@ -161,9 +161,10 @@ editor_methods = {
     'close_file': close_file,
     'save_file': save_file,
     'retarget_view' : retarget_view,
+    'set_window_folder': set_window_folder,
 }
 
-def refresh_project_text_command(change_project=True, mouse=False, new_file_node_created=False):
+def refresh_project_text_command(mouse=False, new_file_node_created=False):
     """ 
     Determine which project we are in based on the Sublime window.
     Used as a decorator in every command class.
@@ -179,21 +180,13 @@ def refresh_project_text_command(change_project=True, mouse=False, new_file_node
                 new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
-            
-            if not change_project:
-                args[0].edit = edit
-                args[0]._UrtextProjectList = _UrtextProjectList
-                return function(args[0])
-            
-            window = sublime.active_window()
-            if not window:
-                return print('NO ACTIVE WINDOW')
-            
+                        
+            window = sublime.active_window()            
             view = window.active_view()
             window_id = window.id()
 
             # get the current project first from the view
-            if view.file_name():
+            if view and view.file_name():
                 _UrtextProjectList.set_current_project(
                     os.path.dirname(view.file_name()))
            
@@ -409,9 +402,10 @@ class MouseOpenUrtextLinkCommand(sublime_plugin.TextCommand):
 
 class NodeBrowserCommand(UrtextTextCommand):
     
-    @refresh_project_text_command(change_project=False)
+    @refresh_project_text_command()
     def run(self):
-                
+        if not self._UrtextProjectList.current_project:
+            return print('NO project current')
         self.window = self.view.window()
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 
