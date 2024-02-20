@@ -23,9 +23,7 @@ class ProjectList():
         self.extensions = {}
         self.current_project = None
         self.editor_methods = editor_methods
-        self.add_project(entry_point)
-        for project in self.projects:
-            project.initialize()
+        self.add_project(entry_point)            
         for project in self.projects:
             project.compile()
 
@@ -40,7 +38,9 @@ class ProjectList():
                     project_list=self,
                     editor_methods=self.editor_methods,
                     new_file_node_created=new_file_node_created)
-                self.projects.append(project)
+                project.initialize()
+                if project.title() not in [p.title() for p in self.projects]:
+                    self.projects.append(project)
         else:
             print('No path %s' % path )
 
@@ -288,3 +288,10 @@ class ProjectList():
             return self.editor_methods[method_name](*args, **kwargs)
         print('No editor method available for "%s"' % method_name)
         return False
+
+    def can_use_extension(self, feature_name):
+        if self.current_project and feature in self.current_project.extensions:
+            return True
+        print('%s not available' % feature_name)
+        return False
+
