@@ -96,15 +96,13 @@ class UrtextProject:
                     'path' : self.entry_point,
                     'recurse' : False
                     })
+                self.entry_path = self.entry_point
                 for file in self._get_included_files():
                     self._parse_file(file)
             else:
                 self._parse_file(self.entry_point)
-            if len(self.nodes):
                 self.entry_path = os.path.dirname(self.entry_point)
-                print('ENTRY PATH INITIALLY')
-                print(self.entry_path)
-                print(self.entry_point)     
+            if len(self.nodes):
                 self.settings['paths'].append({
                     'path' : self.entry_path,
                     'recurse' : False
