@@ -85,7 +85,8 @@ class ProjectList():
         project = self._get_project_from_path(
             os.path.dirname(filename))
         if project:
-            return project.on_modified(filename)
+            self.current_project = project
+            project.on_modified(filename)
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):

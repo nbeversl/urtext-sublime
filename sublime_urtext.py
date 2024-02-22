@@ -181,18 +181,6 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
             if not _UrtextProjectList:
                 return None
 
-            # get the current project first from the view
-            if view and view.file_name():
-                _UrtextProjectList.set_current_project(
-                    os.path.dirname(view.file_name()))
-           
-            # then try the window
-            else:
-                for folder in window.folders():
-                    if _UrtextProjectList.set_current_project(folder): 
-                        break
-
-            # If there is a current project, return it
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
@@ -205,32 +193,15 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
 
 def refresh_project_event_listener(function):
 
-    def wrapper(*args):
-        view = args[1]
-
-        #  only run if Urtext project list is initialized
-        if not _UrtextProjectList: return None
-        
-        window = sublime.active_window()
-        if not window: return
-        
-        view = window.active_view()
-
-        if view and view.file_name():
-            current_path = os.path.dirname(view.file_name())
-            _UrtextProjectList.set_current_project(current_path)
-            args[0]._UrtextProjectList = _UrtextProjectList
-            return function(*args)
-
-        for folder in window.folders():
-            if _UrtextProjectList.set_current_project(folder): break
+    def wrapper(*args, **kwargs):
+    
+        if not _UrtextProjectList:
+            return None
 
         if _UrtextProjectList.current_project:
             args[0]._UrtextProjectList = _UrtextProjectList
             return function(*args)
-
         return None
-
     return wrapper
 
 def initialize_project_list(window, reload_projects=False, new_file_node_created=False):
@@ -240,31 +211,25 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
     if reload_projects:
         _UrtextProjectList = None
 
-    folders = window.folders()
     view = window.active_view()
-    if not folders and view and view.file_name():
+    folder = None
+    
+    if view and view.file_name():
         folder = os.path.dirname(view.file_name())
-        if _UrtextProjectList:
+
+    if _UrtextProjectList:
+        if not _UrtextProjectList.current_project:
             if not _UrtextProjectList.set_current_project(folder):
                 _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
-        else:
+    else:
+        if folder:
             _UrtextProjectList = ProjectList(
                 folder,
                 editor_methods=editor_methods)    
-    elif folders:
-        folder = folders[0]
-        if _UrtextProjectList:
-            if not _UrtextProjectList.set_current_project(folder):
-                _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
         else:
-            _UrtextProjectList = ProjectList(
-                folder,
-                editor_methods=editor_methods)
-
-    elif not _UrtextProjectList:
-        sublime.error_message(
-            'No folder is open in this window.\n' +
-            'To use Urtext, create or open an existing folder in this window.')
+            sublime.error_message(
+                'No folder or Urtext file is open in this window.\n' +
+                'To use Urtext, create or open an existing folder in this window.')
 
     return _UrtextProjectList
 
@@ -343,10 +308,9 @@ class UrtextEventListeners(EventListener):
     @refresh_project_event_listener
     def on_query_completions(self, view, prefix, locations):
         if self._UrtextProjectList and self._UrtextProjectList.current_project:
-            current_path = os.path.dirname(view.file_name())
-            if self._UrtextProjectList.get_project(current_path):
+            if self._UrtextProjectList.set_current_project(os.path.dirname(view.file_name())):
                 subl_completions = []
-                proj_completions = self._UrtextProjectList.get_all_meta_pairs()
+                proj_completions = self._UrtextProjectList.current_project.get_all_meta_pairs()
                 for c in proj_completions:
                     if '::' in c:
                         t = c.split('::')
