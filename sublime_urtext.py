@@ -211,12 +211,12 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
     if reload_projects:
         _UrtextProjectList = None
 
-    view = window.active_view()
-    folder = None
-
     if _UrtextProjectList and _UrtextProjectList.current_project:
         return _UrtextProjectList
     
+    view = window.active_view()
+    folder = None
+
     if view and view.file_name():
         folder = os.path.dirname(view.file_name())
  
@@ -230,7 +230,7 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
             folder = project_data["folders"][0]["path"]
     if _UrtextProjectList and folder:
         if not _UrtextProjectList.set_current_project(folder):
-            _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+            return _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
     elif folder:
         _UrtextProjectList = ProjectList(
             folder,
@@ -347,7 +347,7 @@ class OpenUrtextLinkCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         line, cursor = get_line_and_cursor(self.view)
-        link = self._UrtextProjectList.handle_link(
+        self._UrtextProjectList.handle_link(
             line, 
             self.view.file_name(),
             col_pos=cursor)
