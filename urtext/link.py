@@ -6,8 +6,9 @@ else:
 
 class UrtextLink:
 
-	def __init__(self, string):
+	def __init__(self, string, col_pos=0):
 		self.string = string.strip()
+        self.col_pos = col_pos
         self.project = None
         self.project_link = None
         self.is_http = False
@@ -38,14 +39,14 @@ class UrtextLink:
 
         http_link = url_match(string)
         if http_link:
-            if col_pos <= http_link.end():
+            if self.col_pos <= http_link.end():
                 http_link_present = True
                 link_start = http_link.start()
                 link_end = http_link.end()
                 http_link = in_project_link = http_link.group().strip()
 
         for match in syntax.any_link_or_pointer_c.finditer(string):
-            if col_pos <= match.end():
+            if self.col_pos <= match.end():
                 if http_link_present and (
                     link_end < match.end()) and (
                     link_end < match.start()):
