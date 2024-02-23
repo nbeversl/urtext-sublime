@@ -907,8 +907,7 @@ class UrtextProject:
         string,
         filename,
         col_pos=0,
-        try_buffer=True,
-        file_pos=None):
+        try_buffer=True):
 
         kind = None
         urtext_link = None
