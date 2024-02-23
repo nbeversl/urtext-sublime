@@ -22,6 +22,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.utils as utils
+    from Urtext.urtext.link import UrtextLink
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -33,6 +34,8 @@ else:
     import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.utils as utils
+    from urtext.link import UrtextLink
+
 
 class UrtextProject:
 
@@ -142,7 +145,6 @@ class UrtextProject:
             self._add_to_excluded_files(filename)
             return False
 
-        buffer_contents = None
         if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
@@ -836,70 +838,30 @@ class UrtextProject:
         return links
 
     def handle_link(self, 
-        string,
+        link,
         filename,
         col_pos=0):
 
-        link = self.parse_link(
-            string,
-            filename,
-            col_pos=col_pos)
+        link = self.parse_link(link.string, filename, col_pos=col_pos)
 
-        if not link:
-            if not self.compiled:
-                message = "Project is still compiling"
+        if link.is_node and link.node_id in self.nodes:
+            if link.is_action:
+                for dd in self.get_dynamic_defs(source_node=self.nodes[link.node_id]):
+                    if dd.source_node.id == link.node_id:
+                        output = dd.process(flags=['-link_clicked'])
+                        if output not in [False, None]:
+                            for target in dd.targets:
+                                target_output = dd.preserve_title_if_present(target) + output
+                                self._direct_output(target_output, target, dd)
             else:
-                message = "No link"
-            return self.handle_info_message(message)
+                dest_node_position = self.nodes[link.node_id].start_position + link.dest_node_position
+                return self.open_node(
+                    link.node_id,
+                    position=dest_node_position)
 
-        if not link['kind']:
-            if not self.compiled:
-                return self.handle_info_message(
-                    'Project is still compiling')
-            return self.handle_info_message(
-                'No link found')
-
-        if link['kind'] == 'MISSING':
-            if not self.compiled:
-                self.handle_info_message(
-                    'Project is still compiling')
-            return self.handle_info_message( 
-                'Link is not in the project.')
-
-        if link['kind'] == 'NODE':
-            self.project_list.set_current_project(link['project'])
-            return self.project_list.current_project.open_node(
-                link['node_id'],
-                position=link['dest_position'])
-
-        if link['kind'] == 'ACTION':
-            if link['node_id'] not in self.nodes:
-                if not self.compiled:
-                    return self.handle_info_message(
-                        'Project is still compiling')
-                return self.handle_info_message(
-                    'Node ' + link['node_id'] + ' is not in the project')
-            else:
-                if link['node_id'] in self.nodes:
-                    for dd in self.get_dynamic_defs(source_node=self.nodes[link['node_id']]):
-                        if dd.source_node.id == link['node_id']:
-                            output = dd.process(flags=['-link_clicked'])
-                            if output not in [False, None]:
-                                for target in dd.targets:
-                                    target_output = dd.preserve_title_if_present(target) + output
-                                    self._direct_output(target_output, target, dd)
-        if link['kind'] == 'FILE':
-            if os.path.exists(link['link']):
-                return self.run_editor_method(
-                    'open_external_file', 
-                    link['link'])            
-            else:
-                return self.run_editor_method(
-                    'open_external_file', 
-                    os.path.join(self.entry_path, link['link']))
-        
-        if link['kind'] == 'HTTP':
-            return self.run_editor_method('open_http_link', link['link'])
+        elif link.is_node:
+            link.is_missing = True
+            return self.handle_unusable_link(urtext_link)
 
         return link
 
@@ -910,83 +872,9 @@ class UrtextProject:
         try_buffer=True,
         file_pos=None):
 
-        kind = None
-        urtext_link = None
-        http_link = None
-        node_id = None
-        dest_position = None
-        full_match = None
-        return_link = None
-        link_start = None
-        link_end = None
-        project = self
-
         self._parse_file(filename, try_buffer=try_buffer)
+        return UrtextLink(string, filename, col_pos=col_pos)
 
-        http_link_present = False
-        http_link = url_match(string)
-        if http_link:
-            if col_pos <= http_link.end():
-                http_link_present = True
-                link_start = http_link.start()
-                link_end = http_link.end()
-                http_link = full_match = http_link.group().strip()
-
-        for match in syntax.any_link_or_pointer_c.finditer(string):
-            if col_pos <= match.end():
-                if http_link_present and (
-                    link_end < match.end()) and (
-                    link_end < match.start()):
-                    break
-                urtext_link = match.group()
-                link_start = match.start()
-                link_end = match.end()
-                full_match = match.group()
-                break
-
-        if http_link and not urtext_link:
-            kind ='HTTP'
-            return_link = http_link
-            project = None
-
-        if urtext_link:
-            return_link = urtext_link
-            if urtext_link[1] in syntax.link_modifiers.values():
-                for kind in syntax.link_modifiers:
-                    if urtext_link[1] == syntax.link_modifiers[kind]:
-                        kind = kind.upper()
-                        break
-            else:
-                kind = 'NODE'
-                print('IT IS A NODE')
-                print(match.groups())
-                node_id = utils.get_id_from_link(full_match)
-                print(node_id)
-                if node_id in self.nodes:
-                    print(match.groups())
-                    if match.group(11):
-                        dest_position = project.nodes[node_id].start_position + int(match.group(11)[1:])
-                    else:
-                        dest_position = project.nodes[node_id].start_position
-                    filename = project.nodes[node_id].filename
-                else:
-                    kind = 'MISSING'
-            if kind == 'FILE':
-                return_link = return_link[2:-2].strip()
-                if return_link[0] == '~':
-                    return_link = os.path.expanduser(return_link)
-                project = None
-
-        return {
-            'kind' : kind, 
-            'link' : return_link, 
-            'filename' : filename,
-            'node_id' : node_id,
-            'dest_position' : dest_position,
-            'full_match' : full_match,
-            'project': project.title() if project else None,
-            }
-            
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
 
