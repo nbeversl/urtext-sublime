@@ -127,8 +127,8 @@ class ProjectList():
         if ( not self.current_project ) or ( 
             project.title() != self.current_project.title() ) :
             self.current_project = project
-        self.current_project.run_editor_method('popup',
-            'Switched to project: %s ' % self.current_project.title())
+            self.current_project.run_editor_method('popup',
+                'Switched to project: %s ' % self.current_project.title())
         return self.current_project
 
     def build_contextual_link(self, 

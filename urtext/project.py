@@ -843,7 +843,6 @@ class UrtextProject:
         col_pos=0):
 
         link = self.parse_link(link.string, filename, col_pos=col_pos)
-
         if link.is_node and link.node_id in self.nodes:
             if link.is_action:
                 for dd in self.get_dynamic_defs(source_node=self.nodes[link.node_id]):
@@ -854,14 +853,12 @@ class UrtextProject:
                                 target_output = dd.preserve_title_if_present(target) + output
                                 self._direct_output(target_output, target, dd)
             else:
-                dest_node_position = self.nodes[link.node_id].start_position + link.dest_node_position
                 return self.open_node(
                     link.node_id,
-                    position=dest_node_position)
+                    position=self.nodes[link.node_id].start_position + link.dest_node_position)
 
         elif link.is_node:
             link.is_missing = True
-            return self.handle_unusable_link(urtext_link)
 
         return link
 
