@@ -31,20 +31,18 @@ class UrtextLink:
             print(in_project_link.groups())
             node_id = in_project_link.group(9)
             self.node_id = node_id
+            return True
 
         urtext_link = None
-        full_match = None
-        link_start = None
-        link_end = None
-
         http_link_present = False
+
         http_link = url_match(string)
         if http_link:
             if col_pos <= http_link.end():
                 http_link_present = True
                 link_start = http_link.start()
                 link_end = http_link.end()
-                http_link = full_match = http_link.group().strip()
+                http_link = in_project_link = http_link.group().strip()
 
         for match in syntax.any_link_or_pointer_c.finditer(string):
             if col_pos <= match.end():
@@ -55,7 +53,7 @@ class UrtextLink:
                 urtext_link = match.group()
                 link_start = match.start()
                 link_end = match.end()
-                full_match = match.group()
+                in_project_link = match.group()
                 break
 
         if http_link and not urtext_link:
@@ -73,7 +71,7 @@ class UrtextLink:
                 self.is_node = True
                 print('IT IS A NODE')
                 print(match.groups())
-                self.node_id = utils.get_id_from_link(full_match)
+                self.node_id = utils.get_id_from_link(in_project_link)
                 if match.group(11):
                     self.dest_node_position = int(match.group(11)[1:])
                 return True
