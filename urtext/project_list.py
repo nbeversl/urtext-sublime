@@ -67,6 +67,7 @@ class ProjectList():
                 self.current_project.run_editor_method('popup',
                     'Project is not available.')
                 return None
+        if node_id:
             return self.current_project.handle_link(
                 string,
                 filename,
@@ -113,7 +114,8 @@ class ProjectList():
         if ( not self.current_project ) or ( 
             project.title() != self.current_project.title() ) :
            self.current_project = project
-           print('Switched to project: ' + self.current_project.title())
+           self.current_project.run_editor_method('popup',
+            'Switched to project: %s ' % self.current_project.title())
         return project
 
     def build_contextual_link(self, 

@@ -213,23 +213,32 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
 
     view = window.active_view()
     folder = None
+
+    if _UrtextProjectList and _UrtextProjectList.current_project:
+        return _UrtextProjectList
     
     if view and view.file_name():
         folder = os.path.dirname(view.file_name())
-
-    if _UrtextProjectList:
-        if not _UrtextProjectList.current_project:
-            if not _UrtextProjectList.set_current_project(folder):
-                _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+ 
+    if not folder:
+        folders = window.folders()
+        if folders:
+            folder = folders[0]
+    if not folder:
+        project_data = window.project_data()
+        if "folders" in project_data and project_data["paths"]:
+            folder = project_data["folders"][0]["path"]
+    if _UrtextProjectList and folder:
+        if not _UrtextProjectList.set_current_project(folder):
+            _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+    elif folder:
+        _UrtextProjectList = ProjectList(
+            folder,
+            editor_methods=editor_methods)    
     else:
-        if folder:
-            _UrtextProjectList = ProjectList(
-                folder,
-                editor_methods=editor_methods)    
-        else:
-            sublime.error_message(
-                'No folder or Urtext file is open in this window.\n' +
-                'To use Urtext, create or open an existing folder in this window.')
+        sublime.error_message(
+            'No folder or Urtext file is open in this window.\n' +
+            'To use Urtext, create or open an existing folder in this window.')
 
     return _UrtextProjectList
 
@@ -671,6 +680,14 @@ class FileOutlineDropdown(UrtextTextCommand):
             preview_urtext_node(self.menu.menu[index].id)
         else:
             self.selection_has_changed = True  
+
+class OpenCurrentFileProjectFolderCommand(UrtextTextCommand):
+
+    @refresh_project_text_command()
+    def run(self):
+        if self.view and self.view.file_name():
+            path = os.path.dirname(self.view.file_name())
+            self.window.set_project_data({"folders": [{"path": path}] })
 
 """
 Utility functions

@@ -1309,7 +1309,7 @@ class UrtextProject:
         if moving files between projects.
         """
         new_file, changed_ids = self._parse_file(filename)        
-        self.execute(self._compile_file(filename))
+        self.execute(self._compile_file, filename)
         return changed_ids
 
     def drop_file(self, filename):
