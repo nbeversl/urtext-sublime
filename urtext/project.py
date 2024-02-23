@@ -145,6 +145,7 @@ class UrtextProject:
             self._add_to_excluded_files(filename)
             return False
 
+        buffer_contents = None
         if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
