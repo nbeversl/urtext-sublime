@@ -4,11 +4,11 @@ import re
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
+    from Urtext.urtext.link import UrtextLink
 else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
-
-project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
+    from urtext.link import UrtextLink
 
 class ProjectList():
 
@@ -47,8 +47,7 @@ class ProjectList():
     def handle_link(self, 
         string, 
         filename, 
-        col_pos=0,
-        file_pos=0):
+        col_pos=0):
 
         """
         Given a line of text, looks for a link to a node or project
@@ -56,34 +55,47 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
-        node_id = None
-        string = string.strip()
-        link = project_link_r.search(string)
-        project_name = link.group(2)
-        node_id = link.group(4)
+        if not string.strip():
+            return
+        link = UrtextLink(string, filename, col_pos=col_pos)
+        if not link.is_usable:
+            return self.handle_unusable_link(link, '')
+
         """ If a project name has been specified, locate the project and node """
-        if project_name:
-            if not self.set_current_project(project_name):
+        if link.project_name:
+            if not self.set_current_project(link.project_name):
                 self.current_project.run_editor_method('popup',
                     'Project is not available.')
                 return None
-            if not node_id:
-                return
 
-        if node_id:
+        elif filename:
+            self.set_current_project(os.path.dirname(filename))
+
+        if self.current_project and link.is_node:
             return self.current_project.handle_link(
-                string,
+                link,
                 filename,
                 col_pos=col_pos)
 
-        """ Otherwise, set the project, search the link for a link in the current project """
-        if filename:
-            self.set_current_project(os.path.dirname(filename))
-            if self.current_project:
-                return self.current_project.handle_link( 
-                    string,
-                    filename,
-                    col_pos=col_pos)
+        if link.is_file:
+            if os.path.exists(link.path):
+                return self.run_editor_method(
+                    'open_external_file', 
+                    link.path)            
+            elif self.current_project: # try as relative path
+                return self.run_editor_method(
+                    'open_external_file', 
+                    os.path.join(self.current_project.entry_path, link.path))
+        
+        if link.is_http:
+            return self.run_editor_method('open_http_link', link.url)
+
+    def handle_unusable_link(self, urtext_link, message):
+        if self.current_project and not self.current_project.compiled:
+            message = "Project is still compiling"
+        else:
+            message = "No link"
+        return self.run_editor_method('popup', message)
 
     def on_modified(self, filename):
         project = self._get_project_from_path(
@@ -117,8 +129,8 @@ class ProjectList():
         if ( not self.current_project ) or ( 
             project.title() != self.current_project.title() ) :
             self.current_project = project
-        self.current_project.run_editor_method('popup',
-            'Switched to project: %s ' % self.current_project.title())
+            self.current_project.run_editor_method('popup',
+                'Switched to project: %s ' % self.current_project.title())
         return self.current_project
 
     def build_contextual_link(self, 
