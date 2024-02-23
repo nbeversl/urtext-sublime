@@ -55,6 +55,8 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
+        if not string.strip():
+            return
         link = UrtextLink(string, filename, col_pos=col_pos)
         if not link.is_usable:
             return self.handle_unusable_link(link, '')

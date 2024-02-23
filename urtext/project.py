@@ -859,6 +859,7 @@ class UrtextProject:
 
         elif link.is_node:
             link.is_missing = True
+            self.handle_info_message('Node is not in the project.')
 
         return link
 
