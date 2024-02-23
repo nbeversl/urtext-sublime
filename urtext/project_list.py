@@ -8,8 +8,6 @@ else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
 
-project_link_r = re.compile(r'(=>\"(.*?)\")?.*?(\|.+>([0-9,a-z,A-Z,\s]+)\b)?')
-
 class ProjectList():
 
     def __init__(self, 
@@ -57,10 +55,21 @@ class ProjectList():
         this should be done by the calling method.
         """
         node_id = None
+        project_name = None
         string = string.strip()
-        link = project_link_r.search(string)
-        project_name = link.group(2)
-        node_id = link.group(4)
+        project = syntax.project_link_c.search(string)
+        if project:
+            project_name = project.group(2)
+            project_link = project.group()
+            string = string.replace(project_link, '')
+            print(project_name)
+        link = syntax.any_link_or_pointer_c.search(string)
+        print(link)
+        if link:
+            print(link.groups())
+            project_name = link.group(2)
+            node_id = link.group(9)
+        print(node_id)
         """ If a project name has been specified, locate the project and node """
         if project_name:
             if not self.set_current_project(project_name):

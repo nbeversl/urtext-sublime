@@ -958,12 +958,14 @@ class UrtextProject:
                         break
             else:
                 kind = 'NODE'
-                if match.group(2):
-                    project = self.project_list.get_project(match.group(2))
+                print('IT IS A NODE')
+                print(match.groups())
                 node_id = utils.get_id_from_link(full_match)
-                if node_id in project.nodes:
-                    if match.group(10):
-                        dest_position = project.nodes[node_id].start_position + int(match.group(10)[1:])
+                print(node_id)
+                if node_id in self.nodes:
+                    print(match.groups())
+                    if match.group(11):
+                        dest_position = project.nodes[node_id].start_position + int(match.group(11)[1:])
                     else:
                         dest_position = project.nodes[node_id].start_position
                     filename = project.nodes[node_id].filename
@@ -980,8 +982,6 @@ class UrtextProject:
             'link' : return_link, 
             'filename' : filename,
             'node_id' : node_id,
-            'link_start_position': link_start,
-            'link_end_position': link_end,
             'dest_position' : dest_position,
             'full_match' : full_match,
             'project': project.title() if project else None,
