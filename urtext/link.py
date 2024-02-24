@@ -25,6 +25,7 @@ class UrtextLink:
 		self.dest_node_position = 0
 		self.url = None
 		self.path = None
+		self.is_usable = False
 		self._parse_string()
 		pprint.pprint(self.__dict__) # debugging
 
