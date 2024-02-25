@@ -170,7 +170,7 @@ class ProjectList():
     def get_project_title_from_link(self, target):
         match = syntax.project_link_c.search(target)
         if match:
-            return match.group(1).strip()
+            return match.group(2).strip()
         return target
 
     def get_project_from_link(self, target):

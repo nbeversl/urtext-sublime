@@ -878,6 +878,7 @@ class UrtextProject:
         link = UrtextLink(string, filename)
         if link.is_usable:
             links.append(link)
+        string = string.replace(link.matching_string, '')
         while link.is_usable:
             string = string.replace(link.matching_string, '')
             link = UrtextLink(string, filename)

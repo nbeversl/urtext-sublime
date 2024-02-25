@@ -34,7 +34,6 @@ class UrtextLink:
 		parse_string = self.string
 		project = syntax.project_link_c.search(parse_string)
 		if project:
-			self.is_usable = True
 			self.project_name = project.group(2)
 			self.project_link = project.group()
 			parse_string = parse_string.replace(self.project_link, '')
