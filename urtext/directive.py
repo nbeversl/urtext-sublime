@@ -118,10 +118,8 @@ class UrtextDirective:
             self.params_dict[param[0]].extend(param[1:])
         
     def _parse_links(self, argument_string):
-        self.links = self.project.parse_all_links_from_string(argument_string, None)
-        for link in self.links:
-            argument_string = argument_string.replace(link.matching_string, '')
-        return argument_string
+        self.links, remaining_string = self.project.parse_all_links_from_string(argument_string, None)
+        return remaining_string
 
     def have_flags(self, flags):
         for f in force_list(flags):

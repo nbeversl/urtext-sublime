@@ -878,13 +878,13 @@ class UrtextProject:
         link = UrtextLink(string, filename)
         if link.is_usable:
             links.append(link)
-        string = string.replace(link.matching_string, '')
+        remaining_string = link.remaining_string()
         while link.is_usable:
-            string = string.replace(link.matching_string, '')
-            link = UrtextLink(string, filename)
+            remaining_string = link.remaining_string()
+            link = UrtextLink(remaining_string, filename)
             if link.is_usable:
                 links.append(link)
-        return links
+        return links, remaining_string
 
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
