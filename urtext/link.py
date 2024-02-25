@@ -26,8 +26,9 @@ class UrtextLink:
 		self.url = None
 		self.path = None
 		self.is_usable = False
+		self.matching_string = ''
 		self._parse_string()
-		pprint.pprint(self.__dict__) # debugging
+		#pprint.pprint(self.__dict__) # debugging
 
 	def _parse_string(self):
 		parse_string = self.string
@@ -65,6 +66,7 @@ class UrtextLink:
 			self.http = True
 			self.url = http_link
 			self.is_usable = True
+			self.matching_string = http_link
 			return
 
 		kind = None
@@ -82,6 +84,7 @@ class UrtextLink:
 					path = os.path.expanduser(path)
 				self.path = path  
 				self.is_usable = True
+				self.matching_string = urtext_link
 				return True
 
 			if kind == 'ACTION':
@@ -94,5 +97,6 @@ class UrtextLink:
 			self.node_id = utils.get_id_from_link(in_project_link)
 			if match.group(11):
 				self.dest_node_position = int(match.group(11)[1:])
+			self.matching_string = in_project_link
 			self.is_usable = True
 

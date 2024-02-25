@@ -56,7 +56,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        #self.is_async = False # development
+        self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -872,6 +872,18 @@ class UrtextProject:
 
         self._parse_file(filename, try_buffer=try_buffer)
         return UrtextLink(string, filename, col_pos=col_pos)
+
+    def parse_all_links_from_string(self, string, filename):
+        links = []
+        link = UrtextLink(string, filename)
+        if link.is_usable:
+            links.append(link)
+        while link.is_usable:
+            string = string.replace(link.matching_string, '')
+            link = UrtextLink(string, filename)
+            if link.is_usable:
+                links.append(link)
+        return links
 
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
