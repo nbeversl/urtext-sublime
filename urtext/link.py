@@ -105,7 +105,6 @@ class UrtextLink:
 	def remaining_string(self):
 		string = self.string
 		for substring in self.matching_strings:
-			print(substring)
 			string = string.replace(substring,'')
 		return string
 
