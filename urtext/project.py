@@ -256,7 +256,7 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    if syntax.project_link_with_node_c.match(link):
+                    if syntax.project_link_with_opt_node_c.match(link):
                         # skip links to other projects
                         continue
                     node_id = utils.get_id_from_link(link)

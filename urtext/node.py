@@ -20,7 +20,6 @@ else:
     from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
 
-
 class UrtextNode:
 
     urtext_metadata = NodeMetadata
@@ -155,10 +154,11 @@ class UrtextNode:
                 link.group(), '', 1)
             replaced_contents = replaced_contents.replace(
                 link.group(), ' '*len(link.group()), 1)        
-        for link in syntax.project_link_with_node_c.finditer(contents):
-            self.links.append(link.group())
+        for link in syntax.project_link_with_opt_node_c.finditer(contents):
+            if link.group(11):
+                self.links.append(link.group(11))
             stripped_contents = stripped_contents.replace(
-                link.group(), '', 1)        
+                link.group(1), '', 1)        
             replaced_contents = replaced_contents.replace(
                 link.group(), ' '*len(link.group()), 1)
         return stripped_contents, replaced_contents

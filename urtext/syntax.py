@@ -169,7 +169,6 @@ hash_meta = r''.join([
     timestamp,
     ')?'
     ])
-
 dd_hash_meta = hash_key + r'[A-Z,a-z].*'
 node_link = r''.join([
     node_link_opening_wrapper_match,
@@ -177,13 +176,15 @@ node_link = r''.join([
     id_pattern,
     ')\s>(?!>)'
     ])
-project_link_with_node = r''.join([
-    project_link,
-    link_opening_character_regex,
-    '(', link_modifier_group, ')',
-    '\s',
-    '(', id_pattern,')?', # might be empty
-    '\s>{1,2}(\:\d{1,99})?(?!>)'
+project_link_with_opt_node = r''.join([
+    '(', project_link, ')',
+    '('
+        '(', link_opening_character_regex, ')',
+        '(', link_modifier_group, ')',
+        '\s',
+        '(', id_pattern,')?', # might be empty
+        '\s>{1,2}(\:\d{1,99})?(?!>)'
+    ')?'
     ])
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 node_link_or_pointer = r''.join([
@@ -191,7 +192,6 @@ node_link_or_pointer = r''.join([
     '(',
     id_pattern,
     ')\s(>{1,2})(\:\d{1,99})?(?!>)'])
-
 node_action_link = r''.join([
     link_opening_character_regex,
     link_modifiers_regex['action'],
@@ -280,7 +280,7 @@ opening_wrapper_c = re.compile(opening_wrapper)
 pointer_closing_wrapper_c = re.compile(pointer_closing_wrapper)
 preformat_c = re.compile(preformat, flags=re.DOTALL)
 project_link_c = re.compile(project_link, flags=re.DOTALL)
-project_link_with_node_c = re.compile(project_link_with_node, flags=re.DOTALL)
+project_link_with_opt_node_c = re.compile(project_link_with_opt_node, flags=re.DOTALL)
 subnode_regexp_c = re.compile(sub_node, flags=re.DOTALL)
 timestamp_c = re.compile(timestamp)
 title_regex_c = re.compile(title_pattern)
@@ -291,7 +291,6 @@ metadata_replacements = re.compile("|".join([
     r'\*{0,2}\w+\:\:\{[^\}]\}', # node as meta
     r'(?:^|\s)#[A-Z,a-z].*?(\b|$)', # shorthand_meta
     ]))
-
 compiled_symbols = {
     opening_wrapper_c : 'opening_wrapper',
     closing_wrapper_c : 'closing_wrapper',
@@ -299,7 +298,6 @@ compiled_symbols = {
     compact_node_c : 'compact_node',
     meta_to_node_c : 'meta_to_node'
     }
-
 embedded_syntax_symbols = {
     re.compile(embedded_syntax_open) : 'embedded_syntax_open', 
     re.compile(embedded_syntax_close) : 'embedded_syntax_close',
