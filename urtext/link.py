@@ -28,64 +28,44 @@ class UrtextLink:
 		self.is_usable = False
 		self.matching_strings = []
 		self._parse_string()
-		#pprint.pprint(self.__dict__) # debugging
 
 	def _parse_string(self):
 		parse_string = self.string
-		project = syntax.project_link_c.search(parse_string)
-		if project:
-			self.project_name = project.group(2)
-			self.project_link = project.group()
-			self.is_usable = True
-			self.matching_strings.append(self.project_link)
-			parse_string = parse_string.replace(self.project_link, '')
-
-		urtext_link = None
-		http_link_present = False
-
 		http_link = url_match(parse_string)
+		urtext_link = syntax.any_link_or_pointer_c.search(parse_string)
 		if http_link:
-			if self.col_pos <= http_link.end():
-				http_link_present = True
-				link_start = http_link.start()
-				link_end = http_link.end()
-				http_link = in_project_link = http_link.group().strip()
+			if not urtext_link or (urtext_link and self.col_pos <= http_link.end()):
+				http_link = http_link.group().strip()
+				self.is_http = True
+				self.url = http_link
+				self.is_usable = True
+				self.matching_strings.append(http_link)
+				return
 
-		for match in syntax.any_link_or_pointer_c.finditer(parse_string):
-			if self.col_pos <= match.end():
-				if http_link_present and (
-					link_end < match.end()) and (
-					link_end < match.start()):
-					break
-				urtext_link = match.group()
-				link_start = match.start()
-				link_end = match.end()
-				in_project_link = match.group()
-				break
-
-		if http_link and not urtext_link:
-			self.http = True
-			self.url = http_link
-			self.is_usable = True
-			self.matching_strings.append(http_link)
-			return
-
-		kind = None
 		if urtext_link:
-			if urtext_link[1] in syntax.link_modifiers.values():
+			print(urtext_link.groups())
+			self.matching_strings.append(urtext_link.group())
+			if urtext_link.group(3):
+				self.project_name = urtext_link.group(3)
+				self.project_link = urtext_link.group(1)
+				self.is_usable = True
+				self.matching_strings.append(urtext_link.group())	
+
+			kind = None
+			if urtext_link.group(5) in syntax.link_modifiers.values():
 				for kind in syntax.link_modifiers:
-					if urtext_link[1] == syntax.link_modifiers[kind]:
+					if urtext_link.group(5) == syntax.link_modifiers[kind]:
 						kind = kind.upper()
 						break
 
 			if kind == 'FILE':
 				self.is_file = True
-				path = urtext_link[2:-2].strip()
+				path = urtext_link.group(9).strip()
 				if path[0] == '~':
 					path = os.path.expanduser(path)
 				self.path = path  
 				self.is_usable = True
-				self.matching_strings.append(urtext_link)
+				self.matching_strings.append(urtext_link.group())
 				return True
 
 			if kind == 'ACTION':
@@ -94,17 +74,19 @@ class UrtextLink:
 			if kind == 'MISSING':
 				self.missing = True
 
-			self.is_node = True
-			self.node_id = utils.get_id_from_link(in_project_link)
-			if match.group(11):
-				self.dest_node_position = int(match.group(11)[1:])
-			self.matching_strings.append(in_project_link)
-			self.is_usable = True
+			
+			if urtext_link.group(9):
+				self.node_id = urtext_link.group(9).strip()
+				self.is_node = True
+				if urtext_link.group(11):
+					self.dest_node_position = int(urtext_link.group(11)[1:])
+				self.matching_strings.append(urtext_link.group())
+				self.is_usable = True
 
 
 	def remaining_string(self):
 		string = self.string
 		for substring in self.matching_strings:
-			string = string.replace(substring,'')
+			string = string.replace(substring, '')
 		return string
 

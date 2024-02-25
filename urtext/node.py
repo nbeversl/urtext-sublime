@@ -10,7 +10,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
-
+    from Urtext.urtext.link import UrtextLink
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
@@ -19,6 +19,7 @@ else:
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
+    from urtext.link import UrtextLink
 
 class UrtextNode:
 
@@ -56,6 +57,7 @@ class UrtextNode:
         self.title_from_marker = False
         self.nested = nested
         self.resolved = False
+        self.filename = None
         
         contents = strip_errors(contents)
         self.full_contents = contents
@@ -102,7 +104,7 @@ class UrtextNode:
         return contents
 
     def links_ids(self):
-        return [get_id_from_link(link) for link in self.links]        
+        return [link.node_id for link in self.links if link.node_id and link.project_name == self.project.title()]
 
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
@@ -146,21 +148,14 @@ class UrtextNode:
     def get_links(self, contents):
         stripped_contents = contents
         replaced_contents = contents
-        # bug here
-        # for link in syntax.any_link_or_pointer_c.finditer(contents):
-        for link in syntax.node_link_or_pointer_c.finditer(contents):
-            self.links.append(link.group())
+        for string in syntax.node_link_or_pointer_c.finditer(contents):
+            urtext_link = UrtextLink(string.group(), self.filename)
+            if urtext_link.is_usable:
+                self.links.append(urtext_link)
             stripped_contents = stripped_contents.replace(
-                link.group(), '', 1)
+                string.group(), '', 1)
             replaced_contents = replaced_contents.replace(
-                link.group(), ' '*len(link.group()), 1)        
-        for link in syntax.project_link_with_opt_node_c.finditer(contents):
-            if link.group(11):
-                self.links.append(link.group(11))
-            stripped_contents = stripped_contents.replace(
-                link.group(1), '', 1)        
-            replaced_contents = replaced_contents.replace(
-                link.group(), ' '*len(link.group()), 1)
+                string.group(), ' '*len(string.group()), 1)
         return stripped_contents, replaced_contents
 
     def set_title(self, contents):
@@ -443,14 +438,10 @@ def strip_dynamic_definitions(contents, preserve_length=False):
     return stripped_contents
 
 def strip_nested_links(title):
-    nested_link = syntax.any_link_or_pointer_c.search(title)
-    while nested_link:
-        title = title.replace(
-            nested_link.group(), 
-            '', 
-            1)
-        nested_link = syntax.any_link_or_pointer_c.search(title)
-    return title
+    stripped_title = title
+    for nested_link in syntax.any_link_or_pointer_c.finditer(title):
+        stripped_title = title.replace(nested_link.group(), '')
+    return stripped_title
 
 def strip_errors(contents):
     return re.sub('<!.*?!>', '', contents, flags=re.DOTALL)

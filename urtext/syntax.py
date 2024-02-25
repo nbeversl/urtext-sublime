@@ -6,16 +6,16 @@ space = ' '
 # Syntax Elements
 node_opening_wrapper = '{'
 node_closing_wrapper = '}'
-link_opening_character = '|'
-link_opening_character_regex = re.escape(link_opening_character)
-link_opening_wrapper = link_opening_character + space
+link_opening_pipe = '|'
+link_opening_pipe_escaped = re.escape(link_opening_pipe)
+link_opening_wrapper = link_opening_pipe + space
 link_modifiers = {
     'file'          : '/',
     'action'        : '!',
     'missing'       : '?'
 }
 missing_link_opening_wrapper = ''.join([
-    link_opening_character,
+    link_opening_pipe,
     link_modifiers['missing'],
     space,
     ])
@@ -55,14 +55,14 @@ dynamic_def_closing_wrapper = ']]'
 resolution_identifier = ' ^ '
 virtual_target_marker = '@'
 file_link_opening_wrapper = ''.join([
-    link_opening_character,
+    link_opening_pipe,
     link_modifiers['file'],
     space])
 project_link=r''.join([
     '(', other_project_link_prefix, ')', '\"([^\"]+?)\"'])
 node_link_opening_wrapper_match = r''.join([
     '(?<!")',
-    link_opening_character_regex,
+    link_opening_pipe_escaped,
     node_link_modifier_group,
     r'\s'
     ])
@@ -151,14 +151,7 @@ link_modifiers_regex_c = {
 }
 
 # Composite match patterns
-any_link_or_pointer = r''.join([
-    '(', project_link, ')?',
-    link_opening_character_regex,
-    '(', link_modifier_group, ')',
-    '\s',
-    '(', id_pattern,')?',
-    '\s>{1,2}(\:\d{1,99})?(?!>)'
-    ])
+
 compact_node = '('+bullet+')' + r'([^\r\n]*)(?=\n|$)'
 embedded_syntax_full = embedded_syntax_open + '.*?' + embedded_syntax_close
 hash_meta = r''.join([
@@ -176,14 +169,14 @@ node_link = r''.join([
     id_pattern,
     ')\s>(?!>)'
     ])
-project_link_with_opt_node = r''.join([
-    '(', project_link, ')',
-    '('
-        '(', link_opening_character_regex, ')',
-        '(', link_modifier_group, ')',
+any_link_or_pointer = r''.join([
+    '(', project_link, ')?',
+    '(',
+        link_opening_pipe_escaped,
+        link_modifier_group,
         '\s',
         '(', id_pattern,')?', # might be empty
-        '\s>{1,2}(\:\d{1,99})?(?!>)'
+        '\s>{1,2}(\:\d{1,99})?(?!>)',
     ')?'
     ])
 function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
@@ -193,7 +186,7 @@ node_link_or_pointer = r''.join([
     id_pattern,
     ')\s(>{1,2})(\:\d{1,99})?(?!>)'])
 node_action_link = r''.join([
-    link_opening_character_regex,
+    link_opening_pipe_escaped,
     link_modifiers_regex['action'],
     '\s',
     '(',
@@ -210,7 +203,7 @@ node_pointer = r''.join([
 node_title = r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 
 file_link = r''.join([
-    link_opening_character_regex,
+    link_opening_pipe_escaped,
     link_modifiers_regex['file'],
     space,
     r'([^;]+)',
@@ -280,7 +273,6 @@ opening_wrapper_c = re.compile(opening_wrapper)
 pointer_closing_wrapper_c = re.compile(pointer_closing_wrapper)
 preformat_c = re.compile(preformat, flags=re.DOTALL)
 project_link_c = re.compile(project_link, flags=re.DOTALL)
-project_link_with_opt_node_c = re.compile(project_link_with_opt_node, flags=re.DOTALL)
 subnode_regexp_c = re.compile(sub_node, flags=re.DOTALL)
 timestamp_c = re.compile(timestamp)
 title_regex_c = re.compile(title_pattern)

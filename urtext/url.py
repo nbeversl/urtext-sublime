@@ -1320,4 +1320,3 @@ def url_match(path):
     return re.search(r"(%s)|(\w[^\s]*\.(?:%s)(/[^\s]*)?)(\s|$)" % (explicit_link, domains),
         path, 
         re.IGNORECASE)
-

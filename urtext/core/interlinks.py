@@ -33,11 +33,8 @@ class Interlinks:
         self.add_children(self.tree)
 
     def add_children(self, parent):
-        links = self.project.nodes[parent.name].links
-
-        for link in links:
-            # if link in selfexclude:
-            #     continue
+        for link in self.project.nodes[parent.name].links:
+            link = link.node_id
             if link == None:
                 child_nodename = Node('(Broken Link)', parent=parent)
                 continue

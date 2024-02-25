@@ -256,10 +256,11 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    if syntax.project_link_with_opt_node_c.match(link):
-                        # skip links to other projects
+                    if not link.node_id or link.project_name != self.title():
                         continue
-                    node_id = utils.get_id_from_link(link)
+                    node_id = link.node_id
+                    
+                    # bug here 
                     suffix = ' ' +link[-2:].strip() # preserve link/pointer                        
                     if node_id not in self.nodes:
                         title_only = node_id.split(syntax.resolution_identifier)[0]                
