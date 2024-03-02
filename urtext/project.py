@@ -22,7 +22,6 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.utils as utils
-    from Urtext.urtext.link import get_all_links_from_string
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -35,7 +34,6 @@ else:
     from urtext.project_settings import *
     import urtext.utils as utils
     from urtext.link import UrtextLink
-    from urtext.link import get_all_links_from_string
 
 
 class UrtextProject:
@@ -854,7 +852,7 @@ class UrtextProject:
         return link
 
     def parse_all_links_from_string(self, string, filename):
-        links, replaced_contents, stripped_contents = get_all_links_from_string(string)
+        links, replaced_contents, stripped_contents = utils.get_all_links_from_string(string)
         return links, stripped_contents
 
     def _is_duplicate_id(self, node_id):

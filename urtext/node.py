@@ -8,18 +8,16 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .metadata import NodeMetadata
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
-    from .utils import strip_backtick_escape, get_id_from_link, make_node_link, make_node_pointer
+    import Urtext.urtext.utils as utils
     import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.link import get_all_links_from_string
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
     from urtext.metadata import NodeMetadata, MetadataValue
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
-    from urtext.utils import strip_backtick_escape, get_id_from_link, make_node_link, make_node_pointer
+    import urtext.utils as utils
     import urtext.syntax as syntax
-    from urtext.link import get_all_links_from_string
 
 class UrtextNode:
 
@@ -146,7 +144,7 @@ class UrtextNode:
                 return resolved_id
 
     def get_links(self, contents):
-        links, replaced_contents, stripped_contents = get_all_links_from_string(contents)
+        links, replaced_contents, stripped_contents = utils.get_all_links_from_string(contents)
         for urtext_link in links:
             if urtext_link.is_node:
                 urtext_link.containing_node = self
@@ -378,15 +376,13 @@ class UrtextNode:
     def link(self, include_project=False):
         project_link = ''
         if include_project:
-            project_link = ''.join([
-                syntax.other_project_link_prefix,
-                '"', self.project.title(), '"'])
+            project_link = utils.make_project_link(self.project.title())
         return ''.join([
             project_link,
-            make_node_link(self.id)])
+            utils.make_node_link(self.id)])
 
     def pointer(self):
-        return make_node_pointer(self.id)
+        return utils.make_node_pointer(self.id)
 
 def node_descendants(node, known_descendants=[]):
     # differentiate between pointer and "real" descendants
@@ -454,7 +450,7 @@ def strip_embedded_syntaxes(
     include_backtick=True):
 
     if include_backtick:
-        stripped_contents = strip_backtick_escape(stripped_contents)
+        stripped_contents = utils.strip_backtick_escape(stripped_contents)
     replaced_contents = stripped_contents
     for e in syntax.embedded_syntax_c.finditer(stripped_contents):
         e = e.group()

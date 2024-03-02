@@ -4,15 +4,15 @@ import pprint
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.link import get_all_links_from_string
     import Urtext.urtext.utils as utils
 else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
-    from urtext.link import get_all_links_from_string
     import urtext.utils as utils
 
 class ProjectList():
+
+    utils = utils
 
     def __init__(self, 
         entry_point,
@@ -57,16 +57,9 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
-        if not string.strip():
-            return
-        links,r,r  = get_all_links_from_string(string, include_http=True)
-        if not links:
+        link = utils.get_link_from_position_in_string(string, col_pos, include_http=True)
+        if not link:
             return self.handle_unusable_link(None, '')
-        links = sorted(links, key=lambda l: l.position_in_string)
-
-        for link in links:
-            if col_pos < link.position_in_string:
-                break
         link.filename = filename
         # pprint.pprint(link.__dict__)
         """ If a project name has been specified, locate the project and node """
@@ -152,7 +145,7 @@ class ProjectList():
                 project = self.current_project
             else:
                 project = self.get_project(project_title)
-            link = utils.make_node_link(node_id)
+            link = self.utils.make_node_link(node_id)
             if pointer:
                 link = link.replace(
                     syntax.link_closing_wrapper, 

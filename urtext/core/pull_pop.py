@@ -5,10 +5,6 @@ class PopNode:
 
     name=['POP_NODE']
 
-    def __init__(self, project):
-        super().__init__(project)
-        self.running = False
-
     def pop_node_from_editor(self,
         source_filename, 
         file_pos,
@@ -16,7 +12,6 @@ class PopNode:
 
         return self.project.execute(
             self._pop_node_from_editor,
-            param_string, 
             source_filename, 
             file_pos,
             from_project=from_project)
@@ -127,23 +122,22 @@ class PullNode:
 
     name=['PULL_NODE']
 
-    def __init__(self, project):
-        super().__init__(project)
-        self.running = False
-
     def pull_node(self, 
         string, 
+        col_pos,
         destination_filename, 
         file_pos):
 
         return self.project.execute(
             self._pull_node,
             string, 
+            col_pos,
             destination_filename, 
             file_pos)
 
     def _pull_node(self, 
-        string, 
+        string,
+        col_pos,
         destination_filename, 
         file_pos):
 
@@ -151,16 +145,13 @@ class PullNode:
             return self.project.handle_info_message(
                 'Project not yet compiled.')
 
-        link = self.project.parse_link(
-            string,
-            destination_filename,
-            file_pos=file_pos)
+        link = self.project.project_list.utils.get_link_from_position_in_string(string, col_pos)
 
-        if not link or link['kind'] != 'NODE':
+        if not link or link.node_id not in self.project.nodes:
             return self.project.handle_info_message(
                 'link is not a node')
 
-        source_node = self.project.nodes[link['node_id']]
+        source_node = self.project.nodes[link.node_id]
         if source_node.id not in self.project.nodes: 
             return
         
@@ -210,7 +201,7 @@ class PullNode:
             self.syntax.node_closing_wrapper])
         
         destination_file_contents = destination_file_contents.replace(
-            link['full_match'],
+            link.matching_string,
             wrapped_contents)
 
         self.project.files[destination_filename]._set_contents(destination_file_contents)

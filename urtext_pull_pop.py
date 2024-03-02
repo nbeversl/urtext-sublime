@@ -19,9 +19,12 @@ class PullNodeCommand(UrtextTextCommand):
     def run(self):
         if self._UrtextProjectList.can_use_extension('PULL_NODE'):
             if self.view.file_name():
+                file_pos = self.view.sel()[0].a
+                col_pos = self.view.rowcol(file_pos)[1]
                 self._UrtextProjectList.current_project.extensions[
                     'PULL_NODE'
                     ].pull_node(
                         self.view.substr(self.view.line(self.view.sel()[0])),
+                        col_pos,
                         self.view.file_name(),
                         self.view.sel()[0].a)
