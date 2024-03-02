@@ -128,7 +128,6 @@ def get_all_links_from_string(string, include_http=False):
 
     return links, replaced_contents, stripped_contents
 
-
 def get_link_from_position_in_string(string, position, include_http=True):
     if not string.strip():
         return None
@@ -139,4 +138,3 @@ def get_link_from_position_in_string(string, position, include_http=True):
             if position < link.position_in_string:
                 return link
         return link
-

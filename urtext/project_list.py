@@ -1,5 +1,4 @@
 import os
-import re
 import pprint
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
@@ -145,17 +144,13 @@ class ProjectList():
                 project = self.current_project
             else:
                 project = self.get_project(project_title)
-            link = self.utils.make_node_link(node_id)
             if pointer:
-                link = link.replace(
-                    syntax.link_closing_wrapper, 
-                    syntax.pointer_closing_wrapper)
+                link = self.utils.make_node_pointer(node_id)
+            else:
+                link = self.utils.make_node_link(node_id)
             if include_project or project != self.current_project:
                 link = ''.join([
-                    syntax.other_project_link_prefix,
-                    '"',
-                    project.title(),
-                    '"',
+                    self.utils.make_project_link(project.title()),
                     link])
             return link
         
@@ -210,10 +205,8 @@ class ProjectList():
         node ID duplication in the new project location, and 
         optionally replacing links to every affected node.
         """
-        source_project = self.get_project(
-            source_project_name_or_path)
-        destination_project = self.get_project(
-            destination_project_name_or_path)
+        source_project = self.get_project(source_project_name_or_path)
+        destination_project = self.get_project(destination_project_name_or_path)
 
         if not destination_project:
             print('Destination project `'+ destination_project_name_or_path +'` was not found.')
@@ -269,9 +262,7 @@ class ProjectList():
         node_id):
         old_project = self.get_project(old_project_path_or_title)
         new_project = self.get_project(new_project_path_or_title)
-        old_project.replace_links(
-            node_id,
-            new_project=new_project.title())
+        old_project.replace_links(node_id, new_project=new_project.title())
     
     def titles(self):
         title_list = {}
@@ -289,9 +280,7 @@ class ProjectList():
         if project_title == None:
             project_title = self.current_project.title
         if project_title:
-            link = self.build_contextual_link(
-                node.id,
-                project_title=project_title)
+            link = self.build_contextual_link(node.id, project_title=project_title)
             self.current_project.run_editor_method('insert_text', link)
 
     def delete_file(self, file_name, project=None):
