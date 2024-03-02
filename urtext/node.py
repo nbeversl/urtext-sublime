@@ -31,7 +31,6 @@ class UrtextNode:
         nested=None):
 
         self.project = project
-        self.position = 0
         self.ranges = []
         self.is_tree = False
         self.is_node = True

@@ -28,7 +28,7 @@ def get_id_from_link(target):
 def make_project_link(project_name):
     return ''.join([
         syntax.other_project_link_prefix,
-        "%s" % project_name
+        '"%s"' % project_name
         ])
 
 def write_file_contents(filename, contents):

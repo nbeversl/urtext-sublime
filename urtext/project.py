@@ -255,7 +255,7 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    if link.is_file or not link.node_id or (link.project_name and link.project_name != self.title()):
+                    if link.is_file or not link.node_id or link.project_name:
                         continue
                     node_id = link.node_id
                     suffix = ' >>' if link.is_pointer else ' >'                        
@@ -592,7 +592,8 @@ class UrtextProject:
                     position=cursor_pos)
 
             return { 
-                    'filename' : filename, 
+                    'filename' : filename,
+                    'root_node': self.files[filename].root_node, 
                     'id' : self.files[filename].root_node.id,
                     'cursor_pos' : cursor_pos
                     }
