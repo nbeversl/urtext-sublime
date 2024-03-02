@@ -76,8 +76,6 @@ def get_all_links_from_string(string, include_http=False):
 			stripped_contents = stripped_contents.replace(http_link, '', 1)
 
 	for match in syntax.cross_project_link_with_node_c.finditer(replaced_contents):
-		print('CROSS PROJECT LINK WITH NODE')
-		print(match.groups())
 		link = UrtextLink(match.group())		
 		link.project_name = match.group(2)
 		link.node_id = match.group(7)
@@ -90,8 +88,6 @@ def get_all_links_from_string(string, include_http=False):
 		stripped_contents = stripped_contents.replace(match.group(), '', 1)
 
 	for match in syntax.node_link_or_pointer_c.finditer(replaced_contents):
-		print('NODE OR POINTER')
-		print(match.groups())
 		link = UrtextLink(match.group())
 
 		kind = None
@@ -128,8 +124,6 @@ def get_all_links_from_string(string, include_http=False):
 		stripped_contents = stripped_contents.replace(match.group(), '', 1)
 	
 	for match in syntax.project_link_c.finditer(replaced_contents):
-		print('PROJECT LINK ONLY')
-		print(match.groups())
 		link = UrtextLink(match.group())		
 		link.project_name = match.group(2)		
 		link.position_in_string = match.start()
