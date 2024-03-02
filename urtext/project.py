@@ -257,7 +257,7 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    if link.is_file or link.is_missing or not link.node_id or (link.project_name and link.project_name != self.title()):
+                    if link.is_file or not link.node_id or (link.project_name and link.project_name != self.title()):
                         continue
                     node_id = link.node_id
                     suffix = ' >>' if link.is_pointer else ' >'                        
@@ -268,11 +268,11 @@ class UrtextProject:
                                 syntax.missing_link_opening_wrapper,
                                 title_only,
                                 suffix])
-                        elif link.node_id not in rewrites:
-                            rewrites[link] = ''.join([
-                                syntax.link_opening_wrapper,
-                                title_only,
-                                suffix])
+                    elif link.is_missing and link not in rewrites: # node marked missing but is there
+                        rewrites[link] = ''.join([
+                            syntax.link_opening_wrapper,
+                            link.node_id,
+                            suffix])
                 if rewrites:
                     contents = self.files[filename]._get_contents()
                     for old_link in rewrites:
@@ -305,7 +305,7 @@ class UrtextProject:
                                     node_id_regex,
                                     syntax.link_closing_wrapper
                                 ]),
-                                make_link(links_to_change[node_id]), replaced_contents)
+                                utils.make_node_link(links_to_change[node_id]), replaced_contents)
                             if replaced_contents != contents:
                                 self._run_hook(
                                     'on_node_id_changed',
@@ -412,21 +412,15 @@ class UrtextProject:
     def _reject_definition(self, target_id, definition):
         message = ''.join([
                 '\nDynamic node ', 
-                syntax.link_opening_wrapper,
-                target_id,
-                syntax.link_closing_wrapper,
+                utils.make_node_link(target_id),
                 '\nalready has a definition in ', 
-                syntax.link_opening_wrapper,
-                self.dynamic_definitions[target_id].source_node.id,
-                syntax.link_closing_wrapper,
+                self.dynamic_definitions[target_id].source_node.link(),
                 '\n in file ',
                 syntax.file_link_opening_wrapper,
                 self.dynamic_definitions[target_id].source_node.filename,
                 syntax.link_closing_wrapper,
                 '\nskipping the definition in ',
-                syntax.link_opening_wrapper,
-                definition.source_node.id,
-                syntax.link_closing_wrapper,
+                definition.source_node.link(),
             ])
         self._log_item(
             self.nodes[definition.source_node.id].filename, 
@@ -1082,7 +1076,7 @@ class UrtextProject:
                     assigner = ''                 
                 for v in values:
                     if v.is_node:
-                        pairs.append(make_link(v.id))
+                        pairs.append(utils.make_node_link(v.id))
                     else:
                         pairs.append(''.join([
                             k,
@@ -1202,11 +1196,7 @@ class UrtextProject:
     def title_completions(self):
         return [
             (self.nodes[n].id, 
-                ''.join(
-                    [syntax.link_opening_wrapper,
-                    self.nodes[n].id,
-                    syntax.link_closing_wrapper,
-                    ])) 
+                ''.join(utils.make_node_link(self.nodes[n].id))) 
                 for n in list(self.nodes)]
 
     def get_keys_with_frequency(self):
@@ -1596,12 +1586,6 @@ def to_boolean(text):
         'on']:
         return True
     return False
-
-def make_link(string):
-    return ''.join([
-        syntax.link_opening_wrapper,
-        string,
-        syntax.link_closing_wrapper])
 
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False

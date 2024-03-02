@@ -5,10 +5,12 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.link import get_all_links_from_string
+    import Urtext.urtext.utils as utils
 else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
     from urtext.link import get_all_links_from_string
+    import urtext.utils as utils
 
 class ProjectList():
 
@@ -60,14 +62,13 @@ class ProjectList():
         links,r,r  = get_all_links_from_string(string, include_http=True)
         if not links:
             return self.handle_unusable_link(None, '')
-        print(links)
         links = sorted(links, key=lambda l: l.position_in_string)
 
         for link in links:
             if col_pos < link.position_in_string:
                 break
-        link.filename = filename 
-        pprint.pprint(link.__dict__)
+        link.filename = filename
+        # pprint.pprint(link.__dict__)
         """ If a project name has been specified, locate the project and node """
         if link.project_name:
             if not self.set_current_project(link.project_name):
@@ -151,10 +152,7 @@ class ProjectList():
                 project = self.current_project
             else:
                 project = self.get_project(project_title)
-            link = ''.join([
-                syntax.link_opening_wrapper,
-                node_id,
-                syntax.link_closing_wrapper])
+            link = utils.make_node_link(node_id)
             if pointer:
                 link = link.replace(
                     syntax.link_closing_wrapper, 

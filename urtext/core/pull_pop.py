@@ -10,7 +10,6 @@ class PopNode:
         self.running = False
 
     def pop_node_from_editor(self,
-        param_string, 
         source_filename, 
         file_pos,
         from_project=None):
@@ -23,7 +22,6 @@ class PopNode:
             from_project=from_project)
 
     def _pop_node_from_editor(self,
-        param_string, 
         source_filename, 
         file_pos,
         from_project=None):
@@ -56,7 +54,7 @@ class PopNode:
 
         self._pop_node(popped_node_id, from_project=from_project)
 
-    def _pop_node(self, popped_node_id, rewrite_buffer=True, from_project=None, leave_pointer=True):
+    def _pop_node(self, popped_node_id, rewrite_buffer=True, from_project=None, leave_link=False, leave_pointer=True):
 
         source_filename = self.project.nodes[popped_node_id].filename
         start = self.project.nodes[popped_node_id].start_position

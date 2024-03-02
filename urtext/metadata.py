@@ -4,11 +4,13 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from .metadata_entry import MetadataEntry
     from .metadata_value import MetadataValue
+    import Urtext.urtext.utils as utils
 else:
     from urtext.timestamp import UrtextTimestamp, default_date
     import urtext.syntax as syntax
     from urtext.metadata_entry import MetadataEntry
     from urtext.metadata_value import MetadataValue
+    import urtext.utils as utils
 
 class NodeMetadata:
 
@@ -225,13 +227,9 @@ class NodeMetadata:
         for e in entries:
             if e.is_node:
                 if convert_nodes_to_links:
-                    node_link = ''.join([
-                        syntax.link_opening_wrapper,
-                        e.meta_values[0].id,
-                        syntax.link_closing_wrapper])
-                    if node_link:
-                        values[node_link] = values.get(node_link, 0)
-                        values[node_link] += 1
+                    node_link = utils.make_node_link(e.meta_values[0].id)
+                    values[node_link] = values.get(node_link, 0)
+                    values[node_link] += 1
                 else:
                     values[e.meta_values[0].contents()] = values.get(
                         e.meta_values[0].contents(),
@@ -255,12 +253,8 @@ class NodeMetadata:
         for e in entries:
             if e.is_node:
                 if convert_nodes_to_links:
-                    node_link = ''.join([
-                        syntax.link_opening_wrapper,
-                        e.meta_values[0].id,
-                        syntax.link_closing_wrapper])
-                    if node_link:
-                        values.add(MetadataValue(node_link))
+                    node_link = utils.make_node_link(e.meta_values[0].id)
+                    values.add(MetadataValue(node_link))
                 else:
                     values.add(e.meta_values[0])
                 continue

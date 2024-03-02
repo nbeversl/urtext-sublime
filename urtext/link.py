@@ -1,5 +1,4 @@
 import os
-import pprint
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
 	import Urtext.urtext.syntax as syntax
 	from Urtext.urtext.url import url_match_c

@@ -8,7 +8,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .metadata import NodeMetadata
     from Urtext.anytree.exporter import JsonExporter
     from .dynamic import UrtextDynamicDefinition
-    from .utils import strip_backtick_escape, get_id_from_link
+    from .utils import strip_backtick_escape, get_id_from_link, make_node_link, make_node_pointer
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.link import get_all_links_from_string
 else:
@@ -17,7 +17,7 @@ else:
     from urtext.metadata import NodeMetadata, MetadataValue
     from anytree.exporter import JsonExporter
     from urtext.dynamic import UrtextDynamicDefinition
-    from urtext.utils import strip_backtick_escape, get_id_from_link
+    from urtext.utils import strip_backtick_escape, get_id_from_link, make_node_link, make_node_pointer
     import urtext.syntax as syntax
     from urtext.link import get_all_links_from_string
 
@@ -366,22 +366,27 @@ class UrtextNode:
         ])
         replacement = ''
         if new_id:
-            replacement = ''.join([
-                syntax.link_opening_wrapper,
-                new_id,
-                syntax.link_closing_wrapper
-                ])
+            replacement = self.link()
         if new_project:
-            replacement = ''.join([
-                syntax.other_project_link_prefix,
-                '"', new_project,'"',
-                replacement,
-            ])
+            replacement = self.link(include_project=True)
         print('REPLACEMENT IS ', replacement)
         new_contents = self.contents(stripped=False)
         for link in re.finditer(pattern_to_replace, new_contents):
             new_contents = new_contents.replace(link.group(), replacement, 1)
         self.set_content(new_contents)
+
+    def link(self, include_project=False):
+        project_link = ''
+        if include_project:
+            project_link = ''.join([
+                syntax.other_project_link_prefix,
+                '"', self.project.title(), '"'])
+        return ''.join([
+            project_link,
+            make_node_link(self.id)])
+
+    def pointer(self):
+        return make_node_pointer(self.id)
 
 def node_descendants(node, known_descendants=[]):
     # differentiate between pointer and "real" descendants

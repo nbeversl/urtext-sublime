@@ -32,3 +32,15 @@ def get_path_from_link(link):
     if match:
         return match.group(1)
     return link
+
+def make_node_link(node_id):
+    return ''.join([
+        syntax.link_opening_wrapper,
+        node_id,
+        syntax.link_closing_wrapper])
+
+def make_node_pointer(node_id):
+    return ''.join([
+        syntax.link_opening_wrapper,
+        node_id,
+        syntax.pointer_closing_wrapper])

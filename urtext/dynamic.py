@@ -183,9 +183,7 @@ class UrtextDynamicDefinition:
 				filename = self.project.nodes[self.source_node.id].filename
 				self.project._log_item(filename, ''.join([
 							'Dynamic node definition in ',
-							syntax.link_opening_wrapper,
-							self.source_node.id,
-							syntax.link_closing_wrapper,
+							self.source_node.link(),
 							'\n',
 							'points to nonexistent node ',
 							syntax.missing_link_opening_wrapper,

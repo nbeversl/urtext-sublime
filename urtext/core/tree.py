@@ -174,11 +174,7 @@ class TreeDirective:
                 link.append(urtext_node.id + self.syntax.link_closing_wrapper)
                 next_content.link = ''.join(link)
 
-                next_content.pointer = ''.join([
-                    self.syntax.link_opening_wrapper,
-                    urtext_node.id,
-                    self.syntax.pointer_closing_wrapper
-                    ])
+                next_content.pointer = urtext_node.pointer()
 
                 next_content.date = urtext_node.get_date(
                     self.project.settings[
