@@ -260,23 +260,21 @@ class UrtextProject:
                     if not link.node_id or link.project_name != self.title():
                         continue
                     node_id = link.node_id
-                    
-                    # bug here 
-                    suffix = ' ' +link[-2:].strip() # preserve link/pointer                        
+                    suffix = ' >>' if link.is_pointer else ' >'                        
                     if node_id not in self.nodes:
                         title_only = node_id.split(syntax.resolution_identifier)[0]                
                         if title_only not in self.nodes and link not in rewrites:
-                            rewrites[link] = ''.join([
+                            rewrites[link.node_id] = ''.join([
                                 syntax.missing_link_opening_wrapper,
                                 title_only,
                                 suffix])
                         elif link not in rewrites:
-                            rewrites[link] = ''.join([
+                            rewrites[link.node_id] = ''.join([
                                 syntax.link_opening_wrapper,
                                 title_only,
                                 suffix])
-                    elif syntax.missing_link_opening_wrapper in link:
-                        rewrites[link] = ''.join([
+                    elif link.is_missing:
+                        rewrites[link.node_id] = ''.join([
                                 syntax.link_opening_wrapper,
                                 node_id,
                                 suffix])
