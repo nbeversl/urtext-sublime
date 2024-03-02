@@ -147,21 +147,19 @@ class TraverseFileTree(EventListener):
 
 			full_line, cursor = get_line_and_cursor(view)
 
-			link = self._UrtextProjectList.current_project.parse_link(
+			link = self._UrtextProjectList.utils.get_link_from_position_in_string(
 	            full_line,
-	            this_file,
-	            col_pos=cursor,
-	            try_buffer=False)
+	            cursor)
+
 			# if there are no links on this line:
-			if not link or link['kind'] != 'NODE':  
+			if not link or not link.node_id or link.node_id not in self._UrtextProjectList.current_project.nodes:
 				return
 
-			filename = self._UrtextProjectList.current_project.get_file_name(link['node_id'])
-			position = self._UrtextProjectList.current_project.nodes[link['node_id']].position
+			filename = self._UrtextProjectList.current_project.get_file_name(link.node_id)
+			position = self._UrtextProjectList.current_project.nodes[link.node_id].start_position
 			
 			""" If the tree is linking to another part of its own file """
 			if filename == this_file:
-				
 				instances = self.find_filename_in_window(filename, window)
 
 				# Only allow two total instances of this file; 
@@ -214,8 +212,8 @@ class TraverseFileTree(EventListener):
 				file_view.sel().add(position)
 				window.focus_group(self.tree_group)
 				highlight_region(file_view, [
-					self._UrtextProjectList.current_project.nodes[link['node_id']].start_position,
-					self._UrtextProjectList.current_project.nodes[link['node_id']].end_position
+					self._UrtextProjectList.current_project.nodes[link.node_id].start_position,
+					self._UrtextProjectList.current_project.nodes[link.node_id].end_position
 						])
 
 	def find_filename_in_window(self, filename, window):
