@@ -1316,7 +1316,12 @@ domains = r'|'.join(tlds)
 
 explicit_link = r"http(s)?\:\/\/[^\s]+"
 
+url_match_c = re.compile(r"(%s)|(\w[^\s]*\.(?:%s)(/[^\s]*)?)(\s|$)" % (explicit_link, domains), re.IGNORECASE)
+
 def url_match(path):
     return re.search(r"(%s)|(\w[^\s]*\.(?:%s)(/[^\s]*)?)(\s|$)" % (explicit_link, domains),
         path, 
         re.IGNORECASE)
+
+def all_url_matches(string):
+    return [match for match in url_match_c.finditer(string)]

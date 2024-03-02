@@ -1,14 +1,14 @@
 import os
 import re
-
+import pprint
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.link import UrtextLink
+    from Urtext.urtext.link import get_all_links_from_string
 else:
     from urtext.project import UrtextProject
     import urtext.syntax as syntax
-    from urtext.link import UrtextLink
+    from urtext.link import get_all_links_from_string
 
 class ProjectList():
 
@@ -57,10 +57,17 @@ class ProjectList():
         """
         if not string.strip():
             return
-        link = UrtextLink(string, filename, col_pos=col_pos)
-        if not link.is_usable:
-            return self.handle_unusable_link(link, '')
+        links,r,r  = get_all_links_from_string(string, include_http=True)
+        if not links:
+            return self.handle_unusable_link(None, '')
+        print(links)
+        links = sorted(links, key=lambda l: l.position_in_string)
 
+        for link in links:
+            if col_pos < link.position_in_string:
+                break
+        link.filename = filename 
+        pprint.pprint(link.__dict__)
         """ If a project name has been specified, locate the project and node """
         if link.project_name:
             if not self.set_current_project(link.project_name):

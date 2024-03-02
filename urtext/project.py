@@ -22,7 +22,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from Urtext.urtext.project_settings import *
     import Urtext.urtext.utils as utils
-    from Urtext.urtext.link import UrtextLink
+    from Urtext.urtext.link import get_all_links_from_string
 else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
@@ -35,6 +35,7 @@ else:
     from urtext.project_settings import *
     import urtext.utils as utils
     from urtext.link import UrtextLink
+    from urtext.link import get_all_links_from_string
 
 
 class UrtextProject:
@@ -298,9 +299,9 @@ class UrtextProject:
                         continue
                     links_to_change = {}
                     for link in project_node.links:
-                        link = utils.get_id_from_link(link)
-                        if link == old_id:
-                            links_to_change[link] = new_id
+                        node_id = link.node_id
+                        if node_id == old_id:
+                            links_to_change[node_id] = new_id
                     if links_to_change:
                         contents = self.files[project_node.filename]._get_contents()
                         for node_id in list(links_to_change.keys()):
@@ -844,7 +845,7 @@ class UrtextProject:
         filename,
         col_pos=0):
 
-        link = self.parse_link(link.string, filename, col_pos=col_pos)
+        self._parse_file(filename, try_buffer=True)
         if link.is_node and link.node_id in self.nodes:
             if link.is_action:
                 for dd in self.get_dynamic_defs(source_node=self.nodes[link.node_id]):
@@ -865,27 +866,9 @@ class UrtextProject:
 
         return link
 
-    def parse_link(self, 
-        string,
-        filename,
-        col_pos=0,
-        try_buffer=True):
-
-        self._parse_file(filename, try_buffer=try_buffer)
-        return UrtextLink(string, filename, col_pos=col_pos)
-
     def parse_all_links_from_string(self, string, filename):
-        links = []
-        link = UrtextLink(string, filename)
-        if link.is_usable:
-            links.append(link)
-        remaining_string = link.remaining_string()
-        while link.is_usable:
-            remaining_string = link.remaining_string()
-            link = UrtextLink(remaining_string, filename)
-            if link.is_usable:
-                links.append(link)
-        return links, remaining_string
+        links, replaced_contents, stripped_contents = get_all_links_from_string(string)
+        return links, stripped_contents
 
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes

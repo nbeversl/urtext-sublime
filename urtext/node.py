@@ -10,7 +10,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .dynamic import UrtextDynamicDefinition
     from .utils import strip_backtick_escape, get_id_from_link
     import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.link import UrtextLink
+    from Urtext.urtext.link import get_all_links_from_string
 else:
     from anytree import Node, PreOrderIter
     from urtext.metadata import MetadataEntry
@@ -19,7 +19,7 @@ else:
     from urtext.dynamic import UrtextDynamicDefinition
     from urtext.utils import strip_backtick_escape, get_id_from_link
     import urtext.syntax as syntax
-    from urtext.link import UrtextLink
+    from urtext.link import get_all_links_from_string
 
 class UrtextNode:
 
@@ -146,16 +146,11 @@ class UrtextNode:
                 return resolved_id
 
     def get_links(self, contents):
-        stripped_contents = contents
-        replaced_contents = contents
-        for string in syntax.node_link_or_pointer_c.finditer(contents):
-            urtext_link = UrtextLink(string.group(), self.filename)
-            if urtext_link.is_usable:
+        links, replaced_contents, stripped_contents = get_all_links_from_string(contents)
+        for urtext_link in links:
+            if urtext_link.is_node:
+                urtext_link.containing_node = self
                 self.links.append(urtext_link)
-            stripped_contents = stripped_contents.replace(
-                string.group(), '', 1)
-            replaced_contents = replaced_contents.replace(
-                string.group(), ' '*len(string.group()), 1)
         return stripped_contents, replaced_contents
 
     def set_title(self, contents):
@@ -369,6 +364,7 @@ class UrtextNode:
             re.escape(original_id),
             syntax.link_closing_wrapper
         ])
+        replacement = ''
         if new_id:
             replacement = ''.join([
                 syntax.link_opening_wrapper,
@@ -379,10 +375,9 @@ class UrtextNode:
             replacement = ''.join([
                 syntax.other_project_link_prefix,
                 '"', new_project,'"',
-                syntax.link_opening_wrapper,
-                new_id,
-                syntax.link_closing_wrapper,
+                replacement,
             ])
+        print('REPLACEMENT IS ', replacement)
         new_contents = self.contents(stripped=False)
         for link in re.finditer(pattern_to_replace, new_contents):
             new_contents = new_contents.replace(link.group(), replacement, 1)
@@ -439,7 +434,7 @@ def strip_dynamic_definitions(contents, preserve_length=False):
 
 def strip_nested_links(title):
     stripped_title = title
-    for nested_link in syntax.any_link_or_pointer_c.finditer(title):
+    for nested_link in syntax.node_link_or_pointer_c.finditer(title):
         stripped_title = title.replace(nested_link.group(), '')
     return stripped_title
 

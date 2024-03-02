@@ -21,13 +21,9 @@ missing_link_opening_wrapper = ''.join([
     ])
 link_modifiers_regex = {}
 for modifier in link_modifiers:
-    link_modifiers_regex[modifier] = ''.join([
-        r'(?<=\|)',
-        re.escape(link_modifiers[modifier])
-        ])
+    link_modifiers_regex[modifier] = ''.join([r'(?<=\|)', re.escape(link_modifiers[modifier])])
 link_modifier_group = r'(' + '|'.join(
-    ['(' + m + ')' for m in link_modifiers_regex.values()]
-    ) + ')?'
+    ['(' + m + ')' for m in link_modifiers_regex.values()]) + ')?'
 node_link_modifier_group = r'(' + '|'.join([
     '(' + m + ')' for m in [
         link_modifiers_regex['action'],
@@ -163,28 +159,29 @@ hash_meta = r''.join([
     ')?'
     ])
 dd_hash_meta = hash_key + r'[A-Z,a-z].*'
-node_link = r''.join([
-    node_link_opening_wrapper_match,
-    '(',
-    id_pattern,
-    ')\s>(?!>)'
-    ])
-any_link_or_pointer = r''.join([
-    '(', project_link, ')?',
-    '(',
-        link_opening_pipe_escaped,
-        link_modifier_group,
-        '\s',
-        '(', id_pattern,')?', # might be empty
-        '\s>{1,2}(\:\d{1,99})?(?!>)',
-    ')?'
-    ])
-function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
 node_link_or_pointer = r''.join([
-    node_link_opening_wrapper_match,
-    '(',
-    id_pattern,
-    ')\s(>{1,2})(\:\d{1,99})?(?!>)'])
+    link_opening_pipe_escaped,
+    link_modifier_group,
+    '\s',
+    '(', id_pattern, ')',
+    '(\s>{1,2})(\:\d{1,99})?(?!>)',
+    ])
+
+node_link = r''.join([
+    link_opening_pipe_escaped,
+    link_modifier_group,
+    '(', id_pattern, ')',
+    '(\s>)(\:\d{1,99})?(?!>)',
+    ])
+
+
+cross_project_link_with_node = r''.join ([
+    project_link,
+    node_link_or_pointer,
+    ])
+
+function = r'([A-Z_\-\+\>]+)\((((\|\s)(([^\|>\n\r])+)\s>)?([^\)]*?))\)'
+
 node_action_link = r''.join([
     link_opening_pipe_escaped,
     link_modifiers_regex['action'],
@@ -205,7 +202,7 @@ node_title = r'^'+ title_pattern +r'(?=' + title_marker  + pattern_break + ')'
 file_link = r''.join([
     link_opening_pipe_escaped,
     link_modifiers_regex['file'],
-    space,
+    '\s',
     r'([^;]+)',
     link_closing_wrapper])
 
@@ -236,10 +233,11 @@ dd_key_op_value = r''.join([
     '))',
     ])
 # Compiled Patterns
-any_link_or_pointer_c = re.compile(any_link_or_pointer)
+node_link_or_pointer_c = re.compile(node_link_or_pointer)
 bullet_c = re.compile(bullet)
 compact_node_c = re.compile(compact_node, flags=re.MULTILINE)
 closing_wrapper_c = re.compile(closing_wrapper)
+cross_project_link_with_node_c = re.compile(cross_project_link_with_node)
 dd_flags_c = re.compile(dd_flags)
 dd_hash_meta_c = re.compile(dd_hash_meta)
 dd_key_with_opt_flags = re.compile(dd_key_with_opt_flags)
