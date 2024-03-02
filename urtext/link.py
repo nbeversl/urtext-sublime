@@ -96,7 +96,6 @@ def get_all_links_from_string(string, include_http=False):
 				if match.group(1) == syntax.link_modifiers[kind]:
 					kind = kind.upper()
 					break
-
 		if kind == 'FILE':
 			link.is_file = True
 			path = match.group(5).strip()
@@ -108,7 +107,7 @@ def get_all_links_from_string(string, include_http=False):
 			link.is_action = True
 
 		if kind == 'MISSING':
-			link.missing = True
+			link.is_missing = True
 
 		if match.group(5):
 			link.node_id = match.group(5).strip()

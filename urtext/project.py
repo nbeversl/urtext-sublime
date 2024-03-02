@@ -257,31 +257,26 @@ class UrtextProject:
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
-                    if not link.node_id or link.project_name != self.title():
+                    if link.is_file or link.is_missing or not link.node_id or (link.project_name and link.project_name != self.title()):
                         continue
                     node_id = link.node_id
                     suffix = ' >>' if link.is_pointer else ' >'                        
                     if node_id not in self.nodes:
                         title_only = node_id.split(syntax.resolution_identifier)[0]                
-                        if title_only not in self.nodes and link not in rewrites:
-                            rewrites[link.node_id] = ''.join([
+                        if title_only not in self.nodes and link.node_id not in rewrites:
+                            rewrites[link] = ''.join([
                                 syntax.missing_link_opening_wrapper,
                                 title_only,
                                 suffix])
-                        elif link not in rewrites:
-                            rewrites[link.node_id] = ''.join([
+                        elif link.node_id not in rewrites:
+                            rewrites[link] = ''.join([
                                 syntax.link_opening_wrapper,
                                 title_only,
-                                suffix])
-                    elif link.is_missing:
-                        rewrites[link.node_id] = ''.join([
-                                syntax.link_opening_wrapper,
-                                node_id,
                                 suffix])
                 if rewrites:
                     contents = self.files[filename]._get_contents()
                     for old_link in rewrites:
-                        contents = contents.replace(old_link, rewrites[old_link])
+                        contents = contents.replace(old_link.matching_string, rewrites[old_link])
                     self.files[filename]._set_contents(contents)
 
     def _add_all_sub_tags(self):
