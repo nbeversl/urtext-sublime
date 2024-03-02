@@ -38,6 +38,7 @@ class UrtextDynamicDefinition:
 		self.show = None
 		self.returns_text = True
 		self.param_string = param_string
+		self.system_contents = []
 		self.init_self(param_string)	
 		self.source_node = None # set by node once compiled
 		if not self.show:
@@ -61,7 +62,7 @@ class UrtextDynamicDefinition:
 				self.operations.append(op)
 				continue
 
-			if func in ['TARGET', '>']:
+			elif func in ['TARGET', '>']:
 				output_target = syntax.virtual_target_match_c.match(argument_string)
 				if output_target:
 					self.targets.append(output_target.group())
@@ -73,8 +74,11 @@ class UrtextDynamicDefinition:
 						self.targets.append(argument_string)
 				continue
 
-			if func == "SHOW":
+			elif func == "SHOW":
 				self.show = argument_string
+
+			else:
+				self.system_contents.append('directive "%s" not found' % func)
 		
 		self.phases = list(set([op.phase for op in self.operations]))
 		
@@ -153,6 +157,8 @@ class UrtextDynamicDefinition:
 
 		self.flags = []
 		self.project._run_hook('on_dynamic_def_process_ended', self)
+		if self.system_contents:
+			outcome = outcome + '\n'.join(self.system_contents)
 		return outcome		
 
 	def have_flags(self, flag):
