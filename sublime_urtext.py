@@ -695,7 +695,7 @@ Utility functions
 
 def preview_urtext_node(node_id):
     window = sublime.active_window()
-    if window and window.folders() and _UrtextProjectList.set_current_project(window.folders()[0]):
+    if _UrtextProjectList.current_project:
         filename, node_position = _UrtextProjectList.current_project.get_file_and_position(node_id)
         if filename:
             window.open_file(filename, flags=sublime.TRANSIENT)
