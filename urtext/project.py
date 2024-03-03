@@ -33,7 +33,6 @@ else:
     import urtext.syntax as syntax
     from urtext.project_settings import *
     import urtext.utils as utils
-    from urtext.link import UrtextLink
 
 
 class UrtextProject:
@@ -805,15 +804,20 @@ class UrtextProject:
                     if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
                         return node.id
 
-    def get_links_to(self, to_id, as_nodes=False):
-        links_to = [i for i in list(self.nodes) if to_id in self.nodes[i].links_ids()]
-        if as_nodes:
-            return [self.nodes[n] for n in links_to]
+    def get_links_to(self, to_id, as_nodes=False, include_dynamic=True):
+        links_to = [n for n in self.nodes.values() if to_id in n.links_ids()]
+        if not include_dynamic:
+            links_to = [n for n in links_to if not n.dynamic]
+        if not as_nodes:
+            return [n.id for n in links_to]
+        return links_to
 
-    def get_links_from(self, from_id, as_nodes=False):
+    def get_links_from(self, from_id, as_nodes=False, include_dynamic=True):
         if from_id in self.nodes:
             links = self.nodes[from_id].links_ids()
             links_from = [l for l in links if l in self.nodes]
+            if not include_dynamic:
+                links_from = [l for l in links_from if not self.nodes[l].dynamic]
             if as_nodes:
                 return [self.nodes[n] for n in links_from]
             return links_from

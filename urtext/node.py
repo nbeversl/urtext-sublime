@@ -62,7 +62,7 @@ class UrtextNode:
         stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
-        stripped_contents, replaced_contents = self.get_links(replaced_contents)
+        stripped_contents, replaced_contents = self._get_links(replaced_contents)
         self.title = self.set_title(stripped_contents)
         if not stripped_contents.strip().replace(self.title,'').replace(' _',''):
             self.title_only = True
@@ -101,7 +101,7 @@ class UrtextNode:
         return contents
 
     def links_ids(self):
-        return [link.node_id for link in self.links if link.node_id and link.project_name == self.project.title()]
+        return [link.node_id for link in self.links]
 
     def date(self):
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
@@ -142,7 +142,7 @@ class UrtextNode:
                 self.resolved = True
                 return resolved_id
 
-    def get_links(self, contents):
+    def _get_links(self, contents):
         links, replaced_contents, stripped_contents = utils.get_all_links_from_string(contents)
         for urtext_link in links:
             if urtext_link.is_node:
@@ -356,17 +356,11 @@ class UrtextNode:
             return None
         if not new_id:
             new_id = original_id
-        pattern_to_replace = r''.join([
-            syntax.node_link_opening_wrapper_match,
-            re.escape(original_id),
-            syntax.link_closing_wrapper
-        ])
-        replacement = ''
+        pattern_to_replace = re.escape(utils.make_node_link(original_id))
         if new_id:
-            replacement = self.link()
+            replacement = utils.make_node_link(new_id)
         if new_project:
-            replacement = self.link(include_project=True)
-        print('REPLACEMENT IS ', replacement)
+            replacement = replacement = utils.make_project_link(new_project) + replacement
         new_contents = self.contents(stripped=False)
         for link in re.finditer(pattern_to_replace, new_contents):
             new_contents = new_contents.replace(link.group(), replacement, 1)

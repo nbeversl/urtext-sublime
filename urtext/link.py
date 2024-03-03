@@ -6,8 +6,8 @@ else:
 
 class UrtextLink:
 
-	def __init__(self, string,  col_pos=0):
-		self.matching_string = string
+	def __init__(self, matching_string):
+		self.matching_string = matching_string
 		self.containing_node = None
 		self.filename = None
 		self.project_name = None
@@ -23,9 +23,6 @@ class UrtextLink:
 		self.url = None
 		self.path = None
 
-	def remaining_string(self):
-		return self.string.replace(self.matching_string, '')
-
 	def rewrite(self, include_project=False):
 		link_modifier = ''
 		if self.is_action:
@@ -33,7 +30,8 @@ class UrtextLink:
 		elif self.is_file:
 			link_modifier = syntax.link_modifiers['file']
 		return ''.join([
-			project_link(self.project_name) if self.project_name and include_project else '',
+			syntax.other_project_link_prefix,
+        	'"%s"' % self.project_name if self.project_name and include_project else '',
 			syntax.link_opening_wrapper,
 			link_modifier,
 			syntax.pointer_closing_wrapper if self.is_pointer else syntax.link_closing_wrapper,
@@ -46,6 +44,6 @@ class UrtextLink:
 			replacement_contents = ''.join([
 				node_contents[:self.start_position],
 				replacement,
-				node_contents[:self.start_position+len(self.string)]
+				node_contents[self.start_position+len(self.matching_string):]
 				])
 			self.containing_node.set_content(replacement_contents, preserve_title=False)

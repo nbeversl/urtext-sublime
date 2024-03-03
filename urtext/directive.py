@@ -3,15 +3,18 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     import Urtext.urtext.syntax as syntax
     from .utils import force_list, get_id_from_link
     from Urtext.urtext.dynamic_output import DynamicOutput
+    import Urtext.urtext.utils as utils
 else:
     import urtext.syntax as syntax
     from urtext.utils import force_list, get_id_from_link
     from urtext.dynamic_output import DynamicOutput
+    import urtext.utils as utils
 
 class UrtextDirective:
 
     phase = 0
     syntax = syntax
+    utils = utils
     DynamicOutput = DynamicOutput
     name = []
 

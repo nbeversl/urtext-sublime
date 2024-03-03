@@ -30,14 +30,10 @@ class PopNode:
 
         self.project.run_editor_method('save_file', source_filename)
 
-        popped_node_id = self.project.get_node_id_from_position(
-            source_filename,
-            file_pos)
- 
+        popped_node_id = self.project.get_node_id_from_position(source_filename, file_pos) 
         if not popped_node_id:
             return self.project.handle_info_message(
-                'No node ID or duplicate Node ID')
-        
+                'No node ID or duplicate Node ID')        
         if popped_node_id not in self.project.nodes:
             return self.project.handle_info_message(
                 '%s not in project' % popped_node_id)
@@ -48,8 +44,14 @@ class PopNode:
 
         self._pop_node(popped_node_id, from_project=from_project)
 
-    def _pop_node(self, popped_node_id, rewrite_buffer=True, from_project=None, leave_link=False, leave_pointer=True):
-
+    def _pop_node(self,
+        popped_node_id,
+        rewrite_buffer=True,
+        from_project=None,
+        leave_link=False,
+        leave_pointer=True,
+        include_project=False):
+        
         source_filename = self.project.nodes[popped_node_id].filename
         start = self.project.nodes[popped_node_id].start_position
         end = self.project.nodes[popped_node_id].end_position
@@ -66,23 +68,15 @@ class PopNode:
                 '\n',
                 self.project.settings['breadcrumb_key'],
                 self.syntax.metadata_assignment_operator,
-                self.syntax.other_project_link_prefix,
-                '"', from_project, '"',
-                self.syntax.link_opening_wrapper,
-                parent_id,
-                self.syntax.link_closing_wrapper,
+                self.project.nodes[popped_node_id].link(include_project=True),
                 ' ',
                 self.project.timestamp().wrapped_string]);
-
             else:
-                parent_id = self.project.nodes[popped_node_id].parent.id
                 popped_node_contents += ''.join([
                     '\n',
                     self.project.settings['breadcrumb_key'],
                     self.syntax.metadata_assignment_operator,
-                    self.syntax.link_opening_wrapper,
-                    parent_id,
-                    self.syntax.link_closing_wrapper,
+                    self.project.nodes[popped_node_id].parent.link(),
                     ' ',
                     self.project.timestamp().wrapped_string]);
 
@@ -94,11 +88,11 @@ class PopNode:
 
         insertion = ''
         if leave_pointer:
-            insertion = ''.join([
-                self.syntax.link_opening_wrapper,
-                new_file_node['id'],
-                self.syntax.pointer_closing_wrapper,
-            ])
+            insertion = new_file_node['root_node'].pointer()
+        elif leave_link:
+            # is it easier to leave a link to another project here than go back and rewrite them
+            # from MOVE_TO_PROJECT?
+            insertion = new_file_node['root_node'].link() #include_project=include_project
         remaining_node_contents = ''.join([
             source_file_contents[:start - pre_offset],
             insertion,
