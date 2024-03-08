@@ -1,6 +1,5 @@
 import os
 import re
-import logging
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from Urtext.anytree import Node, PreOrderIter
@@ -193,9 +192,9 @@ class UrtextNode:
         return title
    
     def log(self):
-        logging.info(self.id)
-        logging.info(self.filename)
-        logging.info(self.metadata.log())
+        print(self.id)
+        print(self.filename)
+        self.metadata.log()
 
     def consolidate_metadata(self, one_line=True, separator='::'):
         

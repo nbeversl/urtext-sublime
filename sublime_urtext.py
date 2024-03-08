@@ -191,19 +191,6 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
         return wrapper
     return middle
 
-def refresh_project_event_listener(function):
-
-    def wrapper(*args, **kwargs):
-    
-        if not _UrtextProjectList:
-            return None
-
-        if _UrtextProjectList.current_project:
-            args[0]._UrtextProjectList = _UrtextProjectList
-            return function(*args)
-        return None
-    return wrapper
-
 def initialize_project_list(window, reload_projects=False, new_file_node_created=False):
 
     global _UrtextProjectList
@@ -280,15 +267,18 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 
 class UrtextEventListeners(EventListener):
 
-    @refresh_project_event_listener
     def on_post_save(self, view):
-        if view and view.file_name() and self._UrtextProjectList:
-            self._UrtextProjectList.on_modified(view.file_name())
+        UrtextProjectList = initialize_project_list(
+            view.window())
+        if view and view.file_name() and _UrtextProjectList:
+            _UrtextProjectList.on_modified(view.file_name())
 
-    @refresh_project_event_listener
     def on_activated(self, view):
-        if view.file_name() and self._UrtextProjectList:
-            self._UrtextProjectList.visit_node(
+        UrtextProjectList = initialize_project_list(
+            view.window())
+        if view and view.file_name() and _UrtextProjectList:
+            _UrtextProjectList.on_modified(view.file_name())
+            _UrtextProjectList.visit_node(
                 view.file_name(),
                 get_node_id(view))
 
@@ -313,10 +303,12 @@ class UrtextEventListeners(EventListener):
                 location=file_pos,
                 on_navigate=unfold_region)
 
-    @refresh_project_event_listener
+
     def on_query_completions(self, view, prefix, locations):
-        if self._UrtextProjectList and self._UrtextProjectList.current_project:
-            if self._UrtextProjectList.set_current_project(os.path.dirname(view.file_name())):
+        UrtextProjectList = initialize_project_list(
+            view.window())
+        if _UrtextProjectList and _UrtextProjectList.current_project:
+            if _UrtextProjectList.set_current_project(os.path.dirname(view.file_name())):
                 subl_completions = []
                 proj_completions = self._UrtextProjectList.current_project.get_all_meta_pairs()
                 for c in proj_completions:
