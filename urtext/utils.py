@@ -56,9 +56,8 @@ def make_node_pointer(node_id):
         syntax.pointer_closing_wrapper])
 
 def get_all_links_from_string(string, include_http=False):
-    stripped_contents = string
-    replaced_contents = string
     links = []
+    replaced_contents = string
 
     if include_http:
         for match in url_match_c.finditer(replaced_contents):
@@ -69,7 +68,6 @@ def get_all_links_from_string(string, include_http=False):
             link.position_in_string = match.start()
             links.append(link)
             replaced_contents = replaced_contents.replace(http_link,' ', 1)
-            stripped_contents = stripped_contents.replace(http_link, '', 1)
 
     for match in syntax.cross_project_link_with_node_c.finditer(replaced_contents):
         link = UrtextLink(match.group())        
@@ -81,7 +79,6 @@ def get_all_links_from_string(string, include_http=False):
         link.position_in_string = match.start()
         links.append(link)
         replaced_contents = replaced_contents.replace(match.group(),' ', 1)
-        stripped_contents = stripped_contents.replace(match.group(), '', 1)
 
     for match in syntax.node_link_or_pointer_c.finditer(replaced_contents):
         link = UrtextLink(match.group())
@@ -116,7 +113,6 @@ def get_all_links_from_string(string, include_http=False):
         link.position_in_string = match.start()
         links.append(link)
         replaced_contents = replaced_contents.replace(match.group(),' ', 1)
-        stripped_contents = stripped_contents.replace(match.group(), '', 1)
     
     for match in syntax.project_link_c.finditer(replaced_contents):
         link = UrtextLink(match.group())        
@@ -124,14 +120,13 @@ def get_all_links_from_string(string, include_http=False):
         link.position_in_string = match.start()
         links.append(link)
         replaced_contents = replaced_contents.replace(match.group(),' ', 1)
-        stripped_contents = stripped_contents.replace(match.group(), '', 1)
 
-    return links, replaced_contents, stripped_contents
+    return links, replaced_contents
 
 def get_link_from_position_in_string(string, position, include_http=True):
     if not string.strip():
         return None
-    links,r,r  = get_all_links_from_string(string, include_http=include_http)
+    links,r = get_all_links_from_string(string, include_http=include_http)
     if links:
         links = sorted(links, key=lambda l: l.position_in_string)
         for link in links:

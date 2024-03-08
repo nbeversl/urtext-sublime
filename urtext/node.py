@@ -59,9 +59,11 @@ class UrtextNode:
         self.full_contents = contents
         stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
         stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
-        self.metadata = self.urtext_metadata(self, self.project)
+        self.metadata = self.urtext_metadata(self, self.project)        
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
-        stripped_contents, replaced_contents = self._get_links(replaced_contents)
+        replaced_contents = self._get_links(replaced_contents)
+        for link in self.links:
+            stripped_contents = stripped_contents.replace(link.matching_string, '', 1)        
         self.title = self.set_title(stripped_contents)
         if not stripped_contents.strip().replace(self.title,'').replace(' _',''):
             self.title_only = True
@@ -141,13 +143,13 @@ class UrtextNode:
                 self.resolved = True
                 return resolved_id
 
-    def _get_links(self, contents):
-        links, replaced_contents, stripped_contents = utils.get_all_links_from_string(contents)
+    def _get_links(self, positioned_contents):
+        links, remaining_contents = utils.get_all_links_from_string(positioned_contents)
         for urtext_link in links:
             if urtext_link.is_node:
                 urtext_link.containing_node = self
                 self.links.append(urtext_link)
-        return stripped_contents, replaced_contents
+        return remaining_contents
 
     def set_title(self, contents):
         """

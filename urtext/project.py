@@ -856,10 +856,6 @@ class UrtextProject:
 
         return link
 
-    def parse_all_links_from_string(self, string, filename):
-        links, replaced_contents, stripped_contents = utils.get_all_links_from_string(string)
-        return links, stripped_contents
-
     def _is_duplicate_id(self, node_id):
         return node_id in self.nodes
 

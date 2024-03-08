@@ -176,11 +176,11 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
             edit = args[1]
             window = sublime.active_window()
 
-            _UrtextProjectList = initialize_project_list(window,
+            _UrtextProjectList = initialize_project_list(
+                window,
                 new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
-
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
@@ -191,7 +191,10 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
         return wrapper
     return middle
 
-def initialize_project_list(window, reload_projects=False, new_file_node_created=False):
+def initialize_project_list(window, 
+    add_project=True,
+    reload_projects=False,
+    new_file_node_created=False):
 
     global _UrtextProjectList
 
@@ -200,7 +203,9 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
 
     if _UrtextProjectList and _UrtextProjectList.current_project:
         return _UrtextProjectList
-    
+
+    if not window:
+        return
     view = window.active_view()
     folder = None
 
@@ -216,17 +221,12 @@ def initialize_project_list(window, reload_projects=False, new_file_node_created
         if "folders" in project_data and project_data["paths"]:
             folder = project_data["folders"][0]["path"]
     if _UrtextProjectList and folder:
-        if not _UrtextProjectList.set_current_project(folder):
+        if not _UrtextProjectList.set_current_project(folder) and add_project:
             return _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
-    elif folder:
+    elif folder and add_project:
         _UrtextProjectList = ProjectList(
             folder,
-            editor_methods=editor_methods)    
-    else:
-        sublime.error_message(
-            'No folder or Urtext file is open in this window.\n' +
-            'To use Urtext, create or open an existing folder in this window.')
-
+            editor_methods=editor_methods)
     return _UrtextProjectList
 
 class UrtextReplace(sublime_plugin.TextCommand):
@@ -268,14 +268,12 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 class UrtextEventListeners(EventListener):
 
     def on_post_save(self, view):
-        UrtextProjectList = initialize_project_list(
-            view.window())
+        _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
 
     def on_activated(self, view):
-        UrtextProjectList = initialize_project_list(
-            view.window())
+        _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
             _UrtextProjectList.visit_node(
@@ -305,12 +303,11 @@ class UrtextEventListeners(EventListener):
 
 
     def on_query_completions(self, view, prefix, locations):
-        UrtextProjectList = initialize_project_list(
-            view.window())
+        _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if _UrtextProjectList and _UrtextProjectList.current_project:
             if _UrtextProjectList.set_current_project(os.path.dirname(view.file_name())):
                 subl_completions = []
-                proj_completions = self._UrtextProjectList.current_project.get_all_meta_pairs()
+                proj_completions = _UrtextProjectList.current_project.get_all_meta_pairs()
                 for c in proj_completions:
                     if '::' in c:
                         t = c.split('::')
@@ -318,7 +315,7 @@ class UrtextEventListeners(EventListener):
                             subl_completions.append([t[1]+'\t'+c, c])
                     elif c[0] == '#':
                         subl_completions.append(['#'+c[1:]+'\t'+c, c])
-                for t in self._UrtextProjectList.current_project.title_completions():
+                for t in _UrtextProjectList.current_project.title_completions():
                     subl_completions.append([t[0],t[1]])
                 return (subl_completions, 
                     sublime.INHIBIT_WORD_COMPLETIONS,

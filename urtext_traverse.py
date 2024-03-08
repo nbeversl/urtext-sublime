@@ -1,9 +1,9 @@
-from .sublime_urtext import refresh_project_event_listener, refresh_project_text_command
+from .sublime_urtext import refresh_project_text_command
 from .sublime_urtext import UrtextTextCommand, get_line_and_cursor, highlight_region
 from sublime_plugin import EventListener
 import Urtext.urtext.syntax as syntax
 import sublime
-from .sublime_urtext import refresh_project_text_command, refresh_project_event_listener
+from .sublime_urtext import refresh_project_text_command, initialize_project_list
 import os
 import time
 
@@ -61,9 +61,8 @@ class ToggleTraverse(UrtextTextCommand):
 
 class TraverseFileTree(EventListener):
 
-	@refresh_project_event_listener
 	def on_selection_modified(self, view):
-		
+		self._UrtextProjectList = initialize_project_list(view.window(), add_project=False)
 		if not self._UrtextProjectList or not self._UrtextProjectList.current_project:
 			return
 
