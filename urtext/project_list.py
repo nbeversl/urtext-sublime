@@ -30,6 +30,7 @@ class ProjectList():
 
     def add_project(self, path, new_file_node_created=False):
         """ recursively add folders """
+        path = path.strip()
         if os.path.exists(path):
             paths = []
             for p in self.projects:
