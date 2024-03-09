@@ -1,5 +1,6 @@
 import os
 import pprint
+import concurrent.futures
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
     import Urtext.urtext.syntax as syntax
@@ -15,34 +16,33 @@ class ProjectList():
 
     def __init__(self, 
         entry_point,
+        is_async=True,
         editor_methods=None):
-   
-        if editor_methods == None:
-            editor_methods = {} 
+
+        self.is_async = is_async
+        #self.is_async = False # development
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
         self.projects = []
         self.extensions = {}
         self.current_project = None
-        self.editor_methods = editor_methods
-        self.add_project(self.entry_point)            
-        for project in self.projects:
-            project.compile()
+        self.add_project(self.entry_point)
 
-    def add_project(self, path, new_file_node_created=False):
+    def add_project(self, entry_point, new_file_node_created=False):
         """ recursively add folders """
-        path = path.strip()
-        if os.path.exists(path):
-            paths = []
-            for p in self.projects:
-                paths.extend([entry['path'] for entry in p.settings['paths']])
-            if path not in paths:
-                project = UrtextProject(path, 
-                    project_list=self,
-                    editor_methods=self.editor_methods,
-                    new_file_node_created=new_file_node_created)
-                project.initialize()
-                if project.title() not in [p.title() for p in self.projects]:
-                    self.projects.append(project)
+        entry_point = entry_point.strip() # should not be necessary
+        if os.path.exists(entry_point):
+            project = UrtextProject(entry_point, 
+                project_list=self,
+                editor_methods=self.editor_methods,
+                new_file_node_created=new_file_node_created)
+            project.executor = self.executor
+            project.is_async = self.is_async
+            project.initialize()
+            project.compile()
+            if project.entry_point not in [p.entry_point for p in self.projects]:
+                self.projects.append(project)
         else:
             print('No path %s' % path )
 
