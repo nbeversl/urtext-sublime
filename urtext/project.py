@@ -54,7 +54,7 @@ class UrtextProject:
         self.settings['project_title'] = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = True
-        self.is_async = False # development
+        #self.is_async = False # development
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -941,6 +941,7 @@ class UrtextProject:
             if entry.keyname == 'other_entry_points':
                 for v in entry.text_values():
                     self.project_list.add_project(
+                        # bug - strip should not be needed here
                         utils.get_path_from_link(v))
                 continue
 

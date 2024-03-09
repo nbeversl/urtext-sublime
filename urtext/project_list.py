@@ -19,12 +19,12 @@ class ProjectList():
    
         if editor_methods == None:
             editor_methods = {} 
-        self.entry_point = entry_point
+        self.entry_point = entry_point.strip()
         self.projects = []
         self.extensions = {}
         self.current_project = None
         self.editor_methods = editor_methods
-        self.add_project(entry_point)            
+        self.add_project(self.entry_point)            
         for project in self.projects:
             project.compile()
 
