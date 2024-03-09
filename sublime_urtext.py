@@ -218,7 +218,7 @@ def initialize_project_list(window,
             folder = folders[0]
     if not folder:
         project_data = window.project_data()
-        if "folders" in project_data and project_data["paths"]:
+        if "folders" in project_data and project_data["folders"]:
             folder = project_data["folders"][0]["path"]
     if _UrtextProjectList and folder:
         if not _UrtextProjectList.set_current_project(folder) and add_project:
