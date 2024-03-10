@@ -217,7 +217,7 @@ class ProjectList():
             return None
 
         moved_nodes = list(source_project.files[old_filename].nodes)        
-        source_project.drop_file(old_filename, bypass_threading=bypass_threading)
+        source_project._drop_file(old_filename)
         new_filename = os.path.join(
             destination_project.settings['paths'][0]['path'],
             os.path.basename(old_filename))

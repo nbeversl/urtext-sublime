@@ -1177,8 +1177,8 @@ class UrtextProject:
         self.execute(self._compile_file, filename)
         return changed_ids
 
-    def drop_file(self, filename, bypass_threading=False):
-        self.execute(self._drop_file, filename, bypass_threading=bypass_threading)
+    def drop_file(self, filename):
+        self.execute(self._drop_file, filename)
     
     def get_file_name(self, node_id):
         filename = None
@@ -1356,10 +1356,9 @@ class UrtextProject:
     def execute(self, function, *args, **kwargs):
         if self.compiled and not self.nodes:
             return
-        if ('bypass_threading' in kwargs and kwargs['bypass_threading'] == True) or (
-            not self.is_async):
-            return function(*args, **kwargs) 
-        return self.executor.submit(function, *args, **kwargs)
+        if self.is_async:
+            return self.executor.submit(function, *args, **kwargs)
+        return function(*args, **kwargs)
 
     def _run_hook(self, hook_name, *args):
         for ext in self.extensions.values():
