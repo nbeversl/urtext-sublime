@@ -30,8 +30,6 @@ class ProjectList():
         self.add_project(self.entry_point)
 
     def add_project(self, entry_point, new_file_node_created=False):
-        """ recursively add folders """
-        entry_point = entry_point.strip() # should not be necessary
         if os.path.exists(entry_point):
             project = UrtextProject(entry_point, 
                 project_list=self,
@@ -199,7 +197,8 @@ class ProjectList():
         old_filename, 
         source_project_name_or_path,
         destination_project_name_or_path,
-        replace_links=True):
+        replace_links=True,
+        bypass_threading=False):
 
         """
         Move a file from one project to another, checking for
@@ -218,7 +217,7 @@ class ProjectList():
             return None
 
         moved_nodes = list(source_project.files[old_filename].nodes)        
-        source_project.drop_file(old_filename)
+        source_project.drop_file(old_filename, bypass_threading=bypass_threading)
         new_filename = os.path.join(
             destination_project.settings['paths'][0]['path'],
             os.path.basename(old_filename))
