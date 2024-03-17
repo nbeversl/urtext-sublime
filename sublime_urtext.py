@@ -256,7 +256,7 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
         def move_file(selected_index):
             self._UrtextProjectList.move_file(
                 self.view.file_name(), 
-                self._UrtextProjectList.current_project,
+                self._UrtextProjectList.current_project.title(),
                 project_titles[selected_index])
             self.view.window().run_command('close_file')
             
