@@ -442,17 +442,23 @@ class UrtextProject:
                 offset = position - indexes[index]
                 return node, target_position+offset
 
-    def _set_node_contents(self, node_id, contents):
+    def _set_node_contents(self, node_id, contents, preserve_title=False):
         """ 
-        project-aware alias for the Node set_content() method 
-        returns filename if contents has changed.
+        project-aware alias for the Node _set_content() method 
+        parses the file before and after;
+        returns filename if contents changed.
         """
         if node_id in self.nodes:
-            if self.nodes[node_id].set_content(contents, run_on_modified=False):
-                if node_id in self.nodes:
-                    self._parse_file(self.nodes[node_id].filename)
+            self._parse_file(self.nodes[node_id].filename)
+            if node_id in self.nodes:
+                if self.nodes[node_id]._set_content(
+                        contents,
+                        run_on_modified=False,
+                        preserve_title=preserve_title):
                     if node_id in self.nodes:
-                        return self.nodes[node_id].filename
+                        self._parse_file(self.nodes[node_id].filename)
+                        if node_id in self.nodes:
+                            return self.nodes[node_id].filename
         return False
 
     def _mark_dynamic_nodes(self):

@@ -46,4 +46,7 @@ class UrtextLink:
 				replacement,
 				node_contents[self.start_position+len(self.matching_string):]
 				])
-			self.containing_node.set_content(replacement_contents, preserve_title=False)
+			self.project._set_node_contents(
+				containing_node.id,
+				replacement_contents,
+				preserve_title=False)

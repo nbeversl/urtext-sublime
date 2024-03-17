@@ -197,8 +197,10 @@ class ProjectList():
         old_filename, 
         source_project_name_or_path,
         destination_project_name_or_path,
-        replace_links=True,
-        bypass_threading=False):
+        replace_links=True):
+
+        #TODO - should the source project be needed if the
+        #filename is provided?
 
         """
         Move a file from one project to another, checking for
@@ -226,10 +228,7 @@ class ProjectList():
         add_file() will raise an exception if the file makes
         duplicate nodes in the destination project
         """
-        try:
-            changed_ids = destination_project.add_file(new_filename) 
-        except Exception:
-            return None
+        changed_ids = destination_project.add_file(new_filename) 
 
         if replace_links:
             for moved_node in moved_nodes:

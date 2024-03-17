@@ -239,10 +239,21 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def set_content(self, new_contents, run_on_modified=True, preserve_title=True):
+    def _set_content(self, new_contents, run_on_modified=True, preserve_title=True):
+        """
+        use project._set_node_contents() method instead of using this directly.
+
+        potential issues:
+
+        1. file should be parsed before this, in case the content
+        has been modified manually by a directive
+
+        2. Appears that dynamnic nodes in node.replace_links() cannot
+        be filtered out if the dynamic node itself is in the midst of being updated
+    
+        """
         node_contents = self.strip_first_line_title(self.full_contents)
-        file_contents = self.file._get_contents()
-        
+        file_contents = self.file._get_contents()        
         if preserve_title and self.first_line_title:
             new_node_contents = ''.join([ 
                 ' ',
@@ -255,9 +266,6 @@ class UrtextNode:
                 new_contents,
                 node_contents
                 ])
-
-        file_contents = self.file._get_contents()
-
         new_file_contents = ''.join([
             file_contents[:self.start_position],
             new_contents,
@@ -353,6 +361,8 @@ class UrtextNode:
         return node_descendants(self)
 
     def replace_links(self, original_id, new_id='', new_project=''):
+        if self.dynamic:
+            return
         if not new_id and not new_project:
             return None
         if not new_id:
