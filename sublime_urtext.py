@@ -245,7 +245,10 @@ class ListProjectsCommand(UrtextTextCommand):
 
     def set_window_project(self, index):
         title = self._UrtextProjectList.project_titles()[index]
-        self._UrtextProjectList.set_current_project(title)        
+        self._UrtextProjectList.set_current_project(title)
+        self.view.window().set_project_data({"folders": [
+            {"path": self._UrtextProjectList.current_project.entry_path}]})
+      
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     

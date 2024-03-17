@@ -705,7 +705,8 @@ class UrtextProject:
                 message = node_id + ' not in current project'
             else:
                 message = 'Project is still compiling' 
-            return self.handle_info_message(message)
+            self.handle_info_message(message)
+            return False
 
         node_range = (
             self.nodes[node_id].ranges[0][0],
@@ -731,13 +732,16 @@ class UrtextProject:
                         'Project is compiling. Home will be shown when found.')
                     self.home_requested = True
                 timer = threading.Timer(.5, self.open_home)
-                return timer.start()
+                timer.start()
+                return timer
             else:
                 self.home_requested = False
-                return self.handle_info_message(
+                self.handle_info_message(
                     'Project compiled. No home node for this project')
+                return False
         self.home_requested = False
-        return self.open_node(self.settings['home'])
+        self.open_node(self.settings['home'])
+        return True
  
     def handle_info_message(self, message):
         self.run_editor_method('popup', message)
@@ -1526,6 +1530,15 @@ class UrtextProject:
 
     def title(self):
         return self.settings['project_title'] 
+
+    def on_project_activated(self):
+        if 'on_project_activated' in self.settings:
+            for action in self.settings['on_project_activated']:
+                if action == 'open_home':
+                    if self.open_home():
+                        return
+                if action == 'open_last_nav' and 'NAVIGATION' in self.extensions:
+                    self.extensions['NAVIGATION'].reverse()
 
     """ Editor Methods """
 

@@ -1,5 +1,4 @@
 import os
-import pprint
 import concurrent.futures
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     from .project import UrtextProject
@@ -59,7 +58,7 @@ class ProjectList():
         if not link:
             return self.handle_unusable_link(None, '')
         link.filename = filename
-        # pprint.pprint(link.__dict__)
+
         """ If a project name has been specified, locate the project and node """
         if link.project_name:
             if not self.set_current_project(link.project_name):
@@ -130,6 +129,7 @@ class ProjectList():
             self.current_project = project
             self.current_project.run_editor_method('popup',
                 'Switched to project: %s ' % self.current_project.title())
+            self.current_project.on_project_activated()
         return self.current_project
 
     def build_contextual_link(self, 

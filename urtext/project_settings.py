@@ -85,6 +85,7 @@ def default_project_settings():
         'node_browser_sort' : ['_oldest_timestamp'],
         'node_date_keyname' : '_oldest_timestamp',
         'numerical_keys': ['_index' ,'index','title_length'],
+        'on_project_activated': ['open_home','open_last_nav'],
         'other_entry_points' : [],
         'paths': [],
         'project_title' : None,
