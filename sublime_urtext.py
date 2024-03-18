@@ -92,8 +92,8 @@ def get_buffer(filename):
 
 def show_status(message):
     window = sublime.active_window()
-    if window:
-        window.status_message(message)
+    if window and window.active_view():
+        window.active_view().set_status('Urtext', message)
 
 
 def replace(filename='', start=0, end=0, replacement_text=''):
