@@ -283,6 +283,8 @@ class UrtextEventListeners(EventListener):
             _UrtextProjectList.visit_node(
                 view.file_name(),
                 get_node_id(view))
+            view.window().set_project_data({"folders": [
+                {"path": _UrtextProjectList.current_project.entry_path}]})
 
     def on_hover(self, view, point, hover_zone):
         if view.is_folded(sublime.Region(point, point)) and self._UrtextProjectList:
