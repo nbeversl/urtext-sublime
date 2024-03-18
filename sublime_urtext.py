@@ -280,11 +280,11 @@ class UrtextEventListeners(EventListener):
         _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
-            _UrtextProjectList.visit_node(
+            if _UrtextProjectList.visit_node(
                 view.file_name(),
-                get_node_id(view))
-            view.window().set_project_data({"folders": [
-                {"path": _UrtextProjectList.current_project.entry_path}]})
+                get_node_id(view)):
+                view.window().set_project_data({"folders": [
+                    {"path": _UrtextProjectList.current_project.entry_path}]})
 
     def on_hover(self, view, point, hover_zone):
         if view.is_folded(sublime.Region(point, point)) and self._UrtextProjectList:
@@ -675,14 +675,6 @@ class FileOutlineDropdown(UrtextTextCommand):
             preview_urtext_node(self.menu.menu[index].id)
         else:
             self.selection_has_changed = True  
-
-class OpenCurrentFileProjectFolderCommand(UrtextTextCommand):
-
-    @refresh_project_text_command()
-    def run(self):
-        if self.view and self.view.file_name():
-            path = os.path.dirname(self.view.file_name())
-            self.window.set_project_data({"folders": [{"path": path}] })
 
 """
 Utility functions

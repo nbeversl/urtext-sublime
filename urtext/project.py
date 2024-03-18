@@ -1132,6 +1132,7 @@ class UrtextProject:
                     self.title(),
                     ' (compiled)'
                     ]))
+            return True
 
     def visit_file(self, filename):
         return self.execute(
