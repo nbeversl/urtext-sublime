@@ -201,9 +201,6 @@ def initialize_project_list(window,
     if reload_projects:
         _UrtextProjectList = None
 
-    if _UrtextProjectList and _UrtextProjectList.current_project:
-        return _UrtextProjectList
-
     if not window:
         return
     view = window.active_view()
@@ -211,7 +208,7 @@ def initialize_project_list(window,
 
     if view and view.file_name():
         folder = os.path.dirname(view.file_name())
- 
+
     if not folder:
         folders = window.folders()
         if folders:
@@ -220,9 +217,14 @@ def initialize_project_list(window,
         project_data = window.project_data()
         if project_data and "folders" in project_data and project_data["folders"]:
             folder = project_data["folders"][0]["path"]
+
+    if _UrtextProjectList and _UrtextProjectList.current_project:
+        if _UrtextProjectList.current_project.has_folder(folder):
+            return _UrtextProjectList
     if _UrtextProjectList and folder:
         if not _UrtextProjectList.set_current_project(folder) and add_project:
             return _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+
     elif folder and add_project:
         _UrtextProjectList = ProjectList(
             folder,
@@ -248,7 +250,6 @@ class ListProjectsCommand(UrtextTextCommand):
         self._UrtextProjectList.set_current_project(title)
         self.view.window().set_project_data({"folders": [
             {"path": self._UrtextProjectList.current_project.entry_path}]})
-      
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
     

@@ -1540,6 +1540,9 @@ class UrtextProject:
                 if action == 'open_last_nav' and 'NAVIGATION' in self.extensions:
                     self.extensions['NAVIGATION'].reverse()
 
+    def has_folder(self, folder):
+        return folder in self.settings['paths']
+
     """ Editor Methods """
 
     def editor_insert_timestamp(self):
