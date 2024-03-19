@@ -61,8 +61,9 @@ def get_all_links_from_string(string, include_http=False):
 
     if include_http:
         for match in url_match_c.finditer(replaced_contents):
+            print(match.groups())
             http_link = match.group(3)
-            link = UrtextLink(http_link)            
+            link = UrtextLink(http_link)          
             link.is_http = True
             link.url = http_link
             link.position_in_string = match.start()
