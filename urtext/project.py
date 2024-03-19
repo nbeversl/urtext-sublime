@@ -423,7 +423,7 @@ class UrtextProject:
         new_node.project = self
         self.nodes[new_node.id] = new_node  
         if self.compiled:
-            new_node.metadata.convert_node_links()   
+            new_node.metadata.convert_node_links()
         self._run_hook('on_node_added', new_node)
         
     def get_source_node(self, filename, position): # future

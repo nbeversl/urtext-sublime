@@ -73,13 +73,12 @@ class UrtextFile(UrtextBuffer):
         existing_contents = self._get_contents()
         if existing_contents == new_contents:
             return False
-
         self.contents = new_contents
-
+        self.project._run_hook('on_set_file_contents', self)
         buffer_updated = self.project.run_editor_method(
             'set_buffer',
             self.filename,
-            new_contents)
+            self.contents)
 
         if buffer_updated and run_on_modified and not self.errors:
             if self.project.run_editor_method(
@@ -87,7 +86,7 @@ class UrtextFile(UrtextBuffer):
                 self.filename):
                     return True
 
-        utils.write_file_contents(self.filename, new_contents)
+        utils.write_file_contents(self.filename, self.contents)
         if run_on_modified and not self.errors:
             self.project._on_modified(self.filename)
         return True
