@@ -8,6 +8,7 @@ from time import strftime
 import concurrent.futures
 import threading
 import importlib
+import imp
 import sys
 from .url import url_match
 
@@ -1030,6 +1031,7 @@ class UrtextProject:
             for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
                 try:
                     s = importlib.import_module(module_file.replace('.py',''))
+                    s = imp.reload(s)
                     if 'urtext_directives' in dir(s):
                         directives = s.urtext_directives
                         if not isinstance(directives, list):
