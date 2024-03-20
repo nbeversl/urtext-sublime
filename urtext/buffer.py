@@ -260,22 +260,21 @@ class UrtextBuffer:
         if contents:
             cleared_contents = self.clear_messages(contents)
             if cleared_contents:
-                self._set_contents(cleared_contents, run_on_modified=False)
+                self._set_contents(cleared_contents)
                 self.lex_and_parse()
                 self.write_messages()
 
     def _get_contents(self):
         return self.contents
-          
-    def _set_contents(self,
-        contents,
-        run_on_modified=False):
+    
+    def _set_contents(self, new_contents):
+        self.contents = new_contents
 
+    def _write_contents(self, run_on_modified=False):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,
-            contents)
-        self.contents = contents
+            self.contents)
 
     def write_messages(self, messages=None):
         if not messages and not self.messages:

@@ -445,14 +445,14 @@ class UrtextProject:
 
     def _set_node_contents(self, node_id, contents, preserve_title=False):
         """ 
-        project-aware alias for the Node _set_content() method 
+        project-aware alias for the Node _set_contents() method 
         parses the file before and after;
         returns filename if contents changed.
         """
         if node_id in self.nodes:
             self._parse_file(self.nodes[node_id].filename)
             if node_id in self.nodes:
-                if self.nodes[node_id]._set_content(
+                if self.nodes[node_id]._set_contents(
                         contents,
                         run_on_modified=False,
                         preserve_title=preserve_title):
@@ -1115,6 +1115,7 @@ class UrtextProject:
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)
+                self.files[filename]._write_contents(run_on_modified=False)
                 return modified_files
         
     def visit_node(self, node_id):
@@ -1146,6 +1147,7 @@ class UrtextProject:
             modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
+            self.files[filename]._write_contents()
             return modified_files
 
     def _sync_file_list(self):

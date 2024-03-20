@@ -180,6 +180,8 @@ class PullNode:
                 ])
             self.project.files[source_filename]._set_contents(
                 updated_source_file_contents)
+            self.project.files[source_filename]._write_contents()
+
         else:
             self.project._delete_file(source_filename)
 
@@ -198,7 +200,7 @@ class PullNode:
             wrapped_contents)
 
         self.project.files[destination_filename]._set_contents(destination_file_contents)
-
+        self.project.files[destination_filename]._write_contents()
         self.project.run_editor_method(
             'set_buffer',
             destination_filename,

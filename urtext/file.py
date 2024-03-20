@@ -66,15 +66,15 @@ class UrtextFile(UrtextBuffer):
             self.lex_and_parse()
             self.write_messages()
 
-    def _set_contents(self,
-        new_contents,
-        run_on_modified=True):
-
-        existing_contents = self._get_contents()
-        if existing_contents == new_contents:
-            return False
+    def _set_contents(self, new_contents):
         self.contents = new_contents
+
+    def _write_contents(self, run_on_modified=True):
         self.project._run_hook('on_set_file_contents', self)
+        existing_contents = self._read_contents()
+        if existing_contents == self.contents:
+            return False
+
         buffer_updated = self.project.run_editor_method(
             'set_buffer',
             self.filename,

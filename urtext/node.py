@@ -239,7 +239,7 @@ class UrtextNode:
             new_metadata += line_separator
         return new_metadata.strip()
 
-    def _set_content(self, new_contents, run_on_modified=True, preserve_title=True):
+    def _set_contents(self, new_contents, run_on_modified=True, preserve_title=True):
         """
         use project._set_node_contents() method instead of using this directly.
 
@@ -270,7 +270,7 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        return self.file._set_contents(new_file_contents, run_on_modified=run_on_modified)
+        return self.file._set_contents(new_file_contents)
 
     def replace_range(self,
         range_to_replace,
