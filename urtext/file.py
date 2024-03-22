@@ -45,31 +45,29 @@ class UrtextFile(UrtextBuffer):
         return full_file_contents
 
     def _insert_contents(self, inserted_contents, position):
-        self._set_contents(''.join([
+        self.contents = ''.join([
             self.contents[:position],
             inserted_contents,
             self.contents[position:],
-            ]))
+            ])
 
     def _replace_contents(self, inserted_contents, range):
-        self._set_contents(''.join([
+        self.contents = ''.join([
             self.contents[:range[0]],
             inserted_contents,
             self.contents[range[1]:],
-            ]))
+            ])
 
     def clear_messages_and_parse(self):
         contents = self._get_contents()
         if contents:
             cleared_contents = self.clear_messages(contents)
-            self._set_contents(cleared_contents)
+            self.contents = cleared_contents
+            self.write_contents()
             self.lex_and_parse()
             self.write_messages()
 
-    def _set_contents(self, new_contents):
-        self.contents = new_contents
-
-    def _write_contents(self, run_on_modified=True):
+    def write_contents(self, run_on_modified=True):
         self.project._run_hook('on_set_file_contents', self)
         existing_contents = self._read_contents()
         if existing_contents == self.contents:

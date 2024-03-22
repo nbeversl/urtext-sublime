@@ -178,9 +178,8 @@ class PullNode:
                 source_file_contents[0:end],
                 source_file_contents[end:len(source_file_contents)]
                 ])
-            self.project.files[source_filename]._set_contents(
-                updated_source_file_contents)
-            self.project.files[source_filename]._write_contents()
+            self.project.files[source_filename].contents = updated_source_file_contents
+            self.project.files[source_filename].write_contents()
 
         else:
             self.project._delete_file(source_filename)
@@ -199,8 +198,8 @@ class PullNode:
             link.matching_string,
             wrapped_contents)
 
-        self.project.files[destination_filename]._set_contents(destination_file_contents)
-        self.project.files[destination_filename]._write_contents()
+        self.project.files[destination_filename].contents = destination_file_contents
+        self.project.files[destination_filename].write_contents()
         self.project.run_editor_method(
             'set_buffer',
             destination_filename,

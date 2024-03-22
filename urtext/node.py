@@ -248,7 +248,7 @@ class UrtextNode:
         1. file should be parsed before this, in case the content
         has been modified manually by a directive
 
-        2. Appears that dynamnic nodes in node.replace_links() cannot
+        2. Dynamnic nodes in node.replace_links() cannot
         be filtered out if the dynamic node itself is in the midst of being updated
     
         """
@@ -270,7 +270,8 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        return self.file._set_contents(new_file_contents)
+        self.file.contents = new_file_contents
+        return self.file.write_contents()
 
     def replace_range(self,
         range_to_replace,
@@ -296,7 +297,7 @@ class UrtextNode:
             file_contents[0:file_range_to_replace[0]],
             replacement_contents,
             file_contents[file_range_to_replace[1]:]])
-        self.file._set_contents(new_file_contents)
+        self.file.contents = new_file_contents
 
     def append_content(self, appended_content):
         file_contents = self.file._get_contents()
@@ -305,7 +306,7 @@ class UrtextNode:
             contents,
             appended_content,
             file_contents[self.end_position:]])         
-        return self.file._set_contents(new_file_contents)
+        self.file.contents = new_file_contents
 
     def prepend_content(self, prepended_content, preserve_title=True):
         node_contents = self.strip_first_line_title(self.full_contents)
@@ -327,7 +328,7 @@ class UrtextNode:
             file_contents[:self.start_position], # omit opening
             new_node_contents,
             file_contents[self.end_position:]]) 
-        return self.file._set_contents(new_file_contents)
+        self.file.contents = new_file_contents
 
     def parse_dynamic_definitions(self, contents): 
         stripped_contents = contents
@@ -375,7 +376,7 @@ class UrtextNode:
         new_contents = self.contents(stripped=False)
         for link in re.finditer(pattern_to_replace, new_contents):
             new_contents = new_contents.replace(link.group(), replacement, 1)
-        self.set_content(new_contents)
+        self._set_contents(new_contents)
 
     def link(self, include_project=False):
         project_link = ''
