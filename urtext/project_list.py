@@ -43,6 +43,10 @@ class ProjectList():
         else:
             print('No path %s' % path )
 
+
+    def parse_link(self, string, filename, col_pos=0, include_http=True):
+        return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
+
     def handle_link(self, 
         string, 
         filename, 
@@ -54,7 +58,7 @@ class ProjectList():
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
-        link = utils.get_link_from_position_in_string(string, col_pos, include_http=True)
+        link = self.parse_link(string, filename, col_pos=0, include_http=True)
         if not link:
             return self.handle_unusable_link(None, '')
         link.filename = filename

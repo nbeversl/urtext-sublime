@@ -287,7 +287,7 @@ class UrtextEventListeners(EventListener):
                     {"path": _UrtextProjectList.current_project.entry_path}]})
 
     def on_hover(self, view, point, hover_zone):
-        if view.is_folded(sublime.Region(point, point)) and self._UrtextProjectList:
+        if view.is_folded(sublime.Region(point, point)) and _UrtextProjectList:
             for r in view.folded_regions():
                 if point in [r.a, r.b]:
                     contents = view.export_to_html(
@@ -306,6 +306,61 @@ class UrtextEventListeners(EventListener):
                 max_height=512, 
                 location=file_pos,
                 on_navigate=unfold_region)
+
+        if _UrtextProjectList:
+
+            #TODO refactor
+            region = view.line(point)
+            file_pos = region.a
+            full_line_region = view.full_line(region)
+            full_line = view.substr(full_line_region) 
+            link = _UrtextProjectList.parse_link(full_line, view.file_name())
+
+            if link and link.is_node and link.node_id in _UrtextProjectList.current_project.nodes:
+                contents = _UrtextProjectList.current_project.nodes[link.node_id].contents()
+                if contents:
+
+                    def open_node_from_this_view(node_id):
+                        _UrtextProjectList.current_project.open_node(link.node_id)
+
+                    html = """
+                        <body id=linked_node_contents>
+                            <style>
+                                h1 {
+                                    font-size: 1.1rem;
+                                    font-weight: 500;
+                                    margin: 0 0 0.5em 0;
+                                    font-family: system;
+                                }
+                                p {
+                                    margin-top: 0;
+                                }
+                                a {
+                                    font-weight: normal;
+                                    font-style: italic;
+                                    padding-left: 1em;
+                                    font-size: 1.0rem;
+                                }
+                                span.nums {
+                                    display: inline-block;
+                                    text-align: right;
+                                    color: color(var(--foreground) a(0.8))
+                                }
+                                span.context {
+                                    padding-left: 0.5em;
+                                }
+                            </style>
+                            <p>%s</p>
+                            <a href="%s">open</a>
+                        </body>
+                    """ % (contents, link.node_id)
+                    view.show_popup(html,
+                        max_width=512, 
+                        max_height=512, 
+                        location=file_pos,
+                        on_navigate=open_node_from_this_view,
+                        flags=sublime.HIDE_ON_MOUSE_MOVE)
+                    return
 
 
     def on_query_completions(self, view, prefix, locations):
