@@ -359,9 +359,7 @@ class UrtextEventListeners(EventListener):
                         max_height=512, 
                         location=file_pos,
                         on_navigate=open_node_from_this_view,
-                        flags=sublime.HIDE_ON_MOUSE_MOVE)
-                    return
-
+                        flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY)
 
     def on_query_completions(self, view, prefix, locations):
         _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
