@@ -29,20 +29,18 @@ class ProjectList():
         self.add_project(self.entry_point)
 
     def add_project(self, entry_point, new_file_node_created=False):
-        if os.path.exists(entry_point):
-            project = UrtextProject(entry_point, 
-                project_list=self,
-                editor_methods=self.editor_methods,
-                new_file_node_created=new_file_node_created)
-            project.executor = self.executor
-            project.is_async = self.is_async
-            project.initialize()
+        if os.path.isdir(entry_point):
+            if entry_point in self.get_all_paths():
+                return 
+        project = UrtextProject(entry_point,
+            project_list=self,
+            editor_methods=self.editor_methods,
+            new_file_node_created=new_file_node_created)
+        project.executor = self.executor
+        project.is_async = self.is_async
+        if project.initialize():
             project.compile()
-            if project.entry_point not in [p.entry_point for p in self.projects]:
-                self.projects.append(project)
-        else:
-            print('No path %s' % path )
-
+            self.projects.append(project)
 
     def parse_link(self, string, filename, col_pos=0, include_http=True):
         return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
@@ -250,6 +248,12 @@ class ProjectList():
 
         return changed_ids
 
+    def get_all_paths(self):
+        paths = []
+        for p in self.projects:
+            paths.extend([path['path'] for path in p.settings['paths']])
+        return paths
+
     def get_all_meta_pairs(self):
         meta_values = []
         for project in self.projects:
@@ -302,4 +306,8 @@ class ProjectList():
             return True
         print('%s not available' % feature_name)
         return False
+
+    def handle_message(self, message):
+        self.run_editor_method('popup', message)
+        print(message)
 

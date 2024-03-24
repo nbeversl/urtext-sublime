@@ -75,7 +75,7 @@ class UrtextProject:
         self.new_file_node_created = new_file_node_created
     
     def initialize(self):
-        self.execute(self._initialize)        
+        return self.execute(self._initialize)        
 
     def _initialize(self):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
@@ -89,27 +89,20 @@ class UrtextProject:
         num_paths = len(self.settings['paths'])
 
         if os.path.exists(self.entry_point):
-            if os.path.isdir(self.entry_point):
-                self.settings['paths'].append({
-                    'path' : self.entry_point,
-                    'recurse' : False
-                    })
-                self.entry_path = self.entry_point
-                for file in self._get_included_files():
-                    self._parse_file(file)
+            if os.path.isdir(self.entry_point) and (
+                self._approve_path(self.entry_point) ):
+                    self.settings['paths'].append({
+                        'path' : self.entry_point,
+                        'recurse' : False
+                        })
+                    self.entry_path = self.entry_point
+                    for file in self._get_included_files():
+                        self._parse_file(file)
             else:
                 self._parse_file(self.entry_point)
-                self.entry_path = os.path.dirname(self.entry_point)
-            if self.nodes:
-                self.settings['paths'].append({
-                    'path' : self.entry_path,
-                    'recurse' : False
-                    })
-            else:
-                print('NOPE!')
-                print(self.entry_point)
         else:
-            return self.handle_error_message('Project path does not exist: %s' % self.entry_point)
+            self.handle_error_message('Project path does not exist: %s' % self.entry_point)
+            return False
 
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
@@ -119,11 +112,12 @@ class UrtextProject:
                     self._parse_file(file)
 
         if len(self.nodes) == 0 and not self.new_file_node_created:
-            return self.handle_error_message(
+            self.handle_error_message(
                 '\n'.join([
                     'No Urtext files are in this folder.',
                     'To create one, press Ctrl-Shift-;'
                     ]))
+            return False
 
         for node in self.nodes.values():
             node.metadata.convert_hash_keys()
@@ -131,9 +125,17 @@ class UrtextProject:
 
         self._mark_dynamic_nodes()
         self._run_hook('after_project_initialized')
+        return True
 
     def compile(self):
         self.execute(self._compile, len(self.directives), len(self.extensions))
+
+    def _approve_path(self, path):
+        if path in [entry['path'] for entry in self.settings['paths']]:
+            return False
+        if path in self.project_list.get_all_paths():
+            return False
+        return True
 
     def _parse_file(self, filename, try_buffer=False):
         if self._filter_filenames(filename) == None:
