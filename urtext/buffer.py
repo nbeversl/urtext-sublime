@@ -223,6 +223,13 @@ class UrtextBuffer:
             node.filename =self.filename
             node.file = self
 
+        for match in self.meta_to_node:
+            # TODO optimize
+            for node in self.nodes:
+                for r in node.ranges:
+                    if match.span()[1] in r:
+                        node.is_meta = True
+
         return nested_levels, child_group, nested
 
     def add_node(self, 
