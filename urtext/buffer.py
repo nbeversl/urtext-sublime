@@ -21,8 +21,9 @@ class UrtextBuffer:
 
     def __init__(self, project, filename, contents):
         self.nodes = []
-        self.contents = contents
         self.root_node = None
+        self.contents = contents
+        self.previous_contents = contents
         self.messages = []
         self.project = project
         self.meta_to_node = []
@@ -30,6 +31,8 @@ class UrtextBuffer:
         self.filename = filename
     
     def lex_and_parse(self):
+        self.nodes = []
+        self.root_node = None
         symbols = self.lex(self._get_contents())
         self.parse(self._get_contents(), symbols)
         self.propagate_timestamps(self.root_node)
@@ -153,7 +156,6 @@ class UrtextBuffer:
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
                     self.contents = contents
-                    self.write_contents()
                     return self.lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -216,7 +218,6 @@ class UrtextBuffer:
                 ' ',
                 contents[position:]])
             self.contents = contents
-            self.write_contents()
             return self.lex_and_parse()
 
         for node in self.nodes:
@@ -270,18 +271,11 @@ class UrtextBuffer:
             cleared_contents = self.clear_messages(contents)
             if cleared_contents:
                 self.contents = cleared_contents
-                self.write_contents()
                 self.lex_and_parse()
                 self.write_messages()
 
     def _get_contents(self):
         return self.contents
-    
-    def write_contents(self, run_on_modified=False):
-        self.project.run_editor_method(
-            'set_buffer',
-            self.filename,
-            self.contents)
 
     def write_messages(self, messages=None):
         if not messages and not self.messages:

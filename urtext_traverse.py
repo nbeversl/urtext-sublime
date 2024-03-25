@@ -1,5 +1,5 @@
 from .sublime_urtext import refresh_project_text_command
-from .sublime_urtext import UrtextTextCommand, get_line_and_cursor, highlight_region
+from .sublime_urtext import UrtextTextCommand, get_line_and_cursor, highlight_region, position_node
 from sublime_plugin import EventListener
 import Urtext.urtext.syntax as syntax
 import sublime
@@ -65,8 +65,7 @@ class TraverseFileTree(EventListener):
 		self._UrtextProjectList = initialize_project_list(view.window(), add_project=False)
 		if not self._UrtextProjectList or not self._UrtextProjectList.current_project:
 			return
-
-		# give this view a name since we have so many to keep track of
+		
 		called_from_view = view 
 		#
 		# TODO:
@@ -130,14 +129,9 @@ class TraverseFileTree(EventListener):
 				sublime.set_timeout(lambda: move_to_location(moved_view, position), 1)
 
 		""" Only if Traverse is on for this group (window division) """
-
 		if called_from_view.settings().get('traverse') == 'true':
 
-			# the tree view is always the view that was modified.
-			# assign it a name, get its filename and window
-
-			this_file = called_from_view.file_name()
-			
+			this_file = called_from_view.file_name()			
 			if not this_file:
 				return
 
@@ -147,10 +141,9 @@ class TraverseFileTree(EventListener):
 			full_line, cursor = get_line_and_cursor(view)
 
 			link = self._UrtextProjectList.utils.get_link_from_position_in_string(
-	            full_line,
-	            cursor)
+				full_line,
+				cursor)
 
-			# if there are no links on this line:
 			if not link or not link.node_id or link.node_id not in self._UrtextProjectList.current_project.nodes:
 				return
 
@@ -210,10 +203,21 @@ class TraverseFileTree(EventListener):
 
 				file_view.sel().add(position)
 				window.focus_group(self.tree_group)
-				highlight_region(file_view, [
-					self._UrtextProjectList.current_project.nodes[link.node_id].start_position,
-					self._UrtextProjectList.current_project.nodes[link.node_id].end_position
-						])
+
+				def focus_position(focus_view, position):
+					if not focus_view.is_loading():
+						if focus_view.window():
+							focus_view.window().focus_view(focus_view)
+							position_node(position, view=focus_view)
+							highlight_region(file_view, [
+								self._UrtextProjectList.current_project.nodes[link.node_id].start_position,
+								self._UrtextProjectList.current_project.nodes[link.node_id].end_position
+								])
+							window.focus_group(self.tree_group)
+					else:
+						sublime.set_timeout(lambda: focus_position(focus_view, position), 50) 
+
+				focus_position(file_view, position)
 
 	def find_filename_in_window(self, filename, window):
 		instances = []
@@ -250,17 +254,17 @@ class TraverseFileTree(EventListener):
 			sublime.set_timeout(lambda: self.return_to_left(wait_view, return_view), 1)
 
 def size_to_groups(groups, view):
-    panel_size = 1 / groups
-    cols = [0]
-    cells = [[0, 0, 1, 1]]
-    for index in range(1, groups):
-        cols.append(cols[index - 1] + panel_size)
-        cells.append([index, 0, index + 1, 1])
-    cols.append(1)
-    view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
+	panel_size = 1 / groups
+	cols = [0]
+	cells = [[0, 0, 1, 1]]
+	for index in range(1, groups):
+		cols.append(cols[index - 1] + panel_size)
+		cells.append([index, 0, index + 1, 1])
+	cols.append(1)
+	view.window().set_layout({"cols": cols, "rows": [0, 1], "cells": cells})
 
 def size_to_thirds(groups,view):
-    # https://forum.sublimetext.com/t/set-layout-reference/5713
-    # {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
-    view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
+	# https://forum.sublimetext.com/t/set-layout-reference/5713
+	# {'cells': [[0, 0, 1, 1], [1, 0, 2, 1]], 'rows': [0, 1], 'cols': [0, 0.5, 1]}
+	view.window().set_layout({"cols": [0.0, 0.3333, 1], "rows": [0, 1], "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]})
 
