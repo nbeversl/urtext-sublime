@@ -174,6 +174,8 @@ class UrtextProject:
 
         self.messages[new_file.filename] = new_file.messages
         if new_file.errors:
+            print('ERRORS', new_file.filename)
+            print(new_file.errors)
             return False
 
         if existing_file_ids:
@@ -366,6 +368,8 @@ class UrtextProject:
                     changed_ids[node.id] = resolved_id
                     node.id = resolved_id
         if messages:
+            print('THERE ARE MESSAGES')
+            print(messages)
             file_obj.write_messages(messages=messages)
             file_obj.errors = True
         else:
