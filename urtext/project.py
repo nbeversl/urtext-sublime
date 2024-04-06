@@ -478,8 +478,6 @@ class UrtextProject:
             for node in list(self.files[filename].nodes):
                 self._drop_node(node)
             del self.files[filename]
-        else:
-            print(filename,' Not in files')
 
         if filename in self.messages:
             self.messages[filename] = []
