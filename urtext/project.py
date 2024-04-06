@@ -161,6 +161,7 @@ class UrtextProject:
                 node.filename = filename
         else:
             new_file = self.urtext_file(filename, self)
+        
         self._drop_file(filename)
 
         if not new_file.root_node:
@@ -173,7 +174,6 @@ class UrtextProject:
             existing_file_ids=existing_file_ids)
 
         self.messages[new_file.filename] = new_file.messages
-
         if new_file.errors:
             return False
 
@@ -195,10 +195,6 @@ class UrtextProject:
                             #TODO try to map old to new.
         for node in new_file.nodes:
             self._add_node(node)
-
-        for node in new_file.nodes:
-            for child in node.children:
-                child.parent = node
 
         self.files[new_file.filename] = new_file
         self._run_hook('on_file_added', filename)
@@ -473,6 +469,7 @@ class UrtextProject:
     """
     def _drop_file(self, filename):
         if filename in self.files:
+            print('DROPPING FILE', filename)
             for dd in self.dynamic_definitions.values():
                 for op in dd.operations:
                     op.on_file_dropped(filename)
@@ -484,11 +481,15 @@ class UrtextProject:
                 
             del self.files[filename]
 
+        else:
+            print(filename,' Not in files')
+
         if filename in self.messages:
             self.messages[filename] = []
 
     def _drop_node(self, node):
         if node.id in self.nodes:
+            print('DROPPING NODE', node.id)
             self._remove_sub_tags(node.id)
             self._remove_dynamic_defs(node.id)
             self._remove_dynamic_metadata_entries(node.id)
@@ -1115,7 +1116,11 @@ class UrtextProject:
                 self._reverify_links(filename)
                 self._sync_file_list()
                 if filename in self.files:
-                    self._run_hook('on_file_modified', filename)
+                    # self._run_hook('on_file_modified', filename)
+                    pass
+                else:
+                    print(filename, 'DROPPED')
+
                 self.files[filename].write_contents(run_on_modified=False)
                 return modified_files
         
@@ -1136,7 +1141,6 @@ class UrtextProject:
                     self.title(),
                     ' (compiled)'
                     ]))
-            return True
 
     def visit_file(self, filename):
         return self.execute(
@@ -1148,7 +1152,6 @@ class UrtextProject:
             modified_files = self._compile_file(
                 filename, 
                 events=['-file_visited'])
-            self.files[filename].write_contents()
             return modified_files
 
     def _sync_file_list(self):
@@ -1562,6 +1565,7 @@ class UrtextProject:
         filename,
         include_project=False):
 
+        print(filename)
         self._parse_file(filename, try_buffer=True)
 
         node_id=None

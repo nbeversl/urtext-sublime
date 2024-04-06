@@ -15,6 +15,7 @@ class UrtextFile(UrtextBuffer):
         self.contents = None
         super().__init__(project, filename, self._get_contents())
         self.clear_messages_and_parse()
+        self.write_contents()
         for node in self.nodes:
             node.filename = filename
             node.file = self
@@ -57,15 +58,6 @@ class UrtextFile(UrtextBuffer):
             inserted_contents,
             self.contents[range[1]:],
             ])
-
-    def clear_messages_and_parse(self):
-        contents = self._get_contents()
-        if contents:
-            cleared_contents = self.clear_messages(contents)
-            self.contents = cleared_contents
-            self.write_contents()
-            self.lex_and_parse()
-            self.write_messages()
 
     def write_contents(self, run_on_modified=True):
         self.project._run_hook('on_set_file_contents', self)

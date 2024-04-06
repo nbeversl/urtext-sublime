@@ -286,7 +286,7 @@ class UrtextEventListeners(EventListener):
                 view.window().set_project_data({"folders": [
                     {"path": _UrtextProjectList.current_project.entry_path}]})
 
-    def on_hover(self, view, point, hover_zone):
+    def on_hover(self, view, point, hover_zone, **kwargs):
         if view.is_folded(sublime.Region(point, point)) and _UrtextProjectList:
             for r in view.folded_regions():
                 if point in [r.a, r.b]:
@@ -308,15 +308,18 @@ class UrtextEventListeners(EventListener):
                 on_navigate=unfold_region)
 
         if _UrtextProjectList:
-
-            #TODO refactor
-            region = view.line(point)
+            return
+            click_position = view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
+            region = view.line(click_position)
             file_pos = region.a
             full_line_region = view.full_line(region)
-            full_line = view.substr(full_line_region) 
-            link = _UrtextProjectList.parse_link(full_line, view.file_name())
+            row, col_pos = view.rowcol(click_position)
 
-            if link and link.is_node and link.node_id in _UrtextProjectList.current_project.nodes:
+            full_line = view.substr(full_line_region)
+            link = _UrtextProjectList.parse_link(full_line, view.file_name())
+            if link and link.is_node and  (
+                link.node_id in _UrtextProjectList.current_project.nodes ) and (
+                link.end_position() < col_pos ):
                 contents = _UrtextProjectList.current_project.nodes[link.node_id].contents()
                 if contents:
 

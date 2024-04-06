@@ -50,3 +50,6 @@ class UrtextLink:
 				containing_node.id,
 				replacement_contents,
 				preserve_title=False)
+
+	def end_position(self):
+		return self.position_in_string + len(self.matching_string)

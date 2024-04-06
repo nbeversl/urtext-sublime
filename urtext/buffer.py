@@ -20,8 +20,6 @@ class UrtextBuffer:
     user_delete_string = USER_DELETE_STRING
 
     def __init__(self, project, filename, contents):
-        self.nodes = []
-        self.root_node = None
         self.contents = contents
         self.previous_contents = contents
         self.messages = []
@@ -38,6 +36,7 @@ class UrtextBuffer:
         self.propagate_timestamps(self.root_node)
         for node in self.nodes:
             node.buffer = self
+        self._assign_parents(self.root_node)
 
     def lex(self, contents, start_position=0):
         symbols = {}
@@ -301,18 +300,10 @@ class UrtextBuffer:
             new_n = old_n + message_length
             messages = messages.replace(str(old_n), str(new_n))
              
-        new_contents = ''.join([
+        self.contents = ''.join([
             messages,
             new_contents,
             ])
-
-        self.contents = new_contents            
-        self.write_contents(run_on_modified=False)
-
-        # TODO: make DRY
-        self.nodes = []
-        self.root_node = None
-        self.lex_and_parse()
         
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
@@ -353,6 +344,11 @@ class UrtextBuffer:
                 end=node.end_position,
                 replacement_text=replacement_text
                 )
+
+    def _assign_parents(self, start_node):
+        for child in start_node.children:
+            child.parent = start_node
+            self._assign_parents(child)
 
     def log_error(self, message, position):
 

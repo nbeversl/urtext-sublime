@@ -185,8 +185,11 @@ class ProjectList():
 
     def visit_node(self, filename, node_id):
         self.set_current_project(filename)
-        if self.current_project:
-            return self.current_project.visit_node(node_id)
+        if node_id in self.current_project.nodes:
+            if self.current_project:
+                self.current_project.visit_node(node_id)
+                return True
+        return False
 
     def new_project_in_path(self, path):
         if os.path.exists(path):
