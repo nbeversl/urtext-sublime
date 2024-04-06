@@ -10,18 +10,6 @@ else:
 	import urtext.syntax as syntax
 	from urtext.timestamp import UrtextTimestamp
 
-phases = [
-	000, # Pre-checks, such as WHEN()
-	100, # Queries, building and sorting list of nodes included/excluded
-	200, # Expects list of node objects. Sorting, limiting, transforming the node list.
-	300, # Expects list of node objects. Outputs selected nodes to text output
-	400, # Adding header/footer, preserving other elements as needed
-	500, # Transform built text further (exports, etc.)
-	600, # currently unused
-	700, # custom operations
-	800, # post-process (formatting per target, preserving title/definition, etc.)
-]
-
 class UrtextDynamicDefinition:
 
 	def __init__(self, param_string, project, position):
@@ -36,7 +24,6 @@ class UrtextDynamicDefinition:
 		self.project = project
 		self.preformat = False
 		self.show = None
-		self.returns_text = True
 		self.param_string = param_string
 		self.system_contents = []
 		self.init_self(param_string)	
@@ -74,27 +61,8 @@ class UrtextDynamicDefinition:
 						self.targets.append(argument_string)
 				continue
 
-			elif func == "SHOW":
-				self.show = argument_string
-
 			else:
 				self.system_contents.append('directive "%s" not found' % func)
-		
-		self.phases = list(set([op.phase for op in self.operations]))
-		
-		#TODO rewrite -- 
-		#is_custom_output = max(self.phases) >= 700 if self.phases else False
-		#if not is_custom_output and not has_text_output(self.operations):
-		if not has_text_output(self.operations):
-			# add simple list output if none supplied
-			op = self.project.directives['TREE'](self.project)
-			op.parse_argument_string('1')
-			op.set_dynamic_definition(self)
-			self.operations.append(op)
-			self.phases.append(300)
-
-		if all(i < 300 or i > 600 for i in self.phases):
-			self.returns_text = False
 
 	def preserve_title_if_present(self, target):
 		if target == '@self' and self.source_node.id in self.project.nodes:
@@ -104,62 +72,48 @@ class UrtextDynamicDefinition:
 			return ' ' + self.project.nodes[node_id].title + syntax.title_marker +'\n'
 		return ''
 
-	def process_output(self,
-		phases_to_process=[],
-		outcome=[],
-		max_phase=800):
-
+	def process_output(self):
 		self.project._run_hook('on_dynamic_def_process_started', self)
+		accumulated_text = ''
 
-		if not len(phases_to_process):
-			phases_to_process = [p for p in phases if p <= max_phase]
+		for operation in self.operations:
+			nodes_included = [
+				self.project.nodes[nid] for nid in self.included_nodes if (
+					nid in self.project.nodes) and nid not in self.excluded_nodes]
 
-		all_operations = sorted(
-			list(self.operations), 
-			key = lambda op: op.phase)
-
-		for p in phases_to_process:	
-			if p == 200: 
-				self.included_nodes = outcome
-				outcome = [
-					self.project.nodes[nid] for nid in outcome if (
-						nid in self.project.nodes)
-					]
-				outcome = sorted(
-					outcome,
-					key=lambda node: node.title)
-				outcome = sorted(
-					outcome,
-					key=lambda node: node.metadata.get_first_value(
-							'_oldest_timestamp').datetime if (
-								node.metadata.get_first_value('_oldest_timestamp')) else (
-							datetime.datetime(
-								1,1,1,
-								tzinfo=datetime.timezone.utc)),
-					reverse=True)
-
-			next_phase = p + 100
-			ops_this_phase = [op for op in all_operations if p <= op.phase < next_phase]
-			
-			if len(ops_this_phase) > 1 and 300 <= p < 400:
-				accumulated_text = ''
-				for operation in ops_this_phase:
-					next_outcome = operation._dynamic_output(outcome)
-					if next_outcome != False:
-						accumulated_text += next_outcome
-				outcome = accumulated_text
-			else:
-				for operation in ops_this_phase:
-					new_outcome = operation._dynamic_output(outcome)					
-					if new_outcome == False:
-						return False
-					outcome = new_outcome
+			# if not self.nodes_sorted:
+			# this should not happen on every iteration.
+			# SORT() will now modify the list directly without text output. 
+			# sorted_nodes = sorted(
+			# 	nodes_included,
+			# 	key=lambda node: node.title)
+			# sorted_nodes = sorted(
+			# 	sorted_nodes,
+			# 	key=lambda node: node.metadata.get_first_value(
+			# 			'_oldest_timestamp').datetime if (
+			# 				node.metadata.get_first_value('_oldest_timestamp')) else (
+			# 			datetime.datetime(
+			# 				1,1,1,
+			# 				tzinfo=datetime.timezone.utc)),
+			# 	reverse=True)
+			# print('NODES INCLUDED ARE')
+			# print([n.id for n in nodes_included])
+			# print(nodes_included)
+			current_text = accumulated_text
+			transformed_text = operation.dynamic_output(current_text)
+			if transformed_text == False: # not None !
+				return current_text
+			if transformed_text == None:
+				accumulated_text = current_text
+				continue
+			accumulated_text = transformed_text
 
 		self.flags = []
 		self.project._run_hook('on_dynamic_def_process_ended', self)
 		if self.system_contents:
-			outcome = outcome + '\n'.join(self.system_contents)
-		return outcome		
+			accumulated_text += '\n'.join(self.system_contents)
+
+		return accumulated_text
 
 	def have_flags(self, flag):
 		if flag in self.flags:
@@ -175,7 +129,6 @@ class UrtextDynamicDefinition:
 
 	def process(self, flags=[]):
 		self.flags = flags
-
 		for target_id in self.target_ids:
 			if self.source_node.id not in self.project.nodes:
 				continue
@@ -191,10 +144,6 @@ class UrtextDynamicDefinition:
 							syntax.link_closing_wrapper]))
 
 		output = self.process_output()
-		if output == False:
-			return
-		if not self.returns_text:
-			return
 		if self.spaces:
 			output = indent(output, spaces=self.spaces)
 		return output
@@ -203,16 +152,7 @@ class UrtextDynamicDefinition:
 		output = self.preserve_title_if_present(target) + output
 		if target == '@self':
 			output += self.get_definition_text()
-		post_process_ops = [op for op in list(self.operations) if op.phase >= 800]
-		for op in post_process_ops:
-			output = op._dynamic_output(output)
 		return output
-
-def has_text_output(operations):
-	for op in operations:
-		if 300 <= op.phase < 400:
-			return True
-	return False
 
 def indent(contents, spaces=4):
 	content_lines = contents.split('\n')

@@ -9,9 +9,8 @@ else:
 class Interlinks:
 
     name = ["INTERLINKS"]
-    phase = 350
     
-    def dynamic_output(self, nodes):
+    def dynamic_output(self, text_contents):
 
         self.visited_nodes = []
         self.backward_visited_nodes = []
@@ -23,10 +22,7 @@ class Interlinks:
             root_meta = self.project.nodes[root_node_id].metadata
             self.build_node_tree(root_node.id)
             self.build_backward_node_tree(root_node.id)
-            return self.render_tree()
-
-        return ''
-
+            return text_contents + self.render_tree()
 
     def build_node_tree(self, oldest_node, parent=None):
         self.tree = Node(oldest_node)

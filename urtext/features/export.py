@@ -9,11 +9,10 @@ else:
 class UrtextExport:
 
     name = ["EXPORT"]
-    phase = 500
 
-    def dynamic_output(self, input):
+    def dynamic_output(self, text_contents):
         if 'root' in self.params_dict:
-            return self.export_from(
+            return text_contents + self.export_from(
                self.params_dict['root'][0],
                 )
         return ''

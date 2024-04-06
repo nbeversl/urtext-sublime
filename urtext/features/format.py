@@ -1,6 +1,5 @@
 class Format:
 
-	phase = 800
 	name = ["FORMAT"]
 
 	def dynamic_output(self, contents):

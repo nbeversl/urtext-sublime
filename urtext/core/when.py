@@ -1,7 +1,6 @@
 class When:
 
 	name = ["WHEN"]    
-	phase = 50
 	
 	def should_continue(self):
 		if self.have_flags('-never'):

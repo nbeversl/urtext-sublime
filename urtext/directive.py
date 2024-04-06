@@ -12,7 +12,6 @@ else:
 
 class UrtextDirective:
 
-    phase = 0
     syntax = syntax
     utils = utils
     DynamicOutput = DynamicOutput

@@ -161,7 +161,6 @@ class UrtextProject:
                 node.filename = filename
         else:
             new_file = self.urtext_file(filename, self)
-        
         self._drop_file(filename)
 
         if not new_file.root_node:
@@ -236,7 +235,6 @@ class UrtextProject:
                     node_id,
                     changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
-
         return new_file, changed_ids
 
     def _verify_links_globally(self):
@@ -469,18 +467,13 @@ class UrtextProject:
     """
     def _drop_file(self, filename):
         if filename in self.files:
-            print('DROPPING FILE', filename)
             for dd in self.dynamic_definitions.values():
                 for op in dd.operations:
                     op.on_file_dropped(filename)
-
             self._run_hook('on_file_dropped', filename)
-
             for node in list(self.files[filename].nodes):
                 self._drop_node(node)
-                
             del self.files[filename]
-
         else:
             print(filename,' Not in files')
 
@@ -489,7 +482,6 @@ class UrtextProject:
 
     def _drop_node(self, node):
         if node.id in self.nodes:
-            print('DROPPING NODE', node.id)
             self._remove_sub_tags(node.id)
             self._remove_dynamic_defs(node.id)
             self._remove_dynamic_metadata_entries(node.id)
@@ -1118,8 +1110,6 @@ class UrtextProject:
                 if filename in self.files:
                     # self._run_hook('on_file_modified', filename)
                     pass
-                else:
-                    print(filename, 'DROPPED')
 
                 self.files[filename].write_contents(run_on_modified=False)
                 return modified_files
@@ -1565,7 +1555,6 @@ class UrtextProject:
         filename,
         include_project=False):
 
-        print(filename)
         self._parse_file(filename, try_buffer=True)
 
         node_id=None

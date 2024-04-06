@@ -1,9 +1,8 @@
 class Log:
 
 	name = ["LOG"]    
-	phase = 300
 
-	def dynamic_output(self, node_list):
+	def dynamic_output(self, text_contents):
 		output = []
 		for k in self.project.messages:
 			if k:
@@ -22,6 +21,6 @@ class Log:
 	                message,
 	                '\n'
 	                ]))
-		return '\n'.join(output) + '\n'
+		return text_contents + '\n'.join(output) + '\n'
 
 urtext_directives=[Log]

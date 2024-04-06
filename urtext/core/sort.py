@@ -1,10 +1,10 @@
 class Sort:
 
 	name = ["SORT","S"]
-	phase = 220
 		
-	def dynamic_output(self, nodes):
+	def dynamic_output(self, text_contents):
 		sorted_nodes = []
+		nodes = self.dynamic_definition.included_nodes
 		if self.keys_with_flags:
 			for key_with_flags in self.keys_with_flags:
 				key, flags = key_with_flags
@@ -23,8 +23,7 @@ class Sort:
 					)
 				nodes = [n for n in nodes if n not in group_to_sort]
 			sorted_nodes.extend(nodes)
-			return sorted_nodes
-		return nodes
+		self.dynamic_definition.included_nodes = sorted_nodes
 
 	def sort_values(self, 
 		node, 
@@ -68,6 +67,5 @@ def strip_reverse(flags):
 	while '-reverse' in flags:
 		flags.remove('-reverse')
 	return flags
-
 
 urtext_directives=[Sort]

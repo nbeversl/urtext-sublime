@@ -13,9 +13,8 @@ python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
 class Exec:
 
 	name = ["EXEC"]
-	phase = 350
 
-	def dynamic_output(self, input_contents):
+	def dynamic_output(self, text_contents):
 		node_to_exec = get_id_from_link(self.argument_string)
 		if node_to_exec in self.project.nodes:
 			contents = self.project.nodes[node_to_exec].full_contents
@@ -34,6 +33,6 @@ class Exec:
 					sys.stdout = old_stdout
 					return str(e)
 
-		return '(no Python code found)'
+		return text_contents + '(no Python code found)'
 
 urtext_directives=[Exec]

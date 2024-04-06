@@ -3,9 +3,8 @@ import re
 class NodeQuery:
 
 	name = ["QUERY"]
-	phase = 100
 
-	def build_list(self, passed_nodes):
+	def build_list(self):
 		added_nodes = [l.node_id for l in self.links if l.node_id and l.node_id in self.project.nodes]		
 
 		for arg in self.arguments:
@@ -24,7 +23,7 @@ class NodeQuery:
 				added_nodes.update([node_id for node_id in self.project.nodes])
 			added_nodes = added_nodes.union(_build_group_and(
 					self.project,
-					self.params, 
+					self.params,
 					self.dynamic_definition,
 					include_dynamic=self.have_flags('-dynamic'))
 				)
@@ -39,30 +38,32 @@ class NodeQuery:
 		if self.have_flags('-is_meta'):
 			added_nodes = set([node_id for node_id in added_nodes if self.project.nodes[node_id].is_meta])
 		
-		passed_nodes = set(passed_nodes)
 		for target_id in self.dynamic_definition.target_ids:
-			passed_nodes.discard(target_id)  
-		self.dynamic_definition.included_nodes = list(passed_nodes.union(set(added_nodes)))
-		return self.dynamic_definition.included_nodes
+			added_nodes.discard(target_id)  
 
-	def dynamic_output(self, nodes):
-		return self.build_list(nodes)
+		return list(added_nodes)
 
 class Exclude(NodeQuery):
 	
 	name = ["EXCLUDE","-"]
-	phase = 105
 
 	def dynamic_output(self, nodes):
-		excluded_nodes = set(self.build_list([]))
-		if self.have_flags('-including_as_descendants'):
-			self.dynamic_definition.excluded_nodes.extend(list(excluded_nodes))
-		return list(set(nodes) - excluded_nodes)
+		excluded_nodes = set(self.build_list())
+		# this flag will have to be reimplemented
+		# if self.have_flags('-including_as_descendants'):
+		self.dynamic_definition.excluded_nodes.extend(
+			[self.project.nodes[nid] for nid in list(excluded_nodes)])
+		
 
 class Include(NodeQuery):
 
 	name = ["INCLUDE","+"] 	
-	phase = 100
+
+	def dynamic_output(self, nodes):
+		included_nodes = self.build_list()
+		self.dynamic_definition.included_nodes.extend(
+			[self.project.nodes[nid] for nid in list(included_nodes)])
+
 
 def _build_group_and(
 	project, 

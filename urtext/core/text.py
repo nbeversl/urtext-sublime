@@ -1,0 +1,13 @@
+class UrtextText:
+
+    name = ["TEXT"]
+    
+    def dynamic_output(self, contents):
+        if not self.argument_string:
+            self.argument_string = ''
+        added_text = bytes(self.argument_string, "utf-8").decode("unicode_escape")
+        if added_text and added_text[-1] != '\n':
+            added_text += '\n'
+        return ''.join([contents, added_text])
+
+urtext_directives=[UrtextText]

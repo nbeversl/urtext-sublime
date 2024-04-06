@@ -13,14 +13,13 @@ else:
 class Collect:
 
 	name = ["COLLECT"]
-	phase = 300
 
 	""" 
 	generates a collection of context-aware metadata 
 	anchors in list or tree format
 	"""
 
-	def dynamic_output(self, nodes):
+	def dynamic_output(self, text_contents):
 		m_format = self.dynamic_definition.show
 		keys = {}
 		
@@ -36,7 +35,7 @@ class Collect:
 				keys[k] = [v.lower()]
 
 		found_stuff = []
-		for node in nodes:
+		for node in self.dynamic_definition.included_nodes:
 			for k in keys:
 				use_timestamp = k in self.project.settings['use_timestamp']
 				for v in keys[k]:
@@ -104,7 +103,7 @@ class Collect:
 							found_stuff.append(found_item)
 	
 		if not found_stuff:
-			 return ''
+			 return text_contents
 		
 		if '-tree' not in self.flags:
 
@@ -152,7 +151,7 @@ class Collect:
 
 				collection.extend([next_content.output()])
 
-			return ''.join(collection)
+			return text_contents + ''.join(collection)
 
 		if '-tree' in self.flags:
 			# TODO be able to pass an m_format for Dynamic Output here.
@@ -169,7 +168,7 @@ class Collect:
 						t=Node(v.unwrapped_string)
 					else:
 						t = Node(v) 
-					for node in nodes:
+					for node in self.dynamic_definition.included_nodes:
 						for n in node.metadata.get_matching_entries(k,value):
 							f = Node(node.id + ' >' + node.id) #?
 							f.parent = t
@@ -178,7 +177,7 @@ class Collect:
 				for pre, _, node in RenderTree(root):
 					contents += "%s%s\n" % (pre, node.name)
 
-			return contents
+			return text_contents + contents
 
 def meta_value_sort_criteria(v):
 	if isinstance(v,UrtextTimestamp):

@@ -3,9 +3,8 @@ import sys
 class UrtextStats:
 
 	name = ["STATS"]
-	phase = 300
 
-	def dynamic_output(self, nodes):
+	def dynamic_output(self, text_contents):
 
 		contents = []
 		contents.append('Project Title : '+self.project.settings['project_title'])
@@ -19,6 +18,6 @@ class UrtextStats:
 		contents.append('# nodes : '+ str(len(self.project.nodes)))
 		contents.append('# dynamic defs : '+ str(len(self.project.dynamic_definitions)))
 		contents.append('compile time :' + str(self.project.last_compile_time))
-		return '\n'.join(contents)
+		return text_contents + '\n'.join(contents)
 
 urtext_directives = UrtextStats

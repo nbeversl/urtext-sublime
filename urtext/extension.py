@@ -6,7 +6,6 @@ else:
 
 class UrtextExtension:
 
-    phase = 0
     syntax = syntax
     name = []
     

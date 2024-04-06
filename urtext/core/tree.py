@@ -82,14 +82,13 @@ class UrtextAnyTree:
 
 class TreeDirective:
 
-    phase = 310
     name = ['TREE']
     
     def __init__(self, project):
         super().__init__(project)
         self.depth = 1
 
-    def dynamic_output(self, start_points):
+    def dynamic_output(self, text_contents):
         if self.have_flags('*'):
             self.depth = float('inf')
         else:
@@ -98,6 +97,7 @@ class TreeDirective:
             except:
                 self.depth = 1
 
+        start_points = self.dynamic_definition.included_nodes
         tree_render = ''
         for start_point in start_points:
             start_point = start_point.tree_node
@@ -200,7 +200,7 @@ class TreeDirective:
 
                 level += 1
 
-        return tree_render
+        return ''.join([text_contents, tree_render])
         
     def _tree_node_is_excluded(self, tree_node):
 

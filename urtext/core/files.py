@@ -1,13 +1,12 @@
 class UrtextFiles:
 
 	name = ["FILES"]
-	phase = 300
 
-	def dynamic_output(self, nodes):
+	def dynamic_output(self, text_contents):
 		file_list = os.listdir(self.argument_string)
 		output = []
 		for f in file_list:
 			output.append(''.join(['|/ ',f,' >\n']))
-		return ''.join(output)
+		return text_contents + ''.join(output)
 
 urtext_directives=[UrtextFiles]

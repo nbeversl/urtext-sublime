@@ -1,6 +1,5 @@
 class MaxLength:
 
-	phase = 800
 	name = ["MAX_LENGTH"]
 
 	def dynamic_output(self, contents):

@@ -1,13 +1,11 @@
 class Limit:
 
 	name = ["LIMIT"]
-	phase = 250
 
-	def dynamic_output(self, nodes):
+	def dynamic_output(self, text_contents):
 		if self.argument_string:
 			number = int(self.argument_string)
 			if number:
-				return nodes[:number]
-		return nodes
+				self.included_nodes = self.included_nodes[:number]
 
 urtext_directives=Limit

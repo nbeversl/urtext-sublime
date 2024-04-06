@@ -25,8 +25,10 @@ class UrtextBuffer:
         self.messages = []
         self.project = project
         self.meta_to_node = []
-        self.errors = True
+        self.errors = False
         self.filename = filename
+        self.nodes = []
+        self.root_node = None
     
     def lex_and_parse(self):
         self.nodes = []
