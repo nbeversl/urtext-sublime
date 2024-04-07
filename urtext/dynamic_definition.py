@@ -41,11 +41,7 @@ class UrtextDynamicDefinition:
 			
 			func, argument_string = match.group(1), match.group().strip(match.group(1)).replace(')(','')
 			argument_string = match.group(2)
-			print("ASSIGNING STUFF TO DIRECTIVES")
-			print(match.group())
-			print(func)
 			if func and func in self.project.directives:
-				print(func)
 				op = self.project.directives[func](self.project)
 				op.argument_string = argument_string
 				op.set_dynamic_definition(self)
