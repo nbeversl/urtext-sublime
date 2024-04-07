@@ -6,6 +6,6 @@ class Limit:
 		if self.argument_string:
 			number = int(self.argument_string)
 			if number:
-				self.included_nodes = self.included_nodes[:number]
+				self.dynamic_definition.included_nodes = self.dynamic_definition.included_nodes[:number]
 
-urtext_directives=Limit
+urtext_directives=[Limit]

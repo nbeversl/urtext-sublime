@@ -16,7 +16,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from ..anytree import Node, PreOrderIter, RenderTree
     from .file import UrtextFile, UrtextBuffer
     from .node import UrtextNode
-    from .dynamic import UrtextDynamicDefinition
+    from .dynamic_definition import UrtextDynamicDefinition
     from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from .directive import UrtextDirective
     from .extension import UrtextExtension
@@ -27,7 +27,7 @@ else:
     from anytree import Node, PreOrderIter, RenderTree
     from urtext.file import UrtextFile, UrtextBuffer
     from urtext.node import UrtextNode
-    from urtext.dynamic import UrtextDynamicDefinition
+    from urtext.dynamic_definition import UrtextDynamicDefinition
     from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
     from urtext.directive import UrtextDirective
     from urtext.extension import UrtextExtension
@@ -1581,18 +1581,18 @@ class UrtextProject:
         return False
     
     def add_directive(self, directive, folder=None):
-        class newClass(directive, UrtextDirective):
+        class Directive(directive, UrtextDirective):
             pass
-        newClass.folder = folder
-        for n in newClass.name:
-            self.directives[n] = newClass
+        Directive.folder = folder
+        for n in Directive.name:
+            self.directives[n] = Directive
 
     def add_extension(self, extension, folder=None):
-        class newClass(extension, UrtextExtension):
+        class Extension(extension, UrtextExtension):
             pass
-        newClass.folder = folder
-        for n in newClass.name:
-            self.extensions[n] = newClass(self)
+        Extension.folder = folder
+        for n in Extension.name:
+            self.extensions[n] = Extension(self)
 
 """ 
 Helpers 

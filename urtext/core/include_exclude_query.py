@@ -5,16 +5,16 @@ class NodeQuery:
 	name = ["QUERY"]
 
 	def build_list(self):
-		added_nodes = [l.node_id for l in self.links if l.node_id and l.node_id in self.project.nodes]		
+		added_nodes = set([l.node_id for l in self.links if l.node_id and l.node_id in self.project.nodes])
 
 		for arg in self.arguments:
 			if re.match(self.syntax.virtual_target_marker+'self', arg):
-				added_nodes.append(self.dynamic_definition.source_node.id)
+				added_nodes.update(self.dynamic_definition.source_node.id)
 				break
 
 			if re.match(self.syntax.virtual_target_marker+'parent', arg):
 				if self.dynamic_definition.source_node.parent:
-					added_nodes.append(self.dynamic_definition.source_node.parent.id)
+					added_nodes.update(self.dynamic_definition.source_node.parent.id)
 				break
 
 		if not added_nodes:	
@@ -52,7 +52,7 @@ class Exclude(NodeQuery):
 		# this flag will have to be reimplemented
 		# if self.have_flags('-including_as_descendants'):
 		self.dynamic_definition.excluded_nodes.extend(
-			[self.project.nodes[nid] for nid in list(excluded_nodes)])
+			[self.project.nodes[nid] for nid in list(excluded_nodes) if nid in self.project.nodes])
 		
 
 class Include(NodeQuery):
@@ -62,7 +62,7 @@ class Include(NodeQuery):
 	def dynamic_output(self, nodes):
 		included_nodes = self.build_list()
 		self.dynamic_definition.included_nodes.extend(
-			[self.project.nodes[nid] for nid in list(included_nodes)])
+			[self.project.nodes[nid] for nid in list(included_nodes) if nid in self.project.nodes])
 
 
 def _build_group_and(

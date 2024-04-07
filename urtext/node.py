@@ -6,7 +6,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sub
     from .metadata import MetadataEntry, MetadataValue
     from .metadata import NodeMetadata
     from Urtext.anytree.exporter import JsonExporter
-    from .dynamic import UrtextDynamicDefinition
+    from .dynamic_definition import UrtextDynamicDefinition
     import Urtext.urtext.utils as utils
     import Urtext.urtext.syntax as syntax
 else:
@@ -14,7 +14,7 @@ else:
     from urtext.metadata import MetadataEntry
     from urtext.metadata import NodeMetadata, MetadataValue
     from anytree.exporter import JsonExporter
-    from urtext.dynamic import UrtextDynamicDefinition
+    from urtext.dynamic_definition import UrtextDynamicDefinition
     import urtext.utils as utils
     import urtext.syntax as syntax
 
