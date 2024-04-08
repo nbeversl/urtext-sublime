@@ -156,7 +156,7 @@ class UrtextBuffer:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
-                    self.contents = contents
+                    self._set_contents(contents)
                     return self.lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -218,7 +218,7 @@ class UrtextBuffer:
                 syntax.node_closing_wrapper,
                 ' ',
                 contents[position:]])
-            self.contents = contents
+            self._set_contents(contents)
             return self.lex_and_parse()
 
         for node in self.nodes:
@@ -271,12 +271,18 @@ class UrtextBuffer:
         if contents:
             cleared_contents = self.clear_messages(contents)
             if cleared_contents:
-                self.contents = cleared_contents
+                self._set_contents(cleared_contents)
                 self.lex_and_parse()
                 self.write_messages()
 
     def _get_contents(self):
         return self.contents
+
+    def _set_contents(self, new_contents):
+        self.project.run_editor_method(
+            'set_buffer',
+            self.filename,
+            new_contents)
 
     def write_messages(self, messages=None):
         if not messages and not self.messages:
@@ -306,6 +312,15 @@ class UrtextBuffer:
             messages,
             new_contents,
             ])
+
+        self._set_contents(
+            new_contents,
+            run_on_modified=False)
+
+        # TODO: make DRY
+        self.nodes = []
+        self.root_node = None
+        self.lex_and_parse()
         
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
