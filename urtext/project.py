@@ -171,9 +171,9 @@ class UrtextProject:
         changed_ids = self._check_file_for_duplicates(new_file)
 
         self.messages[new_file.filename] = new_file.messages
-        if new_file.errors:
-            print('ERRORS', new_file.filename)
-            print(new_file.errors)
+        if new_file.has_errors:
+            print('ERRORS IN', new_file.filename)
+            print(new_file.messages)
             return False
 
         if existing_file_ids:
@@ -368,9 +368,9 @@ class UrtextProject:
         if messages:
             print(messages)
             file_obj.write_messages(messages=messages)
-            file_obj.errors = True
+            file_obj.has_errors = True
         else:
-            file_obj.errors = False
+            file_obj.has_errors = False
         return changed_ids
 
     def _add_dynamic_definition(self, definition):
@@ -563,7 +563,7 @@ class UrtextProject:
         new_file = self.urtext_file(filename, self)
         
         duplicates = self._check_file_for_duplicates(new_file)
-        if new_file.errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
+        if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
             if contents == None:
                 new_node_contents, node_id, cursor_pos = self._new_node(
                     date=date,
@@ -1382,7 +1382,7 @@ class UrtextProject:
         events=['-project_compiled']):
         
         self._add_all_sub_tags()
-        for file in list([f for f in self.files if not self.files[f].errors]):
+        for file in list([f for f in self.files if not self.files[f].has_errors]):
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
         if len(self.extensions) > num_extensions or len(self.directives) > num_directives:

@@ -25,7 +25,7 @@ class UrtextBuffer:
         self.messages = []
         self.project = project
         self.meta_to_node = []
-        self.errors = False
+        self.has_errors = False
         self.filename = filename
         self.nodes = []
         self.root_node = None

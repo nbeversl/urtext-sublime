@@ -70,13 +70,13 @@ class UrtextFile(UrtextBuffer):
             self.filename,
             self.contents)
 
-        if buffer_updated and run_on_modified and not self.errors:
+        if buffer_updated and run_on_modified and not self.has_errors:
             if self.project.run_editor_method(
                 'save_file', # expected to call on_modified()
                 self.filename):
                     return True
 
         utils.write_file_contents(self.filename, self.contents)
-        if run_on_modified and not self.errors:
+        if run_on_modified and not self.has_errors:
             self.project._on_modified(self.filename)
         return True
