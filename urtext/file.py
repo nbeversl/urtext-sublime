@@ -15,7 +15,7 @@ class UrtextFile(UrtextBuffer):
         self.contents = None
         super().__init__(project, filename, self._get_contents())
         self.clear_messages_and_parse()
-        self.write_contents()
+        self.write_contents(run_on_modified=False)
         for node in self.nodes:
             node.filename = filename
             node.file = self
