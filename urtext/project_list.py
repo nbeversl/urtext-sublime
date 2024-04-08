@@ -19,7 +19,7 @@ class ProjectList():
         editor_methods=None):
 
         self.is_async = is_async
-        #self.is_async = False # development
+        self.is_async = False # development
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
