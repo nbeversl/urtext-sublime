@@ -168,9 +168,7 @@ class UrtextProject:
             self.excluded_files.append(filename)
             return False
 
-        changed_ids = self._check_file_for_duplicates(
-            new_file, 
-            existing_file_ids=existing_file_ids)
+        changed_ids = self._check_file_for_duplicates(new_file)
 
         self.messages[new_file.filename] = new_file.messages
         if new_file.errors:
@@ -368,7 +366,6 @@ class UrtextProject:
                     changed_ids[node.id] = resolved_id
                     node.id = resolved_id
         if messages:
-            print('THERE ARE MESSAGES')
             print(messages)
             file_obj.write_messages(messages=messages)
             file_obj.errors = True
