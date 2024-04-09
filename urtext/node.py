@@ -141,6 +141,7 @@ class UrtextNode:
                 ])
             if resolved_id not in allocated_ids:
                 self.resolved = True
+                self.id = resolved_id
                 return resolved_id
 
     def _get_links(self, positioned_contents):

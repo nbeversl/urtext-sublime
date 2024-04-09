@@ -278,7 +278,7 @@ class UrtextBuffer:
     def _get_contents(self):
         return self.contents
 
-    def _set_contents(self, new_contents):
+    def _set_contents(self, new_contents, run_on_modified=False):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,
@@ -343,7 +343,7 @@ class UrtextBuffer:
                         'inline_timestamp',
                         [MetadataValue(oldest_timestamp.wrapped_string)],
                         child,
-                        from_node=start_node.title,
+                        from_node=start_node.id,
                         )
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)

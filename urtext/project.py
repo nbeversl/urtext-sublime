@@ -152,7 +152,6 @@ class UrtextProject:
         if filename in self.files:
             existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
 
-        allocated_ids = []
         if try_buffer and buffer_contents:
             new_file = UrtextBuffer(self, filename, buffer_contents)
             new_file.filename = filename
@@ -161,15 +160,15 @@ class UrtextProject:
                 node.filename = filename
         else:
             new_file = self.urtext_file(filename, self)
-        self._drop_file(filename)
 
+        self._drop_file(filename)
+        
         if not new_file.root_node:
             self._log_item(filename, '%s has no root node, dropping' % filename)
             self.excluded_files.append(filename)
             return False
 
         changed_ids = self._check_file_for_duplicates(new_file)
-
         self.messages[new_file.filename] = new_file.messages
         if new_file.has_errors:
             print('ERRORS IN', new_file.filename)
@@ -304,11 +303,10 @@ class UrtextProject:
                                 self.files[project_node.filename]._set_contents(
                                     replaced_contents)
 
-    def _check_file_for_duplicates(self, file_obj, existing_file_ids=[]):
+    def _check_file_for_duplicates(self, file_obj):
         messages = []
         changed_ids = {}
 
-        # resolve '(untitled)' nodes
         for node in [f for f in file_obj.nodes if f.title == '(untitled)']:
             resolved_id = node.resolve_id()
             if not resolved_id:
@@ -318,10 +316,11 @@ class UrtextProject:
                     ])
                 self._log_item(file_obj.filename, message)
                 messages.append(message)
-                file_obj.nodes.remove(node)
+                del node
                 continue
-            changed_ids[node.id] = resolved_id
-            node.id = resolved_id
+            else:
+                node.id = resolved_id
+                changed_ids[node.id] = resolved_id
 
         # resolve duplicate titles within file/buffer
         new_file_node_ids = [file_node.id for file_node in file_obj.nodes]
@@ -372,6 +371,7 @@ class UrtextProject:
             file_obj.has_errors = True
         else:
             file_obj.has_errors = False
+
         return changed_ids
 
     def _add_dynamic_definition(self, definition):
@@ -487,6 +487,8 @@ class UrtextProject:
             self._remove_dynamic_metadata_entries(node.id)
             self._clear_settings_from(node)
             del self.nodes[node.id]
+        else:
+            print(node.id,' not in NODES (troubleshooting)')
 
     def delete_file(self, filename):
         return self.execute(
@@ -1109,6 +1111,7 @@ class UrtextProject:
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)
+                self._parse_file(filename)
                 return modified_files
         
     def visit_node(self, node_id):
