@@ -963,7 +963,7 @@ class UrtextProject:
 
             if entry.keyname == 'other_entry_points':
                 for v in entry.text_values():
-                    self.project_list.add_project(
+                    self.project_list.initialize_project(
                         utils.get_path_from_link(v))
                 continue
 
