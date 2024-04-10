@@ -240,15 +240,16 @@ class ListProjectsCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
+        self.window = self.view.window()
         show_panel(
-            self.view.window(), 
+            self.window, 
             self._UrtextProjectList.project_titles(), 
             self.set_window_project)
 
     def set_window_project(self, index):
         title = self._UrtextProjectList.project_titles()[index]
         self._UrtextProjectList.set_current_project(title)
-        self.view.window().set_project_data({"folders": [
+        self.window.set_project_data({"folders": [
             {"path": self._UrtextProjectList.current_project.entry_path}]})
 
 class MoveFileToAnotherProjectCommand(UrtextTextCommand):
@@ -434,7 +435,7 @@ class NodeBrowserCommand(UrtextTextCommand):
 
         self.selection_has_changed = False
         show_panel(
-            self.view.window(), 
+            self.window, 
             self.menu.display_menu, 
             self.open_the_file,
             on_highlight=self.on_highlight)

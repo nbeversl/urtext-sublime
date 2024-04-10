@@ -1535,8 +1535,6 @@ class UrtextProject:
         return self.settings['project_title'] 
 
     def on_project_activated(self, path):
-        if path in [p['path'] for p in self.settings['paths']]:
-            return
         if 'on_project_activated' in self.settings:
             for action in self.settings['on_project_activated']:
                 if action == 'open_home':

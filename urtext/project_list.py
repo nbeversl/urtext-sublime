@@ -24,11 +24,15 @@ class ProjectList():
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
         self.projects = []
+        self.entry_points = []
         self.extensions = {}
         self.current_project = None
         self.add_project(self.entry_point)
 
     def add_project(self, entry_point, new_file_node_created=False):
+        if entry_point in self.entry_points:
+            return
+        self.entry_points.append(entry_point)
         if os.path.isdir(entry_point):
             if entry_point in self.get_all_paths():
                 return 
@@ -39,6 +43,9 @@ class ProjectList():
         project.executor = self.executor
         project.is_async = self.is_async
         if project.initialize():
+            for path in project.settings['paths']:
+                if path['path'] in self.get_all_paths():
+                    return
             project.compile()
             self.projects.append(project)
 
@@ -131,7 +138,8 @@ class ProjectList():
             self.current_project = project
             self.current_project.run_editor_method('popup',
                 'Switched to project: %s ' % self.current_project.title())
-            self.current_project.on_project_activated(title_or_path)
+            self.current_project.on_project_activated(
+                self.current_project.settings['paths'][0]['path'])
         return self.current_project
 
     def build_contextual_link(self, 
