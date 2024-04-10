@@ -32,7 +32,7 @@ class UrtextBuffer:
     
     def lex_and_parse(self):
         self.nodes = []
-        self.root_node = None
+        # self.root_node = None
         symbols = self.lex(self._get_contents())
         self.parse(self._get_contents(), symbols)
         self.propagate_timestamps(self.root_node)
@@ -316,11 +316,12 @@ class UrtextBuffer:
         self._set_contents(
             new_contents,
             run_on_modified=False)
-
+        
         # TODO: make DRY
-        self.nodes = []
-        self.root_node = None
-        self.lex_and_parse()
+        # self.nodes = []
+        # self.root_node = None
+        ## HERE IS WHERE THE NODE ID IS GETTING SET BACK TO (UNTITLTED)
+        # self.lex_and_parse()
         
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
@@ -370,7 +371,7 @@ class UrtextBuffer:
     def log_error(self, message, position):
 
         self.nodes = {}
-        self.root_node = None
+        # self.root_node = None
         self.messages.append(message +' at position '+ str(position))
 
         print(''.join([ 

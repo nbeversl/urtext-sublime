@@ -108,6 +108,11 @@ class UrtextNode:
         return self.metadata.get_date(self.project.settings['node_date_keyname'])
 
     def resolve_id(self, allocated_ids=None):
+        return_value = {
+            'resolved_id': None,
+            'method': None,
+            'reason': None,
+        }
         if self.resolved:
            return self.id
         if not allocated_ids:
@@ -121,7 +126,10 @@ class UrtextNode:
                     ])
                 if resolved_id not in allocated_ids:
                     self.resolved = True
-                    return resolved_id
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'parent title'
+                    return return_value
+
             parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
             if parent_oldest_timestamp:
                 resolved_id = ''.join([
@@ -131,7 +139,10 @@ class UrtextNode:
                     ])
                 if resolved_id not in allocated_ids:
                     self.resolved = True
-                    return resolved_id
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'parent timestamp'
+                    return_value['reason'] = 'parent is untitled'
+                    return return_value
         timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
             resolved_id = ''.join([
@@ -142,7 +153,13 @@ class UrtextNode:
             if resolved_id not in allocated_ids:
                 self.resolved = True
                 self.id = resolved_id
-                return resolved_id
+                return_value['resolved_id'] = resolved_id
+                return_value['method'] = 'own timestamp'
+                return_value['reason'] = 'parent is untitled and parent timestamp not available'
+                return return_value
+
+        return_value['reason'] = 'no title or timestamp in parent, no timestamp in node'
+        return return_value
 
     def _get_links(self, positioned_contents):
         links, remaining_contents = utils.get_all_links_from_string(positioned_contents)

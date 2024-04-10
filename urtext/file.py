@@ -63,7 +63,7 @@ class UrtextFile(UrtextBuffer):
         contents = self._get_contents()
         if contents:
             cleared_contents = self.clear_messages(contents)
-            self._set_contents(cleared_contents)
+            self._set_contents(cleared_contents, run_on_modified=False)
             self.lex_and_parse()
             self.write_messages()
 
