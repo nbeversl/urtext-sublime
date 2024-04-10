@@ -43,6 +43,8 @@ class ProjectList():
         project.executor = self.executor
         project.is_async = self.is_async
         if project.initialize():
+            if not project.settings['paths']:
+                return
             for path in project.settings['paths']:
                 if path['path'] in self.get_all_paths():
                     return
