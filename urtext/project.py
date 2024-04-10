@@ -104,6 +104,9 @@ class UrtextProject:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
+        for file in self._get_included_files():
+            self._parse_file(file)
+
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
@@ -171,8 +174,6 @@ class UrtextProject:
         changed_ids = self._check_file_for_duplicates(new_file)
         self.messages[new_file.filename] = new_file.messages
         if new_file.has_errors:
-            print('ERRORS IN', new_file.filename)
-            print(new_file.messages)
             return False
 
         if existing_file_ids:
@@ -902,11 +903,12 @@ class UrtextProject:
         self.project_settings_nodes[node] = {}
         replacements = {}
         for entry in node.metadata.entries():
-   
             if self.compiled and entry.keyname in evaluated_only_at_compile:
-                continue
-
-            self.project_settings_nodes[node][entry.keyname] = entry.text_values()
+                continue    
+            if not entry.is_node:
+                #TODO this should not be necessary
+                self.project_settings_nodes[node] = {}
+                self.project_settings_nodes[node][entry.keyname] = entry.text_values()
 
             if entry.keyname in replace_settings:
                 replacements[entry.keyname] = [e for e in entry.text_values()]
@@ -931,14 +933,17 @@ class UrtextProject:
                 continue
 
             if entry.keyname == 'paths' and entry.is_node:
-                for n in entry.meta_values[0].children:
-                    path = n.metadata.get_first_value('path')
-                    recurse = n.metadata.get_first_value('recurse_subfolders')
-                    if path and path not in [entry['path'] for entry in self.settings['paths']]:
-                        self.settings['paths'].append({
-                            'path': path,
-                            'recurse_subfolders': True if recurse.lower() in ['yes', 'true'] else False
-                        })
+                node = entry.meta_values[0]
+                path = utils.get_path_from_link(node.metadata.get_first_value('path').text)
+                recurse = node.metadata.get_first_value('recurse_subfolders')
+                should_recurse = False
+                if recurse:
+                    should_recurse = recurse.true()
+                if path and self._approve_path(path):
+                    self.settings['paths'].append({
+                        'path': path,
+                        'recurse_subfolders': should_recurse
+                    })
                 continue
 
             if entry.keyname == 'other_entry_points':
@@ -1127,7 +1132,6 @@ class UrtextProject:
             self._visit_file(filename)
             self.run_editor_method('status_message',
                 ''.join([
-                    'UrtextProject:',
                     self.title(),
                     ' (compiled)'
                     ]))
