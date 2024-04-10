@@ -19,7 +19,7 @@ class ProjectList():
         editor_methods=None):
 
         self.is_async = is_async
-        self.is_async = False # development
+        #self.is_async = False # development
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
@@ -27,9 +27,9 @@ class ProjectList():
         self.entry_points = []
         self.extensions = {}
         self.current_project = None
-        self.add_project(self.entry_point)
+        self.initialize_project(self.entry_point)
 
-    def add_project(self, entry_point, new_file_node_created=False):
+    def initialize_project(self, entry_point, new_file_node_created=False):
         if entry_point in self.entry_points:
             return
         self.entry_points.append(entry_point)
@@ -42,14 +42,20 @@ class ProjectList():
             new_file_node_created=new_file_node_created)
         project.executor = self.executor
         project.is_async = self.is_async
-        if project.initialize():
-            if not project.settings['paths']:
+        project.initialize(callback=self.add_project)
+            
+    def add_project(self, project):
+        print('ADDING PROJECT')
+        if not project.settings['paths']:
+            print('NO PATHS')
+            return
+        for path in project.settings['paths']:
+            print(path)
+            if path['path'] in self.get_all_paths():
                 return
-            for path in project.settings['paths']:
-                if path['path'] in self.get_all_paths():
-                    return
-            project.compile()
-            self.projects.append(project)
+        project.compile()
+        self.projects.append(project)
+
 
     def parse_link(self, string, filename, col_pos=0, include_http=True):
         return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
@@ -113,6 +119,8 @@ class ProjectList():
         if project:
             self.current_project = project
             project.on_modified(filename)
+        else:
+            print('NO PROJECT!')
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):

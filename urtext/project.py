@@ -70,14 +70,15 @@ class UrtextProject:
         self.excluded_files = []
         self.home_requested = False
         self.variables = {}     
+        self.running_on_modified = None
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)
         self.new_file_node_created = new_file_node_created
     
-    def initialize(self):
-        return self.execute(self._initialize)        
+    def initialize(self, callback=None):
+        return self.execute(self._initialize, callback=callback)        
 
-    def _initialize(self):
+    def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self._get_features_from_folder(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -128,7 +129,7 @@ class UrtextProject:
 
         self._mark_dynamic_nodes()
         self._run_hook('after_project_initialized')
-        return True
+        callback(self)
 
     def compile(self):
         self.execute(self._compile, len(self.directives), len(self.extensions))
@@ -156,7 +157,6 @@ class UrtextProject:
             existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
 
         if try_buffer and buffer_contents:
-            print('TRING BUFFER')
             new_file = UrtextBuffer(self, filename, buffer_contents)
             new_file.filename = filename
             new_file.clear_messages_and_parse()
@@ -317,8 +317,8 @@ class UrtextProject:
                                 self.files[project_node.filename]._set_contents(
                                     replaced_contents,
                                     run_on_modified=False)
+                                print('CALLING PARSE FROM _rewrite_changed_links')
                                 self._parse_file(project_node.filename)
-                                # HERE WE NEED TO RUN PARSE FILE, NOT TRIGGER ON MODIFIED
 
     def _check_file_for_duplicates(self, file_obj):
         messages = []
@@ -468,6 +468,7 @@ class UrtextProject:
         returns filename if contents changed.
         """
         if node_id in self.nodes:
+            print('PARSING FROM _set_node_contents')
             self._parse_file(self.nodes[node_id].filename)
             if node_id in self.nodes:
                 if self.nodes[node_id]._set_contents(
@@ -475,6 +476,7 @@ class UrtextProject:
                         run_on_modified=False,
                         preserve_title=preserve_title):
                     if node_id in self.nodes:
+                        print('PARSING AGAIN FROM _set_node_contents')
                         self._parse_file(self.nodes[node_id].filename)
                         if node_id in self.nodes:
                             return self.nodes[node_id].filename
@@ -599,6 +601,7 @@ class UrtextProject:
             new_file = self.urtext_file(filename, self)
             duplicates = self._check_file_for_duplicates(new_file)
 
+        print('PARSING FROM new_file_node')
         self._parse_file(filename)
 
         if filename in self.files:
@@ -859,6 +862,7 @@ class UrtextProject:
         filename,
         col_pos=0):
 
+        print('PARSING FROM handle_link')
         self._parse_file(filename, try_buffer=True)
         if link.is_node and link.node_id in self.nodes:
             if link.is_action:
@@ -1125,6 +1129,11 @@ class UrtextProject:
     
     def _on_modified(self, filename, bypass=False):
         if self.compiled and filename in self._get_included_files():
+            if self.running_on_modified == filename:
+                print('ALREADY RUNNING ON MOD')
+                return
+            self.running_on_modified = filename
+            print('PARSING BEFORE COMPILE')
             if self._parse_file(filename):
                 modified_files = [filename]
                 if filename in self.files:
@@ -1136,7 +1145,9 @@ class UrtextProject:
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)
+                print('PARSING AFTER COMPILE')
                 self._parse_file(filename)
+                self.running_on_modified = None
                 return modified_files
         
     def visit_node(self, node_id):
@@ -1172,6 +1183,7 @@ class UrtextProject:
         included_files = self._get_included_files()
         for file in included_files:
             if file not in self.files:
+                print('PARSING FROM _sync_file_list')
                 self._parse_file(file)
         for file in [f for f in list(self.files) if f not in included_files]:
             self._log_item(
@@ -1206,6 +1218,7 @@ class UrtextProject:
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
+        print('PARSING FROM add_file')
         new_file, changed_ids = self._parse_file(filename)        
         self.execute(self._compile_file, filename)
         return changed_ids
@@ -1464,6 +1477,7 @@ class UrtextProject:
         else:
             node_id = target
         if node_id in self.nodes:
+            print('CALLING _set_node_contents from _direct_output')
             if self._set_node_contents(node_id, output):
                 return node_id
             return False
@@ -1478,6 +1492,7 @@ class UrtextProject:
         if virtual_target:
             virtual_target = virtual_target.group()
             if virtual_target == '@self':
+                print('CALLING _set_node_contents from _direct_output to self')
                 if self._set_node_contents(dd.source_node.id, output):
                     return dd.source_node.id
             if virtual_target == '@clipboard':
@@ -1493,6 +1508,7 @@ class UrtextProject:
             if virtual_target == '@popup':
                 return self.run_editor_method('popup', output)
         if target in self.nodes: #fallback
+            print('CALLING _set_node_contents from fallback')
             self._set_node_contents(target, output)
             return target
 
@@ -1577,6 +1593,7 @@ class UrtextProject:
         filename,
         include_project=False):
 
+        print('PARSING FROM editor_copy_link_to_node')
         self._parse_file(filename, try_buffer=True)
 
         node_id=None
