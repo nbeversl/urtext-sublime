@@ -223,7 +223,7 @@ def initialize_project_list(window,
             return _UrtextProjectList
     if _UrtextProjectList and folder:
         if not _UrtextProjectList.set_current_project(folder) and add_project:
-            return _UrtextProjectList.add_project(folder, new_file_node_created=new_file_node_created)
+            return _UrtextProjectList.initialize_project(folder, new_file_node_created=new_file_node_created)
 
     elif folder and add_project:
         _UrtextProjectList = ProjectList(
