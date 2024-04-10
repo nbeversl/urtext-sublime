@@ -68,7 +68,6 @@ class UrtextFile(UrtextBuffer):
             self.write_messages()
 
     def _set_contents(self, new_contents, run_on_modified=True):
-        print('SETTING CONTENTS FROM FILE.')
         print('RUN ON MODIFIED is', run_on_modified)
         self.contents = new_contents
         self.project._run_hook('on_set_file_contents', self)
