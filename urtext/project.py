@@ -156,6 +156,9 @@ class UrtextProject:
         if filename in self.files:
             existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
 
+        if filename in self.files:
+            self._drop_file(filename)
+            
         if try_buffer and buffer_contents:
             new_file = UrtextBuffer(self, filename, buffer_contents)
             new_file.filename = filename
@@ -165,22 +168,16 @@ class UrtextProject:
         else:
             new_file = self.urtext_file(filename, self)
 
-        # PROBLEM HERE. WHEN PARSING FROM BUFFER IT DOESN'T RESOLVE DUPLICATES
         resolved_ids = self._check_file_for_duplicates(new_file)
         
-        if filename in self.files:
-            # print('DROPPING FILE', filename)
-            self._drop_file(filename)
-        
         if not new_file.root_node:
-            print('NO ROOT NODE!')
+            # print('NO ROOT NODE!')
             self._log_item(filename, '%s has no root node, dropping' % filename)
             return False
 
         self.messages[new_file.filename] = new_file.messages
-        # if new_file.has_errors:
-        #     print('NOT ADDING', new_file.filename)
-        #     return False
+        if new_file.has_errors:
+            return False
         changed_ids = {}
         if existing_file_ids:
             new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
@@ -329,6 +326,7 @@ class UrtextProject:
                 message = ''.join([
                     'Dropping (untitled) ID. ',
                     resolution['reason'],
+                    str(node.start_position),
                     ])
                 self._log_item(file_obj.filename, message)
                 messages.append(message)
@@ -386,11 +384,10 @@ class UrtextProject:
                 changed_ids[node.id] = resolution['resolved_id']
                 node.id = resolution['resolved_id']
 
-        # problem happens here
         if messages:
-            pass
-            # file_obj.write_messages(messages=messages)
-            # file_obj.has_errors = True
+            file_obj.write_messages(messages=messages)
+            file_obj.has_errors = True
+
         return changed_ids
 
     def _add_dynamic_definition(self, definition):

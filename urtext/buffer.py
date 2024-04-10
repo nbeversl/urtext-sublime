@@ -32,7 +32,7 @@ class UrtextBuffer:
     
     def lex_and_parse(self):
         self.nodes = []
-        # self.root_node = None
+        self.root_node = None
         symbols = self.lex(self._get_contents())
         self.parse(self._get_contents(), symbols)
         self.propagate_timestamps(self.root_node)

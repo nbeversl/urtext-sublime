@@ -33,9 +33,6 @@ class ProjectList():
         if entry_point in self.entry_points:
             return
         self.entry_points.append(entry_point)
-        if os.path.isdir(entry_point):
-            if entry_point in self.get_all_paths():
-                return 
         project = UrtextProject(entry_point,
             project_list=self,
             editor_methods=self.editor_methods,
@@ -45,7 +42,10 @@ class ProjectList():
         project.initialize(callback=self.add_project)
             
     def add_project(self, project):
-        print('ADDING PROJECT')
+        if os.path.isdir(project.entry_point):
+            if project.entry_point in self.get_all_paths():
+                print('ENTRY POINT ALREADY IN A PROJECT:', project.entry_point)
+                return
         if not project.settings['paths']:
             print('NO PATHS')
             return
@@ -55,7 +55,6 @@ class ProjectList():
                 return
         project.compile()
         self.projects.append(project)
-
 
     def parse_link(self, string, filename, col_pos=0, include_http=True):
         return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
