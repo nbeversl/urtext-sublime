@@ -278,11 +278,15 @@ class UrtextBuffer:
     def _get_contents(self):
         return self.contents
 
-    def _set_contents(self, new_contents, run_on_modified=False):
+    def _set_contents(self, new_contents, run_on_modified=False, run_hook=False):
+        self.contents = new_contents
+        self.__set_contents_from_buffer_obj()
+
+    def __set_contents_from_buffer_obj(self):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,
-            new_contents)
+            self.contents)
 
     def write_messages(self, messages=None):
         if not messages and not self.messages:

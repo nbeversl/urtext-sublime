@@ -68,9 +68,13 @@ class UrtextFile(UrtextBuffer):
             self.lex_and_parse()
             self.write_messages()
 
-    def _set_contents(self, new_contents, run_on_modified=True):
+    def _set_contents(self, new_contents, run_on_modified=True, run_hook=False):
         self.contents = new_contents
-        self.project._run_hook('on_set_file_contents', self)
+        self.__set_contents_from_file_obj(run_on_modified=run_on_modified, run_hook=run_hook)
+
+    def __set_contents_from_file_obj(self, run_on_modified=True, run_hook=False):
+        if run_hook: # last modification only
+            self.project._run_hook('on_set_file_contents', self)
         existing_contents = self._read_contents()
         if existing_contents == self.contents:
             return False

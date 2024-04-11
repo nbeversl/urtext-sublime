@@ -141,16 +141,10 @@ class UrtextProject:
             return False
         return True
 
-    def _parse_file(self, filename, try_buffer=False):
+    def _parse_file(self, filename, try_buffer=False, passed_contents=None):
         if self._filter_filenames(filename) == None:
             self._add_to_excluded_files(filename)
             return False
-
-        buffer_contents = None
-        if self.compiled and try_buffer:
-            buffer_contents = self.run_editor_method(
-                'get_buffer',
-                filename)
 
         existing_file_ids = []
         if filename in self.files:
@@ -158,14 +152,17 @@ class UrtextProject:
 
         if filename in self.files:
             self._drop_file(filename)
-            
-        if try_buffer and buffer_contents:
-            new_file = UrtextBuffer(self, filename, buffer_contents)
-            new_file.filename = filename
-            new_file.clear_messages_and_parse()
-            for node in new_file.nodes:
-                node.filename = filename
-        else:
+        
+        new_file = None
+        if self.compiled and not passed_contents and try_buffer:
+            buffer_contents = self.run_editor_method(
+                'get_buffer',
+                filename)
+            if buffer_contents:
+                new_file = self._make_buffer(filename, buffer_contents)
+        elif passed_contents:
+            new_file = self._make_buffer(filename, passed_contents)
+        if not new_file:
             new_file = self.urtext_file(filename, self)
 
         resolved_ids = self._check_file_for_duplicates(new_file)
@@ -254,6 +251,7 @@ class UrtextProject:
 
     def _reverify_links(self, filename):
         if filename in self.files:
+            contents = self.files[filename]._get_contents()
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
@@ -274,11 +272,9 @@ class UrtextProject:
                             link.node_id,
                             suffix])
                 if rewrites:
-                    contents = self.files[filename]._get_contents()
                     for old_link in rewrites:
                         contents = contents.replace(old_link.matching_string, rewrites[old_link])
-                    self.files[filename]._set_contents(contents, run_on_modified=False)
-                    self._parse_file(filename)
+            return contents
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -1132,7 +1128,13 @@ class UrtextProject:
                         self._compile_file(
                         filename,
                         events=['-file_update']))
-                self._reverify_links(filename)
+                contents = self._reverify_links(filename)
+                self._parse_file(filename, passed_contents=contents)
+
+                # Here the last method to modify the file uses _set_contents
+                # to allow on_set_file_contents hook to run
+                self.files[filename]._set_contents(contents, run_on_modified=False, run_hook=True)
+                self._parse_file(filename)
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)
@@ -1568,6 +1570,14 @@ class UrtextProject:
 
     def has_folder(self, folder):
         return folder in self.settings['paths']
+
+    def _make_buffer(self, filename, buffer_contents):
+        new_file = UrtextBuffer(self, filename, buffer_contents)
+        new_file.filename = filename
+        new_file.clear_messages_and_parse()
+        for node in new_file.nodes:
+            node.filename = filename
+        return new_file
 
     """ Editor Methods """
 
