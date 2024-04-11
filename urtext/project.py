@@ -278,6 +278,7 @@ class UrtextProject:
                     for old_link in rewrites:
                         contents = contents.replace(old_link.matching_string, rewrites[old_link])
                     self.files[filename]._set_contents(contents, run_on_modified=False)
+                    self._parse_file(filename)
 
     def _add_all_sub_tags(self):
         for entry in self.dynamic_metadata_entries:
@@ -326,7 +327,9 @@ class UrtextProject:
                 message = ''.join([
                     'Dropping (untitled) ID. ',
                     resolution['reason'],
+                    ' at position ',
                     str(node.start_position),
+                    ' '
                     ])
                 self._log_item(file_obj.filename, message)
                 messages.append(message)
@@ -469,10 +472,9 @@ class UrtextProject:
                         contents,
                         run_on_modified=False,
                         preserve_title=preserve_title):
+                    self._parse_file(self.nodes[node_id].filename)
                     if node_id in self.nodes:
-                        self._parse_file(self.nodes[node_id].filename)
-                        if node_id in self.nodes:
-                            return self.nodes[node_id].filename
+                        return self.nodes[node_id].filename
         return False
 
     def _mark_dynamic_nodes(self):
@@ -1138,6 +1140,7 @@ class UrtextProject:
                 self._parse_file(filename)
                 self.running_on_modified = None
                 return modified_files
+        self.running_on_modified = None
         
     def visit_node(self, node_id):
         return self.execute(self._visit_node, node_id)

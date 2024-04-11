@@ -308,7 +308,7 @@ class UrtextBuffer:
             new_n = old_n + message_length
             messages = messages.replace(str(old_n), str(new_n))
              
-        self.contents = ''.join([
+        new_contents = ''.join([
             messages,
             new_contents,
             ])
@@ -320,7 +320,6 @@ class UrtextBuffer:
         # TODO: make DRY
         # self.nodes = []
         # self.root_node = None
-        ## HERE IS WHERE THE NODE ID IS GETTING SET BACK TO (UNTITLTED)
         # self.lex_and_parse()
         
     def clear_messages(self, contents):
