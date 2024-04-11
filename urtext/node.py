@@ -156,6 +156,8 @@ class UrtextNode:
                 return_value['resolved_id'] = resolved_id
                 return_value['method'] = 'own timestamp'
                 return_value['reason'] = 'parent is untitled and parent timestamp not available'
+            else:
+                return_value['reason'] = 'parent root node timestamp is used in another node'
                 return return_value
 
         return_value['reason'] = 'no title or timestamp in parent, no timestamp in node'

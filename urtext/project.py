@@ -325,11 +325,10 @@ class UrtextProject:
             resolution = node.resolve_id()
             if not resolution['resolved_id']:
                 message = ''.join([
-                    'Dropping (untitled) ID. ',
-                    resolution['reason'],
-                    ' at position ',
+                    'Dropping (untitled) ID at position ',
                     str(node.start_position),
-                    ' '
+                    '. ',
+                    resolution['reason'],
                     ])
                 self._log_item(file_obj.filename, message)
                 messages.append(message)
