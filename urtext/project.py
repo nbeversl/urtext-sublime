@@ -312,11 +312,11 @@ class UrtextProject:
                                     run_on_modified=False)
                                 self._parse_file(project_node.filename)
 
-    def _check_buffer_for_duplicates(self, file_obj):
+    def _check_buffer_for_duplicates(self, buffer):
         messages = []
         changed_ids = {}
 
-        for node in list([n for n in file_obj.nodes if n.title == '(untitled)']):
+        for node in list([n for n in buffer.nodes if n.title == '(untitled)']):
             resolution = node.resolve_id()
             if not resolution['resolved_id']:
                 message = ''.join([
@@ -324,10 +324,11 @@ class UrtextProject:
                     str(node.start_position),
                     '. ',
                     resolution['reason'],
+                    ' ',
                     ])
-                self._log_item(file_obj.filename, message)
+                self._log_item(buffer.filename, message)
                 messages.append(message)
-                file_obj.nodes.remove(node)
+                buffer.nodes.remove(node)
                 del node
                 continue
             else:
@@ -335,11 +336,11 @@ class UrtextProject:
                 changed_ids[node.id] = resolution['resolved_id']
 
         # resolve duplicate titles within file/buffer
-        new_file_node_ids = [file_node.id for file_node in file_obj.nodes]
-        nodes_to_resolve = [n for n in file_obj.nodes if new_file_node_ids.count(n.title) > 1]
+        new_file_node_ids = [file_node.id for file_node in buffer.nodes]
+        nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.title) > 1]
 
         for n in nodes_to_resolve:
-            resolution = n.resolve_id(allocated_ids=[file_node.id for file_node in file_obj.nodes])
+            resolution = n.resolve_id(allocated_ids=[file_node.id for file_node in buffer.nodes])
             if not resolution['resolved_id']:
                 message = ''.join([
                     'Dropping duplicate node title "',
@@ -347,18 +348,18 @@ class UrtextProject:
                     '"',
                     ' duplicated in the same file. Unable to resolve.'
                     ])
-                self._log_item(file_obj.filename, message)
+                self._log_item(buffer.filename, message)
                 messages.append(message)
-                file_obj.nodes.remove(n)
+                buffer.nodes.remove(n)
                 del n
                 continue
             changed_ids[n.id] = resolution['resolved_id']
             n.id = resolution['resolved_id']
 
         # resolve duplicate titles in project
-        new_file_node_ids = [file_node.id for file_node in file_obj.nodes]
+        new_file_node_ids = [file_node.id for file_node in buffer.nodes]
         allocated_ids = [n for n in self.nodes if n not in new_file_node_ids]
-        for node in file_obj.get_ordered_nodes():
+        for node in buffer.get_ordered_nodes():
             duplicate_titled_node = self._find_duplicate_title(node)
             if duplicate_titled_node:
                 resolution = node.resolve_id(
@@ -373,17 +374,17 @@ class UrtextProject:
                             duplicate_titled_node.filename,
                             syntax.link_closing_wrapper,
                             ])
-                    file_obj.nodes.remove(node)
+                    buffer.nodes.remove(node)
                     del node
-                    self._log_item(file_obj.filename, message)
+                    self._log_item(buffer.filename, message)
                     messages.append(message)
                     continue
                 changed_ids[node.id] = resolution['resolved_id']
                 node.id = resolution['resolved_id']
 
         if messages:
-            file_obj.write_messages(messages=messages)
-            file_obj.has_errors = True
+            buffer.write_messages(messages=messages)
+            buffer.has_errors = True
 
         return changed_ids
 

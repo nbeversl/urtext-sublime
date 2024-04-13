@@ -279,11 +279,13 @@ class UrtextBuffer:
     def _get_contents(self):
         return self.contents
 
-    def _set_contents(self, new_contents, run_on_modified=False, run_hook=False):
+    def _set_contents(self, new_contents, run_on_modified=False, run_hook=False, update_buffer=False):
         self.contents = new_contents
-        self.__set_contents_from_buffer_obj()
+        if update_buffer:
+            self.__update_buffer_contents_from_buffer_obj()
+        self.project._parse_buffer(self)
 
-    def __set_contents_from_buffer_obj(self):
+    def __update_buffer_contents_from_buffer_obj(self):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,

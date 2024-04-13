@@ -114,7 +114,10 @@ class UrtextNode:
             'reason': None,
         }
         if self.resolved:
-           return self.id
+            return_value = {
+                'resolved_id': self.id,
+                'method': "already resolved",
+            }
         if not allocated_ids:
             allocated_ids = self.project.nodes
         if self.parent:
