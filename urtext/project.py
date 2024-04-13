@@ -105,9 +105,6 @@ class UrtextProject:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
-        # for file in self._get_included_files():
-        #     self._parse_file(file)
-
         while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
             num_paths = len(self.settings['paths'])
             num_file_extensions = len(self.settings['file_extensions'])
@@ -146,69 +143,73 @@ class UrtextProject:
             self._add_to_excluded_files(filename)
             return False
 
-        existing_file_ids = []
-        if filename in self.files:
-            existing_file_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
-
-        if filename in self.files:
-            self._drop_file(filename)
-        
         new_file = None
         if self.compiled and not passed_contents and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
                 filename)
             if buffer_contents:
-                new_file = self._make_buffer(filename, buffer_contents)
+                buffer = self._make_buffer(filename, buffer_contents)
         elif passed_contents:
-            new_file = self._make_buffer(filename, passed_contents)
+            buffer = self._make_buffer(filename, passed_contents)
         if not new_file:
-            new_file = self.urtext_file(filename, self)
+            buffer = self.urtext_file(filename, self)
 
-        resolved_ids = self._check_file_for_duplicates(new_file)
+        self._parse_buffer(buffer)
+
+    def _parse_buffer(self, buffer):
+
+        if buffer.filename in self.files:
+            self._drop_file(buffer.filename)
+
+        existing_buffer_ids = []
+        if buffer.filename in self.files:
+            existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
+
+        resolved_ids = self._check_buffer_for_duplicates( buffer)
         
-        if not new_file.root_node:
+        if not  buffer.root_node:
             # print('NO ROOT NODE!')
-            self._log_item(filename, '%s has no root node, dropping' % filename)
+            self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
 
-        self.messages[new_file.filename] = new_file.messages
-        if new_file.has_errors:
+        self.messages[buffer.filename] = buffer.messages
+        if buffer.has_errors:
             return False
         changed_ids = {}
-        if existing_file_ids:
-            new_node_ids = [n.id for n in new_file.get_ordered_nodes()]
-            if len(existing_file_ids) == len(new_node_ids):
-                for index in range(0, len(existing_file_ids)): # existing links are all we care about
-                    if existing_file_ids[index] == new_node_ids[index]:
+        if existing_buffer_ids:
+            new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
+            if len(existing_buffer_ids) == len(new_node_ids):
+                for index in range(0, len(existing_buffer_ids)): # existing links are all we care about
+                    if existing_buffer_ids[index] == new_node_ids[index]:
                         continue # id stayed the same
                     else:
-                        if new_node_ids[index] in existing_file_ids:
+                        if new_node_ids[index] in existing_buffer_ids:
                             # proably only the order changed.
                             # don't have to do anything
                             continue
                         else:
                             # check each new id for similarity to the old one
-                            changed_ids[existing_file_ids[index]] = new_node_ids[index]
+                            changed_ids[existing_buffer_ids[index]] = new_node_ids[index]
                             # else:
                             #TODO try to map old to new.
-        for node in new_file.nodes:
+        for node in buffer.nodes:
             if node.id == '(untitled)':
                 print('PROBLEM - should not happen, untitled node')
 
-        for node in new_file.nodes:
+        for node in buffer.nodes:
             self._add_node(node)
 
-        self.files[new_file.filename] = new_file
-        self._run_hook('on_file_added', filename)
+        self.files[buffer.filename] = buffer
+        self._run_hook('on_file_added', buffer.filename)
 
-        for entry in new_file.meta_to_node:
+        for entry in buffer.meta_to_node:
             keyname = entry.group(1)
             source_node = self.get_node_id_from_position(
-                filename,
+                buffer.filename,
                 entry.span()[0])
             target_node = self.get_node_id_from_position(
-                filename, 
+                buffer.filename, 
                 entry.span()[1])
             self.nodes[source_node].metadata.add_entry(
                 keyname,
@@ -219,7 +220,7 @@ class UrtextProject:
                 is_node=True)
             self.nodes[target_node].is_meta = True
 
-        for node in new_file.nodes:            
+        for node in buffer.nodes:            
             if node.title == 'project_settings':
                 self._get_settings_from(node)     
 
@@ -238,11 +239,9 @@ class UrtextProject:
                 self._run_hook('on_node_id_changed',
                     node_id,
                     changed_ids[node_id])
-            # HERE IS WHERE A PROBLEM HAPPENS:
-            # THE FILE NEEDS TO BE RE-PARSED
-            # self._rewrite_changed_links(changed_ids)
+            self._rewrite_changed_links(changed_ids)
 
-        return new_file, changed_ids
+        return buffer, changed_ids
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -313,7 +312,7 @@ class UrtextProject:
                                     run_on_modified=False)
                                 self._parse_file(project_node.filename)
 
-    def _check_file_for_duplicates(self, file_obj):
+    def _check_buffer_for_duplicates(self, file_obj):
         messages = []
         changed_ids = {}
 
@@ -578,7 +577,7 @@ class UrtextProject:
         utils.write_file_contents(filename, new_node_contents)
         new_file = self.urtext_file(filename, self)
         
-        duplicates = self._check_file_for_duplicates(new_file)
+        duplicates = self._check_buffer_for_duplicates(new_file)
         if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
             if contents == None:
                 new_node_contents, node_id, cursor_pos = self._new_node(
@@ -589,7 +588,7 @@ class UrtextProject:
                     metadata=metadata)
             utils.write_file_contents(filename, new_node_contents)
             new_file = self.urtext_file(filename, self)
-            duplicates = self._check_file_for_duplicates(new_file)
+            duplicates = self._check_buffer_for_duplicates(new_file)
 
         self._parse_file(filename)
 
@@ -1118,7 +1117,7 @@ class UrtextProject:
     def _on_modified(self, filename, bypass=False):
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
-                print('ALREADY RUNNING ON MOD')
+                print('ALREADY RUNNING ON MOD (debugging)')
                 return
             self.running_on_modified = filename
             if self._parse_file(filename):
@@ -1129,7 +1128,7 @@ class UrtextProject:
                         filename,
                         events=['-file_update']))
                 contents = self._reverify_links(filename)
-                self._parse_file(filename, passed_contents=contents)
+                re_parsed_file = self._parse_file(filename, passed_contents=contents)
 
                 # Here the last method to modify the file uses _set_contents
                 # to allow on_set_file_contents hook to run

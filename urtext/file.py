@@ -12,13 +12,7 @@ class UrtextFile(UrtextBuffer):
    
     def __init__(self, filename, project):
         self.filename = filename
-        self.contents = None
-        super().__init__(project, filename, self._get_contents())
-        self.clear_messages_and_parse()
-        # self._write_contents(run_on_modified=False)
-        for node in self.nodes:
-            node.filename = filename
-            node.file = self
+        super().__init__(project, filename, self._read_contents())
 
     def _get_contents(self):
         if not self.contents:
@@ -45,30 +39,7 @@ class UrtextFile(UrtextBuffer):
             return print('Cannot read file from storage %s' % self.filename)
         return full_file_contents
 
-    def _insert_contents(self, inserted_contents, position):
-        self._set_contents(''.join([
-            self.contents[:position],
-            inserted_contents,
-            self.contents[position:],
-            ]))
-
-    def _replace_contents(self, inserted_contents, range):
-        self._set_contents(''.join([
-            self.contents[:range[0]],
-            inserted_contents,
-            self.contents[range[1]:],
-            ]))
-
-    def clear_messages_and_parse(self):
-        contents = self._get_contents()
-        if contents:
-            cleared_contents = self.clear_messages(contents)
-            if cleared_contents != contents:
-                self._set_contents(cleared_contents, run_on_modified=False)
-            self.lex_and_parse()
-            self.write_messages()
-
-    def _set_contents(self, new_contents, run_on_modified=True, run_hook=False):
+    def _write_file_contents(self, new_contents, run_on_modified=True, run_hook=False):
         self.contents = new_contents
         self.__set_contents_from_file_obj(run_on_modified=run_on_modified, run_hook=run_hook)
 

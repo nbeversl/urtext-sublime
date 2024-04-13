@@ -21,7 +21,6 @@ class UrtextBuffer:
 
     def __init__(self, project, filename, contents):
         self.contents = contents
-        self.previous_contents = contents
         self.messages = []
         self.project = project
         self.meta_to_node = []
@@ -29,18 +28,20 @@ class UrtextBuffer:
         self.filename = filename
         self.nodes = []
         self.root_node = None
+        self.clear_messages_and_parse()
     
     def lex_and_parse(self):
         self.nodes = []
         self.root_node = None
-        symbols = self.lex(self._get_contents())
-        self.parse(self._get_contents(), symbols)
+        symbols = self._lex(self._get_contents())
+        self._parse(self._get_contents(), symbols)
         self.propagate_timestamps(self.root_node)
         for node in self.nodes:
             node.buffer = self
+            node.filename = self.filename
         self._assign_parents(self.root_node)
 
-    def lex(self, contents, start_position=0):
+    def _lex(self, contents, start_position=0):
         symbols = {}
         embedded_syntaxes = []
         contents = strip_backtick_escape(contents)
@@ -75,7 +76,7 @@ class UrtextBuffer:
         symbols[len(contents) + start_position] = { 'type': 'EOB' }
         return symbols
 
-    def parse(self, 
+    def _parse(self, 
         contents,
         symbols,
         nested_levels={},
@@ -128,11 +129,11 @@ class UrtextBuffer:
                 else:
                     nested_levels[nested].append([0, 0])
 
-                compact_symbols = self.lex(
+                compact_symbols = self._lex(
                     symbols[position]['contents'], 
                     start_position=position+1)
 
-                nested_levels, child_group, nested = self.parse(
+                nested_levels, child_group, nested = self._parse(
                     symbols[position]['contents'],
                     compact_symbols,
                     nested_levels=nested_levels,
@@ -270,10 +271,10 @@ class UrtextBuffer:
         contents = self._get_contents()
         if contents:
             cleared_contents = self.clear_messages(contents)
-            if cleared_contents:
-                self._set_contents(cleared_contents)
-                self.lex_and_parse()
-                self.write_messages()
+            if cleared_contents != contents:
+                self._set_contents(cleared_contents, run_on_modified=False)
+            self.lex_and_parse()
+            self.write_messages()
 
     def _get_contents(self):
         return self.contents
@@ -321,11 +322,6 @@ class UrtextBuffer:
             new_contents,
             run_on_modified=False)
         
-        # TODO: make DRY
-        # self.nodes = []
-        # self.root_node = None
-        # self.lex_and_parse()
-        
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
             if self.user_delete_string not in contents:
@@ -336,6 +332,20 @@ class UrtextBuffer:
         return sorted( 
             list(self.nodes),
             key=lambda node : node.start_position)
+
+    def _insert_contents(self, inserted_contents, position):
+        self._set_contents(''.join([
+            self.contents[:position],
+            inserted_contents,
+            self.contents[position:],
+            ]))
+
+    def _replace_contents(self, inserted_contents, range):
+        self._set_contents(''.join([
+            self.contents[:range[0]],
+            inserted_contents,
+            self.contents[range[1]:],
+            ]))
 
     def propagate_timestamps(self, start_node):
         oldest_timestamp = start_node.metadata.get_oldest_timestamp()
@@ -352,19 +362,6 @@ class UrtextBuffer:
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)
 
-    def update_node_contents(self, node_id, replacement_text):
-        node = None
-        for node in self.nodes:
-            if node.id == node_id:
-                break
-        if node:
-            self.project.run_editor_method(
-                'replace',
-                filename=self.project.nodes[node_id].filename,
-                start=node.start_position,
-                end=node.end_position,
-                replacement_text=replacement_text
-                )
 
     def _assign_parents(self, start_node):
         for child in start_node.children:
