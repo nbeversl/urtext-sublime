@@ -99,7 +99,11 @@ class TreeDirective:
 
         start_points = self.dynamic_definition.included_nodes
         tree_render = ''
+        print('DEBUGGING FROM TRE DIRECTIVE')
+        print('START POINTS ARE', start_points)
+        print('EACH START POINT:')
         for start_point in start_points:
+            print(start_point.id)
             start_point = start_point.tree_node
 
             pointers = self._has_pointers(start_point)
