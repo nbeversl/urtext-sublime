@@ -143,7 +143,7 @@ class UrtextProject:
             self._add_to_excluded_files(filename)
             return False
 
-        new_file = None
+        buffer = None
         if self.compiled and not passed_contents and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
@@ -152,10 +152,9 @@ class UrtextProject:
                 buffer = self._make_buffer(filename, buffer_contents)
         elif passed_contents:
             buffer = self._make_buffer(filename, passed_contents)
-        if not new_file:
+        if not buffer:
             buffer = self.urtext_file(filename, self)
-
-        self._parse_buffer(buffer)
+        return self._parse_buffer(buffer)
 
     def _parse_buffer(self, buffer):
 
@@ -168,7 +167,7 @@ class UrtextProject:
 
         resolved_ids = self._check_buffer_for_duplicates( buffer)
         
-        if not  buffer.root_node:
+        if not buffer.root_node:
             # print('NO ROOT NODE!')
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
@@ -241,7 +240,7 @@ class UrtextProject:
                     changed_ids[node_id])
             self._rewrite_changed_links(changed_ids)
 
-        return buffer, changed_ids
+        return buffer
 
     def _verify_links_globally(self):
         links = self.get_all_links()
@@ -307,10 +306,10 @@ class UrtextProject:
                                     'on_node_id_changed',
                                     node_id,
                                     links_to_change[node_id])
-                                self.files[project_node.filename]._set_contents(
+                                self.files[project_node.filename]._write_file_contents(
                                     replaced_contents,
                                     run_on_modified=False)
-                                self._parse_file(project_node.filename)
+
 
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
@@ -383,7 +382,7 @@ class UrtextProject:
                 node.id = resolution['resolved_id']
 
         if messages:
-            buffer.write_messages(messages=messages)
+            buffer.write_buffer_messages(messages=messages)
             buffer.has_errors = True
 
         return changed_ids
@@ -1121,7 +1120,8 @@ class UrtextProject:
                 print('ALREADY RUNNING ON MOD (debugging)')
                 return
             self.running_on_modified = filename
-            if self._parse_file(filename):
+            file_obj = self._parse_file(filename)
+            if file_obj:
                 modified_files = [filename]
                 if filename in self.files:
                     modified_files.extend(
@@ -1129,16 +1129,13 @@ class UrtextProject:
                         filename,
                         events=['-file_update']))
                 contents = self._reverify_links(filename)
-                re_parsed_file = self._parse_file(filename, passed_contents=contents)
-
+                re_parsed_file_obj = self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
                 # to allow on_set_file_contents hook to run
-                self.files[filename]._set_contents(contents, run_on_modified=False, run_hook=True)
-                self._parse_file(filename)
+                self.files[filename]._write_file_contents(contents, run_on_modified=False, run_hook=True)
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)
-                self._parse_file(filename)
                 self.running_on_modified = None
                 return modified_files
         self.running_on_modified = None

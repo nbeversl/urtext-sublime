@@ -157,7 +157,7 @@ class UrtextBuffer:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
-                    self._set_contents(contents)
+                    self._set_buffer_contents(contents)
                     return self.lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -219,7 +219,7 @@ class UrtextBuffer:
                 syntax.node_closing_wrapper,
                 ' ',
                 contents[position:]])
-            self._set_contents(contents)
+            self._set_buffer_contents(contents)
             return self.lex_and_parse()
 
         for node in self.nodes:
@@ -272,14 +272,14 @@ class UrtextBuffer:
         if contents:
             cleared_contents = self.clear_messages(contents)
             if cleared_contents != contents:
-                self._set_contents(cleared_contents, run_on_modified=False)
+                self._set_buffer_contents(cleared_contents, run_on_modified=False)
             self.lex_and_parse()
-            self.write_messages()
+            self.write_buffer_messages()
 
     def _get_contents(self):
         return self.contents
 
-    def _set_contents(self, new_contents, run_on_modified=False, run_hook=False, update_buffer=False):
+    def _set_buffer_contents(self, new_contents, run_on_modified=False, run_hook=False, update_buffer=False):
         self.contents = new_contents
         if update_buffer:
             self.__update_buffer_contents_from_buffer_obj()
@@ -291,7 +291,7 @@ class UrtextBuffer:
             self.filename,
             self.contents)
 
-    def write_messages(self, messages=None):
+    def write_buffer_messages(self, messages=None):
         if not messages and not self.messages:
             return False
         if messages:
@@ -320,7 +320,7 @@ class UrtextBuffer:
             new_contents,
             ])
 
-        self._set_contents(
+        self._set_buffer_contents(
             new_contents,
             run_on_modified=False)
         
@@ -336,14 +336,14 @@ class UrtextBuffer:
             key=lambda node : node.start_position)
 
     def _insert_contents(self, inserted_contents, position):
-        self._set_contents(''.join([
+        self._set_buffer_contents(''.join([
             self.contents[:position],
             inserted_contents,
             self.contents[position:],
             ]))
 
     def _replace_contents(self, inserted_contents, range):
-        self._set_contents(''.join([
+        self._set_buffer_contents(''.join([
             self.contents[:range[0]],
             inserted_contents,
             self.contents[range[1]:],
@@ -364,14 +364,12 @@ class UrtextBuffer:
                     child.metadata.add_system_keys()
                 self.propagate_timestamps(child)
 
-
     def _assign_parents(self, start_node):
         for child in start_node.children:
             child.parent = start_node
             self._assign_parents(child)
 
     def log_error(self, message, position):
-
         self.nodes = {}
         # self.root_node = None
         self.messages.append(message +' at position '+ str(position))
