@@ -96,7 +96,6 @@ class ProjectList():
                     os.path.join(self.current_project.entry_path, link.path))
 
         elif self.current_project and link.is_node:
-            print('TRYING TO OPENING NODE', link.node_id)
             return self.current_project.handle_link(
                 link,
                 filename,
