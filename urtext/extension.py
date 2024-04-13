@@ -31,7 +31,7 @@ class UrtextExtension:
     def on_file_modified(self, filename):
         return
 
-    def on_file_added(self, filename):
+    def on_buffer_added(self, filename):
         return
 
     def on_file_dropped(self, filename):

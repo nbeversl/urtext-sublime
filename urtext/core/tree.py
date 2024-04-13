@@ -12,15 +12,10 @@ class UrtextAnyTree:
 
     name = ["TREE_EXTENSION"]
 
-    def __init__(self, project):
-        super().__init__(project)
-        self.treed_nodes = []
-
     def on_file_added(self, filename):
         for node in self.project.files[filename].nodes:
             node.tree_node = Node(node.id)
             node.tree_node.position = self.project.nodes[node.id].start_position
-            self.treed_nodes.append(node)
         self.project.files[filename].alias_nodes = []
         for node in self.project.files[filename].nodes:
             for pointer in node.pointers:
@@ -37,9 +32,7 @@ class UrtextAnyTree:
 
     def on_file_dropped(self, filename):
         for node in self.project.files[filename].nodes:
-            if node in self.treed_nodes:
-                self.treed_nodes.remove(node)
-                node.tree_node.parent = None
+            node.tree_node.parent = None
                 del node.tree_node
         for a in self.project.files[filename].alias_nodes:
             a.parent = None
@@ -100,8 +93,6 @@ class TreeDirective:
         start_points = self.dynamic_definition.included_nodes
         tree_render = ''
         print('DEBUGGING FROM TRE DIRECTIVE')
-        print('START POINTS ARE', start_points)
-        print('EACH START POINT:')
         for start_point in start_points:
             print(start_point.id)
             start_point = start_point.tree_node

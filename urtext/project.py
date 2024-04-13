@@ -165,11 +165,12 @@ class UrtextProject:
         if buffer.filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
 
-        resolved_ids = self._check_buffer_for_duplicates( buffer)
+        resolved_ids = self._check_buffer_for_duplicates(buffer)
         
         if not buffer.root_node:
             buffer.write_contents_to_file()
             print('NO ROOT NODE!')
+            self._drop_buffer(buffer)
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
 
@@ -202,7 +203,7 @@ class UrtextProject:
             self._add_node(node)
 
         self.files[buffer.filename] = buffer
-        self._run_hook('on_file_added', buffer.filename)
+        self._run_hook('on_buffer_added', buffer.filename)
 
         for entry in buffer.meta_to_node:
             keyname = entry.group(1)
@@ -236,10 +237,10 @@ class UrtextProject:
                     self.dynamic_metadata_entries.append(entry)
 
         if self.compiled and changed_ids:
-            for node_id in changed_ids:
+            for old_node_id in changed_ids:
                 self._run_hook('on_node_id_changed',
-                    node_id,
-                    changed_ids[node_id])
+                    buffer.nodes[changed_ids[old_node_id]],
+                    old_node_id) 
             self._rewrite_changed_links(changed_ids)
 
         return buffer
@@ -304,10 +305,6 @@ class UrtextProject:
                                 ]),
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
                             if replaced_contents != contents:
-                                self._run_hook(
-                                    'on_node_id_changed',
-                                    node_id,
-                                    links_to_change[node_id])
                                 self.files[project_node.filename]._write_file_contents(
                                     replaced_contents,
                                     run_on_modified=False)
@@ -480,18 +477,24 @@ class UrtextProject:
     """
     Removing and renaming files
     """
+
     def _drop_file(self, filename):
         if filename in self.files:
-            for dd in self.dynamic_definitions.values():
-                for op in dd.operations:
-                    op.on_file_dropped(filename)
-            self._run_hook('on_file_dropped', filename)
-            for node in list(self.files[filename].nodes):
-                self._drop_node(node)
-            del self.files[filename]
+            self._drop_buffer(self.files[filename])
+        else:
+            print('DROPPED FILE NOT IN FILES', filename)
 
-        if filename in self.messages:
-            self.messages[filename] = []
+    def _drop_buffer(self, buffer):
+        for dd in self.dynamic_definitions.values():
+            for op in dd.operations:
+                op.on_file_dropped(buffer.filename)
+        self._run_hook('on_buffer_dropped', buffer.filename)
+        for node in list(buffer.nodes):
+            self._drop_node(node)
+        if buffer.filename in self.files:
+            del self.files[buffer.filename]
+        if buffer.filename in self.messages:
+            self.messages[buffer.filename] = []
 
     def _drop_node(self, node):
         if node.id in self.nodes:
@@ -1139,6 +1142,11 @@ class UrtextProject:
                     self._run_hook('on_file_modified', filename)
                 self.running_on_modified = None
                 return modified_files
+        else:
+            if not self.compiled:
+                print('NOT COMPILED')
+            else: 
+                print('FILE NOT IN FILES')
         self.running_on_modified = None
         
     def visit_node(self, node_id):
@@ -1172,14 +1180,14 @@ class UrtextProject:
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
-        for file in included_files:
-            if file not in self.files:
-                self._parse_file(file)
-        for file in [f for f in list(self.files) if f not in included_files]:
+        for filename in included_files:
+            if filename not in self.files:
+                self._parse_file(filename)
+        for filename in [f for f in list(self.files) if f not in included_files]:
             self._log_item(
-                file,
-                file+' no longer seen in project path. Dropping it from the project.')
-            self._drop_file(file)
+                filename,
+                filename + ' no longer seen in project path. Dropping it from the project.')
+            self._drop_file(filename)
 
     def _get_included_files(self):
         files = []
