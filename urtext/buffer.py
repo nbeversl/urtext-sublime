@@ -28,7 +28,10 @@ class UrtextBuffer:
         self.filename = filename
         self.nodes = []
         self.root_node = None
-        self.clear_messages_and_parse()
+        self._clear_messages_and_parse()
+        if not self.root_node:
+            print('LOGGING NO ROOT NODE (DEBUGGING, buffer)')
+            self._log_error('No root node', 0)
     
     def lex_and_parse(self):
         self.nodes = []
@@ -267,7 +270,7 @@ class UrtextBuffer:
             self.root_node = new_node
         return new_node
 
-    def clear_messages_and_parse(self):
+    def _clear_messages_and_parse(self):
         contents = self._get_contents()
         if contents:
             cleared_contents = self.clear_messages(contents)
@@ -369,9 +372,9 @@ class UrtextBuffer:
             child.parent = start_node
             self._assign_parents(child)
 
-    def log_error(self, message, position):
+    def _log_error(self, message, position):
         self.nodes = {}
-        # self.root_node = None
+        self.root_node = None
         self.messages.append(message +' at position '+ str(position))
 
         print(''.join([ 

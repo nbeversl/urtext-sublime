@@ -27,7 +27,7 @@ class UrtextFile(UrtextBuffer):
         except IsADirectoryError:
             return None
         except UnicodeDecodeError:
-            self.log_error(''.join([
+            self._log_error(''.join([
                 'UnicodeDecode Error: ',
                 syntax.file_link_opening_wrapper,
                 self.filename,
@@ -39,11 +39,11 @@ class UrtextFile(UrtextBuffer):
             return print('Cannot read file from storage %s' % self.filename)
         return full_file_contents
 
-    def _write_file_contents(self, new_contents, run_on_modified=True, run_hook=False):
+    def _write_file_contents(self, new_contents, run_on_modified=False, run_hook=False):
         self.contents = new_contents
-        self.__set_contents_from_file_obj(run_on_modified=run_on_modified, run_hook=run_hook)
+        self.write_contents_to_file(run_on_modified=run_on_modified, run_hook=run_hook)
 
-    def __set_contents_from_file_obj(self, run_on_modified=True, run_hook=False):
+    def write_contents_to_file(self, run_on_modified=True, run_hook=False):
         if run_hook: # for last modification only
             self.project._run_hook('on_write_file_contents', self)
         existing_contents = self._read_contents()

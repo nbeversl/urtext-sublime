@@ -168,7 +168,10 @@ class UrtextProject:
         resolved_ids = self._check_buffer_for_duplicates( buffer)
         
         if not buffer.root_node:
-            # print('NO ROOT NODE!')
+            print(buffer.messages)
+            print(buffer.filename)
+            buffer.write_contents_to_file()
+            print('NO ROOT NODE!')
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
 
@@ -309,7 +312,6 @@ class UrtextProject:
                                 self.files[project_node.filename]._write_file_contents(
                                     replaced_contents,
                                     run_on_modified=False)
-
 
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
@@ -1571,7 +1573,6 @@ class UrtextProject:
     def _make_buffer(self, filename, buffer_contents):
         new_file = UrtextBuffer(self, filename, buffer_contents)
         new_file.filename = filename
-        new_file.clear_messages_and_parse()
         for node in new_file.nodes:
             node.filename = filename
         return new_file
