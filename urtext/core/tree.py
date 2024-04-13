@@ -26,9 +26,8 @@ class UrtextAnyTree:
             if node.parent and node.parent in self.project.files[filename].nodes:
                 node.tree_node.parent = node.parent.tree_node
 
-    def on_node_id_changed(self, old_node_id, new_node_id):
-        if new_node_id in self.project.nodes:
-            self.project.nodes[new_node_id].tree_node = Node(new_node_id)
+    def on_node_id_changed(self, node, new_node_id):
+        node.tree_node = Node(new_node_id)
 
     def on_file_dropped(self, filename):
         for node in self.project.files[filename].nodes:

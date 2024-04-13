@@ -81,15 +81,12 @@ class Navigation:
 					self.project_list_instance.nav_index -= 1
 				self.project_list_instance.navigation.remove(node_id)
 
-	def on_node_id_changed(self, old_id, new_id):
-		for index, item in enumerate(
-			self.project_list_instance.navigation):
+	def on_node_id_changed(self, node, old_id):
+		for index, item in enumerate(self.project_list_instance.navigation):
 			project = item[0]
-			node_id = item[1]
-			if project == self.project_list.current_project.settings[
-				'project_title'] and ( 
-				node_id == old_id):
-					self.project_list_instance.navigation[
-						index] = (project, new_id)
+			old_nav_id = item[1]
+			if project == self.project_list.current_project.settings['project_title'] and ( 
+				old_nav_id == old_id):
+					self.project_list_instance.navigation[index] = (project, node.id)
 
 urtext_extensions = [Navigation]

@@ -1144,9 +1144,11 @@ class UrtextProject:
                 return modified_files
         else:
             if not self.compiled:
-                print('NOT COMPILED')
+                pass
+                # print('NOT COMPILED')
             else: 
-                print('FILE NOT IN FILES')
+                pass
+                # print('FILE NOT IN FILES')
         self.running_on_modified = None
         
     def visit_node(self, node_id):
@@ -1431,7 +1433,7 @@ class UrtextProject:
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
         self.handle_info_message('"%s" compiled' % self.settings['project_title'])
-   
+        print('"%s" compiled' % self.settings['project_title'])
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
