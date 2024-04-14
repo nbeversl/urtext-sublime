@@ -22,7 +22,7 @@ class UrtextAnyTree:
                 alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
                 alias_node.position = pointer['position']
                 alias_node.parent = node.tree_node
-                self.project.files[filename].alias_nodes.append(alias_node)
+                self.project.files[buffer.filename].alias_nodes.append(alias_node)
             if node.parent and node.parent in buffer.nodes:
                 node.tree_node.parent = node.parent.tree_node
 
