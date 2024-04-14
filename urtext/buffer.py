@@ -377,6 +377,6 @@ class UrtextBuffer:
         self.root_node = None
         self.messages.append(message +' at position '+ str(position))
 
-        print(''.join([ 
-                message, ' in >f', self.filename, ' at position ',
-            str(position)]))
+        # print(''.join([ 
+        #         message, ' in >f', self.filename, ' at position ',
+        #     str(position)]))

@@ -1069,7 +1069,6 @@ class UrtextProject:
                             ' encountered the following error: \n', 
                             str(e),
                             ])
-                    print(message)
                     self._log_item(
                         filename, 
                         message)
