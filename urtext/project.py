@@ -203,7 +203,7 @@ class UrtextProject:
             self._add_node(node)
 
         self.files[buffer.filename] = buffer
-        self._run_hook('on_buffer_added', buffer.filename)
+        self._run_hook('on_buffer_added', buffer)
 
         for entry in buffer.meta_to_node:
             keyname = entry.group(1)
