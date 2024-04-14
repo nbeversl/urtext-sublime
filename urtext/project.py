@@ -166,12 +166,10 @@ class UrtextProject:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
 
         resolved_ids = self._check_buffer_for_duplicates(buffer)
-        
         if not buffer.root_node:
             buffer.write_contents_to_file()
             print('(debugging) NO ROOT NODE in ', buffer.filename)
             ## TODO NEED A FILE MESSAGE HERE.
-            ## looks like syntax correction is not happening anymore
             self._drop_buffer(buffer)
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
@@ -326,7 +324,6 @@ class UrtextProject:
                 self._log_item(buffer.filename, message)
                 messages.append(message)
                 buffer.nodes.remove(node)
-                del node
                 continue
             else:
                 node.id = resolution['resolved_id']
@@ -334,21 +331,21 @@ class UrtextProject:
 
         # resolve duplicate titles within file/buffer
         new_file_node_ids = [file_node.id for file_node in buffer.nodes]
-        nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.title) > 1]
-
+        nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.id) > 1]
         for n in nodes_to_resolve:
             resolution = n.resolve_id(allocated_ids=[file_node.id for file_node in buffer.nodes])
-            if not resolution['resolved_id']:
+            if not resolution['resolved_id'] or n.id in changed_ids:
                 message = ''.join([
                     'Dropping duplicate node title "',
                     n.title,
                     '"',
-                    ' duplicated in the same file. Unable to resolve.'
+                    ' at position ',
+                    str(n.start_position),
+                    '; duplicated in the same file. Unable to resolve.'
                     ])
                 self._log_item(buffer.filename, message)
                 messages.append(message)
                 buffer.nodes.remove(n)
-                del n
                 continue
             changed_ids[n.id] = resolution['resolved_id']
             n.id = resolution['resolved_id']
@@ -372,7 +369,6 @@ class UrtextProject:
                             syntax.link_closing_wrapper,
                             ])
                     buffer.nodes.remove(node)
-                    del node
                     self._log_item(buffer.filename, message)
                     messages.append(message)
                     continue
@@ -496,14 +492,12 @@ class UrtextProject:
             self.messages[buffer.filename] = []
 
     def _drop_node(self, node):
-        if node.id in self.nodes:
+        if node.id in self.nodes: # might not be if it's an incompletely parsed buffer
             self._remove_sub_tags(node.id)
             self._remove_dynamic_defs(node.id)
             self._remove_dynamic_metadata_entries(node.id)
             self._clear_settings_from(node)
             del self.nodes[node.id]
-        else:
-            print(node.id, 'not in NODES (troubleshooting - should not happen)')
 
     def delete_file(self, filename):
         return self.execute(

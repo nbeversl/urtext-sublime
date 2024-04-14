@@ -334,7 +334,7 @@ class UrtextBuffer:
             if self.user_delete_string not in cleared_contents:
                 cleared_contents = cleared_contents.replace(match.group(),'')
         if cleared_contents != original_contents:
-            self._set_buffer_contents(cleared_contents)
+            self._set_buffer_contents(cleared_contents, re_parse=False)
             return True
         return False
 
@@ -380,7 +380,9 @@ class UrtextBuffer:
     def _log_error(self, message, position):
         self.nodes = {}
         self.root_node = None
-        self.messages.append(message +' at position '+ str(position))
+        message = message +' at position '+ str(position)
+        if message not in messages:
+            self.messages.append()
 
         # print(''.join([ 
         #         message, ' in >f', self.filename, ' at position ',
