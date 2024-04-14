@@ -28,12 +28,13 @@ class UrtextBuffer:
         self.filename = filename
         self.nodes = []
         self.root_node = None
-        self._clear_messages_and_parse()
+        self._clear_messages()
+        self._lex_and_parse()
         if not self.root_node:
             print('LOGGING NO ROOT NODE (DEBUGGING, buffer)')
             self._log_error('No root node', 0)
     
-    def lex_and_parse(self):
+    def _lex_and_parse(self):
         self.nodes = []
         self.root_node = None
         symbols = self._lex(self._get_contents())
@@ -161,7 +162,7 @@ class UrtextBuffer:
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
                     self._set_buffer_contents(contents)
-                    return self.lex_and_parse()
+                    return self._lex_and_parse()
 
                 position += 1 #wrappers exist outside range
                 node = self.add_node(
@@ -223,7 +224,7 @@ class UrtextBuffer:
                 ' ',
                 contents[position:]])
             self._set_buffer_contents(contents)
-            return self.lex_and_parse()
+            return self._lex_and_parse()
 
         for node in self.nodes:
             node.filename =self.filename
@@ -270,16 +271,6 @@ class UrtextBuffer:
             self.root_node = new_node
         return new_node
 
-    def _clear_messages_and_parse(self, re_parse=True):
-        contents = self._get_contents()
-        if contents:
-            cleared_contents = self.clear_messages(contents)
-            if cleared_contents != contents:
-                self._set_buffer_contents(cleared_contents, re_parse=False)
-            if re_parse:
-                self.lex_and_parse()
-                self.write_buffer_messages()
-
     def _get_contents(self):
         return self.contents
 
@@ -290,11 +281,13 @@ class UrtextBuffer:
         update_buffer=False):
 
         self.contents = new_contents
+        if re_parse:
+            self._clear_messages()
+            self._lex_and_parse()
+            self.project._parse_buffer(self)
+            # self.write_buffer_messages()
         if update_buffer:
             self.__update_buffer_contents_from_buffer_obj()
-        if re_parse:
-            self._clear_messages_and_parse(re_parse=False)
-            self.project._parse_buffer(self)
 
     def __update_buffer_contents_from_buffer_obj(self):
         self.project.run_editor_method(
@@ -307,7 +300,8 @@ class UrtextBuffer:
             return False
         if messages:
             self.messages = messages
-        new_contents = self.clear_messages(self._get_contents())
+        self._clear_messages()
+        new_contents = self._get_contents()
         timestamp = self.project.timestamp(as_string=True)
         messages = ''.join([ 
             syntax.urtext_message_opening_wrapper,
@@ -325,19 +319,24 @@ class UrtextBuffer:
             old_n = int(n.group().replace('position ',''))
             new_n = old_n + message_length
             messages = messages.replace(str(old_n), str(new_n))
-             
+            
         new_contents = ''.join([
             messages,
             new_contents,
             ])
 
-        self._set_buffer_contents(new_contents)
+        self._set_buffer_contents(new_contents, re_parse=False)
         
-    def clear_messages(self, contents):
-        for match in syntax.urtext_messages_c.finditer(contents):
-            if self.user_delete_string not in contents:
-                contents = contents.replace(match.group(),'')
-        return contents
+    def _clear_messages(self):
+        original_contents = self._get_contents()
+        cleared_contents = original_contents
+        for match in syntax.urtext_messages_c.finditer(cleared_contents):
+            if self.user_delete_string not in cleared_contents:
+                cleared_contents = cleared_contents.replace(match.group(),'')
+        if cleared_contents != original_contents:
+            self._set_buffer_contents(cleared_contents)
+            return True
+        return False
 
     def get_ordered_nodes(self):
         return sorted( 
