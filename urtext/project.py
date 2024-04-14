@@ -167,17 +167,14 @@ class UrtextProject:
 
         resolved_ids = self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
-            buffer.write_contents_to_file()
-            print('(debugging) NO ROOT NODE in ', buffer.filename)
-            ## TODO NEED A FILE MESSAGE HERE.
+            buffer.write_buffer_messages()
             self._drop_buffer(buffer)
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
 
         self.messages[buffer.filename] = buffer.messages
         if buffer.has_errors:
-            buffer.write_contents_to_file()
-            return False
+            buffer.write_buffer_messages()
         changed_ids = {}
         if existing_buffer_ids:
             new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
@@ -197,7 +194,7 @@ class UrtextProject:
                             #TODO try to map old to new.
         for node in buffer.nodes:
             if node.id == '(untitled)':
-                print('PROBLEM - should not happen, untitled node')
+                print('(DEBUGGING) - should not happen, untitled node', buffer.filename)
 
         for node in buffer.nodes:
             self._add_node(node)
@@ -1391,8 +1388,6 @@ class UrtextProject:
         return None, None
 
     def execute(self, function, *args, **kwargs):
-        # if self.compiled and not self.nodes:
-        #     return
         if self.is_async:
             return self.executor.submit(function, *args, **kwargs)
         return function(*args, **kwargs)

@@ -325,7 +325,7 @@ class UrtextBuffer:
             new_contents,
             ])
 
-        self._set_buffer_contents(new_contents, re_parse=False)
+        self._set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
         
     def _clear_messages(self):
         original_contents = self._get_contents()
