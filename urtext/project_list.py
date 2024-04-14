@@ -50,7 +50,6 @@ class ProjectList():
             print('NO PATHS')
             return
         for path in project.settings['paths']:
-            print(path)
             if path['path'] in self.get_all_paths():
                 return
         project.compile()
@@ -118,7 +117,7 @@ class ProjectList():
             self.current_project = project
             project.on_modified(filename)
         else:
-            print('NO PROJECT!')
+            print('(DEBUGGING) NO PROJECT!')
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):

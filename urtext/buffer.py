@@ -329,13 +329,14 @@ class UrtextBuffer:
         
     def _clear_messages(self):
         original_contents = self._get_contents()
-        cleared_contents = original_contents
-        for match in syntax.urtext_messages_c.finditer(cleared_contents):
-            if self.user_delete_string not in cleared_contents:
-                cleared_contents = cleared_contents.replace(match.group(),'')
-        if cleared_contents != original_contents:
-            self._set_buffer_contents(cleared_contents, re_parse=False)
-            return True
+        if original_contents:
+            cleared_contents = original_contents
+            for match in syntax.urtext_messages_c.finditer(cleared_contents):
+                if self.user_delete_string not in cleared_contents:
+                    cleared_contents = cleared_contents.replace(match.group(),'')
+            if cleared_contents != original_contents:
+                self._set_buffer_contents(cleared_contents, re_parse=False)
+                return True
         return False
 
     def get_ordered_nodes(self):
