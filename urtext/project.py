@@ -169,7 +169,9 @@ class UrtextProject:
         
         if not buffer.root_node:
             buffer.write_contents_to_file()
-            print('NO ROOT NODE!')
+            print('(debugging) NO ROOT NODE in ', buffer.filename)
+            ## TODO NEED A FILE MESSAGE HERE.
+            ## looks like syntax correction is not happening anymore
             self._drop_buffer(buffer)
             self._log_item(buffer.filename, '%s has no root node, dropping' %  buffer.filename)
             return False
@@ -305,9 +307,7 @@ class UrtextProject:
                                 ]),
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
                             if replaced_contents != contents:
-                                self.files[project_node.filename]._write_file_contents(
-                                    replaced_contents,
-                                    run_on_modified=False)
+                                self.files[project_node.filename]._write_file_contents(replaced_contents)
 
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
@@ -462,7 +462,6 @@ class UrtextProject:
             if node_id in self.nodes:
                 if self.nodes[node_id]._set_contents(
                         contents,
-                        run_on_modified=False,
                         preserve_title=preserve_title):
                     self._parse_file(self.nodes[node_id].filename)
                     if node_id in self.nodes:
@@ -1135,7 +1134,7 @@ class UrtextProject:
                 re_parsed_file_obj = self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
                 # to allow on_set_file_contents hook to run
-                self.files[filename]._write_file_contents(contents, run_on_modified=False, run_hook=True)
+                self.files[filename]._write_file_contents(contents, run_hook=True)
                 self._sync_file_list()
                 if filename in self.files:
                     self._run_hook('on_file_modified', filename)

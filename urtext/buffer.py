@@ -270,23 +270,31 @@ class UrtextBuffer:
             self.root_node = new_node
         return new_node
 
-    def _clear_messages_and_parse(self):
+    def _clear_messages_and_parse(self, re_parse=True):
         contents = self._get_contents()
         if contents:
             cleared_contents = self.clear_messages(contents)
             if cleared_contents != contents:
-                self._set_buffer_contents(cleared_contents, run_on_modified=False)
-            self.lex_and_parse()
-            self.write_buffer_messages()
+                self._set_buffer_contents(cleared_contents, re_parse=False)
+            if re_parse:
+                self.lex_and_parse()
+                self.write_buffer_messages()
 
     def _get_contents(self):
         return self.contents
 
-    def _set_buffer_contents(self, new_contents, run_on_modified=False, run_hook=False, update_buffer=False):
+    def _set_buffer_contents(self, 
+        new_contents,
+        re_parse=True,
+        run_hook=False,
+        update_buffer=False):
+
         self.contents = new_contents
         if update_buffer:
             self.__update_buffer_contents_from_buffer_obj()
-        self.project._parse_buffer(self)
+        if re_parse:
+            self._clear_messages_and_parse(re_parse=False)
+            self.project._parse_buffer(self)
 
     def __update_buffer_contents_from_buffer_obj(self):
         self.project.run_editor_method(
@@ -323,9 +331,7 @@ class UrtextBuffer:
             new_contents,
             ])
 
-        self._set_buffer_contents(
-            new_contents,
-            run_on_modified=False)
+        self._set_buffer_contents(new_contents)
         
     def clear_messages(self, contents):
         for match in syntax.urtext_messages_c.finditer(contents):
