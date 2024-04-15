@@ -1128,16 +1128,9 @@ class UrtextProject:
                 self.files[filename]._write_file_contents(contents, run_hook=True)
                 self._sync_file_list()
                 if filename in self.files:
-                    self._run_hook('on_file_modified', filename)
+                    self._run_hook('after_on_file_modified', filename)
                 self.running_on_modified = None
                 return modified_files
-        else:
-            if not self.compiled:
-                pass
-                # print('NOT COMPILED')
-            else: 
-                pass
-                # print('FILE NOT IN FILES')
         self.running_on_modified = None
         
     def visit_node(self, node_id):
@@ -1619,6 +1612,12 @@ class UrtextProject:
         Extension.folder = folder
         for n in Extension.name:
             self.extensions[n] = Extension(self)
+
+    def setting_to_boolean(self, setting):
+        if setting in self.settings:
+            ## assumes single true/false values
+            return to_boolean(self.settings[setting][0])
+        return False
 
 """ 
 Helpers 

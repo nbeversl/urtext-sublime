@@ -99,23 +99,24 @@ class RenameSingleFile(ReindexFiles):
 
     name=['RENAME_SINGLE_FILE']
 
-    def __init__(self, project):
-        super().__init__(project)
-        self.file_to_rename = None
+    def _should_run(self):
+        return self.project.setting_to_boolean('rename_on_save')
 
-    def set_file_to_rename(self, filename):
-        self.file_to_rename = filename
+    def manual_rename(self, filename):
+        self.rename_single_file(filename)
 
-    def on_file_modified(self, filename):
-        if filename == self.file_to_rename:
-            renamed_files = self._rename_file_nodes(filename)
-            self.file_to_rename = None
-            if renamed_files:
-                self.project.run_editor_method('close_current')
-                self.project.run_editor_method(
-                    'open_file_to_position',
-                    renamed_files[filename],
-                    0)
+    def after_on_file_modified(self, filename):
+        if self._should_run():
+            self.rename_single_file(filename)
+
+    def rename_single_file(self, filename):
+        renamed_files = self._rename_file_nodes(filename)
+        if renamed_files:
+            self.project.run_editor_method('close_current')
+            self.project.run_editor_method(
+                'open_file_to_position',
+                renamed_files[filename],
+                0)
 
 def strip_illegal_characters(filename):
     for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
