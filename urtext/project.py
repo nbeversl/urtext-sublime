@@ -1110,7 +1110,7 @@ class UrtextProject:
     def _on_modified(self, filename, bypass=False):
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
-                print('ALREADY RUNNING ON MOD (debugging)')
+                print('(debugging) ALREADY RUNNING ON MOD (debugging)')
                 return
             self.running_on_modified = filename
             file_obj = self._parse_file(filename)

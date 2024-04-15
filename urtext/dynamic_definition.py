@@ -97,9 +97,6 @@ class UrtextDynamicDefinition:
 			# 				1,1,1,
 			# 				tzinfo=datetime.timezone.utc)),
 			# 	reverse=True)
-			# print('NODES INCLUDED ARE')
-			# print([n.id for n in nodes_included])
-			# print(nodes_included)
 			current_text = accumulated_text
 			transformed_text = operation.dynamic_output(current_text)
 			if transformed_text == False: # not None !
