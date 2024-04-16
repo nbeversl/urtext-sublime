@@ -48,27 +48,22 @@ class Exclude(NodeQuery):
 	name = ["EXCLUDE","-"]
 
 	def dynamic_output(self, nodes):
-		excluded_nodes = set(self.build_list())
+		excluded_nodes = self.build_list()
 		# this flag will have to be reimplemented
 		# if self.have_flags('-including_as_descendants'):
-		self.dynamic_definition.excluded_nodes.extend(
-			[nid for nid in list(excluded_nodes) if nid in self.project.nodes])
+		self.dynamic_definition.excluded_nodes.extend(excluded_nodes)
 		self.dynamic_definition.excluded_nodes = list(set(self.dynamic_definition.excluded_nodes))
 		self.dynamic_definition.included_nodes = [
-			node for node in list(self.dynamic_definition.included_nodes) if node.id not in self.dynamic_definition.excluded_nodes]	
+			nid for nid in list(self.dynamic_definition.included_nodes) if nid not in self.dynamic_definition.excluded_nodes]	
 
 class Include(NodeQuery):
 
 	name = ["INCLUDE","+"] 	
 
 	def dynamic_output(self, nodes):
-		included_nodes = set(self.build_list())
-		self.dynamic_definition.included_nodes.extend(list(
-			set([
-				self.project.nodes[nid] for nid in list(included_nodes) if nid in self.project.nodes
-				])))
+		included_nodes = self.build_list()
+		self.dynamic_definition.included_nodes.extend(included_nodes)
 		self.dynamic_definition.included_nodes = list(set(self.dynamic_definition.included_nodes))
-
 
 def _build_group_and(
 	project, 

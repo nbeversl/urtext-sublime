@@ -77,8 +77,7 @@ class UrtextDynamicDefinition:
 		accumulated_text = ''
 
 		for operation in self.operations:
-			nodes_included = [
-				self.project.nodes[nid] for nid in self.included_nodes if (
+			nodes_included = [self.project.nodes[nid] for nid in self.included_nodes if (
 					nid in self.project.nodes) and nid not in self.excluded_nodes]
 
 			# if not self.nodes_sorted:
@@ -110,7 +109,6 @@ class UrtextDynamicDefinition:
 		self.project._run_hook('on_dynamic_def_process_ended', self)
 		if self.system_contents:
 			accumulated_text += '\n'.join(self.system_contents)
-
 		return accumulated_text
 
 	def have_flags(self, flag):
