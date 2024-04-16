@@ -61,9 +61,11 @@ class Include(NodeQuery):
 	name = ["INCLUDE","+"] 	
 
 	def dynamic_output(self, nodes):
-		included_nodes = self.build_list()
-		self.dynamic_definition.included_nodes.extend(included_nodes)
-		self.dynamic_definition.included_nodes = list(set(self.dynamic_definition.included_nodes))
+		current_included_nids = [node.id for node in self.dynamic_definition.included_nodes]
+		new_included_nodes = self.build_list()
+		current_included_nids.extend(new_included_nodes)
+		current_included_nids = list(set(current_included_nids))
+		self.dynamic_definition.included_nodes = [self.project.nodes[nid] for nid in current_included_nids if nid in self.project.nodes]
 
 def _build_group_and(
 	project, 
