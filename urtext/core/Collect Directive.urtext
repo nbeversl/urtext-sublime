@@ -1,3 +1,7 @@
+Collect Directive _ 
+
+%%Python
+
 import os
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
 	from Urtext.urtext.dynamic_output import DynamicOutput
@@ -188,9 +192,12 @@ def contains_different_types(list_to_check):
 	if len(list_to_check) < 2:
 		return False
 	i = type(list_to_check[0])
+
+
 	for y in list_to_check:
 		if type(y) != i:
 			return True
 	return False
 
-urtext_directives = [Collect]
+ThisProject.add_directive(Collect)
+%%

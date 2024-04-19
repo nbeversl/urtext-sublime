@@ -1,3 +1,7 @@
+Log Directive _ 
+
+%%Python
+
 class Log:
 
 	name = ["LOG"]    
@@ -23,4 +27,6 @@ class Log:
 	                ]))
 		return text_contents + '\n'.join(output) + '\n'
 
-urtext_directives=[Log]
+ThisProject.add_directive(Log)
+
+%%

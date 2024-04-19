@@ -1,8 +1,7 @@
-Reindex Directive _
+Reindex Extension _
 
 %%Python
 
-import os
 
 class ReindexFiles:
     """ 
@@ -10,13 +9,14 @@ class ReindexFiles:
     the result to rename_file_nodes() to rename them.
     """    
     name=['REINDEX']        
+    import os
     
     def rename_all_files(self):
         return self.project.execute(
             self._rename_file_nodes,
             self.project.files)
 
-    def strip_illegal_characters(filename):
+    def strip_illegal_characters(self, filename):
         for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
             filename = filename.replace(c,' ')
         return filename
@@ -73,8 +73,8 @@ class ReindexFiles:
             new_basename = self.strip_illegal_characters(new_basename)
             new_basename = new_basename[:248].strip()
 
-            test_filename = os.path.join(
-                os.path.dirname(old_filename), 
+            test_filename = self.os.path.join(
+                self.os.path.dirname(old_filename), 
                 new_basename + '.urtext')
 
             if test_filename == old_filename:
@@ -82,10 +82,10 @@ class ReindexFiles:
 
             # avoid overwriting existing files
             unique_file_suffix = 1
-            while test_filename in used_names or os.path.exists(test_filename):
+            while test_filename in used_names or self.os.path.exists(test_filename):
                 unique_file_suffix += 1
-                test_filename = os.path.join(
-                    os.path.dirname(old_filename), 
+                test_filename = self.os.path.join(
+                    self.os.path.dirname(old_filename), 
                     new_basename + ' ' + str(unique_file_suffix) + '.urtext')
                 if test_filename == old_filename:
                     break
@@ -99,7 +99,7 @@ class ReindexFiles:
             
         for old_filename in renamed_files:
             new_filename = renamed_files[old_filename]
-            os.rename(old_filename, new_filename)
+            self.os.rename(old_filename, new_filename)
             self.project._handle_renamed(old_filename, new_filename)
 
         return renamed_files

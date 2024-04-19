@@ -1,3 +1,7 @@
+Navigation Extension
+
+%%Python
+
 class Navigation:
 
 	name = ["NAVIGATION"]
@@ -89,4 +93,5 @@ class Navigation:
 				old_nav_id == old_id):
 					self.project_list_instance.navigation[index] = (project, node.id)
 
-urtext_extensions = [Navigation]
+ThisProject.add_extension(Navigation)
+%%

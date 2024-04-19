@@ -1,3 +1,6 @@
+When Directive _
+
+%%Python
 class When:
 
 	name = ["WHEN"]    
@@ -10,4 +13,5 @@ class When:
 				return True
 		return False
 
-urtext_directives = [When]
+ThisProject.add_directive(When)
+%%

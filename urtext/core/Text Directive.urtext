@@ -15,5 +15,4 @@ class UrtextText:
         return ''.join([contents, added_text])
 
 ThisProject.add_directive(UrtextText)
-print('ADDED!')
 %%
