@@ -1,13 +1,13 @@
 import os
 import re
+import sys
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.link import UrtextLink
-    from Urtext.urtext.url import url_match_c
-else:
-    import urtext.syntax as syntax
-    from urtext.url import url_match_c
-    from urtext.link import UrtextLink
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+import urtext.syntax as syntax
+from urtext.url import url_match_c
+from urtext.link import UrtextLink
 
 def strip_backtick_escape(contents):
     for e in syntax.preformat_c.findall(contents):

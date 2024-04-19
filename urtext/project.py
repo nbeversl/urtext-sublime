@@ -13,27 +13,17 @@ import sys
 from .url import url_match
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from ..anytree import Node, PreOrderIter, RenderTree
-    from .file import UrtextFile, UrtextBuffer
-    from .node import UrtextNode
-    from .dynamic_definition import UrtextDynamicDefinition
-    from .timestamp import date_from_timestamp, default_date, UrtextTimestamp
-    from .directive import UrtextDirective
-    from .extension import UrtextExtension
-    import Urtext.urtext.syntax as syntax
-    from Urtext.urtext.project_settings import *
-    import Urtext.urtext.utils as utils
-else:
-    from anytree import Node, PreOrderIter, RenderTree
-    from urtext.file import UrtextFile, UrtextBuffer
-    from urtext.node import UrtextNode
-    from urtext.dynamic_definition import UrtextDynamicDefinition
-    from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
-    from urtext.directive import UrtextDirective
-    from urtext.extension import UrtextExtension
-    import urtext.syntax as syntax
-    from urtext.project_settings import *
-    import urtext.utils as utils
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+
+from urtext.file import UrtextFile, UrtextBuffer
+from urtext.node import UrtextNode
+from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
+from urtext.directive import UrtextDirective
+from urtext.extension import UrtextExtension
+import urtext.syntax as syntax
+from urtext.project_settings import *
+import urtext.utils as utils
 
 class UrtextProject:
 

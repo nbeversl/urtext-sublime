@@ -31,7 +31,14 @@ class Exec:
 					return text_contents + message
 				except Exception as e:
 					sys.stdout = old_stdout
-					return text_contents + str(e)
+					return text_contents + ''.join([
+						'in | ',
+						node_to_exec,
+						' >',
+						' ',
+						str(e),
+						'\n'
+						])
 		return text_contents + '(no Python code found)'
 
 urtext_directives=[Exec]

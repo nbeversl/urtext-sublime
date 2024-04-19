@@ -1,16 +1,15 @@
 import os
+import sys
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .timestamp import UrtextTimestamp, default_date
-    import Urtext.urtext.syntax as syntax
-    from .metadata_entry import MetadataEntry
-    from .metadata_value import MetadataValue
-    import Urtext.urtext.utils as utils
-else:
-    from urtext.timestamp import UrtextTimestamp, default_date
-    import urtext.syntax as syntax
-    from urtext.metadata_entry import MetadataEntry
-    from urtext.metadata_value import MetadataValue
-    import urtext.utils as utils
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+
+from urtext.timestamp import UrtextTimestamp, default_date
+import urtext.syntax as syntax
+from urtext.metadata_entry import MetadataEntry
+from urtext.metadata_value import MetadataValue
+import urtext.utils as utils
 
 class NodeMetadata:
 

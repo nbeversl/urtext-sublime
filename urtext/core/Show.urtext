@@ -10,4 +10,3 @@ class Show:
 
 ThisProject.add_directive(show)
 %%
-[[ EXEC(@self)]]

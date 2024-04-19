@@ -1,11 +1,12 @@
 import datetime
 import os
+import sys
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from Urtext.dateutil.parser import *
-    import Urtext.urtext.syntax as syntax
-else:
-    from dateutil.parser import *
-    import urtext.syntax as syntax
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+from dateutil.parser import *
+import urtext.syntax as syntax
 
 default_date = datetime.datetime(1970,1,1, tzinfo=datetime.timezone.utc)
 

@@ -1,14 +1,14 @@
 import os
 import datetime
+import sys
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-	from .utils import force_list, get_id_from_link
-	import Urtext.urtext.syntax as syntax
-	from .timestamp import UrtextTimestamp
-else:
-	from urtext.utils import force_list, get_id_from_link
-	import urtext.syntax as syntax
-	from urtext.timestamp import UrtextTimestamp
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+
+from urtext.utils import force_list, get_id_from_link
+import urtext.syntax as syntax
+from urtext.timestamp import UrtextTimestamp
 
 class UrtextDynamicDefinition:
 
@@ -100,7 +100,12 @@ class UrtextDynamicDefinition:
 			try:
 				transformed_text = operation.dynamic_output(current_text)
 			except Exception as e:
-				accumulated_text += str(e)
+				accumulated_text += ''.join([
+					str(operation.name),
+					': ',
+					str(e),
+					'\n'
+					])
 				continue
 			if transformed_text == False: # not None !
 				return current_text

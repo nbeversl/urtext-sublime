@@ -1,7 +1,8 @@
 Reindex Extension _
 
-%%Python
 
+
+%%Python
 
 class ReindexFiles:
     """ 

@@ -1,13 +1,13 @@
 import os
 import concurrent.futures
+import sys
+
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from .project import UrtextProject
-    import Urtext.urtext.syntax as syntax
-    import Urtext.urtext.utils as utils
-else:
-    from urtext.project import UrtextProject
-    import urtext.syntax as syntax
-    import urtext.utils as utils
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+from urtext.project import UrtextProject
+import urtext.syntax as syntax
+import urtext.utils as utils
 
 class ProjectList():
 

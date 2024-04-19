@@ -1,22 +1,18 @@
 import os
 import re
+import sys
 
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    from Urtext.anytree import Node, PreOrderIter
-    from .metadata import MetadataEntry, MetadataValue
-    from .metadata import NodeMetadata
-    from Urtext.anytree.exporter import JsonExporter
-    from .dynamic_definition import UrtextDynamicDefinition
-    import Urtext.urtext.utils as utils
-    import Urtext.urtext.syntax as syntax
-else:
-    from anytree import Node, PreOrderIter
-    from urtext.metadata import MetadataEntry
-    from urtext.metadata import NodeMetadata, MetadataValue
-    from anytree.exporter import JsonExporter
-    from urtext.dynamic_definition import UrtextDynamicDefinition
-    import urtext.utils as utils
-    import urtext.syntax as syntax
+    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.append(custom_path)
+
+from anytree import Node, PreOrderIter
+from urtext.metadata import MetadataEntry
+from urtext.metadata import NodeMetadata, MetadataValue
+from anytree.exporter import JsonExporter
+from urtext.dynamic_definition import UrtextDynamicDefinition
+import urtext.utils as utils
+import urtext.syntax as syntax
 
 class UrtextNode:
 
