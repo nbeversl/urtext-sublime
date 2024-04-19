@@ -28,11 +28,10 @@ class Exec:
 					exec(python_code, {}, localsParameter)
 					sys.stdout = old_stdout
 					message = mystdout.getvalue()
-					return message
+					return text_contents + message
 				except Exception as e:
 					sys.stdout = old_stdout
-					return str(e)
-
+					return text_contents + str(e)
 		return text_contents + '(no Python code found)'
 
 urtext_directives=[Exec]

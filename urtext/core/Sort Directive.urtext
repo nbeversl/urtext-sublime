@@ -1,15 +1,28 @@
+Sort Directive _
+
+%%Python
+
 class Sort:
 
 	name = ["SORT","S"]
+
+	def strip_reverse(self, flags):
+			flags=list(flags)
+			while '-r' in flags:
+				flags.remove('-r')
+			while '-reverse' in flags:
+				flags.remove('-reverse')
+			return flags
 		
 	def dynamic_output(self, text_contents):
+
 		sorted_nodes = []
 		nodes = self.dynamic_definition.included_nodes
 		if self.keys_with_flags:
 			for key_with_flags in self.keys_with_flags:
 				key, flags = key_with_flags
 				reverse = '-r' in flags or '-reverse' in flags
-				flags = strip_reverse(flags)
+				flags = self.strip_reverse(flags)
 				group_to_sort = [n for n in nodes if n.metadata.get_values(key)]
 				sorted_nodes.extend(
 					sorted(
@@ -23,7 +36,7 @@ class Sort:
 					)
 				nodes = [n for n in nodes if n not in group_to_sort]
 			sorted_nodes.extend(nodes)
-		self.dynamic_definition.included_nodes = sorted_nodes
+			self.dynamic_definition.included_nodes = sorted_nodes
 
 	def sort_values(self, 
 		node, 
@@ -60,12 +73,6 @@ class Sort:
 			return tuple(nt)
 		return tuple(t)
 
-def strip_reverse(flags):
-	flags=list(flags)
-	while '-r' in flags:
-		flags.remove('-r')
-	while '-reverse' in flags:
-		flags.remove('-reverse')
-	return flags
 
-urtext_directives=[Sort]
+ThisProject.add_directive(Sort)
+%%

@@ -1,3 +1,6 @@
+Pull and Pop Extension _
+
+%%Python
 import os
 
 class PopNode:
@@ -209,5 +212,8 @@ class PullNode:
             destination_file_contents)
         self.project._parse_file(destination_filename)
 
-urtext_extensions = [PullNode, PopNode]
+
+ThisProject.add_extension(PullNode)
+ThisProject.add_extension(PopNode)
         
+%%

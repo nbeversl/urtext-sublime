@@ -1,3 +1,6 @@
+Show Directive _
+
+%%Python
 class Show:
 
 	name = ["SHOW"]    
@@ -5,4 +8,6 @@ class Show:
 	def dynamic_output(self, text_contents):
 		self.dynamic_definition.show = self.argument_string
 
-urtext_directives = [Show]
+ThisProject.add_directive(show)
+%%
+[[ EXEC(@self)]]

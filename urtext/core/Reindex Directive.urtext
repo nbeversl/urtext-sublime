@@ -1,3 +1,7 @@
+Reindex Directive _
+
+%%Python
+
 import os
 
 class ReindexFiles:
@@ -11,6 +15,11 @@ class ReindexFiles:
         return self.project.execute(
             self._rename_file_nodes,
             self.project.files)
+
+    def strip_illegal_characters(filename):
+        for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
+            filename = filename.replace(c,' ')
+        return filename
 
     def _rename_file_nodes(self, filenames):
         """ Rename a file or list of files by metadata """
@@ -61,7 +70,7 @@ class ReindexFiles:
             new_basename = ' - '.join(filename_template)     
             new_basename = new_basename.replace('’', "'")
             new_basename = new_basename.strip().strip('-').strip();
-            new_basename = strip_illegal_characters(new_basename)
+            new_basename = self.strip_illegal_characters(new_basename)
             new_basename = new_basename[:248].strip()
 
             test_filename = os.path.join(
@@ -118,9 +127,8 @@ class RenameSingleFile(ReindexFiles):
                 renamed_files[filename],
                 0)
 
-def strip_illegal_characters(filename):
-    for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
-        filename = filename.replace(c,' ')
-    return filename
 
-urtext_extensions = [ReindexFiles, RenameSingleFile]
+ThisProject.add_extension(ReindexFiles)
+ThisProject.add_extension(RenameSingleFile)
+
+%%

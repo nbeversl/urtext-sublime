@@ -1,3 +1,8 @@
+Limit Directive _
+
+
+%%Python
+
 class Limit:
 
 	name = ["LIMIT"]
@@ -8,4 +13,7 @@ class Limit:
 			if number:
 				self.dynamic_definition.included_nodes = self.dynamic_definition.included_nodes[:number]
 
-urtext_directives=[Limit]
+
+ThisProject.add_directive(Limit)
+
+%%

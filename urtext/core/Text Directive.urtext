@@ -1,3 +1,7 @@
+
+Text Directive _
+
+%%Python
 class UrtextText:
 
     name = ["TEXT"]
@@ -10,4 +14,6 @@ class UrtextText:
             added_text += '\n'
         return ''.join([contents, added_text])
 
-urtext_directives=[UrtextText]
+ThisProject.add_directive(UrtextText)
+print('ADDED!')
+%%

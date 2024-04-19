@@ -97,14 +97,17 @@ class UrtextDynamicDefinition:
 			# 				tzinfo=datetime.timezone.utc)),
 			# 	reverse=True)
 			current_text = accumulated_text
-			transformed_text = operation.dynamic_output(current_text)
+			try:
+				transformed_text = operation.dynamic_output(current_text)
+			except Exception as e:
+				accumulated_text += str(e)
+				continue
 			if transformed_text == False: # not None !
 				return current_text
 			if transformed_text == None:
 				accumulated_text = current_text
 				continue
 			accumulated_text = transformed_text
-
 		self.flags = []
 		self.project._run_hook('on_dynamic_def_process_ended', self)
 		if self.system_contents:
@@ -141,7 +144,7 @@ class UrtextDynamicDefinition:
 
 		output = self.process_output()
 		if self.spaces:
-			output = indent(output, spaces=self.spaces)
+			output = self.indent(output, spaces=self.spaces)
 		return output
 
 	def post_process(self, target, output):
@@ -150,10 +153,10 @@ class UrtextDynamicDefinition:
 			output += self.get_definition_text()
 		return output
 
-def indent(contents, spaces=4):
-	content_lines = contents.split('\n')
-	content_lines[0] = content_lines[0].strip()
-	for index, line in enumerate(content_lines):
-		if line.strip() != '':
-			content_lines[index] = '\t' * spaces + line
-	return '\n'+'\n'.join(content_lines)
+	def indent(contents, spaces=4):
+		content_lines = contents.split('\n')
+		content_lines[0] = content_lines[0].strip()
+		for index, line in enumerate(content_lines):
+			if line.strip() != '':
+				content_lines[index] = '\t' * spaces + line
+		return '\n'+'\n'.join(content_lines)

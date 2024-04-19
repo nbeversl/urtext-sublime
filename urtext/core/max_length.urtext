@@ -1,3 +1,6 @@
+Max Length Directive _ 
+
+%%Python
 class MaxLength:
 
 	name = ["MAX_LENGTH"]
@@ -17,4 +20,5 @@ class MaxLength:
 			return '\n'.join(contents[:length])
 		return contents
 
-urtext_directives=[MaxLength]
+ThisProject.add_directive(MaxLength)
+%%
