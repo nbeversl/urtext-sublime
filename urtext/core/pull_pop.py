@@ -29,6 +29,7 @@ class PopNode:
                 '%s not in project' % source_filename)
 
         self.project.run_editor_method('save_file', source_filename)
+        self.project._parse_file(source_filename)
 
         popped_node_id = self.project.get_node_id_from_position(source_filename, file_pos) 
         if not popped_node_id:
@@ -53,6 +54,7 @@ class PopNode:
         include_project=False):
         
         source_filename = self.project.nodes[popped_node_id].filename
+        self.project.run_editor_method('save_file', source_filename)
         start = self.project.nodes[popped_node_id].start_position
         end = self.project.nodes[popped_node_id].end_position
         source_file_contents = self.project.files[source_filename]._get_contents()
