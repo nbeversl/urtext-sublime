@@ -1,9 +1,4 @@
 import os 
-import sys
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    sys.path.append(custom_path)
 from urtext.buffer import UrtextBuffer
 import urtext.syntax as syntax
 import urtext.utils as utils

@@ -11,11 +11,6 @@ import importlib
 import imp
 import sys
 from .url import url_match
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    sys.path.append(custom_path)
-
 from urtext.file import UrtextFile, UrtextBuffer
 from urtext.node import UrtextNode
 from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp

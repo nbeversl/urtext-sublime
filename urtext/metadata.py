@@ -1,10 +1,3 @@
-import os
-import sys
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    sys.path.append(custom_path)
-
 from urtext.timestamp import UrtextTimestamp, default_date
 import urtext.syntax as syntax
 from urtext.metadata_entry import MetadataEntry

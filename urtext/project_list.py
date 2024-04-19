@@ -1,10 +1,10 @@
 import os
 import concurrent.futures
 import sys
-
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
     custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
     sys.path.append(custom_path)
+
 from urtext.project import UrtextProject
 import urtext.syntax as syntax
 import urtext.utils as utils
@@ -16,10 +16,14 @@ class ProjectList():
     def __init__(self, 
         entry_point,
         is_async=True,
+        urtext_location=None,
         editor_methods=None):
 
+        if urtext_location:
+            sys.path.append(urtext_location)
+
         self.is_async = is_async
-        #self.is_async = False # development
+        self.is_async = False # development
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()

@@ -1,10 +1,4 @@
 import datetime
-import os
-import sys
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    sys.path.append(custom_path)
 from dateutil.parser import *
 import urtext.syntax as syntax
 

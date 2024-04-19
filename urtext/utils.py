@@ -1,10 +1,5 @@
 import os
 import re
-import sys
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sublime.txt')):
-    custom_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    sys.path.append(custom_path)
 import urtext.syntax as syntax
 from urtext.url import url_match_c
 from urtext.link import UrtextLink
