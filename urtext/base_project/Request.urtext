@@ -1,3 +1,9 @@
+Request _
+
+here the double percent sign just needs to be encoded for output.
+
+%%Python
+
 import urllib
 
 class Request:
@@ -8,8 +14,10 @@ class Request:
 		try:
 			with urllib.request.urlopen(self.argument_string) as f:
 				t = f.read().decode('utf-8')
-			return text_contents + '%%JSON\n'+ t +'\n%%\n'
+			return text_contents + 'JSON\n'+ t +'\n\n'
 		except urllib.error.URLError:
 			return text_contents + '\n' + str(urllib.error.URLError)
 
-urtext_directives=[Request]
+ThisProject.add_directive(Request)
+
+%%

@@ -1,12 +1,13 @@
-import os
 import re
-from io import StringIO
 import sys
-
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-	from Urtext.urtext.utils import force_list, get_id_from_link
-else:
-	from urtext.utils import force_list, get_id_from_link
+from io import StringIO
+from urtext.utils import force_list, get_id_from_link
+from urtext.file import UrtextFile, UrtextBuffer
+from urtext.node import UrtextNode
+from urtext.timestamp import UrtextTimestamp
+from urtext.directive import UrtextDirective
+from urtext.extension import UrtextExtension
+import urtext.syntax as syntax
 
 python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
 
@@ -23,7 +24,16 @@ class Exec:
 				python_code = python_embed.group(2)
 				old_stdout = sys.stdout
 				sys.stdout = mystdout = StringIO()
-				localsParameter = {'ThisProject' : self.project }
+				localsParameter = {
+					'ThisProject' : self.project,
+					'UrtextFile' : UrtextFile,
+					'UrtextBuffer' : UrtextBuffer,
+					'UrtextNode' : UrtextNode,
+					'UrtextTimestamp' : UrtextTimestamp,
+					'UrtextDirective': UrtextDirective,
+					'UrtextExtension' : UrtextExtension,
+					'UrtextSyntax': syntax
+					}
 				try:
 					exec(python_code, {}, localsParameter)
 					sys.stdout = old_stdout
@@ -40,5 +50,3 @@ class Exec:
 						'\n'
 						])
 		return text_contents + '(no Python code found)'
-
-urtext_directives=[Exec]

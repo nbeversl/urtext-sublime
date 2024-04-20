@@ -1,10 +1,9 @@
-import os
-import re
+Export Directive _
 
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    import Urtext.urtext.node
-else:
-    import urtext.node
+%%Python
+
+import re
+import urtext.node
 
 class UrtextExport:
 
@@ -114,8 +113,8 @@ class UrtextExport:
                     range_contents = self.wrap_title(root_node_id, nested) + '\n'
 
             # range_contents = range_contents.rstrip()
-            range_contents = strip_indent(range_contents)
-            range_contents = indent(range_contents, nested + 1)
+            range_contents = self.strip_indent(range_contents)
+            range_contents = self.indent(range_contents, nested + 1)
             range_contents = self.replace_range(range_contents, range_number, nested)   
             range_contents = self.before_replace_node_links(range_contents)
             
@@ -338,17 +337,19 @@ class UrtextExport:
         title = self.project.nodes[node_id].title
         return '\n' + '\t' * nested + title
 
-def preformat_embedded_syntaxes(text):
-    #TODO update
-    text = re.sub(r'%%\w+[\s|$]','```',text )
-    text = re.sub(r'%%[\s|$]','```', text)
-    return text
+    def preformat_embedded_syntaxes(self, text):
+        #TODO update
+        text = re.sub(r'\w+[\s|$]','',text )
+        text = re.sub(r'[\s|$]','', text)
+        return text
 
-def strip_indent(text):
-    return '\n'.join([line.strip() for line in text.split('\n')])
+    def strip_indent(self, text):
+        return '\n'.join([line.strip() for line in text.split('\n')])
 
-def indent(text, tabs):
-    return '\n'.join(['\t' * tabs + line for line in text.split('\n')])
+    def indent(self, text, tabs):
+        return '\n'.join(['\t' * tabs + line for line in text.split('\n')])
 
 
-urtext_directives=[UrtextExport]
+ThisProject.add_directive(UrtextExport)
+
+%%

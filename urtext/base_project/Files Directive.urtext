@@ -1,0 +1,21 @@
+
+Files Directive _
+
+%%Python
+class UrtextFiles:
+	
+	import os
+
+	name = ["FILES"]
+
+	def dynamic_output(self, text_contents):
+		file_list = self.os.listdir(self.argument_string)
+		output = []
+		for f in file_list:
+			output.append(''.join(['|/ ',f,' >\n']))
+		return text_contents + ''.join(output)
+
+ThisProject.add_directive(UrtextFiles)
+
+%%
+                                                                                                                                                                                                                                                                             

@@ -1,4 +1,6 @@
-import sys
+Stats _
+
+%%Python
 
 class UrtextStats:
 
@@ -20,4 +22,6 @@ class UrtextStats:
 		contents.append('compile time :' + str(self.project.last_compile_time))
 		return text_contents + '\n'.join(contents)
 
-urtext_directives = UrtextStats
+ThisProject.add_directive(UrtextStats)
+
+%%

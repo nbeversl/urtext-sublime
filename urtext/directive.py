@@ -2,6 +2,10 @@ import urtext.syntax as syntax
 from urtext.utils import force_list, get_id_from_link
 from urtext.dynamic_output import DynamicOutput
 import urtext.utils as utils
+from anytree import Node, RenderTree, PreOrderIter
+from anytree.render import ContStyle
+from urtext.timestamp import UrtextTimestamp
+
 
 class UrtextDirective:
 
@@ -9,7 +13,11 @@ class UrtextDirective:
     utils = utils
     DynamicOutput = DynamicOutput
     name = []
-
+    Node = Node
+    RenderTree = RenderTree
+    PreOrderIter = PreOrderIter
+    UrtextTimestamp = UrtextTimestamp
+    
     def __init__(self, project):
         self.keys_with_flags = []
         self.flags = []
@@ -20,7 +28,6 @@ class UrtextDirective:
         self.project = project
         self.argument_string = None
         self.dynamic_definition = None
-        self.folder = None
 
     def execute(self):
         return

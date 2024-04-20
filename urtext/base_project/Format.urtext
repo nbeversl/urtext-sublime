@@ -1,3 +1,7 @@
+Format Directive _
+
+%%Python
+
 class Format:
 
 	name = ["FORMAT"]
@@ -19,4 +23,5 @@ class Format:
 			contents = '\n'.join(indented_contents)
 		return contents
 
-urtext_directives=[Format]
+ThisProject.add_directive(Format)
+%%

@@ -1,14 +1,22 @@
 import Urtext.urtext.syntax as syntax
 import urtext.syntax as syntax
+from urtext.dynamic_output import DynamicOutput
+from anytree import Node, RenderTree, PreOrderIter
+from anytree.render import ContStyle
+from urtext.timestamp import UrtextTimestamp
 
 class UrtextExtension:
 
     syntax = syntax
     name = []
+    DynamicOutput = DynamicOutput
+    Node = Node
+    RenderTree = RenderTree
+    PreOrderIter = PreOrderIter
+    UrtextTimestamp = UrtextTimestamp
     
     def __init__(self, project):
         self.project = project
-        self.folder = None
 
     def after_project_initialized(self):
         return

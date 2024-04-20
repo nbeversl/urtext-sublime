@@ -19,6 +19,7 @@ from urtext.extension import UrtextExtension
 import urtext.syntax as syntax
 from urtext.project_settings import *
 import urtext.utils as utils
+from urtext.exec import Exec
 
 class UrtextProject:
 
@@ -54,7 +55,6 @@ class UrtextProject:
         self.compiled = False
         self.excluded_files = []
         self.home_requested = False
-        self.variables = {}     
         self.running_on_modified = None
         self.message_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1)
@@ -65,12 +65,7 @@ class UrtextProject:
 
     def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
-        self._get_features_from_folder(os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'features'), None)
-        self._get_features_from_folder(os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'core'), None)
+        self.add_directive(Exec)     
         num_file_extensions = len(self.settings['file_extensions'])
         num_paths = len(self.settings['paths'])
 
@@ -122,6 +117,10 @@ class UrtextProject:
         if path in self.project_list.get_all_paths():
             return False
         return True
+
+    def _parse_all_files(self):
+        for filename in self.files:
+            self._parse_file(filename)
 
     def _parse_file(self, filename, try_buffer=False, passed_contents=None):
         if self._filter_filenames(filename) == None:
@@ -1000,9 +999,6 @@ class UrtextProject:
                                 del self.settings[setting]
                             elif value in self.settings[setting]:
                                 self.settings[setting].remove(value)                        
-                            if setting == 'features':
-                                for v in entry.text_values():
-                                    self._remove_features_from_folder(v)
                             if (setting not in self.settings or 
                                 not self.settings[setting]) and (
                                 setting in default_project_settings().keys()):
@@ -1015,48 +1011,6 @@ class UrtextProject:
                 return True
 
         return False
-
-    def _get_features_from_folder(self, folder, filename):
-        if os.path.exists(folder):
-            sys.path.append(folder)
-            for module_file in [f for f in os.listdir(folder) if f.endswith(".py")]:
-                try:
-                    s = importlib.import_module(module_file.replace('.py',''))
-                    s = imp.reload(s)
-                    if 'urtext_directives' in dir(s):
-                        directives = s.urtext_directives
-                        if not isinstance(directives, list):
-                            directives = [directives]
-                        for d in directives:
-                            self.add_directive(d, folder=folder)
-                    if 'urtext_extensions' in dir(s):
-                        extensions = s.urtext_extensions
-                        if not isinstance(extensions, list):
-                            extensions = [extensions]
-                        for e in extensions:
-                            self.add_extension(e, folder=folder)
-                except Exception as e:
-                    message = ''.join([
-                            '\nFeature in file ',
-                            syntax.file_link_opening_wrapper,
-                            os.path.join(folder, module_file),
-                            syntax.link_closing_wrapper,
-                            ' encountered the following error: \n', 
-                            str(e),
-                            ])
-                    self._log_item(
-                        filename, 
-                        message)
-
-    def _remove_features_from_folder(self, folder):
-        for directive in self.directives.values():
-            if directive.folder == folder:
-                for n in directive.name:
-                    self.directives.remove(n)
-        for extension in self.extensions.values():
-            if extension.folder == folder:
-                for n in extension.name:
-                    self.extensions.remove(n)
 
     def get_home(self):
         if self.settings['home'] in self.nodes:
@@ -1388,9 +1342,9 @@ class UrtextProject:
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
         if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
+            self._parse_all_files()
             return self._compile(len(self.directives), len(self.extensions))
-        else:
-            return self._after_compile()
+        return self._after_compile()
 
     def _after_compile(self):
         self._verify_links_globally()
@@ -1399,6 +1353,7 @@ class UrtextProject:
         self.time = time.time()
         self.handle_info_message('"%s" compiled' % self.settings['project_title'])
         print('"%s" compiled' % self.settings['project_title'])
+
     def _compile_file(self, filename, events=[]):
         modified_targets = []
         modified_files = []
@@ -1587,14 +1542,12 @@ class UrtextProject:
     def add_directive(self, directive, folder=None):
         class Directive(directive, UrtextDirective):
             pass
-        Directive.folder = folder
         for n in Directive.name:
             self.directives[n] = Directive
 
     def add_extension(self, extension, folder=None):
         class Extension(extension, UrtextExtension):
             pass
-        Extension.folder = folder
         for n in Extension.name:
             self.extensions[n] = Extension(self)
 

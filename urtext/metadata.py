@@ -270,7 +270,7 @@ class NodeMetadata:
             extended_keyname = [extended_key]
         else:
             extended_keyname = extended_key.split('.')
-        values = get_extended_metadata(extended_keyname, self.node)        
+        values = self.get_extended_metadata(extended_keyname, self.node)        
         values = list(set(values))
         return syntax.metadata_separator_syntax.join(values)
 

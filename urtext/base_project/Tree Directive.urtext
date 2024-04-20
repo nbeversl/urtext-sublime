@@ -1,76 +1,6 @@
-import os
-if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../sublime.txt')):
-    from Urtext.anytree import Node, RenderTree, PreOrderIter
-    from Urtext.anytree.render import ContStyle
-    from Urtext.urtext.dynamic_output import DynamicOutput
-else:
-    from anytree import Node, RenderTree, PreOrderIter
-    from anytree.render import ContStyle
-    from urtext.dynamic_output import DynamicOutput
+Tree Directive _
 
-class UrtextAnyTree:
-
-    name = ["TREE_EXTENSION"]
-
-    def on_buffer_added(self, buffer):
-        for node in buffer.nodes:
-            node.tree_node = Node(node.id)
-            node.tree_node.position = self.project.nodes[node.id].start_position
-        self.project.files[buffer.filename].alias_nodes = []
-        for node in buffer.nodes:
-            for pointer in node.pointers:
-                alias_node = Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
-                alias_node.position = pointer['position']
-                alias_node.parent = node.tree_node
-                self.project.files[buffer.filename].alias_nodes.append(alias_node)
-            if node.parent and node.parent in buffer.nodes:
-                node.tree_node.parent = node.parent.tree_node
-
-    def on_node_id_changed(self, node, new_node_id):
-        node.tree_node = Node(new_node_id)
-
-    def on_file_dropped(self, filename):
-        for node in self.project.files[filename].nodes:
-            node.tree_node.parent = None
-            del node.tree_node
-        for a in self.project.files[filename].alias_nodes:
-            a.parent = None
-            a.children = []
-
-    def on_sub_tags_added(self, 
-        node_id,
-        entry, 
-        next_node=None, 
-        visited_nodes=[]):
-    
-        for pointer in self.project.nodes[node_id].pointers:
-            uid = node_id + pointer['id']
-            if uid in visited_nodes:
-                continue
-            node_to_tag = pointer['id']
-            if node_to_tag not in self.project.nodes:
-                visited_nodes.append(uid)
-                continue
-
-            if uid not in visited_nodes and not self.project.nodes[node_to_tag].dynamic:
-                self.project.nodes[node_to_tag].metadata.add_entry(
-                    entry.keyname, 
-                    entry.meta_values,
-                    self.project.nodes[node_to_tag],
-                    from_node=entry.from_node, 
-                    tag_descendants=entry.tag_descendants)
-                if node_to_tag not in entry.from_node.target_nodes:
-                    entry.from_node.target_nodes.append(node_to_tag)
-
-            visited_nodes.append(uid)        
-            
-            if entry.tag_descendants:
-                self.on_sub_tags_added(
-                    pointer['id'],
-                    entry,
-                    next_node=node_to_tag, 
-                    visited_nodes=visited_nodes)
-
+%%Python 
 
 class TreeDirective:
 
@@ -106,9 +36,8 @@ class TreeDirective:
                 pointers = self._has_pointers(start_point)
          
             level = 0
-            for pre, _, this_node in RenderTree(
+            for pre, _, this_node in self.RenderTree(
                     start_point, 
-                    style=ContStyle, 
                     maxlevel=self.depth):
 
                 if self._tree_node_is_excluded(this_node):
@@ -137,7 +66,7 @@ class TreeDirective:
                         continue
                         
                     if this_node.name not in self.project.nodes:
-                        tree_render += "%s | %s > <! not in project !>)\n" % (pre, this_node.name)    
+                        tree_render += "%s | %s > )\n" % (pre, this_node.name)    
                         continue
 
                     urtext_node = self.project.nodes[this_node.name]
@@ -151,7 +80,7 @@ class TreeDirective:
 
                 indented_pre = '  ' + pre
 
-                next_content = DynamicOutput(
+                next_content = self.DynamicOutput(
                     self.dynamic_definition.show, 
                     self.project.settings)
 
@@ -230,7 +159,7 @@ class TreeDirective:
 
     def duplicate_tree(self, original_node, leaf):
 
-        new_root = Node(original_node.name)
+        new_root = self.Node(original_node.name)
         ancestors = [ancestor.name for ancestor in leaf.ancestors]
         ancestors.extend([ancestor.name for ancestor in original_node.ancestors])
         ancestors.append(leaf.name)
@@ -238,18 +167,18 @@ class TreeDirective:
         ancestors.append(original_node.name)
 
         # iterate immediate children only
-        all_nodes = PreOrderIter(original_node, maxlevel=2)  
+        all_nodes = self.PreOrderIter(original_node, maxlevel=2)  
 
         for node in all_nodes: 
      
             if 'ALIA$' in node.name:    
                 node_id = node.name[5:]
                 if node_id not in ancestors:                
-                    new_node = Node(node.name)
+                    new_node = self.Node(node.name)
                     new_node.parent = new_root
                     new_node.position = node.position
                 else:
-                    new_node = Node('! RECURSION (from tree duplication) : '+ node_id + ' >')
+                    new_node = self.Node('! RECURSION (from tree duplication) : '+ node_id + ' >')
                     new_node.parent = new_root
                     new_node.position = node.position
                     
@@ -262,5 +191,6 @@ class TreeDirective:
 
         return new_root
 
-urtext_directives = TreeDirective
-urtext_extensions = UrtextAnyTree
+ThisProject.add_directive(TreeDirective)
+
+%%
