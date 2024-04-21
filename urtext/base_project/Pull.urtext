@@ -1,0 +1,104 @@
+Pull _
+
+%%Python
+ 
+class PullNode:
+
+    name=['PULL_NODE']
+
+    def run(self, 
+        string, 
+        col_pos,
+        destination_filename, 
+        file_pos):
+
+        return self.project.execute(
+            self._pull_node,
+            string, 
+            col_pos,
+            destination_filename, 
+            file_pos)
+
+    def _pull_node(self, 
+        string,
+        col_pos,
+        destination_filename, 
+        file_pos):
+
+        if not self.project.compiled:
+            return self.project.handle_info_message(
+                'Project not yet compiled.')
+
+        link = self.project.project_list.utils.get_link_from_position_in_string(string, col_pos)
+
+        if not link or link.node_id not in self.project.nodes:
+            return self.project.handle_info_message(
+                'link is not a node')
+
+        source_node = self.project.nodes[link.node_id]
+        if source_node.id not in self.project.nodes: 
+            return
+        
+        destination_node = self.project.get_node_id_from_position(
+            destination_filename, 
+            file_pos)
+
+        if not destination_node:
+            return self.project.handle_info_message(
+                'No destination node found here')
+
+        if self.project.nodes[destination_node].dynamic:
+            return self.project.handle_info_message(
+                'Not pulling content into a dynamic node')
+
+        source_filename = self.project.nodes[source_node.id].filename
+
+        for ancestor in self.project.nodes[destination_node].ancestors():
+            if ancestor.name == source_node.id:
+                return self.project.handle_info_message(
+                    'Cannot pull a node into its own child or descendant.')
+        self.project._parse_file(source_filename)
+
+        start = self.project.nodes[source_node.id].start_position
+        end = self.project.nodes[source_node.id].end_position
+
+        source_file_contents = self.project.files[source_filename]._get_contents()
+
+        delete = False
+        if not self.project.nodes[source_node.id].root_node:
+            updated_source_file_contents = ''.join([
+                source_file_contents[0:end],
+                source_file_contents[end:len(source_file_contents)]
+                ])
+            self.project.files[source_filename]._set_buffer_contents(
+                updated_source_file_contents)
+            self.project.files[source_filename].write_contents_to_file()
+
+        else:
+            self.project._delete_file(source_filename)
+
+        pulled_contents = source_file_contents[start:end]
+        destination_file_contents = self.project.files[destination_filename]._get_contents()
+
+        wrapped_contents = ''.join([
+            self.syntax.node_opening_wrapper,
+            ' ',
+            pulled_contents,
+            ' ',
+            self.syntax.node_closing_wrapper])
+        
+        destination_file_contents = destination_file_contents.replace(
+            link.matching_string,
+            wrapped_contents)
+
+        self.project.files[destination_filename]._set_buffer_contents(destination_file_contents)
+        self.project.files[destination_filename].write_contents_to_file()
+        self.project.run_editor_method(
+            'set_buffer',
+            destination_filename,
+            destination_file_contents)
+        self.project._parse_file(destination_filename)
+
+ThisProject.add_directive(PullNode)
+        
+%%

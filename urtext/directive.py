@@ -28,47 +28,22 @@ class UrtextDirective:
         self.argument_string = None
         self.dynamic_definition = None
 
-    def execute(self):
-        return
+    def should_continue(self, event):
+        if event in self.on:
+            return True
+        return False
 
-    def should_continue(self):
-        return True
+    def run(self, *args, **kwargs):
+        pass
 
-    """ hooks """
-    def on_node_modified(self, node):
-        return
+    def trigger(self, *args, **kwargs):
+        self.run(*args, **kwargs)
 
-    def on_node_visited(self, node):
-        return
-
-    def on_file_modified(self, file_name):
-        return
-
-    def on_any_file_modified(self, file_name):
-        return
-
-    def on_file_dropped(self, file_name):
-        return
-
-    def on_project_init(self):
-        return
-
-    def on_file_visited(self, file_name):
-        return
-
-    """ dynamic output """
     def dynamic_output(self, input_contents):
-        # return string, or False leaves existing content unmodified
-        return ''
-
-    def _dynamic_output(self, input_contents):
         if self.should_continue():
             return self.dynamic_output(input_contents)
         return False
     
-    def set_dynamic_definition(self, dynamic_definition):
-        self.dynamic_definition = dynamic_definition
-
     def parse_argument_string(self, argument_string):
         self.argument_string = argument_string.strip()
         argument_string = self._parse_links(argument_string)

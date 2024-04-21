@@ -369,6 +369,9 @@ class UrtextNode:
             contents = contents.replace(syntax.title_marker,'',1)
         return contents
 
+    def ancestors(self):
+        return node_ancestors(self)
+
     def descendants(self):
         return node_descendants(self)
 
@@ -407,6 +410,15 @@ def node_descendants(node, known_descendants=[]):
         all_descendants.extend(
             node_descendants(descendant, known_descendants=all_descendants))
     return all_descendants
+
+def node_ancestors(node, known_ancestors=[]):
+    # differentiate between pointer and "real" descendants
+    if node.parent:
+        known_ancestors.extend(node.parent)
+        return node_ancestors(node.parent, known_ancestors)
+    return known_ancestors
+
+
 
 def strip_contents(contents, 
     preserve_length=False, 
