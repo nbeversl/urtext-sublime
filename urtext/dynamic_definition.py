@@ -37,7 +37,7 @@ class UrtextDynamicDefinition:
 			if func and func in self.project.directives:
 				op = self.project.directives[func](self.project)
 				op.argument_string = argument_string
-				op.set_dynamic_definition(self)
+				op.dynamic_definition= self
 				op.parse_argument_string(argument_string)	
 				self.operations.append(op)
 				continue
@@ -94,6 +94,7 @@ class UrtextDynamicDefinition:
 				transformed_text = operation.dynamic_output(current_text)
 			except Exception as e:
 				accumulated_text += ''.join([
+					'error in ',
 					str(operation.name),
 					': ',
 					str(e),

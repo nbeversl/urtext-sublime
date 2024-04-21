@@ -40,7 +40,7 @@ class Exec:
 				except Exception as e:
 					sys.stdout = old_stdout
 					return text_contents + ''.join([
-						'in | ',
+						'error in | ',
 						node_to_exec,
 						' >',
 						' ',
