@@ -6,7 +6,6 @@ from anytree import Node, RenderTree, PreOrderIter
 from anytree.render import ContStyle
 from urtext.timestamp import UrtextTimestamp
 
-
 class UrtextDirective:
 
     syntax = syntax

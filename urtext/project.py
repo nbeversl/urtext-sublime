@@ -7,15 +7,10 @@ import time
 from time import strftime
 import concurrent.futures
 import threading
-import importlib
-import imp
-import sys
-from .url import url_match
 from urtext.file import UrtextFile, UrtextBuffer
 from urtext.node import UrtextNode
 from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
 from urtext.directive import UrtextDirective
-from urtext.extension import UrtextExtension
 import urtext.syntax as syntax
 from urtext.project_settings import *
 import urtext.utils as utils
@@ -44,13 +39,11 @@ class UrtextProject:
         self.last_compile_time = 0
         self.nodes = {}
         self.files = {}
-        self.exports = {}
         self.messages = {}
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
         self.project_settings_nodes = {}
-        self.extensions = {}
         self.directives = {}
         self.compiled = False
         self.excluded_files = []
@@ -109,7 +102,7 @@ class UrtextProject:
         callback(self)
 
     def compile(self):
-        self.execute(self._compile, len(self.directives), len(self.extensions))
+        self.execute(self._compile, len(self.directives))
 
     def _approve_path(self, path):
         if path in [entry['path'] for entry in self.settings['paths']]:
@@ -461,9 +454,6 @@ class UrtextProject:
             print('DROPPED FILE NOT IN FILES', filename)
 
     def _drop_buffer(self, buffer):
-        for dd in self.dynamic_definitions.values():
-            for op in dd.operations:
-                op.on_file_dropped(buffer.filename)
         self._run_hook('on_buffer_dropped', buffer.filename)
         for node in list(buffer.nodes):
             self._drop_node(node)
@@ -1079,9 +1069,6 @@ class UrtextProject:
         if node_id in self.nodes and self.compiled:
             filename = self.nodes[node_id].filename
             self._run_hook('on_node_visited', node_id)
-            for dd in list(self.dynamic_definitions.values()):
-                for op in dd.operations:
-                    op.on_node_visited(node_id)
             self._visit_file(filename)
             self.run_editor_method('status_message',
                 ''.join([
@@ -1325,8 +1312,8 @@ class UrtextProject:
         return function(*args, **kwargs)
 
     def _run_hook(self, hook_name, *args):
-        for ext in self.extensions.values():
-            hook = getattr(ext, hook_name, None)
+        for dd in self.dynamic_definitions.values():
+            hook = getattr(dd, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
 
@@ -1334,16 +1321,15 @@ class UrtextProject:
 
     def _compile(self, 
         num_directives,
-        num_extensions,
         events=['-project_compiled']):
         
         self._add_all_sub_tags()
         for file in list([f for f in self.files if not self.files[f].has_errors]):
             self._compile_file(file, events=events)
         self._add_all_sub_tags()
-        if len(self.extensions) > num_extensions or len(self.directives) > num_directives:
+        if len(self.directives) > num_directives:
             self._parse_all_files()
-            return self._compile(len(self.directives), len(self.extensions))
+            return self._compile(len(self.directives))
         return self._after_compile()
 
     def _after_compile(self):
@@ -1545,11 +1531,9 @@ class UrtextProject:
         for n in Directive.name:
             self.directives[n] = Directive
 
-    def add_extension(self, extension, folder=None):
-        class Extension(extension, UrtextExtension):
-            pass
-        for n in Extension.name:
-            self.extensions[n] = Extension(self)
+    def run_directive(self, directive, *args, **kwargs):
+        op = self.directives[directive](self)
+        op.run(*args, **kwargs)
 
     def setting_to_boolean(self, setting):
         if setting in self.settings:

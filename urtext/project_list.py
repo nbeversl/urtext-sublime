@@ -29,7 +29,6 @@ class ProjectList():
         self.entry_point = entry_point.strip()
         self.projects = []
         self.entry_points = []
-        self.extensions = {}
         self.current_project = None
         self.initialize_project(self.entry_point)
 
@@ -321,12 +320,6 @@ class ProjectList():
         if method_name in self.editor_methods:
             return self.editor_methods[method_name](*args, **kwargs)
         print('No editor method available for "%s"' % method_name)
-        return False
-
-    def can_use_extension(self, feature_name):
-        if self.current_project and feature_name in self.current_project.extensions:
-            return True
-        print('%s not available' % feature_name)
         return False
 
     def handle_message(self, message):

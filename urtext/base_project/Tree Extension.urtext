@@ -8,7 +8,6 @@ class UrtextAnyTree:
 
     def on_buffer_added(self, buffer):
         for node in buffer.nodes:
-            print('ADDING TREE NODE')
             node.tree_node = self.Node(node.id)
             node.tree_node.position = self.project.nodes[node.id].start_position
         self.project.files[buffer.filename].alias_nodes = []
@@ -66,6 +65,6 @@ class UrtextAnyTree:
                     next_node=node_to_tag, 
                     visited_nodes=visited_nodes)
 
-ThisProject.add_extension(UrtextAnyTree)
+ThisProject.add_directive(UrtextAnyTree)
 
 %%

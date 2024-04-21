@@ -6,7 +6,6 @@ from urtext.file import UrtextFile, UrtextBuffer
 from urtext.node import UrtextNode
 from urtext.timestamp import UrtextTimestamp
 from urtext.directive import UrtextDirective
-from urtext.extension import UrtextExtension
 import urtext.syntax as syntax
 
 python_code_regex = re.compile(r'(%%Python)(.*?)(%%)', re.DOTALL)
@@ -31,7 +30,6 @@ class Exec:
 					'UrtextNode' : UrtextNode,
 					'UrtextTimestamp' : UrtextTimestamp,
 					'UrtextDirective': UrtextDirective,
-					'UrtextExtension' : UrtextExtension,
 					'UrtextSyntax': syntax
 					}
 				try:
