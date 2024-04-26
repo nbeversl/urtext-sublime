@@ -1,5 +1,7 @@
 Limit Directive _
 
+Limits the output to the specified numbers of nodes.
+To limit the output by lines instead see | Max Length Directive >
 
 %%Python
 

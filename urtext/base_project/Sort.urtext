@@ -1,5 +1,7 @@
 Sort Directive _
 
+Sorts included nodes by the parameters provided.
+
 %%Python
 
 class Sort:

@@ -1,4 +1,6 @@
-Collect Directive _ 
+Collect _ 
+
+Collects the specified metadata entries from included and outputs them as text using the parameters provided
 
 %%Python
 

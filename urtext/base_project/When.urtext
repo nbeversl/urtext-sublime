@@ -1,4 +1,6 @@
-When Directive _
+When _
+
+Provides logic to determine whether an execution should continue, using flags.
 
 %%Python
 class When:

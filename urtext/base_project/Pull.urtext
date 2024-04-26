@@ -1,5 +1,8 @@
 Pull _
 
+Pulls a node into another node from a pointer.
+See also | Pop >
+
 %%Python
  
 class PullNode:

@@ -1,77 +1,64 @@
 
-Load feautres _
+Home _
 
-{ results _
-
-| Interlinks >
-| Format Directive >
-| Files Directive >
-| Log Directive >
-| Tree Extension >
-| Sort Directive >
-| Request >
-| Navigation Extension >
-| Limit Directive >
-| Load feautres >
-| Max Length Directive >
-| Collect Directive >
-| Pull and Pop Extension >
-| When Directive >
-| Reindex Extension >
-| Show Directive >
-| Tree Directive >
-| Text Directive >
-| Include and Exclude Directives >
-| Export Directive >
-| Stats >
-}
+The base project includes all the core Urtext directives as nodes that can be executed. 
+The dynamic definition below executes them in order. Each node will include documentation on the feature it adds.
 
 [[ 	
-
-EXEC(| Tree Extension >)
-EXEC(| Tree Directive >)
+EXEC(| Tree Manager >)
+EXEC(| Tree >)
 EXEC(| Sort Directive >) 
 EXEC(| Text Directive >) 
 EXEC(| Max Length Directive >)
 EXEC(| Include and Exclude Directives >)
 EXEC(| Limit Directive >)
-EXEC(| Reindex Extension >)
-EXEC(| Files Directive >)
+EXEC(| Reindex >)
+EXEC(| Files >)
 EXEC(| Navigation Extension >)
-EXEC(| Log Directive >)
-EXEC(| Collect Directive >)
-EXEC(| When Directive >)
+EXEC(| Log >)
+EXEC(| Collect >)
+EXEC(| Pull >)
+EXEC(| Pop >)
+EXEC(| When >)
 LOG()
->(| results 2 >)
 +(*)
 TREE()
+SORT(title)
+TEXT(completed!)
 >(| results >)
-	
 ]]
 
+{ results _
 
-
-{ results 2 _
-
-| Interlinks >
-| Format Directive >
-| Files Directive >
-| Log Directive >
-| Tree Extension >
 | Sort Directive >
-| Request >
-| Navigation Extension >
-| Limit Directive >
-| Load feautres >
-| Max Length Directive >
-| Collect Directive >
-| Pull and Pop Extension >
-| When Directive >
-| Reindex Extension >
-| Show Directive >
-| Tree Directive >
-| Text Directive >
-| Include and Exclude Directives >
 | Export Directive >
+| Reindex >
+| Format Directive >
+| Home >
+| Files >
+| Text Directive >
 | Stats >
+| When >
+| Log >
+| Limit Directive >
+| Tree >
+| Log Output >
+| Pull >
+| Show Directive >
+| Collect >
+| Max Length Directive >
+| Interlinks >
+| project_settings >
+| Tree Manager >
+| Navigation Extension >
+| Include and Exclude Directives >
+| Pop >
+| Request >
+completed!
 }
+
+
+{ Log Output _
+
+
+[[>(@self) LOG()]]}

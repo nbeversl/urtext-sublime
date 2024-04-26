@@ -1,6 +1,6 @@
-Reindex Extension _
+Reindex _
 
-
+Renames files individually or all at once, by the parameters provided.
 
 %%Python
 
@@ -129,7 +129,7 @@ class RenameSingleFile(ReindexFiles):
                 0)
 
 
-ThisProject.add_extension(ReindexFiles)
-ThisProject.add_extension(RenameSingleFile)
+ThisProject.add_directive(ReindexFiles)
+ThisProject.add_directive(RenameSingleFile)
 
 %%

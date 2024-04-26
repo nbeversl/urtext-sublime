@@ -16,6 +16,8 @@ class UrtextDirective:
     RenderTree = RenderTree
     PreOrderIter = PreOrderIter
     UrtextTimestamp = UrtextTimestamp
+    single_global_instance = False
+    from_project_list = False
     
     def __init__(self, project):
         self.keys_with_flags = []

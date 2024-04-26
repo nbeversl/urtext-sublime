@@ -1,7 +1,7 @@
 import re
 import sys
 from io import StringIO
-from urtext.utils import force_list, get_id_from_link
+from urtext.utils import force_list, get_id_from_link, make_node_link
 from urtext.file import UrtextFile, UrtextBuffer
 from urtext.node import UrtextNode
 from urtext.timestamp import UrtextTimestamp
@@ -47,4 +47,6 @@ class Exec:
 						str(e),
 						'\n'
 						])
-		return text_contents + '(no Python code found)'
+			else:
+				return text_contents +  make_node_link(node_to_exec) + ' : no Python code found\n'
+		return text_contents +  make_node_link(node_to_exec) + ' : not found\n'

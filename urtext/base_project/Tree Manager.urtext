@@ -1,10 +1,13 @@
-Tree Extension _
+Tree Manager _
+
+Adds the functionality of anytree (https://anytree.readthedocs.io/en/latest/) as a core feature of Urtext. Each Urtext node is assigned an anytree node. Urtext Pointers are created by making a new anytree node that duplicates the name of the target node.
 
 %%Python 
 
 class UrtextAnyTree:
 
     name = ["TREE_EXTENSION"]
+    single_global_instance = True
 
     def on_buffer_added(self, buffer):
         for node in buffer.nodes:

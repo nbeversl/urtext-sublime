@@ -1,5 +1,7 @@
 Text Directive _
 
+Outputs the text provided.
+
 %%Python
 class UrtextText:
 

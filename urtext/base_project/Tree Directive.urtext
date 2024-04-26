@@ -1,4 +1,6 @@
-Tree Directive _
+Tree _
+
+Outputs an "anytree" tree of the included nodes. (https://anytree.readthedocs.io/en/latest/)
 
 %%Python 
 

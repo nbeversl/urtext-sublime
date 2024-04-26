@@ -45,6 +45,7 @@ class UrtextProject:
         self.dynamic_metadata_entries = []
         self.project_settings_nodes = {}
         self.directives = {}
+        self.global_directives = []
         self.compiled = False
         self.excluded_files = []
         self.home_requested = False
@@ -1316,6 +1317,10 @@ class UrtextProject:
             hook = getattr(dd, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
+        for directive in self.global_directives:
+            hook = getattr(directive, hook_name, None)
+            if hook and callable(hook):
+                hook(*args)
 
     """ Project Compile """
 
@@ -1478,9 +1483,9 @@ class UrtextProject:
                 if action == 'open_home':
                     if self.open_home():
                         return
-                if action == 'open_last_nav' and 'NAVIGATION' in self.extensions:
-                    self.extensions['NAVIGATION'].reverse()
-                    return
+        # if action == 'open_last_nav' and 'NAVIGATION' in self.extensions:
+        #     self.extensions['NAVIGATION'].reverse()
+        #     return
 
     def has_folder(self, folder):
         return folder in self.settings['paths']
@@ -1530,6 +1535,9 @@ class UrtextProject:
             pass
         for n in Directive.name:
             self.directives[n] = Directive
+        if Directive.single_global_instance:
+            self.global_directives.append(Directive(self))
+
 
     def run_directive(self, directive, *args, **kwargs):
         op = self.directives[directive](self)

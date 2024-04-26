@@ -27,6 +27,7 @@ class ProjectList():
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
+        self.directives = {}
         self.projects = []
         self.entry_points = []
         self.current_project = None
@@ -326,3 +327,7 @@ class ProjectList():
         self.run_editor_method('popup', message)
         print(message)
 
+    def add_directive(self, directive):
+        for n in directive.name:
+            self.directives[n] = directive
+        return self.directives[n]

@@ -1,5 +1,8 @@
 Pop  _
 
+Pops a node from a file and leaves a pointer in its place.
+See also | Pull >
+
 %%Python
 
 class PopNode:

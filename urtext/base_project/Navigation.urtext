@@ -1,21 +1,22 @@
-Navigation Extension
+Navigation Extension _
+
+Provides the global navigation features (next node, previous node) and tracks visited nodes.
 
 %%Python
 
 class Navigation:
 
 	name = ["NAVIGATION"]
+	single_global_instance = True
+	from_project_list = True
 
 	def __init__(self, project):
 		super().__init__(project)
 		self.project_list = project.project_list
-		if 'NAVIGATION' not in project.project_list.extensions:
-			project.project_list.extensions['NAVIGATION'] = self
-			self.project_list_instance = project.project_list.extensions['NAVIGATION']
-			self.project_list_instance.navigation = []
-			self.project_list_instance.nav_index = -1
-			self.project_list_instance.triggered_node_visit = False
-		self.project_list_instance = project.project_list.extensions['NAVIGATION']
+		self.project_list_instance = project.project_list.add_directive(self)
+		self.project_list_instance.navigation = []
+		self.project_list_instance.nav_index = -1
+		self.project_list_instance.triggered_node_visit = False
 
 	def forward(self):
 
@@ -93,5 +94,5 @@ class Navigation:
 				old_nav_id == old_id):
 					self.project_list_instance.navigation[index] = (project, node.id)
 
-ThisProject.add_extension(Navigation)
+ThisProject.add_directive(Navigation)
 %%

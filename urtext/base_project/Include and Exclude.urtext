@@ -1,5 +1,10 @@
 Include and Exclude Directives _ 
 
+INCLUDE/+: Adds nodes to the current definition
+EXCLUDE/-: Removes nodes to the current definition
+
+NodeQuery is a base class that provides the main query logic inherited by both and should not be used directly.
+
 %%Python 
 
 class NodeQuery:
