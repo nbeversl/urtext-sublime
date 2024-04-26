@@ -427,7 +427,7 @@ class NodeBrowserCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         if not self._UrtextProjectList.current_project:
-            return print('NO project current')
+            return print('No current Urtext project')
         self.window = self.view.window()
         self.menu = NodeBrowserMenu(
             self._UrtextProjectList, 

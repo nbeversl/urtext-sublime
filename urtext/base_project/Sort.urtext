@@ -58,13 +58,9 @@ class Sort:
 		use_timestamp=False
 		if ext == 'timestamp':
 			use_timestamp= True
-		value = node.metadata.get_first_value(
-			k,
-			order_by=order_by,
-			use_timestamp=use_timestamp)
-		
+		value = node.metadata.get_first_value(k, order_by=order_by)
 		if use_timestamp:
-			value = value.datetime
+			value = value.timestamp
 		if isinstance(value, str):
 			value = value.lower()			
 		t.append(value)

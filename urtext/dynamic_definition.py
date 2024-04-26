@@ -1,7 +1,6 @@
 import datetime
 from urtext.utils import force_list, get_id_from_link
 import urtext.syntax as syntax
-from urtext.timestamp import UrtextTimestamp
 
 class UrtextDynamicDefinition:
 

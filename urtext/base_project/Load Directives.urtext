@@ -22,7 +22,7 @@ EXEC(| When >)
 LOG()
 +(*)
 SORT(title)
-TREE()
+TREE(*)
 
 TEXT(completed!)
 >(| results >)
@@ -35,6 +35,7 @@ TEXT(completed!)
 | Files >
 | Format Directive >
 | Home >
+  └── | Log Output >
 | Include and Exclude >
 | Interlinks >
 | Limit >
@@ -62,3 +63,5 @@ completed!
 
 
 [[>(@self) LOG()]]}
+
+index::1

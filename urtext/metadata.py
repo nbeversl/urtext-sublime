@@ -190,7 +190,6 @@ class NodeMetadata:
     def get_first_value(self, 
         keyname,
         order_by='default',
-        use_timestamp=False,
         convert_nodes_to_links=False):
 
         values = self.get_values(
@@ -199,15 +198,7 @@ class NodeMetadata:
             convert_nodes_to_links=convert_nodes_to_links)
 
         if values:
-            value = values[0]
-
-            if use_timestamp or keyname in self.project.settings['use_timestamp']:
-                return value.timestamp if value.timestamp else default_date
-
-            if keyname in self.project.settings['numerical_keys']:
-                return value.num()
- 
-            return value
+            return values[0]
 
     def get_values_with_frequency(self, 
         keyname,
@@ -293,9 +284,9 @@ class NodeMetadata:
         Returns the timestamp of the FIRST matching metadata entry with the given key.
         #TODO possibly remove
         """
-        timestamp = self.get_first_value(keyname, use_timestamp=True)
-        if timestamp:
-            return timestamp.datetime
+        value = self.get_first_value(keyname)
+        if value:
+            return value.timestamp
         return default_date
       
     def clear_from_source(self, source_node):
@@ -313,7 +304,9 @@ class NodeMetadata:
             del self.entries_dict['#']
 
     def get_oldest_timestamp(self):
-        return self.get_first_value('_oldest_timestamp')
+        value = self.get_first_value('_oldest_timestamp')
+        if value:
+            return value.timestamp
 
     def convert_node_links(self):
         for entry in self.entries():

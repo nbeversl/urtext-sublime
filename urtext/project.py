@@ -756,25 +756,25 @@ class UrtextProject:
         sorted_nodes = []
         for k in keys:
             use_timestamp = k in self.settings['use_timestamp']
-            node_group = [
-                r for r in remaining_nodes if r.metadata.get_first_value(
-                    k,
-                    use_timestamp=use_timestamp) != None]
+            node_group = [r for r in remaining_nodes if r.metadata.get_first_value(k) != None]
             if node_group:
-                node_group = sorted(
-                    node_group,
-                    key=lambda node: node.metadata.get_first_value(
-                        k,
-                        use_timestamp=use_timestamp),
-                    reverse=use_timestamp)
+                if use_timestamp:
+                    node_group = sorted(
+                        node_group,
+                        key=lambda node: node.metadata.get_first_value(k).timestamp if node.metadata.get_first_value(k) else None,
+                        reverse=True)
+                else:
+                    node_group = sorted(
+                        node_group,
+                        key=lambda node: node.metadata.get_first_value(k))
                 for node in node_group:
-                    detail = node.metadata.get_first_value(
-                        k,
-                        use_timestamp=use_timestamp)
-                    if use_timestamp:
-                        node.display_detail = detail.wrapped_string
+                    detail = node.metadata.get_first_value(k)
+                    if use_timestamp and detail.timestamp:
+                        node.display_detail = detail.timestamp.wrapped_string
+                    elif use_timestamp:
+                        node.display_detail = '(no timestamp)'
                     else:
-                        node.display_detail = k+'::'+str(detail)
+                        node.display_detail = k+'::' + detail.text
                 sorted_nodes.extend(node_group)
         sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])  
         if not as_nodes:
@@ -915,14 +915,11 @@ class UrtextProject:
             if entry.keyname == 'paths' and entry.is_node:
                 node = entry.meta_values[0]
                 path = utils.get_path_from_link(node.metadata.get_first_value('path').text)
-                recurse = node.metadata.get_first_value('recurse_subfolders')
-                should_recurse = False
-                if recurse:
-                    should_recurse = recurse.true()
+                recurse = node.metadata.get_first_value('recurse_subfolders').true()
                 if path and self._approve_path(path):
                     self.settings['paths'].append({
                         'path': path,
-                        'recurse_subfolders': should_recurse
+                        'recurse_subfolders': recurse
                     })
                 continue
 
@@ -1530,14 +1527,15 @@ class UrtextProject:
         print('No editor method available for "%s"' % method_name)
         return False
     
-    def add_directive(self, directive, folder=None):
+    def add_directive(self, directive, propagate=False):
         class Directive(directive, UrtextDirective):
             pass
         for n in Directive.name:
             self.directives[n] = Directive
         if Directive.single_global_instance:
             self.global_directives.append(Directive(self))
-
+        if propagate:
+            self.project_list.add_directive(Directive)
 
     def run_directive(self, directive, *args, **kwargs):
         op = self.directives[directive](self)
