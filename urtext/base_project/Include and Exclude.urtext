@@ -1,4 +1,4 @@
-Include and Exclude Directives _ 
+Include and Exclude _ 
 
 INCLUDE/+: Adds nodes to the current definition
 EXCLUDE/-: Removes nodes to the current definition

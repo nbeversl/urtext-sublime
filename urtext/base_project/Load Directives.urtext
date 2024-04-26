@@ -1,4 +1,3 @@
-
 Home _
 
 The base project includes all the core Urtext directives as nodes that can be executed. 
@@ -7,14 +6,14 @@ The dynamic definition below executes them in order. Each node will include docu
 [[ 	
 EXEC(| Tree Manager >)
 EXEC(| Tree >)
-EXEC(| Sort Directive >) 
-EXEC(| Text Directive >) 
-EXEC(| Max Length Directive >)
-EXEC(| Include and Exclude Directives >)
-EXEC(| Limit Directive >)
+EXEC(| Sort >) 
+EXEC(| Text >) 
+EXEC(| Max Length >)
+EXEC(| Include and Exclude >)
+EXEC(| Limit >)
 EXEC(| Reindex >)
 EXEC(| Files >)
-EXEC(| Navigation Extension >)
+EXEC(| Navigation >)
 EXEC(| Log >)
 EXEC(| Collect >)
 EXEC(| Pull >)
@@ -22,38 +21,39 @@ EXEC(| Pop >)
 EXEC(| When >)
 LOG()
 +(*)
-TREE()
 SORT(title)
+TREE()
+
 TEXT(completed!)
 >(| results >)
 ]]
 
 { results _
 
-| Sort Directive >
+| Collect >
 | Export Directive >
-| Reindex >
+| Files >
 | Format Directive >
 | Home >
-| Files >
-| Text Directive >
-| Stats >
-| When >
-| Log >
-| Limit Directive >
-| Tree >
-| Log Output >
-| Pull >
-| Show Directive >
-| Collect >
-| Max Length Directive >
+| Include and Exclude >
 | Interlinks >
-| project_settings >
-| Tree Manager >
-| Navigation Extension >
-| Include and Exclude Directives >
+| Limit >
+| Log >
+| Log Output >
+| Max Length >
+| Navigation >
 | Pop >
+| Pull >
+| Reindex >
 | Request >
+| Show Directive >
+| Sort >
+| Stats >
+| Text >
+| Tree >
+| Tree Manager >
+| When >
+| project_settings >
 completed!
 }
 

@@ -1,4 +1,4 @@
-Sort Directive _
+Sort _
 
 Sorts included nodes by the parameters provided.
 
@@ -38,7 +38,9 @@ class Sort:
 					)
 				nodes = [n for n in nodes if n not in group_to_sort]
 			sorted_nodes.extend(nodes)
+
 			self.dynamic_definition.included_nodes = sorted_nodes
+
 
 	def sort_values(self, 
 		node, 
