@@ -53,7 +53,7 @@ class UrtextProject:
         self.new_file_node_created = new_file_node_created
     
     def initialize(self, callback=None):
-        return self.execute(self._initialize, callback=callback)        
+        return self.execute(self._initialize, callback=callback)
 
     def get_setting(self, setting, as_type='text'):
         settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
@@ -62,6 +62,8 @@ class UrtextProject:
             values = n.metadata.get_values(setting)
             if values:
                 values.extend(values)
+        if not values:
+            return self.project_list.get_setting(setting, self, as_type=as_type)
         if setting in ['boolean_settings', 'single_values_settings']:
             return [v.text for v in values]
         if setting in self.get_setting('boolean_settings'):
@@ -77,10 +79,16 @@ class UrtextProject:
 
     def get_settings_keys(self):
         keys = []
-        settings_nodes = [n for n in self.nodes if n.title == 'project_settings']
+        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
         for n in settings_nodes:
             keys.extend(n.metadata.get_keys())
         return keys
+
+    def get_propagated_settings(self):
+        propagated_settings = self.get_setting('propagate_settings')
+        if '_all' in propagated_settings:
+            return self.get_settings_keys()
+        return propagated_settings
 
     def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)

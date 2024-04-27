@@ -16,6 +16,7 @@ class ProjectList():
     def __init__(self, 
         entry_point,
         is_async=True,
+        base_project=os.path.join(os.path.dirname(__file__), './base_project'),
         urtext_location=None,
         editor_methods=None):
 
@@ -31,6 +32,8 @@ class ProjectList():
         self.projects = []
         self.entry_points = []
         self.current_project = None
+        if base_project:
+            self.initialize_project(base_project)
         self.initialize_project(self.entry_point)
 
     def initialize_project(self, entry_point, new_file_node_created=False):
@@ -58,6 +61,12 @@ class ProjectList():
                 return
         project.compile()
         self.projects.append(project)
+
+    def get_setting(self, setting, calling_project, as_type='text'):
+        for project in [p for p in self.projects if p != calling_project]:
+            if setting in project.get_propagated_settings():
+                return project.get_setting(setting)
+        return []
 
     def parse_link(self, string, filename, col_pos=0, include_http=True):
         return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
