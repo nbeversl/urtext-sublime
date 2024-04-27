@@ -107,6 +107,11 @@ def replace(filename='', start=0, end=0, replacement_text=''):
             })
 
 def open_external_file(filepath):
+    if _UrtextProjectList and _UrtextProjectList.current_project:
+        open_in_sublime = _UrtextProjectList.current_project.get_setting('open_in_sublime')
+        ext = os.path.splitext(filepath)[1]
+        if ext.strip('.') in [e.strip('.') for e in open_in_sublime]:
+            return open_file_in_editor(filepath)
     if sublime.platform() == "osx":
         subprocess.Popen(('open', filepath))
     elif sublime.platform() == "windows":
