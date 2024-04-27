@@ -55,25 +55,36 @@ class UrtextProject:
     def initialize(self, callback=None):
         return self.execute(self._initialize, callback=callback)
 
-    def get_setting(self, setting, as_type='text'):
-        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
+    def get_setting(self, setting, as_type='text', _from_project_list=False):
+
         values = []
+        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
         for n in settings_nodes:
             values = n.metadata.get_values(setting)
             if values:
                 values.extend(values)
-        if not values:
-            return self.project_list.get_setting(setting, self, as_type=as_type)
+        if not values and not _from_project_list:
+            values = self.project_list.get_setting(setting, self, as_type=as_type)
+            if values:
+                return values
         if setting in ['boolean_settings', 'single_values_settings']:
             return [v.text for v in values]
-        if setting in self.get_setting('boolean_settings'):
+        if setting in self.get_setting(
+            'boolean_settings',
+            _from_project_list=_from_project_list):
             return [v.true() for v in values]
-        if as_type == 'text':
-            values = [v.text for v in values]
-        if setting != 'integer_settings' and (setting in self.get_setting('integer_settings') or
+
+        if setting != 'integer_settings' and (setting in self.get_setting(
+            'integer_settings',
+            _from_project_list=_from_project_list
+            ) or
             as_type == 'num'):
             values = [v.num() for v in values]
-        if setting in self.get_setting('single_values_settings'):
+        if as_type == 'text':
+            values = [v.text for v in values]
+        if setting in self.get_setting(
+            'single_values_settings',
+            _from_project_list=_from_project_list):
             return values[0]
         return values
 
@@ -84,8 +95,8 @@ class UrtextProject:
             keys.extend(n.metadata.get_keys())
         return keys
 
-    def get_propagated_settings(self):
-        propagated_settings = self.get_setting('propagate_settings')
+    def get_propagated_settings(self, _from_project_list=False):
+        propagated_settings = self.get_setting('propagate_settings', _from_project_list=_from_project_list)
         if '_all' in propagated_settings:
             return self.get_settings_keys()
         return propagated_settings

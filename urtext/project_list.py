@@ -63,9 +63,11 @@ class ProjectList():
         self.projects.append(project)
 
     def get_setting(self, setting, calling_project, as_type='text'):
-        for project in [p for p in self.projects if p != calling_project]:
-            if setting in project.get_propagated_settings():
-                return project.get_setting(setting)
+        for project in [p for p in self.projects if p.entry_point != calling_project.entry_point]:
+            if setting in project.get_propagated_settings(_from_project_list=True):
+                values = project.get_setting(setting, _from_project_list=True)
+                if values:
+                    return values
         return []
 
     def parse_link(self, string, filename, col_pos=0, include_http=True):
