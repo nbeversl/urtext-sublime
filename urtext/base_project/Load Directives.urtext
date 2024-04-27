@@ -19,6 +19,8 @@ EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
 EXEC(| When >)
+EXEC(| Show >)
+
 +(*)
 SORT(title)
 TREE(*)
@@ -45,7 +47,7 @@ TEXT(\ncompleted!)
 | Pull >
 | Reindex >
 | Request >
-| Show Directive >
+| Show >
 | Sort >
 | Stats >
 | Text >

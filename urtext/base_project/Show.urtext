@@ -1,4 +1,4 @@
-Show Directive _
+Show _
 
 %%Python
 class Show:
@@ -8,5 +8,5 @@ class Show:
 	def dynamic_output(self, text_contents):
 		self.dynamic_definition.show = self.argument_string
 
-ThisProject.add_directive(show)
+ThisProject.add_directive(Show)
 %%

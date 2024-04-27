@@ -104,6 +104,8 @@ class UrtextProject:
     def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self.add_directive(Exec)
+        for directive in self.project_list.directives.values():
+            self.add_directive(directive)
         num_file_extensions = len(self.get_setting('file_extensions'))
         num_paths = len(self._get_included_paths())
         if os.path.exists(self.entry_point):
@@ -1459,20 +1461,20 @@ class UrtextProject:
         print('No editor method available for "%s"' % method_name)
         return False
     
-    def add_directive(self, directive, propagate=False):
-        class Directive(directive, UrtextDirective):
-            pass
-        if Directive.single_global_instance:
-            self.global_directives.append(Directive(self))
+    def add_directive(self, directive):
         propagated_directives = self.get_setting('propagate_directives')
         propagate_all_directives = '_all' in propagated_directives
+        for n in directive.name:
+            print(n)
+            if n in propagated_directives or propagate_all_directives:
+                self.project_list.add_directive(directive)
+        print(directive)
+        class Directive(directive, UrtextDirective):
+            pass
         for n in Directive.name:
-            self.directives[n] = Directive
-            if propagate_all_directives:
-                self.project_list.add_directive(Directive) 
-                continue
-            if directive.name in propagated_directives:
-                self.project_list.add_directive(Directive)
+            self.directives[n] = Directive            
+        if Directive.single_global_instance:
+            self.global_directives.append(Directive(self))
 
     def get_directive(self, directive):
         if directive in self.directives:

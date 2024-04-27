@@ -97,10 +97,11 @@ class TreeDirective:
 
                 next_content.pointer = urtext_node.pointer()
 
-                if self.project.get_setting('node_date_keyname') and self.project.get_setting('timestamp_format'):
-                    next_content.date = urtext_node.get_date(
-                        self.project.get_setting('node_date_keyname')).strftime(
-                                self.project.get_setting('timestamp_format'))
+                # TODO rewrite
+                # if self.project.get_setting('node_date_keyname') and self.project.get_setting('timestamp_format'):
+                #     next_content.date = urtext_node.get_date(
+                #         self.project.get_setting('node_date_keyname')).strftime(
+                #                 self.project.get_setting('timestamp_format'))
 
                 next_content.meta = urtext_node.consolidate_metadata(separator=':')
 
