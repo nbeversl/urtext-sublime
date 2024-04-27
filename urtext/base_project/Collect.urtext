@@ -31,7 +31,7 @@ class Collect:
 		found_stuff = []
 		for node in self.dynamic_definition.included_nodes:
 			for k in keys:
-				use_timestamp = k in self.project.settings['use_timestamp']
+				use_timestamp = k in self.project.get_setting('use_timestamp')
 				for v in keys[k]:
 					if v == '*':
 						entries = node.metadata.get_entries(k)
@@ -110,7 +110,7 @@ class Collect:
 
 			for item in sorted_stuff:
 
-				next_content = self.DynamicOutput(m_format, self.project.settings)
+				next_content = self.DynamicOutput(m_format, self.project)
 				next_content.title = item['title']
 				next_content.entry = item['keyname'] + ' :: ' +  str(item['value'])
 				next_content.key = item['keyname']

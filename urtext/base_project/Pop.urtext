@@ -70,11 +70,11 @@ class PopNode:
         parent_id = self.project.nodes[popped_node_id].parent.id
         popped_node_is_compact = self.project.nodes[popped_node_id].compact
         
-        if self.project.settings['breadcrumb_key']:
+        if self.project.get_setting('breadcrumb_key'):
             if from_project:
                 popped_node_contents += ''.join([
                 '\n',
-                self.project.settings['breadcrumb_key'],
+                self.project.get_setting('breadcrumb_key'),
                 self.syntax.metadata_assignment_operator,
                 self.project.nodes[popped_node_id].link(include_project=True),
                 ' ',
@@ -82,7 +82,7 @@ class PopNode:
             else:
                 popped_node_contents += ''.join([
                     '\n',
-                    self.project.settings['breadcrumb_key'],
+                    self.project.get_setting('breadcrumb_key'),
                     self.syntax.metadata_assignment_operator,
                     self.project.nodes[popped_node_id].parent.link(),
                     ' ',

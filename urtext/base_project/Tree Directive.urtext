@@ -82,16 +82,14 @@ class TreeDirective:
 
                 indented_pre = '  ' + pre
 
-                next_content = self.DynamicOutput(
-                    self.dynamic_definition.show, 
-                    self.project.settings)
+                next_content = self.DynamicOutput(self.dynamic_definition.show, self.project)
 
                 next_content.title = urtext_node.title
                
                 link = []
                 #TODO refactor
-                if urtext_node.project.settings['project_title'] not in [self.project.settings['paths']] and urtext_node.project.settings['project_title'] != self.project.settings['project_title']:
-                    link.extend(['=>"', urtext_node.project.settings['project_title'],'"'])
+                if urtext_node.project.get_setting('project_title') not in [p['path'] for p in self.project.paths] and urtext_node.project.get_setting('project_title') != self.project.get_setting('project_title'):
+                    link.extend(['=>"', urtext_node.project.get_setting('project_title'),'"'])
                 else:
                     link.append(self.syntax.link_opening_wrapper)
                 link.append(urtext_node.id + self.syntax.link_closing_wrapper)
@@ -99,10 +97,10 @@ class TreeDirective:
 
                 next_content.pointer = urtext_node.pointer()
 
-                next_content.date = urtext_node.get_date(
-                    self.project.settings[
-                        'node_date_keyname']).strftime(
-                            self.project.settings['timestamp_format'])
+                if self.project.get_setting('node_date_keyname') and self.project.get_setting('timestamp_format'):
+                    next_content.date = urtext_node.get_date(
+                        self.project.get_setting('node_date_keyname')).strftime(
+                                self.project.get_setting('timestamp_format'))
 
                 next_content.meta = urtext_node.consolidate_metadata(separator=':')
 

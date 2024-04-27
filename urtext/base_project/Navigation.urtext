@@ -76,7 +76,7 @@ class Navigation:
 				del self.project_list_instance.navigation[
 					self.project_list_instance.nav_index:]
 				self.project_list_instance.navigation.append((
-					self.project_list.current_project.settings['project_title'],
+					self.project_list.current_project.get_setting('project_title'),
 					node_id))
 
 	def on_file_deleted(self, filename):
@@ -90,7 +90,7 @@ class Navigation:
 		for index, item in enumerate(self.project_list_instance.navigation):
 			project = item[0]
 			old_nav_id = item[1]
-			if project == self.project_list.current_project.settings['project_title'] and ( 
+			if project == self.project_list.current_project.get_setting('project_title') and ( 
 				old_nav_id == old_id):
 					self.project_list_instance.navigation[index] = (project, node.id)
 

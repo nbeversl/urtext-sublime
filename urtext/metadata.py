@@ -61,7 +61,7 @@ class NodeMetadata:
 
             keyname = '#'
             if self.project.compiled:
-                keyname = self.project.settings['hash_key']
+                keyname = self.project.get_setting('hash_key')
 
             self.add_entry(
                 keyname,
@@ -298,9 +298,9 @@ class NodeMetadata:
     def convert_hash_keys(self):
         if '#' in self.entries_dict:
             for entry in self.get_entries('#'):
-                entry.keyname = self.project.settings['hash_key']
-            self.entries_dict.setdefault(self.project.settings['hash_key'], [])                
-            self.entries_dict[self.project.settings['hash_key']].extend(self.entries_dict['#'])
+                entry.keyname = self.project.get_setting('hash_key')
+            self.entries_dict.setdefault(self.project.get_setting('hash_key'), [])                
+            self.entries_dict[self.project.get_setting('hash_key')].extend(self.entries_dict['#'])
             del self.entries_dict['#']
 
     def get_oldest_timestamp(self):
@@ -355,7 +355,7 @@ def get_extended_metadata(extended_keyname, node):
     for e in entries:
         for v in e.meta_values:
             if len(extended_keyname) == 1:
-                if extended_keyname[0] in node.project.settings['use_timestamp']:
+                if extended_keyname[0] in node.project.get_setting('use_timestamp'):
                     if v.timestamp:
                         values.add(v.timestamp.unwrapped_string)
                 elif v.is_node:

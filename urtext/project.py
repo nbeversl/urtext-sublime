@@ -28,11 +28,10 @@ class UrtextProject:
         editor_methods={},
         new_file_node_created=False):
 
-        self.settings = default_project_settings()
         self.project_list = project_list
         self.entry_point = entry_point
         self.entry_path = None
-        self.settings['project_title'] = self.entry_point # default
+        self.project_title = self.entry_point # default
         self.editor_methods = editor_methods
         self.is_async = None
         self.time = time.time()
@@ -40,6 +39,7 @@ class UrtextProject:
         self.nodes = {}
         self.files = {}
         self.messages = {}
+        self.paths = []
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
@@ -57,16 +57,43 @@ class UrtextProject:
     def initialize(self, callback=None):
         return self.execute(self._initialize, callback=callback)        
 
+    def get_setting(self, setting, as_type='text'):
+        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
+        values = []
+        for n in settings_nodes:
+            values = n.metadata.get_values(setting)
+            if values:
+                values.extend(values)
+        if setting in ['boolean_settings', 'single_values_settings']:
+            return [v.text for v in values]
+        if setting in self.get_setting('boolean_settings'):
+            return [v.true() for v in values]
+        if as_type == 'text':
+            values = [v.text for v in values]
+        if setting != 'integer_settings' and (setting in self.get_setting('integer_settings') or
+            as_type == 'num'):
+            values = [v.num() for v in values]
+        if setting in self.get_setting('single_values_settings'):
+            return values[0]
+        return values
+
+    def get_settings_keys(self):
+        keys = []
+        settings_nodes = [n for n in self.nodes if n.title == 'project_settings']
+        for n in settings_nodes:
+            keys.extend(n.metadata.get_keys())
+        return keys
+
     def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self.add_directive(Exec)     
-        num_file_extensions = len(self.settings['file_extensions'])
-        num_paths = len(self.settings['paths'])
+        num_file_extensions = len(self.get_setting('file_extensions'))
+        num_paths = len(self.paths)
 
         if os.path.exists(self.entry_point):
             if os.path.isdir(self.entry_point) and (
                 self._approve_path(self.entry_point) ):
-                    self.settings['paths'].append({
+                    self.paths.append({
                         'path' : self.entry_point,
                         'recurse' : False
                         })
@@ -79,9 +106,9 @@ class UrtextProject:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
-        while len(self.settings['paths']) > num_paths or len(self.settings['file_extensions']) > num_file_extensions:
-            num_paths = len(self.settings['paths'])
-            num_file_extensions = len(self.settings['file_extensions'])
+        while len(self.paths) > num_paths or (len(self.get_setting('file_extensions')) > num_file_extensions):
+            num_paths = len(self.paths)
+            num_file_extensions = len(self.get_setting('file_extensions'))
             for file in self._get_included_files():
                 if file not in self.files:
                     self._parse_file(file)
@@ -106,7 +133,7 @@ class UrtextProject:
         self.execute(self._compile, len(self.directives))
 
     def _approve_path(self, path):
-        if path in [entry['path'] for entry in self.settings['paths']]:
+        if path in [entry['path'] for entry in self.paths]:
             return False
         if path in self.project_list.get_all_paths():
             return False
@@ -468,7 +495,6 @@ class UrtextProject:
             self._remove_sub_tags(node.id)
             self._remove_dynamic_defs(node.id)
             self._remove_dynamic_metadata_entries(node.id)
-            self._clear_settings_from(node)
             del self.nodes[node.id]
 
     def delete_file(self, filename):
@@ -502,7 +528,7 @@ class UrtextProject:
     def _filter_filenames(self, filename):
         if filename in ['urtext_files','.git']:
             return None            
-        if filename in self.settings['exclude_files']:
+        if filename in self.get_setting('exclude_files'):
             return None
         return filename
     
@@ -517,7 +543,7 @@ class UrtextProject:
         contents_format = None
         if contents == None:
             contents_format = bytes(
-                self.settings['new_file_node_format'], 
+                self.get_setting('new_file_node_format'), 
                 "utf-8"
                 ).decode("unicode_escape")
 
@@ -624,13 +650,13 @@ class UrtextProject:
                     new_node_contents += ' ' 
         else:
             if one_line == None:
-                one_line = self.settings['always_oneline_meta']
+                one_line = self.get_setting('always_oneline_meta')
             
             if not metadata:
                 metadata = {}
 
-            if self.settings['device_keyname']:
-                metadata[self.settings['device_keyname']] = platform.node()
+            if self.get_setting('device_keyname'):
+                metadata[get_setting('device_keyname')] = platform.node()
 
             new_node_contents = contents
             new_node_contents += self.urtext_node.build_metadata(metadata, one_line=one_line)
@@ -718,7 +744,7 @@ class UrtextProject:
                     'Project compiled. No home node for this project')
                 return False
         self.home_requested = False
-        self.open_node(self.settings['home'])
+        self.open_node(self.get_setting('home'))
         return True
  
     def handle_info_message(self, message):
@@ -732,30 +758,30 @@ class UrtextProject:
             nodes = list(self.nodes.values())
         return self._sort_nodes(
             nodes,
-            self.settings['node_browser_sort'],
+            self.get_setting('node_browser_sort'),
             as_nodes=as_nodes)
 
     def has_meta_browser_key(self):
-        return 'meta_browser_key' in self.settings and self.settings['meta_browser_key']
+        return self.get_setting('meta_browser_key') != None
 
     def sort_for_meta_browser(self, nodes, as_nodes=False):
         if self.has_meta_browser_key():
             nodes = [n for n in nodes if n.metadata.get_first_value(
-                self.settings['meta_browser_key'])]
+                self.get_setting('meta_browser_key'))]
             return self._sort_nodes(
                 nodes,
-                [self.settings['meta_browser_key']],
+                [self.get_setting('meta_browser_key')],
                 as_nodes=as_nodes)
         return self._sort_nodes(
             nodes,
-            self.settings['meta_browser_sort'],
+            self.get_setting('meta_browser_sort'),
             as_nodes=as_nodes)
 
     def _sort_nodes(self, nodes, keys, as_nodes=False):
         remaining_nodes = nodes
         sorted_nodes = []
         for k in keys:
-            use_timestamp = k in self.settings['use_timestamp']
+            use_timestamp = k in self.get_setting('use_timestamp')
             node_group = [r for r in remaining_nodes if r.metadata.get_first_value(k) != None]
             if node_group:
                 if use_timestamp:
@@ -852,7 +878,7 @@ class UrtextProject:
         self.messages.setdefault(filename, [])
         if message not in self.messages[filename]:
             self.messages[filename].append(message)
-        if self.compiled and self.settings['console_log']:
+        if self.compiled and self.get_setting('console_log'):
             print(str(filename)+' : '+ message)
 
     def timestamp(self, date=None, as_string=False, add_seconds=False):
@@ -863,9 +889,9 @@ class UrtextProject:
             date = datetime.datetime.now(
                 datetime.timezone.utc
                 ).astimezone()
-        ts_format = self.settings['timestamp_format']
+        ts_format = self.get_setting('timestamp_format')
         if add_seconds:
-            if '%' in self.settings['timestamp_format'] and '%S' not in self.settings['timestamp_format']:
+            if '%' in self.get_setting('timestamp_format') and '%S' not in self.get_setting('timestamp_format'):
                 ts_format = ts_format.replace('%M', '%M:%S')
         if as_string:
             return ''.join([
@@ -879,37 +905,19 @@ class UrtextProject:
 
     def _get_settings_from(self, node):
 
-        self._clear_settings_from(node)
         self.project_settings_nodes[node] = {}
         replacements = {}
         for entry in node.metadata.entries():
-            if self.compiled and entry.keyname in evaluated_only_at_compile:
-                continue    
+
             if not entry.is_node:
                 #TODO this should not be necessary
                 self.project_settings_nodes[node] = {}
                 self.project_settings_nodes[node][entry.keyname] = entry.text_values()
 
-            if entry.keyname in replace_settings:
-                replacements[entry.keyname] = [e for e in entry.text_values()]
-                continue
-
-            if entry.keyname == 'numerical_keys':
-                self.settings['numerical_keys'].extend([ 
-                    e for e in entry.text_values() if e not in self.settings['numerical_keys']])
-                continue
-
-            if entry.keyname == 'file_extensions':
-                for value in entry.text_values():
-                    if value[0] != '.':
-                        value = '.' + value
-                    self.settings['file_extensions'] = ['.urtext'].append(value)
-                continue
-
             if entry.keyname == 'recurse_subfolders':
                 values = entry.text_values()
-                if values and self.settings['paths']:
-                    self.settings['paths'][0]['recurse_subfolders'] = to_boolean(values[0])
+                if values and self.get_setting('paths'):
+                    self.paths[0]['recurse_subfolders'] = to_boolean(values[0])
                 continue
 
             if entry.keyname == 'paths' and entry.is_node:
@@ -917,7 +925,7 @@ class UrtextProject:
                 path = utils.get_path_from_link(node.metadata.get_first_value('path').text)
                 recurse = node.metadata.get_first_value('recurse_subfolders').true()
                 if path and self._approve_path(path):
-                    self.settings['paths'].append({
+                    self.paths.append({
                         'path': path,
                         'recurse_subfolders': recurse
                     })
@@ -936,63 +944,6 @@ class UrtextProject:
                         self.nodes[node.id].filename)
                 continue
 
-            if entry.keyname in single_values_settings:
-                for v in entry.text_values():
-                    if entry.keyname in integers_settings:
-                        try:
-                            self.settings[entry.keyname] = int(v)
-                        except:
-                            self._log_item(
-                                entry.filename,
-                                'In dynamic definition, "' + v + '" is not an integer')
-                    else:
-                        self.settings[entry.keyname] = v
-                continue
-
-            if entry.keyname in single_boolean_values_settings:
-                values = entry.text_values()
-                if values:
-                    self.settings[entry.keyname] = to_boolean(values[0])
-                continue
-
-            if entry.keyname not in self.settings:
-                self.settings[str(entry.keyname)] = []
-                if entry.meta_values[0].is_node:
-                    self.settings[str(entry.keyname)] = entry.meta_values[0]
-                else:
-                    self.settings[str(entry.keyname)].extend(entry.text_values())
-                continue
-
-        for k in replacements.keys():
-            if k in single_values_settings:
-                self.settings[k] = replacements[k][0]
-            else:
-                self.settings[k] = replacements[k]
-
-    def _clear_settings_from(self, node):
-        if node in self.project_settings_nodes:
-            for setting in self.project_settings_nodes[node]:
-                if setting in not_cleared:
-                    continue
-                for value in self.project_settings_nodes[node][setting]:
-                    if not self._setting_is_elsewhere(
-                        setting,
-                        node) and ( 
-                        setting in self.settings):
-                            if setting in single_values_settings:
-                                del self.settings[setting]                     
-                            elif type(value) not in [str, int, float]:
-                                del self.settings[setting]
-                            elif isinstance(self.settings[setting], UrtextNode):
-                                del self.settings[setting]
-                            elif value in self.settings[setting]:
-                                self.settings[setting].remove(value)                        
-                            if (setting not in self.settings or 
-                                not self.settings[setting]) and (
-                                setting in default_project_settings().keys()):
-                                self.settings[setting] = default_project_settings()[setting]
-            del self.project_settings_nodes[node]
-
     def _setting_is_elsewhere(self, setting, omit_node):
         for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
             if setting in self.project_settings_nodes[node_id]:
@@ -1001,8 +952,8 @@ class UrtextProject:
         return False
 
     def get_home(self):
-        if self.settings['home'] in self.nodes:
-            return self.settings['home']
+        if self.get_setting('home') in self.nodes:
+            return self.get_setting('home')
 
     def get_all_meta_pairs(self):
         pairs = []
@@ -1010,7 +961,7 @@ class UrtextProject:
             for k in n.metadata.get_keys().keys():
                 values = n.metadata.get_values(k)
                 assigner = syntax.metadata_assignment_operator
-                if k == self.settings['hash_key']:
+                if k == self.get_setting('hash_key'):
                     k = '#'
                     assigner = ''                 
                 for v in values:
@@ -1099,7 +1050,7 @@ class UrtextProject:
 
     def _get_included_files(self):
         files = []
-        for path in self.settings['paths']:
+        for path in self.paths:
             files.extend([os.path.join(path['path'], f) for f in os.listdir(path['path'])])
             if 'recurse_subfolders' in path and path['recurse_subfolders']:
                 for dirpath, dirnames, filenames in os.walk(path['path']):
@@ -1111,7 +1062,9 @@ class UrtextProject:
     def _include_file(self, filename):
         if filename in self.excluded_files:
             return False
-        if os.path.splitext(filename)[1] not in self.settings['file_extensions']:
+        file_extensions = self.get_setting('file_extensions')
+        file_extensions.append('.urtext')
+        if os.path.splitext(filename)[1] not in file_extensions:
             return False
         return True
     
@@ -1147,8 +1100,8 @@ class UrtextProject:
 
     def get_keys_with_frequency(self):
         key_occurrences = {}
-        exclude = self.settings['exclude_from_star']
-        exclude.extend(self.settings.keys())
+        exclude = self.get_setting('exclude_from_star')
+        exclude.extend(self.get_all_settings.keys())
 
         for node in list(self.nodes.values()):
             node_keys = node.metadata.get_keys(exclude=exclude)
@@ -1162,7 +1115,7 @@ class UrtextProject:
         key_occurrences = self.get_keys_with_frequency()
         unique_keys = key_occurrences.keys()
 
-        if self.settings['meta_browser_sort_keys_by'] == 'frequency':
+        if self.get_setting('meta_browser_sort_keys_by') == 'frequency':
             return sorted(
                 unique_keys,
                 key=lambda key: key_occurrences[key],
@@ -1193,7 +1146,7 @@ class UrtextProject:
         """
         values_occurrences = self.get_all_values_for_key_with_frequency(key)
         values = values_occurrences.keys()
-        if self.settings['meta_browser_sort_values_by'] == 'frequency':
+        if self.get_setting('meta_browser_sort_values_by') == 'frequency':
             return sorted(
                 values,
                 key=lambda value: values_occurrences[value],
@@ -1265,7 +1218,7 @@ class UrtextProject:
                                 convert_nodes_to_links=True)])
                         continue
 
-                    if k in self.settings['numerical_keys']:
+                    if k in self.get_setting('numerical_keys'):
                         try:
                             value = float(value)
                         except ValueError:
@@ -1275,7 +1228,7 @@ class UrtextProject:
                     if isinstance(value, UrtextTimestamp):
                         use_timestamp = True
 
-                    if k in self.settings['case_sensitive']:
+                    if k in self.get_setting('case_sensitive'):
                         results.update([
                             n for n in self.nodes if 
                                 value in [
@@ -1339,8 +1292,8 @@ class UrtextProject:
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
-        self.handle_info_message('"%s" compiled' % self.settings['project_title'])
-        print('"%s" compiled' % self.settings['project_title'])
+        self.handle_info_message('"%s" compiled' % self.get_setting('project_title'))
+        print('"%s" compiled' % self.project_title)
 
     def _compile_file(self, filename, events=[]):
         modified_targets = []
@@ -1472,20 +1425,20 @@ class UrtextProject:
                  self.nodes[target_id].metadata.clear_from_source(source_node) 
 
     def title(self):
-        return self.settings['project_title'] 
+        title_setting = self.get_setting('project_title')
+        if title_setting:
+            return title_setting
+        return self.title
 
     def on_project_activated(self, path):
-        if 'on_project_activated' in self.settings:
-            for action in self.settings['on_project_activated']:
+        if self.get_setting('on_project_activated'):
+            for action in self.get_setting('on_project_activated'):
                 if action == 'open_home':
                     if self.open_home():
                         return
-        # if action == 'open_last_nav' and 'NAVIGATION' in self.extensions:
-        #     self.extensions['NAVIGATION'].reverse()
-        #     return
 
     def has_folder(self, folder):
-        return folder in self.settings['paths']
+        return folder in self.paths
 
     def _make_buffer(self, filename, buffer_contents):
         new_file = UrtextBuffer(self, filename, buffer_contents)
@@ -1540,12 +1493,6 @@ class UrtextProject:
     def run_directive(self, directive, *args, **kwargs):
         op = self.directives[directive](self)
         op.run(*args, **kwargs)
-
-    def setting_to_boolean(self, setting):
-        if setting in self.settings:
-            ## assumes single true/false values
-            return to_boolean(self.settings[setting][0])
-        return False
 
 """ 
 Helpers 

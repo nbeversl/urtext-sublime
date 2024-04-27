@@ -1,5 +1,5 @@
 import datetime
-from urtext.utils import force_list, get_id_from_link
+from urtext.utils import get_id_from_link
 import urtext.syntax as syntax
 
 class UrtextDynamicDefinition:
@@ -19,6 +19,7 @@ class UrtextDynamicDefinition:
 		self.param_string = param_string
 		self.system_contents = []
 		self.init_self(param_string)	
+		self.sorted = False
 		self.source_node = None # set by node once compiled
 		if not self.show:
 			self.show = '$_link\n'
