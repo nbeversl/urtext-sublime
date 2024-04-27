@@ -1,7 +1,7 @@
 Max Length _ 
 
 Specifies a maximum length for the output as a fixed number of lines.
-To limit the output by nodes instead, see | Limit Directive >
+To limit the output by nodes instead, see | Limit >
 
 %%Python
 

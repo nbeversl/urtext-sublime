@@ -44,6 +44,10 @@ class MetadataEntry:  # container for a single metadata entry
             return utils.make_node_link(self.meta_values[0].id)
         return [(v.text if not lower else v.text_lower, v.timestamp) for v in self.meta_values]
 
+    def as_node(self):
+        if self.is_node:
+            return self.meta_values[0]
+
     def log(self):
         print('key: %s' % self.keyname)
         print(self.start_position, self.end_position)

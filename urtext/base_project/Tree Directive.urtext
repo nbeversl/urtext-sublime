@@ -88,7 +88,7 @@ class TreeDirective:
                
                 link = []
                 #TODO refactor
-                if urtext_node.project.get_setting('project_title') not in [p['path'] for p in self.project.paths] and urtext_node.project.get_setting('project_title') != self.project.get_setting('project_title'):
+                if urtext_node.project.get_setting('project_title') not in self.project._get_included_paths() and urtext_node.project.get_setting('project_title') != self.project.get_setting('project_title'):
                     link.extend(['=>"', urtext_node.project.get_setting('project_title'),'"'])
                 else:
                     link.append(self.syntax.link_opening_wrapper)

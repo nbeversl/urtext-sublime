@@ -12,7 +12,6 @@ from urtext.node import UrtextNode
 from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
 from urtext.directive import UrtextDirective
 import urtext.syntax as syntax
-from urtext.project_settings import *
 import urtext.utils as utils
 from urtext.exec import Exec
 
@@ -39,7 +38,6 @@ class UrtextProject:
         self.nodes = {}
         self.files = {}
         self.messages = {}
-        self.paths = []
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
@@ -86,17 +84,12 @@ class UrtextProject:
 
     def _initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
-        self.add_directive(Exec)     
+        self.add_directive(Exec)
         num_file_extensions = len(self.get_setting('file_extensions'))
-        num_paths = len(self.paths)
-
+        num_paths = len(self._get_included_paths())
         if os.path.exists(self.entry_point):
             if os.path.isdir(self.entry_point) and (
-                self._approve_path(self.entry_point) ):
-                    self.paths.append({
-                        'path' : self.entry_point,
-                        'recurse' : False
-                        })
+                self._approve_new_path(self.entry_point) ):
                     self.entry_path = self.entry_point
                     for file in self._get_included_files():
                         self._parse_file(file)
@@ -106,8 +99,8 @@ class UrtextProject:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
-        while len(self.paths) > num_paths or (len(self.get_setting('file_extensions')) > num_file_extensions):
-            num_paths = len(self.paths)
+        while len(self._get_included_paths()) > num_paths or (len(self.get_setting('file_extensions')) > num_file_extensions):
+            num_paths = len(self._get_included_paths())
             num_file_extensions = len(self.get_setting('file_extensions'))
             for file in self._get_included_files():
                 if file not in self.files:
@@ -132,8 +125,8 @@ class UrtextProject:
     def compile(self):
         self.execute(self._compile, len(self.directives))
 
-    def _approve_path(self, path):
-        if path in [entry['path'] for entry in self.paths]:
+    def _approve_new_path(self, path):
+        if path in self._get_included_paths() and path != self.entry_point:
             return False
         if path in self.project_list.get_all_paths():
             return False
@@ -225,8 +218,6 @@ class UrtextProject:
             self.nodes[target_node].is_meta = True
 
         for node in buffer.nodes:            
-            if node.title == 'project_settings':
-                self._get_settings_from(node)     
 
             for dd in node.dynamic_definitions:
                 dd.source_node = node
@@ -903,53 +894,6 @@ class UrtextProject:
         return UrtextTimestamp(
             date.strftime(ts_format))
 
-    def _get_settings_from(self, node):
-
-        self.project_settings_nodes[node] = {}
-        replacements = {}
-        for entry in node.metadata.entries():
-
-            if not entry.is_node:
-                #TODO this should not be necessary
-                self.project_settings_nodes[node] = {}
-                self.project_settings_nodes[node][entry.keyname] = entry.text_values()
-
-            if entry.keyname == 'recurse_subfolders':
-                values = entry.text_values()
-                if values and self.get_setting('paths'):
-                    self.paths[0]['recurse_subfolders'] = to_boolean(values[0])
-                continue
-
-            if entry.keyname == 'paths' and entry.is_node:
-                node = entry.meta_values[0]
-                path = utils.get_path_from_link(node.metadata.get_first_value('path').text)
-                recurse = node.metadata.get_first_value('recurse_subfolders').true()
-                if path and self._approve_path(path):
-                    self.paths.append({
-                        'path': path,
-                        'recurse_subfolders': recurse
-                    })
-                continue
-
-            if entry.keyname == 'other_entry_points':
-                for v in entry.text_values():
-                    self.project_list.initialize_project(
-                        utils.get_path_from_link(v))
-                continue
-
-            if entry.keyname == 'features':
-                for v in entry.text_values():
-                    self._get_features_from_folder(
-                        utils.get_path_from_link(v),
-                        self.nodes[node.id].filename)
-                continue
-
-    def _setting_is_elsewhere(self, setting, omit_node):
-        for node_id in [n for n in self.project_settings_nodes if n != omit_node]:
-            if setting in self.project_settings_nodes[node_id]:
-                return True
-
-        return False
 
     def get_home(self):
         if self.get_setting('home') in self.nodes:
@@ -1050,20 +994,33 @@ class UrtextProject:
 
     def _get_included_files(self):
         files = []
-        for path in self.paths:
-            files.extend([os.path.join(path['path'], f) for f in os.listdir(path['path'])])
-            if 'recurse_subfolders' in path and path['recurse_subfolders']:
-                for dirpath, dirnames, filenames in os.walk(path['path']):
+        paths = self._get_included_paths()
+
+        for pathname in paths:
+            files.extend([os.path.join(pathname, f) for f in os.listdir(pathname)])
+        return [f for f in files if self._include_file(f)]
+
+    def _get_included_paths(self):
+        paths = []
+        if os.path.isdir(self.entry_point):
+            paths.append(self.entry_point)
+        for node in self.get_setting('paths'):
+            pathname = node.metadata.get_first_value('path')
+            if pathname:
+                paths.append(pathname)
+            recurse_subfolders = node.metadata.get_first_value('recurse_subfolders')
+            if recurse_subfolders:
+                for dirpath, dirnames, filenames in os.walk(pathname):
                     if '/.git' in dirpath or '/_diff' in dirpath:
                         continue
-                    files.extend([os.path.join(dirpath, f) for f in filenames])
-        return [f for f in files if self._include_file(f)]
+                    paths.append(dirpath)
+        return paths
 
     def _include_file(self, filename):
         if filename in self.excluded_files:
             return False
         file_extensions = self.get_setting('file_extensions')
-        file_extensions.append('.urtext')
+        file_extensions.append('.urtext') # for bootstrapping
         if os.path.splitext(filename)[1] not in file_extensions:
             return False
         return True
@@ -1438,7 +1395,10 @@ class UrtextProject:
                         return
 
     def has_folder(self, folder):
-        return folder in self.paths
+        included_paths = self._get_included_paths()
+        if os.path.isdir(self.entry_point):
+            included_paths.append(self.entry_point)
+        return included_paths
 
     def _make_buffer(self, filename, buffer_contents):
         new_file = UrtextBuffer(self, filename, buffer_contents)

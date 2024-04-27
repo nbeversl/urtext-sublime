@@ -50,11 +50,11 @@ class ProjectList():
             if project.entry_point in self.get_all_paths():
                 print('ENTRY POINT ALREADY IN A PROJECT:', project.entry_point)
                 return
-        if not project.paths:
+        if not project._get_included_paths() and not os.path.isdir(project.entry_point):
             print('NO PATHS')
             return
-        for path in project.paths:
-            if path['path'] in self.get_all_paths():
+        for path in project._get_included_paths():
+            if path in self.get_all_paths():
                 return
         project.compile()
         self.projects.append(project)
@@ -127,7 +127,7 @@ class ProjectList():
         if not os.path.isdir(path):
             path = os.path.dirname(path)
         for project in self.projects:
-            if path in [entry['path'] for entry in project.paths]:
+            if path in project._get_included_paths():
                 return project
 
     def _get_project_from_title(self, title):
@@ -151,7 +151,7 @@ class ProjectList():
             self.current_project.run_editor_method('popup',
                 'Switched to project: %s ' % self.current_project.title())
             self.current_project.on_project_activated(
-                self.current_project.paths[0]['path'])
+                self.current_project._get_included_paths()[0])
         return self.current_project
 
     def build_contextual_link(self, 
@@ -194,7 +194,7 @@ class ProjectList():
 
     def get_current_project(self, path):
         for project in self.projects:
-            if project.path in project.paths:
+            if project.path in project._get_included_paths():
                 return project
         return None
 
@@ -245,7 +245,7 @@ class ProjectList():
         moved_nodes = list(source_project.files[old_filename].nodes)        
         source_project._drop_file(old_filename)
         new_filename = os.path.join(
-            destination_project.paths[0]['path'],
+            destination_project._get_included_paths()[0],
             os.path.basename(old_filename))
         os.rename(old_filename, new_filename)
         """
@@ -273,7 +273,7 @@ class ProjectList():
     def get_all_paths(self):
         paths = []
         for p in self.projects:
-            paths.extend([path['path'] for path in p.paths])
+            paths.extend(p._get_included_paths())
         return paths
 
     def get_all_meta_pairs(self):

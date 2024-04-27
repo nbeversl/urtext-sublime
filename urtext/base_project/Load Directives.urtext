@@ -3,7 +3,7 @@ Home _
 The base project includes all the core Urtext directives as nodes that can be executed. 
 The dynamic definition below executes them in order. Each node will include documentation on the feature it adds.
 
-[[ 	
+[[  
 EXEC(| Tree Manager >)
 EXEC(| Tree >)
 EXEC(| Sort >) 
@@ -19,22 +19,21 @@ EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
 EXEC(| When >)
-LOG()
 +(*)
 SORT(title)
-TREE()
+TREE(*)
 
-TEXT(completed!)
+TEXT(\ncompleted!)
 >(| results >)
 ]]
 
 { results _
-
 | Collect >
 | Export Directive >
 | Files >
 | Format Directive >
 | Home >
+  └── | Log Output >
 | Include and Exclude >
 | Interlinks >
 | Limit >
@@ -54,6 +53,7 @@ TEXT(completed!)
 | Tree Manager >
 | When >
 | project_settings >
+
 completed!
 }
 
