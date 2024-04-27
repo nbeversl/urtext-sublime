@@ -112,7 +112,7 @@ class UrtextProject:
                     self.entry_path = self.entry_point
                     for file in self._get_included_files():
                         self._parse_file(file)
-            else:
+            elif self._include_file(self.entry_point):
                 self._parse_file(self.entry_point)
         else:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
@@ -236,8 +236,7 @@ class UrtextProject:
                 is_node=True)
             self.nodes[target_node].is_meta = True
 
-        for node in buffer.nodes:            
-
+        for node in buffer.nodes:
             for dd in node.dynamic_definitions:
                 dd.source_node = node
                 self._add_dynamic_definition(dd)
@@ -1039,7 +1038,8 @@ class UrtextProject:
         if filename in self.excluded_files:
             return False
         file_extensions = self.get_setting('file_extensions')
-        file_extensions.append('.urtext') # for bootstrapping
+        if '.urtext' not in file_extensions or 'urtext' not in file_extensions:
+            file_extensions.append('.urtext') # for bootstrapping
         if os.path.splitext(filename)[1] not in file_extensions:
             return False
         return True
@@ -1462,16 +1462,29 @@ class UrtextProject:
     def add_directive(self, directive, propagate=False):
         class Directive(directive, UrtextDirective):
             pass
-        for n in Directive.name:
-            self.directives[n] = Directive
         if Directive.single_global_instance:
             self.global_directives.append(Directive(self))
-        if propagate:
-            self.project_list.add_directive(Directive)
+        propagated_directives = self.get_setting('propagate_directives')
+        propagate_all_directives = '_all' in propagated_directives
+        for n in Directive.name:
+            self.directives[n] = Directive
+            if propagate_all_directives:
+                self.project_list.add_directive(Directive) 
+                continue
+            if directive.name in propagated_directives:
+                self.project_list.add_directive(Directive)
+
+    def get_directive(self, directive):
+        if directive in self.directives:
+            return self.directives[directive]
+        if directive in self.project_list.directives: 
+            return self.project_list.directives[directive]
 
     def run_directive(self, directive, *args, **kwargs):
-        op = self.directives[directive](self)
-        op.run(*args, **kwargs)
+        directive = self.get_directive(directive)
+        if directive:
+            op = directive(self)
+            op.run(*args, **kwargs)
 
 """ 
 Helpers 

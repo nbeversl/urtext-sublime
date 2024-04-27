@@ -16,7 +16,7 @@ class ProjectList():
     def __init__(self, 
         entry_point,
         is_async=True,
-        base_project=os.path.join(os.path.dirname(__file__), './base_project'),
+        base_project=os.path.join(os.path.dirname(__file__), 'base_project'),
         urtext_location=None,
         editor_methods=None):
 
@@ -340,5 +340,4 @@ class ProjectList():
 
     def add_directive(self, directive):
         for n in directive.name:
-            self.directives[n] = directive
-        return self.directives[n]
+            self.directives[n] = directive          

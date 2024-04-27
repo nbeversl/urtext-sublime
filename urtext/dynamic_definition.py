@@ -34,13 +34,15 @@ class UrtextDynamicDefinition:
 			
 			func, argument_string = match.group(1), match.group().strip(match.group(1)).replace(')(','')
 			argument_string = match.group(2)
-			if func and func in self.project.directives:
-				op = self.project.directives[func](self.project)
-				op.argument_string = argument_string
-				op.dynamic_definition= self
-				op.parse_argument_string(argument_string)	
-				self.operations.append(op)
-				continue
+			directive = self.project.get_directive(func)
+			if func and directive:
+				directive = self.project.get_directive(func)
+				if directive:
+					op = directive(self.project)
+					op.argument_string = argument_string
+					op.dynamic_definition= self
+					op.parse_argument_string(argument_string)	
+					self.operations.append(op)
 
 			elif func in ['TARGET', '>']:
 				output_target = syntax.virtual_target_match_c.match(argument_string)
@@ -53,7 +55,6 @@ class UrtextDynamicDefinition:
 					else:
 						self.targets.append(argument_string)
 				continue
-
 			else:
 				self.system_contents.append('directive "%s" not found' % func)
 
