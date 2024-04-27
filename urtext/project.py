@@ -1465,10 +1465,8 @@ class UrtextProject:
         propagated_directives = self.get_setting('propagate_directives')
         propagate_all_directives = '_all' in propagated_directives
         for n in directive.name:
-            print(n)
             if n in propagated_directives or propagate_all_directives:
                 self.project_list.add_directive(directive)
-        print(directive)
         class Directive(directive, UrtextDirective):
             pass
         for n in Directive.name:
