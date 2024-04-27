@@ -83,7 +83,7 @@ class UrtextDirective:
             if hash_value:
                 hash_value = hash_value.group()[1:]
                 self.params.append((
-                    self.project.settings['hash_key'],
+                    self.project.get_setting('hash_key'),
                     hash_value,
                     '='))
                 continue
