@@ -23,7 +23,7 @@ meta_browser_key::None,
 meta_browser_sort_keys_by::alpha
 meta_browser_sort_values_by::alpha
 meta_browser_sort::_oldest_timestamp
-node_browser_sort::_oldest_timestamp
+node_browser_sort::_oldest_timestamp - title
 node_date_keyname::_oldest_timestamp
 numerical_keys::_index - index - title_length
 on_project_activated::open_home - open_last_nav
@@ -31,8 +31,7 @@ other_entry_points::
 paths::
 timestamp_format::%a., %b. %d, %Y, %I:%M %p %Z, 
 title_length::255,
-use_timestamp::timestamp _inline_timestamp _oldest_timestamp _newest_timestamp
-node_browser_sort::index - title
+use_timestamp::timestamp - _inline_timestamp - _oldest_timestamp - _newest_timestamp
 project_title::Urtext Base Project & Documentation
 propagate_settings::_all
 propagate_directives::_all

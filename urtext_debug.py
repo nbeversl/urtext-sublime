@@ -47,6 +47,8 @@ class DebugCommand(sublime_plugin.TextCommand):
         print('DESCENDANTS:')
         for n in self._UrtextProjectList.current_project.nodes[node_id].descendants():
             print(n.id)
+        print('EMBEDDED SYNTAXES')
+        print( self._UrtextProjectList.current_project.nodes[node_id].ranges_with_embedded_syntaxes())
         print('------------------------')
 
 class NoAsync(sublime_plugin.TextCommand):

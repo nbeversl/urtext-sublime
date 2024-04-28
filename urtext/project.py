@@ -62,30 +62,27 @@ class UrtextProject:
         for n in settings_nodes:
             values = n.metadata.get_values(setting)
             if values:
-                values.extend(values)
+                break
         if not values and not _from_project_list:
             values = self.project_list.get_setting(setting, self, as_type=as_type)
             if values:
-                return values
+                return values            
+        if values and values[0].is_node:
+            return values
         if setting in ['boolean_settings', 'single_values_settings']:
             return [v.text for v in values]
-        if setting in self.get_setting(
-            'boolean_settings',
-            _from_project_list=_from_project_list):
+        if setting in self.get_setting('boolean_settings', _from_project_list=_from_project_list):
             return [v.true() for v in values]
-
-        if setting != 'integer_settings' and (setting in self.get_setting(
-            'integer_settings',
-            _from_project_list=_from_project_list
+        if setting != 'integer_settings' and (
+            setting in self.get_setting( 'integer_settings', _from_project_list=_from_project_list
             ) or
             as_type == 'num'):
-            values = [v.num() for v in values]
+                values = [v.num() for v in values]
         if as_type == 'text':
             values = [v.text for v in values]
-        if setting in self.get_setting(
-            'single_values_settings',
-            _from_project_list=_from_project_list):
+        if setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
             return values[0]
+        
         return values
 
     def get_settings_keys(self):
@@ -794,6 +791,7 @@ class UrtextProject:
         for k in keys:
             use_timestamp = k in self.get_setting('use_timestamp')
             node_group = [r for r in remaining_nodes if r.metadata.get_first_value(k) != None]
+            remaining_nodes = [r for r in remaining_nodes if r not in node_group]
             if node_group:
                 if use_timestamp:
                     node_group = sorted(
@@ -813,7 +811,7 @@ class UrtextProject:
                     else:
                         node.display_detail = k+'::' + detail.text
                 sorted_nodes.extend(node_group)
-        sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])  
+        sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])
         if not as_nodes:
             return [n.id for n in sorted_nodes]      
         return sorted_nodes
@@ -1024,16 +1022,17 @@ class UrtextProject:
         paths = []
         if os.path.isdir(self.entry_point):
             paths.append(self.entry_point)
-        for node in self.get_setting('paths'):
-            pathname = node.metadata.get_first_value('path')
-            if pathname:
-                paths.append(pathname)
-            recurse_subfolders = node.metadata.get_first_value('recurse_subfolders')
-            if recurse_subfolders:
-                for dirpath, dirnames, filenames in os.walk(pathname):
-                    if '/.git' in dirpath or '/_diff' in dirpath:
-                        continue
-                    paths.append(dirpath)
+        for node in self.get_setting('paths', as_type='node'):
+            for n in node.children:
+                pathname = n.metadata.get_first_value('path')
+                if pathname:
+                    paths.append(utils.get_path_from_link(pathname.text))
+                recurse_subfolders = n.metadata.get_first_value('recurse_subfolders')
+                if recurse_subfolders:
+                    for dirpath, dirnames, filenames in os.walk(utils.get_path_from_link(pathname.text)):
+                        if '/.git' in dirpath or '/_diff' in dirpath:
+                            continue
+                        paths.append(dirpath)
         return paths
 
     def _include_file(self, filename):
@@ -1480,8 +1479,10 @@ class UrtextProject:
         if directive in self.project_list.directives: 
             return self.project_list.directives[directive]
 
-    def run_directive(self, directive, *args, **kwargs):
-        directive = self.get_directive(directive)
+    def run_directive(self, directive_name, *args, **kwargs):
+        directive = self.get_directive(directive_name)
+        if not directive:
+            return self.handle_info_message('Directive %s is not available' % directive_name)
         if directive:
             op = directive(self)
             op.run(*args, **kwargs)
