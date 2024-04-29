@@ -818,10 +818,7 @@ class UrtextProject:
 
     def get_node_id_from_position(self, filename, position):
         if filename in self.files:
-            for node in self.files[filename].nodes:
-                for r in node.ranges:           
-                    if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                        return node.id
+            return self.files[filename].get_node_id_from_position(position)
 
     def get_links_to(self, to_id, as_nodes=False, include_dynamic=True):
         links_to = [n for n in self.nodes.values() if to_id in n.links_ids()]

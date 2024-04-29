@@ -370,6 +370,13 @@ class UrtextBuffer:
             child.parent = start_node
             self._assign_parents(child)
 
+    def get_node_id_from_position(self, position):
+        for node in self.nodes:
+            for r in node.ranges:           
+                if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
+                    return node.id
+
+
     def _log_error(self, message, position):
         self.nodes = {}
         self.root_node = None
