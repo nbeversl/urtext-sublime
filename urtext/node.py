@@ -23,6 +23,7 @@ class UrtextNode:
         self.is_tree = False
         self.is_node = True
         self.is_meta = False
+        self.meta_key = None
         self.export_points = {}
         self.dynamic = False
         self.id = None
@@ -43,10 +44,12 @@ class UrtextNode:
         self.nested = nested
         self.resolved = False
         self.filename = None
+        self.embedded_syntax_ranges = []
         
         contents = strip_errors(contents)
         self.full_contents = contents
-        stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
+        ranges, stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
+        self.embedded_syntax_ranges.extend(ranges)
         stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)        
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
@@ -61,7 +64,8 @@ class UrtextNode:
             d.source_node = self
         for entry in self.metadata.entries():
             entry.from_node = self
-        self.stripped_contents = stripped_contents    
+        self.stripped_contents = stripped_contents   
+        self.text = utils.make_node_link(self.id)
 
     def get_file_position(self, node_position): 
         node_length = 0
@@ -403,6 +407,38 @@ class UrtextNode:
     def pointer(self):
         return utils.make_node_pointer(self.id)
 
+    def ranges_with_embedded_syntaxes(self):
+        ranges_with_embedded_syntaxes = {}
+        for r in self.ranges:
+            for embedded in self.embedded_syntax_ranges:                
+                if embedded[0] in range(r[0],r[1]):
+                    ranges_with_embedded_syntaxes[r[0]] = {
+                        'start' : r[0],
+                        'kind': 'urtext',
+                        'end' : embedded[0]
+                     }
+                    ranges_with_embedded_syntaxes[embedded[0]] = {
+                        'start' : embedded[0],
+                        'kind': 'embedded',
+                        'end' : embedded[1]
+                     }
+                    ranges_with_embedded_syntaxes[embedded[1]] = {
+                        'start' : embedded[1],
+                        'kind': 'urtext',
+                        'end' : r[1]
+                     }
+            if r[0] not in ranges_with_embedded_syntaxes:
+                ranges_with_embedded_syntaxes[r[0]] = {
+                    'start' : r[0],
+                    'starts_node' : r == self.ranges[0],
+                    'ends_node' : r == self.ranges[-1],
+                    'kind': 'urtext',
+                    'end' : r[1]
+                 }
+
+        return ranges_with_embedded_syntaxes
+
+
 def node_descendants(node, known_descendants=[]):
     # differentiate between pointer and "real" descendants
     all_descendants = [n for n in node.children if n not in known_descendants]
@@ -429,7 +465,7 @@ def strip_contents(contents,
     dynamic_definitions=True
     ):
     if embedded_syntaxes:
-        contents = strip_embedded_syntaxes(contents, 
+        ranges, stripped_contents, contents = strip_embedded_syntaxes(contents, 
             preserve_length=preserve_length, 
             include_backtick=include_backtick,
             reformat_and_keep_contents=reformat_and_keep_embedded_syntaxes)
@@ -477,13 +513,14 @@ def strip_embedded_syntaxes(
     reformat_and_keep_contents=False,
     include_backtick=True):
 
+    ranges = []
     if include_backtick:
         stripped_contents = utils.strip_backtick_escape(stripped_contents)
     replaced_contents = stripped_contents
     for e in syntax.embedded_syntax_c.finditer(stripped_contents):
-        e = e.group()
+        contents = e.group()
         if reformat_and_keep_contents:
-            unwrapped_contents = e
+            unwrapped_contents = contents
             for opening_wrapper in syntax.embedded_syntax_open_c.findall(unwrapped_contents):
                 unwrapped_contents = unwrapped_contents.replace(opening_wrapper,'`',1)   
             for closing_wrapper in syntax.embedded_syntax_close_c.findall(unwrapped_contents):
@@ -494,7 +531,7 @@ def strip_embedded_syntaxes(
             unwrapped_contents = '\t\t\n'.join(unwrapped_contents)
             stripped_contents = stripped_contents.replace(e, unwrapped_contents)
         else:
-            stripped_contents = stripped_contents.replace(e, '')
-            replaced_contents = replaced_contents.replace(e, ' '*len(e))
-
-    return stripped_contents, replaced_contents
+            stripped_contents = stripped_contents.replace(contents, '')
+            replaced_contents = replaced_contents.replace(contents, ' '*len(contents))
+        ranges.append([e.start(), e.end()])
+    return ranges, stripped_contents, replaced_contents

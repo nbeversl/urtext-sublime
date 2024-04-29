@@ -71,25 +71,22 @@ class UrtextDynamicDefinition:
 		accumulated_text = ''
 
 		for operation in self.operations:
-			nodes_included = [self.project.nodes[nid] for nid in self.included_nodes if (
-					nid in self.project.nodes) and nid not in self.excluded_nodes]
 
-			# if not self.nodes_sorted:
-			# this should not happen on every iteration.
-			# SORT() will now modify the list directly without text output.
+			if not self.sorted:
+				# TODO this should not happen on every iteration.
+				self.included_nodes = sorted(
+					self.included_nodes,
+					key=lambda node: node.title)
+				self.included_nodes = sorted(
+					self.included_nodes,
+					key=lambda node: node.metadata.get_first_value(
+							'_oldest_timestamp').timestamp.datetime if (
+								node.metadata.get_first_value('_oldest_timestamp')) else (
+							datetime.datetime(
+								1,1,1,
+								tzinfo=datetime.timezone.utc)),
+					reverse=True)
 
-			# sorted_nodes = sorted(
-			# 	nodes_included,
-			# 	key=lambda node: node.title)
-			# sorted_nodes = sorted(
-			# 	sorted_nodes,
-			# 	key=lambda node: node.metadata.get_first_value(
-			# 			'_oldest_timestamp').datetime if (
-			# 				node.metadata.get_first_value('_oldest_timestamp')) else (
-			# 			datetime.datetime(
-			# 				1,1,1,
-			# 				tzinfo=datetime.timezone.utc)),
-			# 	reverse=True)
 			current_text = accumulated_text
 			try:
 				transformed_text = operation.dynamic_output(current_text)

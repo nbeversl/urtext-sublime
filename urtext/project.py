@@ -225,7 +225,7 @@ class UrtextProject:
                 entry.span()[0])
             target_node = self.get_node_id_from_position(
                 buffer.filename, 
-                entry.span()[1])
+                entry.span()[1]+1)
             self.nodes[source_node].metadata.add_entry(
                 keyname,
                 [self.nodes[target_node]],
@@ -234,7 +234,7 @@ class UrtextProject:
                 end_position=self.nodes[target_node].end_position,
                 is_node=True)
             self.nodes[target_node].is_meta = True
-
+            self.nodes[target_node].meta_key = keyname
         for node in buffer.nodes:
             for dd in node.dynamic_definitions:
                 dd.source_node = node

@@ -40,7 +40,7 @@ class Sort:
 			sorted_nodes.extend(nodes)
 
 			self.dynamic_definition.included_nodes = sorted_nodes
-
+		self.dynamic_definition.sorted = True
 
 	def sort_values(self, 
 		node, 

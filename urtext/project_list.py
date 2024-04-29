@@ -33,10 +33,16 @@ class ProjectList():
         self.entry_points = []
         self.current_project = None
         if base_project:
-            self.initialize_project(base_project)
-        self.initialize_project(self.entry_point)
+            self.initialize_base_project(base_project)
+        else:
+            self.initialize_project(self.entry_point)
 
-    def initialize_project(self, entry_point, new_file_node_created=False):
+    def initialize_base_project(self, base_project):
+        self.initialize_project(base_project, callback=self.compile_and_add_entry_point)
+
+    def initialize_project(self, entry_point, callback=None, new_file_node_created=False):
+        if not callback:
+            callback = self.add_project
         if entry_point in self.entry_points:
             return
         self.entry_points.append(entry_point)
@@ -46,7 +52,12 @@ class ProjectList():
             new_file_node_created=new_file_node_created)
         project.executor = self.executor
         project.is_async = self.is_async
-        project.initialize(callback=self.add_project)
+        project.initialize(callback=callback)
+
+    def compile_and_add_entry_point(self, base_project):
+        base_project.compile()
+        self.projects.append(base_project)
+        self.initialize_project(self.entry_point, callback=self.add_project)
             
     def add_project(self, project):
         if os.path.isdir(project.entry_point):
