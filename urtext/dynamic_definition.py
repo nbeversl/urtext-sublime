@@ -112,6 +112,8 @@ class UrtextDynamicDefinition:
 		return accumulated_text
 
 	def have_flags(self, flag):
+		if flag and flag[0] == '-':
+			flag = flag[1:]
 		if flag in self.flags:
 			return True
 		return False

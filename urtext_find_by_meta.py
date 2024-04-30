@@ -10,7 +10,7 @@ class FindByMetaCommand(UrtextTextCommand):
                 self.tagnames, 
                 self.list_values)
         else:
-            self.tagnames = [self._UrtextProjectList.current_project.settings['meta_browser_key']]
+            self.tagnames = self._UrtextProjectList.current_project.get_setting('meta_browser_key')
             self.list_values(0)
 
     def list_values(self, index):

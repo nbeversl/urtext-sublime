@@ -23,6 +23,10 @@ class UrtextAnyTree:
             if node.parent and node.parent in buffer.nodes:
                 node.tree_node.parent = node.parent.tree_node
 
+    def on_added(self):
+        for node in self.project.nodes.values():
+            node.tree_node = self.Node(node.id)
+         
     def on_node_id_changed(self, node, new_node_id):
         node.tree_node = self.Node(new_node_id)
 

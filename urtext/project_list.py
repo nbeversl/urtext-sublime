@@ -165,8 +165,9 @@ class ProjectList():
             self.current_project = project
             self.current_project.run_editor_method('popup',
                 'Switched to project: %s ' % self.current_project.title())
-            self.current_project.on_project_activated(
-                self.current_project._get_included_paths()[0])
+            project_paths = self.current_project._get_included_paths()
+            if project_paths:
+                self.current_project.on_project_activated(project_paths[0])
         return self.current_project
 
     def build_contextual_link(self, 

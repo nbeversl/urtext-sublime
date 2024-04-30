@@ -82,7 +82,7 @@ class UrtextProject:
             values = [v.text for v in values]
         if setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
             return values[0]
-        
+
         return values
 
     def get_settings_keys(self):
@@ -157,7 +157,7 @@ class UrtextProject:
         return True
 
     def _parse_all_files(self):
-        for filename in list(self.files):
+        for filename in self._get_included_files():
             self._parse_file(filename)
 
     def _parse_file(self, filename, try_buffer=False, passed_contents=None):
@@ -685,9 +685,12 @@ class UrtextProject:
                 metadata_block = ' ' + metadata_block
             return '• ' + contents.strip() + metadata_block
 
-    def get_dynamic_defs(self, 
+    def __get_dynamic_defs(self, 
         target_node=None, 
-        source_node=None):
+        source_node=None,
+        flags=None,
+        has_not_run=False):
+
         defs = []
         if target_node and target_node.id in self.dynamic_definitions:
             defs.append(self.dynamic_definitions[target_node.id])
@@ -700,6 +703,17 @@ class UrtextProject:
                 if source_node and dd.source_node.id == source_node.id:
                     defs.append(dd)
                 elif not source_node:
+                    defs.append(dd)
+        if flags:
+            if not isinstance(flags, list):
+                flags = [flags]
+            for f in flags:
+                for dd in self.dynamic_definitions.values():      
+                    if dd.have_flags(f) and dd not in defs:
+                        defs.append(dd)
+        if has_not_run:
+            for dd in self.dynamic_definitions.values():        
+                if dd.ran == False:
                     defs.append(dd)
         return defs
 
@@ -965,7 +979,7 @@ class UrtextProject:
                     modified_files.extend(
                         self._compile_file(
                         filename,
-                        events=['-file_update']))
+                        flags=['-file_update']))
                 contents = self._reverify_links(filename)
                 re_parsed_file_obj = self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
@@ -1001,7 +1015,7 @@ class UrtextProject:
         if filename in self.files and self.compiled:
             modified_files = self._compile_file(
                 filename, 
-                events=['-file_visited'])
+                flags=['-file_visited'])
             return modified_files
 
     def _sync_file_list(self):
@@ -1258,15 +1272,14 @@ class UrtextProject:
 
     def _compile(self, 
         num_directives,
-        events=['-project_compiled']):
+        flags=['-project_compiled']):
         
         self._add_all_sub_tags()
-        for file in list([f for f in self.files if not self.files[f].has_errors]):
-            self._compile_file(file, events=events)
+        for dd in self.__get_dynamic_defs(flags='on_compile'):
+            self.__run_def(dd)
+        for dd in self.__get_dynamic_defs(has_not_run=True):
+            self.__run_def(dd)
         self._add_all_sub_tags()
-        if len(self.directives) > num_directives:
-            self._parse_all_files()
-            return self._compile(len(self.directives))
         return self._after_compile()
 
     def _after_compile(self):
@@ -1277,40 +1290,38 @@ class UrtextProject:
         self.handle_info_message('"%s" compiled' % self.title())
         print('"%s" compiled' % self.title())
 
-    def _compile_file(self, filename, events=[]):
+    def _compile_file(self, filename, flags=[]):
         modified_targets = []
         modified_files = []
-        processed_targets = []
-
+        
         for node in self.files[filename].nodes:
-            for dd in self.get_dynamic_defs(target_node=node, source_node=node):
-                new_targets = []
-                for d in dd.targets + dd.target_ids:
-                    if d in processed_targets:
-                        continue
-                    new_targets.append(d)
-                if new_targets:
-                    output = dd.process(flags=events)
-                    if output not in [False, None]:
-                        for target in new_targets:
-                            processed_targets.append(target)
-                            targeted_output = dd.post_process(
-                                target,
-                                output)
-                            modified_target = self._direct_output(
-                                targeted_output, 
-                                target, 
-                                dd)
-                            if target in self.nodes:
-                                self.nodes[target].dynamic = True
-                            if modified_target and modified_target not in modified_targets:
-                                modified_targets.append(modified_target)
+            for dd in self.__get_dynamic_defs(target_node=node, source_node=node):
+                modified_targets.extend(self.__run_def(dd))
 
         for target in modified_targets:        
             if self.nodes[target].filename not in modified_files:
                 modified_files.append(self.nodes[target].filename)
 
         return modified_files
+
+    def __run_def(self, dd, flags=None):
+        modified_targets = []
+        output = dd.process(flags=flags)
+        if output not in [False, None]:
+            for target in dd.targets + dd.target_ids:
+                targeted_output = dd.post_process(
+                    target,
+                    output)
+                modified_target = self._direct_output(
+                    targeted_output, 
+                    target, 
+                    dd)
+                if target in self.nodes:
+                    self.nodes[target].dynamic = True
+                if modified_target and modified_target not in modified_targets:
+                    modified_targets.append(modified_target)
+
+        return modified_targets
 
     def _direct_output(self, output, target, dd):
         node_link = syntax.node_link_or_pointer_c.match(target)
@@ -1476,7 +1487,10 @@ class UrtextProject:
         for n in Directive.name:
             self.directives[n] = Directive            
         if Directive.single_global_instance:
+            global_directive = Directive(self)
+            global_directive.on_added()
             self.global_directives.append(Directive(self))
+
 
     def get_directive(self, directive):
         if directive in self.directives:
