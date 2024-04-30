@@ -44,6 +44,7 @@ class UrtextProject:
         self.project_settings_nodes = {}
         self.directives = {}
         self.global_directives = []
+        self.initialized = False
         self.compiled = False
         self.excluded_files = []
         self.home_requested = False
@@ -58,11 +59,10 @@ class UrtextProject:
     def get_setting(self, setting, as_type='text', _from_project_list=False):
 
         values = []
-        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
-        for n in settings_nodes:
-            values = n.metadata.get_values(setting)
-            if values:
-                break
+        if 'project_settings' in self.nodes:
+            settings_node = self.nodes['project_settings']
+            if settings_node:
+                values = settings_node.metadata.get_values(setting)
         if not values and not _from_project_list:
             values = self.project_list.get_setting(setting, self, as_type=as_type)
             if values:
@@ -138,6 +138,12 @@ class UrtextProject:
 
         self._mark_dynamic_nodes()
         self._run_hook('after_project_initialized')
+
+        other_entry_points = self.get_setting('other_entry_points')
+        if other_entry_points:
+            for path_link in other_entry_points:
+                self.project_list.initialize_project(utils.get_path_from_link(path_link))
+        self.initialized = True
         callback(self)
 
     def compile(self):
@@ -151,7 +157,7 @@ class UrtextProject:
         return True
 
     def _parse_all_files(self):
-        for filename in self.files:
+        for filename in list(self.files):
             self._parse_file(filename)
 
     def _parse_file(self, filename, try_buffer=False, passed_contents=None):
@@ -756,9 +762,11 @@ class UrtextProject:
         return True
  
     def handle_info_message(self, message):
+        print(message)
         self.run_editor_method('popup', message)
 
     def handle_error_message(self, message):
+        print(message)
         self.run_editor_method('error_message', message)
 
     def sort_for_node_browser(self, nodes=None, as_nodes=False):
@@ -1266,8 +1274,8 @@ class UrtextProject:
         self.compiled = True
         self.last_compile_time = time.time() - self.time
         self.time = time.time()
-        self.handle_info_message('"%s" compiled' % self.get_setting('project_title'))
-        print('"%s" compiled' % self.project_title)
+        self.handle_info_message('"%s" compiled' % self.title())
+        print('"%s" compiled' % self.title())
 
     def _compile_file(self, filename, events=[]):
         modified_targets = []
@@ -1402,7 +1410,7 @@ class UrtextProject:
         title_setting = self.get_setting('project_title')
         if title_setting:
             return title_setting
-        return self.title
+        return self.entry_point
 
     def on_project_activated(self, path):
         if self.get_setting('on_project_activated'):

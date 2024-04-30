@@ -24,7 +24,7 @@ class ProjectList():
             sys.path.append(urtext_location)
 
         self.is_async = is_async
-        self.is_async = False # development
+        #self.is_async = False # development
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
@@ -33,12 +33,8 @@ class ProjectList():
         self.entry_points = []
         self.current_project = None
         if base_project:
-            self.initialize_base_project(base_project)
-        else:
-            self.initialize_project(self.entry_point)
-
-    def initialize_base_project(self, base_project):
-        self.initialize_project(base_project, callback=self.compile_and_add_entry_point)
+            self.initialize_project(base_project)
+        self.initialize_project(self.entry_point)
 
     def initialize_project(self, entry_point, callback=None, new_file_node_created=False):
         if not callback:
@@ -50,14 +46,11 @@ class ProjectList():
             project_list=self,
             editor_methods=self.editor_methods,
             new_file_node_created=new_file_node_created)
+        self.projects.append(project)
         project.executor = self.executor
         project.is_async = self.is_async
         project.initialize(callback=callback)
-
-    def compile_and_add_entry_point(self, base_project):
-        base_project.compile()
-        self.projects.append(base_project)
-        self.initialize_project(self.entry_point, callback=self.add_project)
+        project.compile()
             
     def add_project(self, project):
         if os.path.isdir(project.entry_point):
@@ -70,8 +63,8 @@ class ProjectList():
         for path in project._get_included_paths():
             if path in self.get_all_paths():
                 return
-        project.compile()
         self.projects.append(project)
+        project.compile()
 
     def get_setting(self, setting, calling_project, as_type='text'):
         for project in [p for p in self.projects if p.entry_point != calling_project.entry_point]:
@@ -294,7 +287,7 @@ class ProjectList():
 
     def get_all_paths(self):
         paths = []
-        for p in self.projects:
+        for p in [project for project in self.projects if project.initialized]:
             paths.extend(p._get_included_paths())
         return paths
 
