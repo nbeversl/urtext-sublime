@@ -78,7 +78,7 @@ class UrtextProject:
             values = [v.num() for v in values]
         if as_type == 'text':
             values = [v.text for v in values]
-        if setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
+        if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
             return values[0]
 
         return values
@@ -110,10 +110,12 @@ class UrtextProject:
             if os.path.isdir(self.entry_point) and (
                     self._approve_new_path(self.entry_point)):
                 self.entry_path = self.entry_point
-                for file in self._get_included_files():
-                    self._parse_file(file)
             elif self._include_file(self.entry_point):
                 self._parse_file(self.entry_point)
+                if self._approve_new_path(os.path.dirname(self.entry_point)):
+                    self.entry_path = os.path.dirname(self.entry_point)
+            for file in self._get_included_files():
+                self._parse_file(file)
         else:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
@@ -127,11 +129,6 @@ class UrtextProject:
                     self._parse_file(file)
 
         if len(self.nodes) == 0 and not self.new_file_node_created:
-            self.handle_error_message(
-                '\n'.join([
-                    'No Urtext files are in this folder.',
-                    'To create one, press Ctrl-Shift-;'
-                ]))
             return False
 
         for node in self.nodes.values():
@@ -545,7 +542,6 @@ class UrtextProject:
         return filename
 
     def new_file_node(self,
-                      date=None,
                       path=None,
                       contents=None,
                       metadata=None,
@@ -562,7 +558,6 @@ class UrtextProject:
         filename = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 
         new_node_contents, node_id, cursor_pos = self._new_node(
-            date=date,
             contents=contents,
             contents_format=contents_format,
             metadata=metadata)
@@ -588,7 +583,6 @@ class UrtextProject:
         if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
             if contents is None:
                 new_node_contents, node_id, cursor_pos = self._new_node(
-                    date=date,
                     contents=contents,
                     add_seconds_to_timestamp=True,
                     contents_format=contents_format,
@@ -1026,9 +1020,10 @@ class UrtextProject:
         return [f for f in files if self._include_file(f)]
 
     def get_included_paths(self):
-        paths = []
+        paths = [self.entry_path]
         if os.path.isdir(self.entry_point):
             paths.append(self.entry_point)
+
         for node in self.get_setting('paths', as_type='node'):
             for n in node.children:
                 pathname = n.metadata.get_first_value('path')
@@ -1061,9 +1056,8 @@ class UrtextProject:
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
-        new_file, changed_ids = self._parse_file(filename)
+        self.execute(self._parse_file, filename)
         self.execute(self._compile_file, filename)
-        return changed_ids
 
     def get_file_name(self, node_id):
         if node_id in self.nodes:

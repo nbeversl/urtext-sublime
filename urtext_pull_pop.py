@@ -6,7 +6,7 @@ class PopNodeCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         if self.view.file_name():
-            r = self._UrtextProjectList.current_project.run_directive(
+            self._UrtextProjectList.current_project.run_directive(
                 'POP_NODE',
                 self.view.file_name(),
                 self.view.sel()[0].a + 1)

@@ -394,7 +394,7 @@ class UrtextNode:
         new_contents = self.contents(stripped=False)
         for link in re.finditer(pattern_to_replace, new_contents):
             new_contents = new_contents.replace(link.group(), replacement, 1)
-        self.set_content(new_contents)
+        self._set_contents(new_contents)
 
     def link(self, include_project=False):
         project_link = ''

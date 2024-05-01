@@ -133,7 +133,7 @@ class ProjectList:
             self.current_project = project
             project.on_modified(filename)
         else:
-            print('(DEBUGGING) NO PROJECT!')
+            self.initialize_project(filename)
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):

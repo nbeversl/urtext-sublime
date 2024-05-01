@@ -29,14 +29,12 @@ class PullNode:
         file_pos):
 
         if not self.project.compiled:
-            return self.project.handle_info_message(
-                'Project not yet compiled.')
+            return self.project.handle_info_message('Project not yet compiled.')
 
         link = self.project.project_list.utils.get_link_from_position_in_string(string, col_pos)
 
         if not link or link.node_id not in self.project.nodes:
-            return self.project.handle_info_message(
-                'link is not a node')
+            return self.project.handle_info_message('link is not a node')
 
         source_node = self.project.nodes[link.node_id]
         if source_node.id not in self.project.nodes: 
@@ -47,19 +45,16 @@ class PullNode:
             file_pos)
 
         if not destination_node:
-            return self.project.handle_info_message(
-                'No destination node found here')
+            return self.project.handle_info_message('No destination node found here')
 
         if self.project.nodes[destination_node].dynamic:
-            return self.project.handle_info_message(
-                'Not pulling content into a dynamic node')
+            return self.project.handle_info_message('Not pulling content into a dynamic node')
 
         source_filename = self.project.nodes[source_node.id].filename
 
         for ancestor in self.project.nodes[destination_node].ancestors():
             if ancestor.name == source_node.id:
-                return self.project.handle_info_message(
-                    'Cannot pull a node into its own child or descendant.')
+                return self.project.handle_info_message('Cannot pull a node into its own child or descendant.')
         self.project._parse_file(source_filename)
 
         start = self.project.nodes[source_node.id].start_position

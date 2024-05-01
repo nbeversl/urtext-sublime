@@ -88,7 +88,7 @@ class PopNode:
                     ' ',
                     self.project.timestamp().wrapped_string]);
 
-        self.project._drop_file(source_filename) #important
+        self.project.drop_file(source_filename) #important
 
         new_file_node = self.project.new_file_node(
             contents=popped_node_contents,
