@@ -3,7 +3,19 @@ Home _
 The base project includes all the core Urtext directives as nodes that can be executed. 
 The dynamic definition below executes them in order. Each node will include documentation on the feature it adds.
 
-[[  
+<Tue., Apr. 30, 2024, 06:12 AM EDT> 
+Solution -- directives should be able to run before compile. 
+No, that won't work. There would have to be a way to specify ones that run before everything is parsed. Instead, if directives need global functionality, have them add this at compile time, run them first, and only then run other directives. 
+
+<Tue., Apr. 30, 2024, 06:21 AM EDT,> But we're still back in the same problem. The directive will not have run yet -- so it appears ones that add global functionality will have to run before others.
+
+<Tue., Apr. 30, 2024, 06:35 AM EDT,> Solution: made an on_added method for global directives that could be added to any directive, in theory, just make a single instance of it and run the hook. That removes the need to work with events and so on.
+
+NEXT, just simplify down from what has been added. 
+
+
+
+[[
 EXEC(| Tree Manager >)
 EXEC(| Tree >)
 EXEC(| Sort >) 
@@ -18,51 +30,47 @@ EXEC(| Log >)
 EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
-EXEC(| When >)
 EXEC(| Show >)
-
 +(*)
 SORT(title)
 TREE(*)
-
-TEXT(\ncompleted!)
+STEXT(\ncompleted!)
 >(| results >)
+
 ]]
 
 { results _
-| Collect >
-| Export Directive >
-| Files >
-| Format Directive >
-| Home >
-  └── | Log Output >
-| Include and Exclude >
-| Interlinks >
-| Limit >
-| Log >
-| Log Output >
-| Max Length >
-| Navigation >
-| Pop >
-| Pull >
-| Reindex >
-| Request >
-| Show >
-| Sort >
-| Stats >
-| Text >
-| Tree >
-| Tree Manager >
-| When >
-| project_settings >
-
-completed!
 }
 
 
 { Log Output _
-
-
+directive "LOG" not found
 [[>(@self) LOG()]]}
 
 index::1
+
+
+{ Show Directives _
+{'EXEC': <class 'urtext.exec.Exec'>}
+directive "+" not found
+directive "+" not found
+directive "+" not found
+directive "-" not found
+directive "-" not found
+directive "-" not found}
+[[ 	>(| Show Directives >) 
+	
+	EXEC(| code to show directives >)
+]]
+
+
+{ code to show directives 
+
+%%Python
+print('`'ThisProject.directives+'`')
+
+%%
+
+}
+
+
