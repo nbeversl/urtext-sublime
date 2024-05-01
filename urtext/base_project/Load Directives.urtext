@@ -58,6 +58,7 @@ directive "+" not found
 directive "-" not found
 directive "-" not found
 directive "-" not found}
+
 [[ 	>(| Show Directives >) 
 	
 	EXEC(| code to show directives >)
@@ -67,7 +68,7 @@ directive "-" not found}
 { code to show directives 
 
 %%Python
-print('`'ThisProject.directives+'`')
+print('`'+ThisProject.directives+'`')
 
 %%
 
