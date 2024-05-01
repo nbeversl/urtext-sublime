@@ -44,7 +44,7 @@ class UrtextProject:
         self.dynamic_metadata_entries = []
         self.project_settings_nodes = {}
         self.directives = {}
-        self.global_directives = []
+        self.global_directives = {}
         self.initialized = False
         self.compiled = False
         self.executor = None
@@ -104,7 +104,7 @@ class UrtextProject:
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
         print('AT INIT TIME, PROJ LIST DIRS ARE', self.project_list.global_directives)
-        for directive in self.project_list.global_directives:
+        for directive in self.project_list.global_directives.values():
             print(self.title(), 'ADDING DIRECTIVE', directive.name)
             self.add_directive(directive)
 
@@ -1258,7 +1258,7 @@ class UrtextProject:
             hook = getattr(dd, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
-        for directive in self.global_directives:
+        for directive in self.global_directives.values():
             hook = getattr(directive, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
@@ -1471,10 +1471,6 @@ class UrtextProject:
     def add_directive(self, directive):
         propagated_directives = self.get_setting('propagate_directives')
         propagate_all_directives = '_all' in propagated_directives
-        for n in directive.name:
-            self.directives[n] = directive
-            if n in propagated_directives or propagate_all_directives:
-                self.project_list.add_directive(directive)
 
         class Directive(directive, UrtextDirective):
             pass
@@ -1483,7 +1479,14 @@ class UrtextProject:
             print(self.title(), 'adding global directive', directive.name)
             global_directive = Directive(self)
             global_directive.on_added()
-            self.global_directives.append(Directive(self))
+            self.global_directives[Directive.name[0]] = (Directive(self))
+            if Directive.name in propagated_directives or propagate_all_directives:
+                self.project_list.add_directive(directive)
+
+        else:
+            for n in directive.name:
+                self.directives[n] = directive
+
 
     def get_directive(self, directive_name):
         directive_class = None

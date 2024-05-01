@@ -31,7 +31,7 @@ class ProjectList:
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
         self.directives = {}
-        self.global_directives = []
+        self.global_directives = {}
         self.projects = []
         self.entry_points = []
         self.current_project = None
@@ -349,4 +349,4 @@ class ProjectList:
             pass
 
         if Directive.single_global_instance:
-            self.global_directives.append(directive)
+            self.global_directives[n[0]]= directive
