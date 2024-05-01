@@ -35,15 +35,8 @@ class UrtextDynamicDefinition:
 
             func, argument_string = match.group(1), match.group().strip(match.group(1)).replace(')(', '')
             argument_string = match.group(2)
-            directive = self.project.get_directive(func)
-            if func and directive:
-                op = directive(self.project)
-                op.argument_string = argument_string
-                op.dynamic_definition = self
-                op.parse_argument_string(argument_string)
-                self.operations.append(op)
 
-            elif func in ['TARGET', '>']:
+            if func in ['TARGET', '>']:
                 output_target = syntax.virtual_target_match_c.match(argument_string)
                 if output_target:
                     self.targets.append(output_target.group())
@@ -67,7 +60,15 @@ class UrtextDynamicDefinition:
                 continue
 
             else:
-                self.system_contents.append('directive "%s" not found' % func)
+                directive = self.project.get_directive(func)
+                if directive:
+                    op = directive(self.project)
+                    op.argument_string = argument_string
+                    op.dynamic_definition = self
+                    op.parse_argument_string(argument_string)
+                    self.operations.append(op)
+                else:
+                    self.system_contents.append('directive "%s" not found' % func)
 
     def preserve_title_if_present(self, target):
         if target == '@self' and self.source_node.id in self.project.nodes:
