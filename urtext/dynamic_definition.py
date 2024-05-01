@@ -80,7 +80,6 @@ class UrtextDynamicDefinition:
         return ''
 
     def process_output(self):
-        self.init_self(self.contents)
         
         self.project.run_hook('on_dynamic_def_process_started', self)
         accumulated_text = ''

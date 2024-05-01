@@ -103,9 +103,8 @@ class UrtextProject:
         self.add_directive(Exec)
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
-        print('AT INIT TIME, PROJ LIST DIRS ARE', self.project_list.global_directives)
         for directive in self.project_list.global_directives.values():
-            print(self.title(), 'ADDING DIRECTIVE', directive.name)
+
             self.add_directive(directive)
 
         num_file_extensions = len(self.get_setting('file_extensions'))
@@ -1267,14 +1266,11 @@ class UrtextProject:
 
         self._add_all_sub_tags()
         num_directives = len(self.directives.values())
-        print('BEEFORE COMPILE, DIRECTIVES ARE', self.directives)
         directives = 'EMPTY'
-        print(self.__get_dynamic_defs())
         for dd in self.dynamic_definitions.values():
             directives = self.__run_def(dd)
         if len(self.directives.values()) > num_directives:
             return self._compile()
-        print('DIRECTIVES ARE NOW', self.directives)
         self._add_all_sub_tags()
         self._verify_links_globally()
         self.compiled = True
@@ -1292,8 +1288,6 @@ class UrtextProject:
 
     def __run_def(self, dd, flags=None):
         output = dd.process(flags=flags)
-        # print('OUTPUT FROM DEF IS')
-        # print(output)
         if output not in [False, None]:
             for target in dd.targets + dd.target_ids:
                 targeted_output = dd.post_process(
@@ -1467,7 +1461,6 @@ class UrtextProject:
             pass
 
         if Directive.single_global_instance:
-            print(self.title(), 'adding global directive', directive.name)
             global_directive = Directive(self)
             global_directive.on_added()
             self.global_directives[Directive.name[0]] = (Directive(self))
