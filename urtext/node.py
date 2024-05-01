@@ -286,7 +286,7 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        return self.file._write_file_contents(new_file_contents)
+        return self.file.write_file_contents(new_file_contents)
 
     def replace_range(self,
         range_to_replace,

@@ -9,7 +9,7 @@ class UrtextFile(UrtextBuffer):
         self.filename = filename
         super().__init__(project, filename, self._read_contents())
 
-    def _get_contents(self):
+    def get_contents(self):
         if not self.contents:
             self.contents = self._read_contents()
         return self.contents
@@ -36,7 +36,7 @@ class UrtextFile(UrtextBuffer):
 
     def write_contents_to_file(self, run_hook=False):
         if run_hook: # for last modification only
-            self.project._run_hook('on_write_file_contents', self)
+            self.project.run_hook('on_write_file_contents', self)
         existing_contents = self._read_contents()
         if existing_contents == self.contents:
             return False
@@ -50,7 +50,7 @@ class UrtextFile(UrtextBuffer):
         self.project._parse_buffer(self)
         return True
 
-    def _write_file_contents(self, new_contents, run_hook=False):
+    def write_file_contents(self, new_contents, run_hook=False):
         self.contents = new_contents
         self.write_contents_to_file(run_hook=run_hook)
 
