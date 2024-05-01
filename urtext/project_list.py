@@ -86,7 +86,7 @@ class ProjectList:
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
-        link = self.parse_link(string, filename, include_http=True)
+        link = self.parse_link(string, col_pos=col_pos, include_http=True)
         if not link:
             return self.handle_unusable_link()
         link.filename = filename
@@ -114,8 +114,7 @@ class ProjectList:
         elif self.current_project and link.is_node:
             return self.current_project.handle_link(
                 link,
-                filename,
-                col_pos=col_pos)
+                filename)
 
         elif link.is_http:
             return self.run_editor_method('open_http_link', link.url)
