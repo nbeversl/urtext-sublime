@@ -80,40 +80,43 @@ class UrtextDynamicDefinition:
         return ''
 
     def process_output(self):
+        self.init_self(self.contents)
+        
         self.project.run_hook('on_dynamic_def_process_started', self)
         accumulated_text = ''
 
         for operation in self.operations:
 
-            if not self.sorted:
-                # TODO this should not happen on every iteration.
-                self.included_nodes = sorted(
-                    self.included_nodes,
-                    key=lambda node: node.title)
-                self.included_nodes = sorted(
-                    self.included_nodes,
-                    key=lambda node: node.metadata.get_first_value(
-                        '_oldest_timestamp').timestamp.datetime if (
-                        node.metadata.get_first_value('_oldest_timestamp')) else (
-                        datetime.datetime(
-                            1, 1, 1,
-                            tzinfo=datetime.timezone.utc)),
-                    reverse=True)
+            # if not self.sorted:
+            #     # TODO this should not happen on every iteration.
+            #     self.included_nodes = sorted(
+            #         self.included_nodes,
+            #         key=lambda node: node.title)
+            #     self.included_nodes = sorted(
+            #         self.included_nodes,
+            #         key=lambda node: node.metadata.get_first_value(
+            #             '_oldest_timestamp').timestamp.datetime if (
+            #             node.metadata.get_first_value('_oldest_timestamp')) else (
+            #             datetime.datetime(
+            #                 1, 1, 1,
+            #                 tzinfo=datetime.timezone.utc)),
+            #         reverse=True)
 
             current_text = accumulated_text
-            try:
-                transformed_text = operation.dynamic_output(current_text)
-            except Exception as e:
-                accumulated_text += ''.join([
-                    'error in ',
-                    str(operation.name),
-                    ': ',
-                    str(e),
-                    '\n'
-                ])
-                continue
+            # try:
+            print(current_text)
+            transformed_text = operation.dynamic_output(current_text)
+            # except Exception as e:
+            #     accumulated_text += ''.join([
+            #         'error in ',
+            #         str(operation.name),
+            #         ': ',
+            #         str(e),
+            #         '\n'
+            #     ])
+            #     continue
             if not transformed_text:  # not None !
-                return current_text
+                accumulated_text = current_text
             if transformed_text is None:
                 accumulated_text = current_text
                 continue

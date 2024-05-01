@@ -16,6 +16,7 @@ NEXT, just simplify down from what has been added.
 
 
 [[
+TEXT(\ncompleted!)
 EXEC(| Tree Manager >)
 EXEC(| Tree >)
 EXEC(| Sort >) 
@@ -31,33 +32,109 @@ EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
 EXEC(| Show >)
+TEXT(\ncompleted!)
 +(*)
-SORT(title)
-TREE(*)
-STEXT(\ncompleted!)
->(| results >)
+TREE()
+TEXT(\ncompleted!)
+TEXT(\ncompleted!)
+TEXT(\ncompleted!)
+
+>(| results2 >)
 
 ]]
 
-{ results _
+{ results2 _
+
+completed!
+Urtext Base Project & Documentation adding global directive ['TREE_EXTENSION']
+
+completed!
+| Export Directive >
+| Log >
+| Format Directive >
+| Tree >
+| Max Length >
+| Tree Manager >
+| Files >
+| Show >
+| Pull >
+| Sort >
+| Home >
+| Request >
+| Navigation >
+| project_settings >
+| Pop >
+| Show Directives >
+| Reindex >
+| Log Output >
+| Stats >
+| Collect >
+| When >
+| Interlinks >
+| code to show directives >
+| Limit >
+| Text >
+| Include and Exclude >
+
+completed!
+
+completed!
+
+completed!
+
+completed!
+Urtext Base Project & Documentation adding global directive ['TREE_EXTENSION']
+
+completed!
+| Export Directive >
+| Log >
+| Request >
+| Tree >
+| Max Length >
+| Tree Manager >
+| Files >
+| Show >
+| Pull >
+| Sort >
+| Home >
+| Navigation >
+| project_settings >
+| Pop >
+| Show Directives >
+| Reindex >
+| Log Output >
+| Stats >
+| Collect >
+| When >
+| Interlinks >
+| Format Directive >
+| code to show directives >
+| Limit >
+| Text >
+| Include and Exclude >
+
+completed!
+
+completed!
+
+completed!
 }
 
 
 { Log Output _
-directive "LOG" not found
+
+
+
+
 [[>(@self) LOG()]]}
 
 index::1
 
 
 { Show Directives _
-{'EXEC': <class 'urtext.exec.Exec'>}
-directive "+" not found
-directive "+" not found
-directive "+" not found
-directive "-" not found
-directive "-" not found
-directive "-" not found}
+                            
+                            
+}
 
 [[ 	>(| Show Directives >) 
 	

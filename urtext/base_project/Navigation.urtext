@@ -94,5 +94,5 @@ class Navigation:
 				old_nav_id == old_id):
 					self.project_list_instance.navigation[index] = (project, node.id)
 
-ThisProject.add_directive(Navigation)
+#ThisProject.add_directive(Navigation)
 %%

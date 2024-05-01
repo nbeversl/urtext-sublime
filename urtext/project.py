@@ -185,6 +185,8 @@ class UrtextProject:
 
         if buffer.filename in self.files:
             self.drop_file(buffer.filename)
+        else:
+            print(buffer.filename, 'NOT IN FILES')
 
         existing_buffer_ids = []
         if buffer.filename in self.files:
@@ -404,7 +406,8 @@ class UrtextProject:
     def _add_dynamic_definition(self, definition):
         for target_id in definition.target_ids:
             if target_id in self.dynamic_definitions:
-                self._reject_definition(target_id, definition)
+                pass
+                # self._reject_definition(target_id, definition)
             else:
                 self.dynamic_definitions[target_id] = definition
 
@@ -968,7 +971,9 @@ class UrtextProject:
         return self.execute(self._on_modified, filename)
 
     def _on_modified(self, filename):
+        print('RUNNING')
         if self.compiled and filename in self._get_included_files():
+            print('INSIDE')
             if self.running_on_modified == filename:
                 print('(debugging) ALREADY RUNNING ON MOD (debugging)')
             self.running_on_modified = filename
@@ -1260,13 +1265,18 @@ class UrtextProject:
 
     """ Project Compile """
 
-    def _compile(self, flags=None):
-        if flags is None:
-            flags = ['-project_compiled']
+    def _compile(self):
 
         self._add_all_sub_tags()
-        for dd in self.__get_dynamic_defs():
-            self.__run_def(dd)
+        num_directives = len(self.directives.values())
+        print('BEEFORE COMPILE, DIRECTIVES ARE', self.directives)
+        directives = 'EMPTY'
+        print(self.__get_dynamic_defs())
+        for dd in self.dynamic_definitions.values():
+            directives = self.__run_def(dd)
+        if len(self.directives.values()) > num_directives:
+            return self._compile()
+        print('DIRECTIVES ARE NOW', self.directives)
         self._add_all_sub_tags()
         self._verify_links_globally()
         self.compiled = True
@@ -1283,9 +1293,9 @@ class UrtextProject:
                 self.__run_def(dd)
 
     def __run_def(self, dd, flags=None):
-        print("RUNNIGN")
-        modified_targets = []
         output = dd.process(flags=flags)
+        # print('OUTPUT FROM DEF IS')
+        # print(output)
         if output not in [False, None]:
             for target in dd.targets + dd.target_ids:
                 targeted_output = dd.post_process(
@@ -1467,9 +1477,10 @@ class UrtextProject:
                 self.project_list.add_directive(directive)
 
         else:
+            
             for n in directive.name:
                 self.directives[n] = directive
-
+        return self.directives
 
     def get_directive(self, directive_name):
         directive_class = None
