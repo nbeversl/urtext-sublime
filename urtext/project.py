@@ -971,9 +971,7 @@ class UrtextProject:
         return self.execute(self._on_modified, filename)
 
     def _on_modified(self, filename):
-        print('RUNNING')
         if self.compiled and filename in self._get_included_files():
-            print('INSIDE')
             if self.running_on_modified == filename:
                 print('(debugging) ALREADY RUNNING ON MOD (debugging)')
             self.running_on_modified = filename
