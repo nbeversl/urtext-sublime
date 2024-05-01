@@ -180,10 +180,11 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
             view = args[0].view
             edit = args[1]
             window = sublime.active_window()
-
-            _UrtextProjectList = initialize_project_list(
-                window,
-                new_file_node_created=new_file_node_created)
+            global _UrtextProjectList
+            if not _UrtextProjectList:
+                _UrtextProjectList = initialize_project_list(
+                    window,
+                    new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
             if _UrtextProjectList.current_project:
