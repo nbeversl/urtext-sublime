@@ -51,8 +51,6 @@ class UrtextProject:
         self.excluded_files = []
         self.home_requested = False
         self.running_on_modified = None
-        self.message_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=1)
         self.new_file_node_created = new_file_node_created
 
     def initialize(self, callback=None):
@@ -758,9 +756,7 @@ class UrtextProject:
         if not self.get_home():
             if not self.compiled:
                 if not self.home_requested:
-                    self.message_executor.submit(
-                        self.handle_info_message,
-                        'Project is compiling. Home will be shown when found.')
+                    self.handle_info_message('Project is compiling. Home will be shown when found.')
                     self.home_requested = True
                 timer = threading.Timer(.5, self.open_home)
                 timer.start()
@@ -1006,10 +1002,9 @@ class UrtextProject:
 
     def _visit_file(self, filename):
         if filename in self.files and self.compiled:
-            modified_files = self._compile_file(
+            self._compile_file(
                 filename,
                 flags=['-file_visited'])
-            return modified_files
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
@@ -1259,9 +1254,9 @@ class UrtextProject:
 
     def _compile(self):
         self._add_all_sub_tags()
-        num_directives = len(self.directives.values())
+        num_directives = len(list(self.directives.values()))
         directives = 'EMPTY'
-        for dd in self.dynamic_definitions.values():
+        for dd in list(self.dynamic_definitions.values()):
             directives = self.__run_def(dd)
         if len(self.directives.values()) > num_directives:
             return self._compile()
