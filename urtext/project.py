@@ -104,7 +104,6 @@ class UrtextProject:
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
         for directive in self.project_list.global_directives.values():
-
             self.add_directive(directive)
 
         num_file_extensions = len(self.get_setting('file_extensions'))
@@ -184,8 +183,6 @@ class UrtextProject:
 
         if buffer.filename in self.files:
             self.drop_file(buffer.filename)
-        else:
-            print(buffer.filename, 'NOT IN FILES')
 
         existing_buffer_ids = []
         if buffer.filename in self.files:
@@ -497,8 +494,6 @@ class UrtextProject:
     def drop_file(self, filename):
         if filename in self.files:
             self.drop_buffer(self.files[filename])
-        else:
-            print('DROPPED FILE NOT IN FILES', filename)
 
     def drop_buffer(self, buffer):
         self.run_hook('on_buffer_dropped', buffer.filename)
@@ -1263,7 +1258,6 @@ class UrtextProject:
     """ Project Compile """
 
     def _compile(self):
-
         self._add_all_sub_tags()
         num_directives = len(self.directives.values())
         directives = 'EMPTY'
@@ -1468,9 +1462,9 @@ class UrtextProject:
                 self.project_list.add_directive(directive)
 
         else:
-            
             for n in directive.name:
                 self.directives[n] = directive
+            self.project_list.add_directive(directive)
         return self.directives
 
     def get_directive(self, directive_name):
