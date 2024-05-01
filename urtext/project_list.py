@@ -62,7 +62,7 @@ class ProjectList:
         if not project.get_included_paths() and not os.path.isdir(project.entry_point):
             print('(debugging) NO PATHS')
             return
-        project._compile(len(project.directives))
+        project._compile()
 
     def get_setting(self, setting, calling_project):
         for project in [p for p in self.projects if p.entry_point != calling_project.entry_point]:

@@ -968,19 +968,15 @@ class UrtextProject:
         return self.execute(self._on_modified, filename)
 
     def _on_modified(self, filename):
-        print(self.compiled)
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
                 print('(debugging) ALREADY RUNNING ON MOD (debugging)')
             self.running_on_modified = filename
             file_obj = self._parse_file(filename)
             if file_obj:
-                modified_files = [filename]
-                if filename in self.files:
-                    modified_files.extend(
-                        self._compile_file(
-                            filename,
-                            flags=['-file_update']))
+                self._compile_file(
+                    filename,
+                    flags=['-file_update'])
                 contents = self._reverify_links(filename)
                 self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
@@ -990,7 +986,6 @@ class UrtextProject:
                 if filename in self.files:
                     self.run_hook('after_on_file_modified', filename)
                 self.running_on_modified = None
-                return modified_files
         self.running_on_modified = None
 
     def visit_node(self, node_id):
@@ -1282,18 +1277,10 @@ class UrtextProject:
     def _compile_file(self, filename, flags=None):
         if flags is None:
             flags = {}
-        modified_targets = []
-        modified_files = []
 
         for node in self.files[filename].nodes:
             for dd in self.__get_dynamic_defs(target_node=node, source_node=node):
-                modified_targets.extend(self.__run_def(dd))
-
-        for target in modified_targets:
-            if self.nodes[target].filename not in modified_files:
-                modified_files.append(self.nodes[target].filename)
-
-        return modified_files
+                self.__run_def(dd)
 
     def __run_def(self, dd, flags=None):
         print("RUNNIGN")
@@ -1304,16 +1291,12 @@ class UrtextProject:
                 targeted_output = dd.post_process(
                     target,
                     output)
-                modified_target = self._direct_output(
+                self._direct_output(
                     targeted_output,
                     target,
                     dd)
                 if target in self.nodes:
                     self.nodes[target].dynamic = True
-                if modified_target and modified_target not in modified_targets:
-                    modified_targets.append(modified_target)
-
-        return modified_targets
 
     def _direct_output(self, output, target, dd):
         node_link = syntax.node_link_or_pointer_c.match(target)
