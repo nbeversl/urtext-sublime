@@ -4,7 +4,7 @@ class FindByMetaCommand(UrtextTextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        if not self._UrtextProjectList.current_project.has_meta_browser_key():
+        if not self._UrtextProjectList.current_project.get_setting('meta_browser_key'):
             self.tagnames = self._UrtextProjectList.current_project.get_all_keys()
             self.view.window().show_quick_panel(
                 self.tagnames, 

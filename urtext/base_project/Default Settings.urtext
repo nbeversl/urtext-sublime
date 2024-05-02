@@ -19,7 +19,7 @@ filename_title_length::100
 hash_key::keyword
 home::Home
 new_file_node_format::$timestamp\n$cursor
-meta_browser_key::tag
+meta_browser_key::
 meta_browser_sort_keys_by::alpha
 meta_browser_sort_values_by::alpha
 meta_browser_sort::_oldest_timestamp
