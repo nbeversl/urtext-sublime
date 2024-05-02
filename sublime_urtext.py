@@ -206,9 +206,24 @@ def initialize_project_list(window,
 
     if reload_projects:
         _UrtextProjectList = None
-
     if not window:
         return
+    folder = get_current_folder(window)
+
+    if _UrtextProjectList and _UrtextProjectList.current_project:
+        if _UrtextProjectList.current_project.has_folder(folder):
+            return _UrtextProjectList
+    if _UrtextProjectList and folder:
+        if not _UrtextProjectList.set_current_project(folder) and add_project:
+            return _UrtextProjectList.initialize_project(folder, new_file_node_created=new_file_node_created)
+
+    elif folder and add_project:
+        _UrtextProjectList = ProjectList(
+            folder,
+            editor_methods=editor_methods)
+    return _UrtextProjectList
+
+def get_current_folder(window):
     view = window.active_view()
     folder = None
 
@@ -223,19 +238,7 @@ def initialize_project_list(window,
         project_data = window.project_data()
         if project_data and "folders" in project_data and project_data["folders"]:
             folder = project_data["folders"][0]["path"]
-
-    if _UrtextProjectList and _UrtextProjectList.current_project:
-        if _UrtextProjectList.current_project.has_folder(folder):
-            return _UrtextProjectList
-    if _UrtextProjectList and folder:
-        if not _UrtextProjectList.set_current_project(folder) and add_project:
-            return _UrtextProjectList.initialize_project(folder, new_file_node_created=new_file_node_created)
-
-    elif folder and add_project:
-        _UrtextProjectList = ProjectList(
-            folder,
-            editor_methods=editor_methods)
-    return _UrtextProjectList
+    return folder
 
 class UrtextReplace(sublime_plugin.TextCommand):
 

@@ -38,6 +38,7 @@ class UrtextProject:
         self.last_compile_time = 0
         self.nodes = {}
         self.files = {}
+        self.paths = []
         self.messages = {}
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
@@ -107,7 +108,6 @@ class UrtextProject:
             self.add_directive(directive)
 
         num_file_extensions = len(self.get_setting('file_extensions'))
-        num_paths = len(self.get_included_paths())
         if os.path.exists(self.entry_point):
             if os.path.isdir(self.entry_point) and (
                     self._approve_new_path(self.entry_point)):
@@ -116,19 +116,30 @@ class UrtextProject:
                 self._parse_file(self.entry_point)
                 if self._approve_new_path(os.path.dirname(self.entry_point)):
                     self.entry_path = os.path.dirname(self.entry_point)
+            if self.entry_path:
+                self.paths.append(self.entry_path)
             for file in self._get_included_files():
                 self._parse_file(file)
         else:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
-        while len(self.get_included_paths()) > num_paths or (
+        excluded_paths = []
+        num_paths = len(self.get_settings_paths())
+        while len(self.get_settings_paths()) > num_paths or (
                 len(self.get_setting('file_extensions')) > num_file_extensions):
-            num_paths = len(self.get_included_paths())
+            num_paths = len(self.get_settings_paths())
             num_file_extensions = len(self.get_setting('file_extensions'))
-            for file in self._get_included_files():
-                if file not in self.files:
-                    self._parse_file(file)
+            for p in self.get_settings_paths():
+                if p not in self.paths:
+                    if not self._approve_new_path(p):
+                        excluded_paths.append(p)
+                    else:
+                        if p not in self.paths:
+                            self.paths.append(p)
+                        for file in self._get_included_files():
+                            if file not in self.files:
+                                self._parse_file(file)
 
         if len(self.nodes) == 0 and not self.new_file_node_created:
             return False
@@ -143,14 +154,15 @@ class UrtextProject:
         other_entry_points = self.get_setting('other_entry_points')
         if other_entry_points:
             for path_link in other_entry_points:
-                self.project_list.initialize_project(utils.get_path_from_link(path_link))
+                self.project_list.add_project(utils.get_path_from_link(path_link))
         self.initialized = True
         callback(self)
 
     def _approve_new_path(self, path):
-        if path in self.get_included_paths() and path != self.entry_point:
+        if path in self.get_settings_paths() and path != self.entry_point:
             return False
         if path in self.project_list.get_all_paths():
+            self.log_item('system', "%s is already in another project." % path)
             return False
         return True
 
@@ -985,8 +997,7 @@ class UrtextProject:
             self.run_editor_method('status_message',
                                    ''.join([
                                        self.title(),
-                                       ' (compiled)'
-                                   ]))
+                                       ' (compiled)']))
 
     def visit_file(self, filename):
         return self.execute(
@@ -1012,13 +1023,11 @@ class UrtextProject:
 
     def _get_included_files(self):
         files = []
-        paths = self.get_included_paths()
-
-        for pathname in paths:
+        for pathname in self.paths:
             files.extend([os.path.join(pathname, f) for f in os.listdir(pathname)])
         return [f for f in files if self._include_file(f)]
 
-    def get_included_paths(self):
+    def get_settings_paths(self):
         paths = []
         if self.entry_path is not None:
             paths.append(self.entry_path)
@@ -1392,7 +1401,7 @@ class UrtextProject:
                         return
 
     def has_folder(self, folder):
-        included_paths = self.get_included_paths()
+        included_paths = self.get_settings_paths()
         if os.path.isdir(self.entry_point):
             included_paths.append(self.entry_point)
         return included_paths

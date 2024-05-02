@@ -36,32 +36,26 @@ class ProjectList:
         self.entry_points = []
         self.current_project = None
         if base_project:
-            self.initialize_project(base_project)
-        self.initialize_project(self.entry_point)
+            self.add_project(base_project)
+        self.add_project(self.entry_point)
 
-    def initialize_project(self, entry_point, callback=None, new_file_node_created=False):
+    def add_project(self, entry_point, callback=None, new_file_node_created=False):
         if not callback:
             callback = self.compile_project
-        if entry_point in self.entry_points:
-            return
-        if os.path.isdir(entry_point):
-            if entry_point in self.get_all_paths():
-                print('(debugging) ENTRY POINT ALREADY IN A PROJECT:', entry_point)
-                return
         self.entry_points.append(entry_point)
         project = UrtextProject(entry_point,
                                 project_list=self,
                                 editor_methods=self.editor_methods,
                                 new_file_node_created=new_file_node_created)
-        self.projects.append(project)
         project.executor = self.executor
         project.is_async = self.is_async
         project.initialize(callback=callback)
 
     def compile_project(self, project):
-        if not project.get_included_paths() and not os.path.isdir(project.entry_point):
+        if not project.get_settings_paths() and not os.path.isdir(project.entry_point):
             print('(debugging) NO PATHS')
             return
+        self.projects.append(project)
         project._compile()
 
     def get_setting(self, setting, calling_project):
@@ -133,13 +127,13 @@ class ProjectList:
             self.current_project = project
             project.on_modified(filename)
         else:
-            self.initialize_project(filename)
+            self.add_project(filename)
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):
             path = os.path.dirname(path)
         for project in self.projects:
-            if path in project.get_included_paths():
+            if path in project.get_settings_paths():
                 return project
 
     def _get_project_from_title(self, title):
@@ -162,7 +156,7 @@ class ProjectList:
             self.current_project = project
             self.current_project.run_editor_method('popup',
                                                    'Switched to project: %s ' % self.current_project.title())
-            project_paths = self.current_project.get_included_paths()
+            project_paths = self.current_project.get_settings_paths()
             if project_paths:
                 self.current_project.on_project_activated()
         return self.current_project
@@ -207,7 +201,7 @@ class ProjectList:
 
     def get_current_project(self, path):
         for project in self.projects:
-            if path in project.get_included_paths():
+            if path in project.get_settings_paths():
                 return project
         return None
 
@@ -251,7 +245,7 @@ class ProjectList:
         moved_nodes = list(source_project.files[old_filename].nodes)
         source_project.drop_file(old_filename)
         new_filename = os.path.join(
-            destination_project.get_included_paths()[0],
+            destination_project.get_settings_paths()[0],
             os.path.basename(old_filename))
         os.rename(old_filename, new_filename)
         """
@@ -286,9 +280,9 @@ class ProjectList:
             project.editor_copy_link_to_node(position, filename, include_project=include_project)
 
     def get_all_paths(self):
-        paths = []
+        paths = [os.path.dirname(p) for p in self.entry_points]
         for p in [project for project in self.projects if project.initialized]:
-            paths.extend(p.get_included_paths())
+            paths.extend(p.get_settings_paths())
         return paths
 
     def get_all_meta_pairs(self):
