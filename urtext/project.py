@@ -261,7 +261,7 @@ class UrtextProject:
 
     def _reverify_links(self, filename):
         if filename in self.files:
-            contents = self.files[filename].get_contents()
+            contents = self.files[filename]._get_contents()
             for node in [n for n in self.files[filename].nodes if not n.dynamic]:
                 rewrites = {}
                 for link in node.links:
@@ -303,7 +303,7 @@ class UrtextProject:
                         if node_id == old_id:
                             links_to_change[node_id] = new_id
                     if links_to_change:
-                        contents = self.files[project_node.filename].get_contents()
+                        contents = self.files[project_node.filename]._get_contents()
                         for node_id in list(links_to_change.keys()):
                             replaced_contents = contents
                             node_id_regex = re.escape(node_id)

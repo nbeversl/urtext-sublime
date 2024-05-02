@@ -9,7 +9,7 @@ class UrtextFile(UrtextBuffer):
         self.filename = filename
         super().__init__(project, filename, self._read_contents())
 
-    def get_contents(self):
+    def _get_contents(self):
         if not self.contents:
             self.contents = self._read_contents()
         return self.contents
