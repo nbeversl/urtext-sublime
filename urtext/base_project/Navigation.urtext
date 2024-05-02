@@ -86,13 +86,13 @@ class Navigation:
 					self.project_list_instance.nav_index -= 1
 				self.project_list_instance.navigation.remove(node_id)
 
-	def on_node_id_changed(self, node, old_id):
+	def on_node_id_changed(self, old_node_id, new_id):
 		for index, item in enumerate(self.project_list_instance.navigation):
 			project = item[0]
 			old_nav_id = item[1]
 			if project == self.project_list.current_project.get_setting('project_title') and ( 
-				old_nav_id == old_id):
-					self.project_list_instance.navigation[index] = (project, node.id)
+				old_nav_id == old_node_id):
+					self.project_list_instance.navigation[index] = (project, new_node_id)
 
 #ThisProject.add_directive(Navigation)
 %%
