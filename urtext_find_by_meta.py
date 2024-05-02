@@ -10,13 +10,16 @@ class FindByMetaCommand(UrtextTextCommand):
                 self.tagnames, 
                 self.list_values)
         else:
-            self.tagnames = self._UrtextProjectList.current_project.get_setting('meta_browser_key')
+            self.tagnames = [self._UrtextProjectList.current_project.get_setting('meta_browser_key')]
             self.list_values(0)
 
     def list_values(self, index):
         self.selected_tag = self.tagnames[index]
         self.values = self._UrtextProjectList.current_project.get_all_values_for_key(
             self.selected_tag)
+        if not self.values:
+            self._UrtextProjectList.current_project.handle_info_message(
+                'No metadata available; check project_settings.metadata_browser_key')
         self.view.window().show_quick_panel(
             self.values,
             self.display_files)

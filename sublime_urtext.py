@@ -187,6 +187,9 @@ def refresh_project_text_command(mouse=False, new_file_node_created=False):
                     new_file_node_created=new_file_node_created)
             if not _UrtextProjectList:
                 return None
+            folder = get_current_folder(window)
+            if _UrtextProjectList.set_current_project(folder):
+                _UrtextProjectList.add_project(folder)
             if _UrtextProjectList.current_project:
                 args[0].edit = edit
                 args[0]._UrtextProjectList = _UrtextProjectList
