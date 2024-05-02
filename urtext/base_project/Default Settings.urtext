@@ -15,7 +15,7 @@ exclude_from_star::title - _newest_timestamp - _oldest_timestamp - _inline_times
 filenames::title
 file_extensions::.urtext
 filename_datestamp_format::%m-%d-%Y %I-%M %p,
-filename_title_length::100,
+filename_title_length::100
 hash_key::keyword
 home::Home
 new_file_node_format::$timestamp\n$cursor
@@ -29,7 +29,7 @@ numerical_keys::_index - index - title_length
 on_project_activated::open_home - open_last_nav
 other_entry_points::
 paths::
-timestamp_format::%a., %b. %d, %Y, %I:%M %p %Z, 
+timestamp_format::%a., %b. %d, %Y, %I:%M %p %Z
 title_length::255,
 use_timestamp::timestamp - _inline_timestamp - _oldest_timestamp - _newest_timestamp
 project_title::Urtext Base Project & Documentation

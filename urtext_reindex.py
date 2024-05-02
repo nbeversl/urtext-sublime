@@ -6,9 +6,7 @@ class ReIndexFilesCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        renamed_files = self._UrtextProjectList.current_project.extensions[
-            'REINDEX'
-            ].rename_all_files()
+        renamed_files = self._UrtextProjectList.current_project.run_directive('REINDEX')
         if self._UrtextProjectList.current_project.is_async:
             renamed_files=renamed_files.result()
         if renamed_files:
@@ -21,7 +19,7 @@ class RenameFileCommand(UrtextTextCommand):
     @refresh_project_text_command()
     def run(self):
         if self.view.file_name() and self._UrtextProjectList:
-            self._UrtextProjectList.current_project.extensions[
-                'RENAME_SINGLE_FILE'
-                ].manual_rename(self.view.file_name())
+            self._UrtextProjectList.current_project.run_directive(
+                'RENAME_SINGLE_FILE',
+                self.view.file_name()),
             self.view.run_command('save')

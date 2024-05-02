@@ -12,13 +12,13 @@ class ReindexFiles:
     name=['REINDEX']        
     import os
     
-    def rename_all_files(self):
+    def run(self):
         return self.project.execute(
             self._rename_file_nodes,
             self.project.files)
 
     def strip_illegal_characters(self, filename):
-        for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';']:
+        for c in ['<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';', '%']:
             filename = filename.replace(c,' ')
         return filename
 
@@ -43,8 +43,12 @@ class ReindexFiles:
             for i in range(0,len(filename_template)):
                 
                 if filename_template[i].lower() == 'title':
-                    filename_length = int(
-                        self.project.get_setting('filename_title_length'))
+                    filename_title_length_setting = self.project.get_setting('filename_title_length')
+                    if filename_title_length_setting:
+                        try:
+                            filename_length = int(filename_title_length_setting)
+                        except:
+                            filename_length = 255
                     if filename_length > 255:
                         filename_length = 255
                     title = root_node.title
@@ -112,13 +116,13 @@ class RenameSingleFile(ReindexFiles):
         return self.project.setting_to_boolean('rename_on_save')
 
     def manual_rename(self, filename):
-        self.rename_single_file(filename)
+        self.run(filename)
 
     def after_on_file_modified(self, filename):
         if self._should_run():
-            self.rename_single_file(filename)
+            self.run(filename)
 
-    def rename_single_file(self, filename):
+    def run(self, filename):
         renamed_files = self._rename_file_nodes(filename)
         if renamed_files:
             self.project.run_editor_method('close_current')
@@ -126,7 +130,6 @@ class RenameSingleFile(ReindexFiles):
                 'open_file_to_position',
                 renamed_files[filename],
                 0)
-
 
 ThisProject.add_directive(ReindexFiles)
 ThisProject.add_directive(RenameSingleFile)
