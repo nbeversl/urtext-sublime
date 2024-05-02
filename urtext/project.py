@@ -152,10 +152,6 @@ class UrtextProject:
             return False
         return True
 
-    def _parse_all_files(self):
-        for filename in self._get_included_files():
-            self._parse_file(filename)
-
     def _parse_file(self, filename, try_buffer=False, passed_contents=None):
         if self._filter_filenames(filename) is None:
             self._add_to_excluded_files(filename)
@@ -176,12 +172,12 @@ class UrtextProject:
 
     def _parse_buffer(self, buffer):
 
-        if buffer.filename in self.files:
-            self.drop_file(buffer.filename)
-
         existing_buffer_ids = []
         if buffer.filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
+
+        if buffer.filename in self.files:
+            self.drop_file(buffer.filename)
 
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
@@ -251,8 +247,9 @@ class UrtextProject:
         if self.compiled and changed_ids:
             for old_node_id in changed_ids:
                 self.run_hook('on_node_id_changed',
-                              buffer.nodes[changed_ids[old_node_id]],
-                              old_node_id)
+                            old_node_id, # old id
+                            changed_ids[old_node_id], # new id
+                            ) 
             self._rewrite_changed_links(changed_ids)
 
         return buffer
@@ -1020,6 +1017,7 @@ class UrtextProject:
         return [f for f in files if self._include_file(f)]
 
     def get_included_paths(self):
+        paths = []
         if self.entry_path is not None:
             paths.append(self.entry_path)
         if os.path.isdir(self.entry_point):
