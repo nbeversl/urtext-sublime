@@ -1020,7 +1020,8 @@ class UrtextProject:
         return [f for f in files if self._include_file(f)]
 
     def get_included_paths(self):
-        paths = [self.entry_path]
+        if self.entry_path is not None:
+            paths.append(self.entry_path)
         if os.path.isdir(self.entry_point):
             paths.append(self.entry_point)
 
