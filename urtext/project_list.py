@@ -223,13 +223,6 @@ class ProjectList:
             return True
         return False
 
-    def new_project_in_path(self, path):
-        if os.path.exists(path):
-            new_project = UrtextProject(path, project_list=self)
-            self.set_current_project(new_project.title())
-        else:
-            print('%s does not exist' % path)
-
     def move_file(self,
                   old_filename,
                   source_project_name_or_path,
@@ -282,6 +275,15 @@ class ProjectList:
         self.run_editor_method('retarget_view', old_filename, new_filename)
 
         return changed_ids
+
+    def editor_copy_link_to_node(self, 
+                                 position,
+                                 filename,
+                                 include_project=False):
+
+        project = self.set_current_project(filename)
+        if project:
+            project.editor_copy_link_to_node(position, filename, include_project=include_project)
 
     def get_all_paths(self):
         paths = []

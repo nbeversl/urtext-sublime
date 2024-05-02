@@ -69,19 +69,21 @@ class UrtextProject:
                 return values
         if values and values[0].is_node:
             return values
-        if setting in ['boolean_settings', 'single_values_settings']:
+        if setting in ['boolean_settings', 'single_values_settings', 'integer_settings']:
             return [v.text for v in values]
         if setting in self.get_setting('boolean_settings', _from_project_list=_from_project_list):
-            return [v.true() for v in values]
-        if setting != 'integer_settings' and (
-                setting in self.get_setting('integer_settings', _from_project_list=_from_project_list)):
+            values = [v.true() for v in values]
+            if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
+                return values[0]
+            return values
+        if setting in self.get_setting('integer_settings', _from_project_list=_from_project_list):
             values = [v.num() for v in values]
-        if as_type == 'text':
-            values = [v.text for v in values]
+            if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
+                return values[0]
+            return values
         if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
-            return values[0]
-
-        return values
+            return values[0].text
+        return [v.text for v in values]
 
     def get_settings_keys(self):
         keys = []
@@ -1462,7 +1464,7 @@ class UrtextProject:
         elif directive_name in self.project_list.directives:
             directive_class = self.project_list.directives[directive_name]
         if not directive_class:
-            return self.handle_info_message('Directive %s is not available' % directive_name)
+            return None
 
         class Directive(directive_class, UrtextDirective):
             pass
@@ -1472,27 +1474,7 @@ class UrtextProject:
     def run_directive(self, directive_name, *args, **kwargs):
         directive = self.get_directive(directive_name)
         if not directive:
-            return self.handle_info_message('Directive %s is not available' % directive_name)
-        if directive:
-            op = directive(self)
-            op.run(*args, **kwargs)
-
-
-""" 
-Helpers 
-"""
-
-
-def to_boolean(text):
-    text = text.lower()
-    if text in [
-        'y',
-        'yes',
-        'true',
-        'on']:
-        return True
-    return False
-
-
-def match_compact_node(selection):
-    return True if syntax.compact_node_c.match(selection) else False
+            self.handle_info_message('Directive %s is not available' % directive_name)
+            return None
+        op = directive(self)
+        return op.run(*args, **kwargs)

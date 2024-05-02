@@ -6,20 +6,20 @@ always_oneline_meta::False
 atomic_rename::False
 breadcrumb_key::popped_from
 case_sensitive::title - project_title - timestamp_format - filenames - timestamp
-console_log::False,
-contents_strip_internal_whitespace::True,
-contents_strip_outer_whitespace::True,
+console_log::False
+contents_strip_internal_whitespace::True
+contents_strip_outer_whitespace::True
 device_keyname::
 exclude_files::
 exclude_from_star::title - _newest_timestamp - _oldest_timestamp - _inline_timestamp
 filenames::title
 file_extensions::.urtext
-filename_datestamp_format::%m-%d-%Y %I-%M %p,
+filename_datestamp_format::%m-%d-%Y %I-%M %p
 filename_title_length::100
 hash_key::keyword
 home::Home
 new_file_node_format::$timestamp\n$cursor
-meta_browser_key::None,
+meta_browser_key::
 meta_browser_sort_keys_by::alpha
 meta_browser_sort_values_by::alpha
 meta_browser_sort::_oldest_timestamp

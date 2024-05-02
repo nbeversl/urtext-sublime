@@ -7,7 +7,7 @@ import webbrowser
 import Urtext.urtext.syntax as syntax
 from Urtext.urtext.project_list import ProjectList
 from sublime_plugin import EventListener, ViewEventListener
-from Urtext.urtext.project import match_compact_node
+from Urtext.urtext.utils import match_compact_node
 _UrtextProjectList = None
 
 class UrtextTextCommand(sublime_plugin.TextCommand):
@@ -581,7 +581,7 @@ class CopyLinkToHereCommand(UrtextTextCommand):
     """
     @refresh_project_text_command()
     def run(self):
-        self._UrtextProjectList.current_project.editor_copy_link_to_node(
+        self._UrtextProjectList.editor_copy_link_to_node(
             self.view.sel()[0].a,
             self.view.file_name())
 
@@ -589,7 +589,7 @@ class CopyLinkToHereWithProjectCommand(CopyLinkToHereCommand):
 
     @refresh_project_text_command()
     def run(self):
-        self._UrtextProjectList.current_project.editor_copy_link_to_node(
+        self._UrtextProjectList.editor_copy_link_to_node(
             self.view.sel()[0].a,
             self.view.file_name(),
             include_project=True)
