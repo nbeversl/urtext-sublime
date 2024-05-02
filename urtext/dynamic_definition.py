@@ -21,6 +21,7 @@ class UrtextDynamicDefinition:
         self.show = None
         self.param_string = param_string
         self.system_contents = []
+        self.init_self(param_string)
         self.sorted = False
         self.source_node = None  # set by node once compiled
         if not self.show:
@@ -67,10 +68,6 @@ class UrtextDynamicDefinition:
                     op.parse_argument_string(argument_string)
                     self.operations.append(op)
                 else:
-                    self.project.log_item(
-                        self.source_node.filename,
-                        'Directive %s is not available' % directive_name)
-
                     self.system_contents.append('directive "%s" not found' % func)
 
     def preserve_title_if_present(self, target):
@@ -83,7 +80,7 @@ class UrtextDynamicDefinition:
         return ''
 
     def process_output(self):
-        self.init_self(self.param_string)
+        
         self.project.run_hook('on_dynamic_def_process_started', self)
         accumulated_text = ''
 

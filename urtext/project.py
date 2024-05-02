@@ -152,6 +152,10 @@ class UrtextProject:
             return False
         return True
 
+    def _parse_all_files(self):
+        for filename in self._get_included_files():
+            self._parse_file(filename)
+
     def _parse_file(self, filename, try_buffer=False, passed_contents=None):
         if self._filter_filenames(filename) is None:
             self._add_to_excluded_files(filename)
@@ -172,12 +176,12 @@ class UrtextProject:
 
     def _parse_buffer(self, buffer):
 
+        if buffer.filename in self.files:
+            self.drop_file(buffer.filename)
+
         existing_buffer_ids = []
         if buffer.filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
-
-        if buffer.filename in self.files:
-            self.drop_file(buffer.filename)
 
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
@@ -190,9 +194,8 @@ class UrtextProject:
         if buffer.has_errors:
             buffer.write_buffer_messages()
         changed_ids = {}
-       
         if existing_buffer_ids:
-            new_node_ids = [n.id for n in buffer.get_ordered_nodes()]            
+            new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
             if len(existing_buffer_ids) == len(new_node_ids):
                 for index in range(0, len(existing_buffer_ids)):  # existing links are all we care about
                     if existing_buffer_ids[index] == new_node_ids[index]:
@@ -248,9 +251,8 @@ class UrtextProject:
         if self.compiled and changed_ids:
             for old_node_id in changed_ids:
                 self.run_hook('on_node_id_changed',
-                            old_node_id, # old id
-                            changed_ids[old_node_id], # new id
-                            ) 
+                              buffer.nodes[changed_ids[old_node_id]],
+                              old_node_id)
             self._rewrite_changed_links(changed_ids)
 
         return buffer
@@ -1460,6 +1462,8 @@ class UrtextProject:
             directive_class = self.directives[directive_name]
         elif directive_name in self.project_list.directives:
             directive_class = self.project_list.directives[directive_name]
+        if not directive_class:
+            return self.handle_info_message('Directive %s is not available' % directive_name)
 
         class Directive(directive_class, UrtextDirective):
             pass
