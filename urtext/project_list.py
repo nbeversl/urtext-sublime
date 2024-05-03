@@ -26,7 +26,7 @@ class ProjectList:
             sys.path.append(urtext_location)
 
         self.is_async = is_async
-        self.is_async = False  # development
+        #self.is_async = False  # development
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
@@ -40,9 +40,10 @@ class ProjectList:
         self.add_project(self.entry_point)
 
     def add_project(self, entry_point, callback=None, new_file_node_created=False):
+        if self.get_project(entry_point):
+            return
         if not callback:
             callback = self.compile_project
-        self.entry_points.append(entry_point)
         project = UrtextProject(entry_point,
                                 project_list=self,
                                 editor_methods=self.editor_methods,
@@ -56,6 +57,7 @@ class ProjectList:
             print('(debugging) NO PATHS')
             return
         self.projects.append(project)
+        self.entry_points.append(project.entry_point)
         project._compile()
 
     def get_setting(self, setting, calling_project):

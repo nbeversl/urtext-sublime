@@ -5,7 +5,6 @@ The base project includes all the core Urtext directives as nodes that can be ex
 The dynamic definition below executes them in order. Each node will include documentation on the feature it adds.
 
 [[
-TEXT(\ncompleted!)
 EXEC(| Tree Manager >)
 EXEC(| Tree >)
 EXEC(| Sort >) 
@@ -21,17 +20,12 @@ EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
 EXEC(| Show >)
-TEXT(\ncompleted!)
+>(| results >)
 +(*)
 TREE()
-TEXT(\ncompleted!)
-TEXT(\ncompleted!)
-TEXT(\ncompleted!) results2 _
+]]
 
-completed!
-
-completed!
-=>"Nates Urtext Project"| Solution -- directives should be able to run before compile. >
+{ results _
 | Collect >
 | Export Directive >
 | Files >
@@ -55,12 +49,4 @@ completed!
 | When >
 | project_settings >
 | Home >
-|? Log Output >
-|? Show Directives >
-|? code to show directives >
-
-completed!
-
-completed!
-
-completed!
+} 
