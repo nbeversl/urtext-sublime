@@ -54,9 +54,6 @@ class UrtextProject:
         self.running_on_modified = None
         self.new_file_node_created = new_file_node_created
 
-    def initialize(self, callback=None):
-        return self.execute(self._initialize, callback=callback)
-
     def get_setting(self, setting, as_type='text', _from_project_list=False):
 
         values = []
@@ -70,14 +67,14 @@ class UrtextProject:
                 return values
         if values and values[0].is_node:
             return values
-        if setting in ['boolean_settings', 'single_values_settings', 'integer_settings']:
+        if setting in ['boolean_settings', 'single_values_settings', 'numerical_settings']:
             return [v.text for v in values]
         if setting in self.get_setting('boolean_settings', _from_project_list=_from_project_list):
             values = [v.true() for v in values]
             if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
                 return values[0]
             return values
-        if setting in self.get_setting('integer_settings', _from_project_list=_from_project_list):
+        if setting in self.get_setting('numerical_settings', _from_project_list=_from_project_list):
             values = [v.num() for v in values]
             if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
                 return values[0]
@@ -99,7 +96,7 @@ class UrtextProject:
             return self.get_settings_keys()
         return propagated_settings
 
-    def _initialize(self, callback=None):
+    def initialize(self, callback=None):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self.add_directive(Exec)
         for directive in self.project_list.directives.values():
@@ -154,7 +151,7 @@ class UrtextProject:
         other_entry_points = self.get_setting('other_entry_points')
         if other_entry_points:
             for path_link in other_entry_points:
-                self.project_list.add_project(utils.get_path_from_link(path_link))
+                self.project_list._add_project(utils.get_path_from_link(path_link))
         self.initialized = True
         callback(self)
 
@@ -870,7 +867,6 @@ class UrtextProject:
                     link,
                     filename):
 
-        self._parse_file(filename, try_buffer=True)
         if link.is_node and link.node_id in self.nodes:
             if link.is_action:
                 for dd in self.__get_dynamic_defs(source_node=self.nodes[link.node_id]):
@@ -916,7 +912,7 @@ class UrtextProject:
             ).astimezone()
         ts_format = self.get_setting('timestamp_format')
         if add_seconds:
-            if '%' in self.get_setting('timestamp_format') and '%S' not in self.get_setting('timestamp_format'):
+            if '%' in ts_format and '%S' not in ts_format:
                 ts_format = ts_format.replace('%M', '%M:%S')
         if as_string:
             return ''.join([
@@ -929,8 +925,9 @@ class UrtextProject:
             date.strftime(ts_format))
 
     def get_home(self):
-        if self.get_setting('home') in self.nodes:
-            return self.get_setting('home')
+        home_node_id = self.get_setting('home')
+        if home_node_id in self.nodes:
+            return home_node_id
 
     def get_all_meta_pairs(self):
         pairs = []
@@ -960,9 +957,6 @@ class UrtextProject:
         return None
 
     def on_modified(self, filename):
-        return self.execute(self._on_modified, filename)
-
-    def _on_modified(self, filename):
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
                 print('(debugging) ALREADY RUNNING ON MOD (debugging)')
@@ -984,24 +978,16 @@ class UrtextProject:
         self.running_on_modified = None
 
     def visit_node(self, node_id):
-        return self.execute(self._visit_node, node_id)
-
-    def _visit_node(self, node_id):
-        if node_id in self.nodes and self.compiled:
+        if self.compiled:
             filename = self.nodes[node_id].filename
             self.run_hook('on_node_visited', node_id)
-            self._visit_file(filename)
+            self.visit_file(filename)
             self.run_editor_method('status_message',
                                    ''.join([
                                        self.title(),
                                        ' (compiled)']))
 
     def visit_file(self, filename):
-        return self.execute(
-            self._visit_file,
-            filename)
-
-    def _visit_file(self, filename):
         if filename in self.files and self.compiled:
             self._compile_file(
                 filename,
@@ -1063,8 +1049,8 @@ class UrtextProject:
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
-        self.execute(self._parse_file, filename)
-        self.execute(self._compile_file, filename)
+        self._parse_file(filename)
+        self._compile_file(filename)
 
     def get_file_name(self, node_id):
         if node_id in self.nodes:
@@ -1235,11 +1221,6 @@ class UrtextProject:
             position = self.nodes[node_id].start_position
             return filename, position
         return None, None
-
-    def execute(self, function, *args, **kwargs):
-        if self.is_async:
-            return self.executor.submit(function, *args, **kwargs)
-        return function(*args, **kwargs)
 
     def run_hook(self, hook_name, *args):
         for dd in self.dynamic_definitions.values():

@@ -40,6 +40,9 @@ class ProjectList:
         self.add_project(self.entry_point)
 
     def add_project(self, entry_point, callback=None, new_file_node_created=False):
+        self.execute(self._add_project, entry_point, callback=None, new_file_node_created=False)
+
+    def _add_project(self, entry_point, callback=None, new_file_node_created=False):
         if self.get_project(entry_point):
             return
         if not callback:
@@ -52,6 +55,11 @@ class ProjectList:
         project.is_async = self.is_async
         project.initialize(callback=callback)
 
+    def execute(self, function, *args, **kwargs):
+        if self.is_async:
+            return self.executor.submit(function, *args, **kwargs)
+        return function(*args, **kwargs)
+    
     def compile_project(self, project):
         if not project.get_settings_paths() and not os.path.isdir(project.entry_point):
             print('(debugging) NO PATHS')
@@ -68,9 +76,6 @@ class ProjectList:
                     return values
         return []
 
-    def parse_link(self, string, col_pos=0, include_http=True):
-        return utils.get_link_from_position_in_string(string, col_pos, include_http=include_http)
-
     def handle_link(self,
                     string,
                     filename,
@@ -82,7 +87,7 @@ class ProjectList:
         and returns the link information. Does not update navigation,
         this should be done by the calling method.
         """
-        link = self.parse_link(string, col_pos=col_pos, include_http=True)
+        link = utils.get_link_from_position_in_string(string, col_pos, include_http=True)
         if not link:
             return self.handle_unusable_link()
         link.filename = filename
@@ -123,13 +128,16 @@ class ProjectList:
         return self.run_editor_method('popup', message)
 
     def on_modified(self, filename):
+        self.execute(self._on_modified, filename)
+
+    def _on_modified(self, filename):
         project = self._get_project_from_path(
             os.path.dirname(filename))
         if project:
             self.current_project = project
             project.on_modified(filename)
         else:
-            self.add_project(filename)
+            self._add_project(filename)
 
     def _get_project_from_path(self, path):
         if not os.path.isdir(path):
@@ -208,11 +216,17 @@ class ProjectList:
         return None
 
     def visit_file(self, filename):
+        return self.execute(self._visitfile, filename)
+
+    def _visit_file(self, filename):
         self.set_current_project(filename)
         if self.current_project:
             return self.current_project.visit_file(filename)
 
     def visit_node(self, filename, node_id):
+        return self.execute(self._visit_node, filename, node_id)
+
+    def _visit_node(self, filename, node_id):
         self.set_current_project(filename)
         if self.current_project and node_id in self.current_project.nodes:
             self.current_project.visit_node(node_id)
