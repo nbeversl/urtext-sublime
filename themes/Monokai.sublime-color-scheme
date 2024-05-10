@@ -337,6 +337,15 @@
         {
             "scope": "entity.name.struct.error-message.urtext",
             "foreground": "var(error-message)"
+        },
+        {
+            "scope": "file_link_modifier.urtext",
+            "foreground": "var(lime2)"
+        },
+        {
+            "scope": "file_link_path.urtext",
+            "foreground": "var(lime2)"
         }
+
     ]
 }

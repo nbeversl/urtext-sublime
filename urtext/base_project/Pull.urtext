@@ -15,7 +15,7 @@ class PullNode:
         destination_filename, 
         file_pos):
 
-        return self.project.execute(
+        return self.project.project_list.execute(
             self._pull_node,
             string, 
             col_pos,

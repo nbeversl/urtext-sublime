@@ -18,9 +18,9 @@ contexts:
   
   syntax-main:    
     - include: node_pointer
+    - include: file_link
     - include: node_link
     - include: other-project-link
-    - include: file_link
     - include: shorthand_meta
     - include: node_title
     - include: metadata-entry
@@ -326,8 +326,12 @@ contexts:
         4: pointer_destination.urtext
 
   file_link:
-    - match: '(\|\/\s)[^\s][^;]*\s>'
-      scope: file_link.urtext
+    - match: '(\|)(\/)(\s)([^\s][^;]*)\s>'
+      captures:
+        1: link_opening_wrapper.urtext 
+        2: file_link_modifier.urtext
+        4: file_link_path.urtext
+        5: link_closing_wrapper.urtext
 
   raw:
     - meta_scope: raw.urtext
@@ -362,9 +366,9 @@ contexts:
   compact-node:
     - meta_scope: compact_node.urtext
     - include: node_pointer
+    - include: file_link
     - include: node_link
     - include: other-project-link
-    - include: file_link
     - include: shorthand_meta
     - include: node_title
     - include: bold-text

@@ -426,12 +426,12 @@ class NodeBrowserCommand(UrtextTextCommand):
     
     @refresh_project_text_command()
     def run(self):
-        if not self._UrtextProjectList.current_project:
+        if not _UrtextProjectList.current_project:
             return print('No current Urtext project')
         self.window = self.view.window()
         self.menu = NodeBrowserMenu(
-            self._UrtextProjectList, 
-            project=self._UrtextProjectList.current_project)
+            _UrtextProjectList, 
+            project=_UrtextProjectList.current_project)
 
         self.selection_has_changed = False
         show_panel(
@@ -448,8 +448,8 @@ class NodeBrowserCommand(UrtextTextCommand):
 
     def open_the_file(self, index):
         node = self.menu.menu[index]
-        self._UrtextProjectList.set_current_project(node.project.title())
-        self._UrtextProjectList.current_project.open_node(node.id)
+        _UrtextProjectList.set_current_project(node.project.title())
+        _UrtextProjectList.current_project.open_node(node.id)
 
 class BacklinksBrowser(NodeBrowserCommand):
 
@@ -546,11 +546,13 @@ def show_panel(window, menu, main_callback, on_highlight=None):
         if index == -1:
             return
         main_callback(index)
-    
-    window.show_quick_panel(menu, 
-        on_selected, 
-        selected_index=-1, # doesn't work; Sublime Text Bug
-        on_highlight=on_highlight)
+    if window:
+        window.show_quick_panel(menu, 
+            on_selected, 
+            selected_index=-1, # doesn't work; Sublime Text Bug
+            on_highlight=on_highlight)
+    else:
+        print('(debugging) no window (Sublime)')
 
 class LinkToNodeCommand(UrtextTextCommand):
 

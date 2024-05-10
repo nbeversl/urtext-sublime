@@ -15,7 +15,7 @@ class PopNode:
         file_pos,
         from_project=None):
 
-        return self.project.execute(
+        return self.project.project_list.execute(
             self._pop_node_from_editor,
             source_filename, 
             file_pos,

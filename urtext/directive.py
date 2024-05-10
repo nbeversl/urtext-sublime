@@ -52,7 +52,6 @@ class UrtextDirective:
         arguments = self.syntax.metadata_arg_delimiter_c.split(argument_string)     
         for arg in arguments:
             arg = arg.strip()
-
             key_op_value = syntax.dd_key_op_value_c.match(arg)          
             if key_op_value:
                 key = key_op_value.group(1)

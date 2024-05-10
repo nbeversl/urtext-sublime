@@ -288,16 +288,7 @@ class UrtextNode:
             file_contents[self.end_position:]])
         return self.file.write_file_contents(new_file_contents)
 
-    def replace_range(self,
-        range_to_replace,
-        replacement_contents):
-
-        self.project.execute(
-            self._replace_range,
-            range_to_replace,
-            replacement_contents)
-
-    def _replace_range(self, 
+    def replace_range(self, 
         range_to_replace, 
         replacement_contents):
 

@@ -515,11 +515,6 @@ class UrtextProject:
             del self.nodes[node.id]
 
     def delete_file(self, filename):
-        return self.execute(
-            self._delete_file,
-            filename)
-
-    def _delete_file(self, filename):
         """
         Deletes a file, removes it from the project,
         """
@@ -766,7 +761,7 @@ class UrtextProject:
             else:
                 self.home_requested = False
                 self.handle_info_message(
-                    'Project compiled. No home node for this project')
+                    'No home node for this project')
                 return False
         self.home_requested = False
         self.open_node(self.get_setting('home'))
