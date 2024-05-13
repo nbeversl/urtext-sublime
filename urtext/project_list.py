@@ -107,10 +107,14 @@ class ProjectList:
                 return self.run_editor_method(
                     'open_external_file',
                     link.path)
-            elif self.current_project:  # try as relative path
+            elif self.current_project and os.path.exists(
+                os.path.join(self.current_project.entry_path, link.path)):
+                # try as relative path
                 return self.run_editor_method(
                     'open_external_file',
                     os.path.join(self.current_project.entry_path, link.path))
+            else:
+                self.handle_message('Path does not exist')
 
         elif self.current_project and link.is_node:
             return self.current_project.handle_link(

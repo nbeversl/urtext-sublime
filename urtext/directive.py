@@ -41,6 +41,9 @@ class UrtextDirective:
     def trigger(self, *args, **kwargs):
         self.run(*args, **kwargs)
 
+    def on_added(self):
+        pass
+        
     def dynamic_output(self, input_contents):
         if self.should_continue():
             return self.dynamic_output(input_contents)

@@ -97,7 +97,6 @@ class UrtextProject:
         return propagated_settings
 
     def initialize(self, callback=None):
-        self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self.add_directive(Exec)
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
@@ -121,22 +120,27 @@ class UrtextProject:
             self.handle_error_message('Project path does not exist: %s' % self.entry_point)
             return False
 
-        excluded_paths = []
+        for p in self.get_settings_paths():
+            if p not in self.paths:
+                if not self._approve_new_path(p):
+                    print(p, 'NOT ADDED (debugging)')
+                else:
+                    self.paths.append(p)
+                    for file in self._get_included_files():
+                        if file not in self.files:
+                            self._parse_file(file)
+                                
         num_paths = len(self.get_settings_paths())
         while len(self.get_settings_paths()) > num_paths or (
                 len(self.get_setting('file_extensions')) > num_file_extensions):
             num_paths = len(self.get_settings_paths())
             num_file_extensions = len(self.get_setting('file_extensions'))
             for p in self.get_settings_paths():
-                if p not in self.paths:
-                    if not self._approve_new_path(p):
-                        excluded_paths.append(p)
-                    else:
-                        if p not in self.paths:
-                            self.paths.append(p)
-                        for file in self._get_included_files():
-                            if file not in self.files:
-                                self._parse_file(file)
+                if p not in self.paths and self._approve_new_path(p):
+                    self.paths.append(p)
+                    for file in self._get_included_files():
+                        if file not in self.files:
+                            self._parse_file(file)
 
         if len(self.nodes) == 0 and not self.new_file_node_created:
             return False
@@ -156,8 +160,6 @@ class UrtextProject:
         callback(self)
 
     def _approve_new_path(self, path):
-        if path in self.get_settings_paths() and path != self.entry_point:
-            return False
         if path in self.project_list.get_all_paths():
             self.log_item('system', "%s is already in another project." % path)
             return False
@@ -1016,13 +1018,18 @@ class UrtextProject:
             for n in node.children:
                 pathname = n.metadata.get_first_value('path')
                 if pathname:
-                    paths.append(utils.get_path_from_link(pathname.text))
-                recurse_subfolders = n.metadata.get_first_value('recurse_subfolders')
-                if recurse_subfolders:
-                    for dirpath, dirnames, filenames in os.walk(utils.get_path_from_link(pathname.text)):
-                        if '/.git' in dirpath or '/_diff' in dirpath:
-                            continue
-                        paths.append(dirpath)
+                    path = utils.get_path_from_link(pathname.text)
+                    if os.path.exists(path):
+                        paths.append(path)
+                        recurse_subfolders = n.metadata.get_first_value('recurse_subfolders')
+                        if recurse_subfolders:                        
+                            if path:
+                                for dirpath, dirnames, filenames in os.walk(path):
+                                    if '/.git' in dirpath or '/_diff' in dirpath:
+                                        continue
+                                    paths.append(dirpath)
+                    else:
+                        print("NOT PATH FOR", pathname.text)
         return paths
 
     def _include_file(self, filename):
@@ -1230,12 +1237,13 @@ class UrtextProject:
     """ Project Compile """
 
     def _compile(self):
+        self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self._add_all_sub_tags()
         num_directives = len(list(self.directives.values()))
-        directives = 'EMPTY'
+        num_project_directives = len(list(self.global_directives.values()))
         for dd in list(self.dynamic_definitions.values()):
             directives = self.__run_def(dd)
-        if len(self.directives.values()) > num_directives:
+        while len(self.directives.values()) > num_directives: # directives can add directives
             return self._compile()
         self._add_all_sub_tags()
         self._verify_links_globally()

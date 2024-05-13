@@ -136,8 +136,8 @@ contexts:
     - include: other-project-link
     - include: meta-key-terminator
     - include: tagvalue-separator
-    - include: node_link
     - include: file_link  
+    - include: node_link
     - match: ;|\r|(?=\})|$
       pop: 1
 

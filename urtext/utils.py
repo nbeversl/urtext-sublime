@@ -17,7 +17,6 @@ def force_list(thing):
 def match_compact_node(selection):
     return True if syntax.compact_node_c.match(selection) else False
 
-
 def strip_illegal_file_characters(filename):
     for c in [
         '<', '>', '\:', '"', '/', '\\', '|', '?','*', '.', ';', '%']:
@@ -90,19 +89,19 @@ def get_all_links_from_string(string, include_http=False):
 
     for match in syntax.node_link_or_pointer_c.finditer(replaced_contents):
         link = UrtextLink(match.group())
-
         kind = None
         if match.group(1) in syntax.link_modifiers.values():
             for kind in syntax.link_modifiers:
                 if match.group(1) == syntax.link_modifiers[kind]:
                     kind = kind.upper()
                     break
+
         if kind == 'FILE':
             link.is_file = True
             path = match.group(5).strip()
-            if path[0] == '~':
+            if path and path[0] == '~':
                 path = os.path.expanduser(path)
-            link.path = path  
+            link.path = path
 
         if kind == 'ACTION':
             link.is_action = True
@@ -134,7 +133,7 @@ def get_all_links_from_string(string, include_http=False):
 def get_link_from_position_in_string(string, position, include_http=True):
     if not string.strip():
         return None
-    links,r = get_all_links_from_string(string, include_http=include_http)
+    links, r = get_all_links_from_string(string, include_http=include_http)
     if links:
         links = sorted(links, key=lambda l: l.position_in_string)
         for link in links:
