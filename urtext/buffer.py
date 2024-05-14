@@ -277,7 +277,6 @@ class UrtextBuffer:
             self._clear_messages()
             self._lex_and_parse()
             self.project._parse_buffer(self)
-            # self.write_buffer_messages()
         if update_buffer:
             self.__update_buffer_contents_from_buffer_obj()
 
@@ -306,12 +305,7 @@ class UrtextBuffer:
             ])
 
         message_length = len(messages)
-        
-        for n in re.finditer('position \d{1,10}', messages):
-            old_n = int(n.group().replace('position ',''))
-            new_n = old_n + message_length
-            messages = messages.replace(str(old_n), str(new_n))
-            
+                    
         new_contents = ''.join([
             messages,
             new_contents,

@@ -191,7 +191,6 @@ class UrtextProject:
 
         if buffer.filename in self.files:
             self.drop_file(buffer.filename)
-
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()

@@ -62,7 +62,6 @@ class PullNode:
 
         source_file_contents = self.project.files[source_filename]._get_contents()
 
-        delete = False
         if not self.project.nodes[source_node.id].root_node:
             updated_source_file_contents = ''.join([
                 source_file_contents[0:end],
@@ -71,9 +70,8 @@ class PullNode:
             self.project.files[source_filename]._set_buffer_contents(
                 updated_source_file_contents)
             self.project.files[source_filename].write_contents_to_file()
-
         else:
-            self.project._delete_file(source_filename)
+            self.project.delete_file(source_filename)
 
         pulled_contents = source_file_contents[start:end]
         destination_file_contents = self.project.files[destination_filename]._get_contents()
@@ -89,13 +87,10 @@ class PullNode:
             link.matching_string,
             wrapped_contents)
 
-        self.project.files[destination_filename]._set_buffer_contents(destination_file_contents)
+        self.project.files[destination_filename]._set_buffer_contents(destination_file_contents,
+            update_buffer=True,
+            re_parse=False)
         self.project.files[destination_filename].write_contents_to_file()
-        self.project.run_editor_method(
-            'set_buffer',
-            destination_filename,
-            destination_file_contents)
-        self.project._parse_file(destination_filename)
 
 ThisProject.add_directive(PullNode)
         
