@@ -338,11 +338,17 @@ contexts:
     - match: '`'
       pop: true
 
+  # accounts for node title (requiring trailing space)
+  # followed by hash meta which requires leading space
+  # (overlapping)
   node_title:
-    - match: '(?!<=\{)((([^\|>\{\}\n\r_])|(?<!\s)_)+)(\s_)(\s|$)'
+    - match: '(?!<=\{)((([^\|>\{\}\n\r_])|(?<!\s)_)+)(\s_)(\s+)((\+)?(\*{1,2})?#[A-Z,a-z].*?\b)?'
       captures:
         1: node_title.urtext
         4: title_marker.urtext
+        6: hash_meta.urtext
+        7: tag_self.urtext
+        8: tag_descendants.urtext
     - match: '`'
       push: raw 
 
