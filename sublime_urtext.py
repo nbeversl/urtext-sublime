@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 import os
 import re
+import html
 import subprocess
 import webbrowser
 import Urtext.urtext.syntax as syntax
@@ -328,15 +329,17 @@ class UrtextEventListeners(EventListener):
             full_line = view.substr(full_line_region)
             link = _UrtextProjectList.parse_link(full_line, view.file_name(), col_pos=col_pos)
             if link and link.is_node and  (
-                link.node_id in _UrtextProjectList.current_project.nodes ):
+                link.node_id in _UrtextProjectList.current_project.nodes ) and (
+                col_pos in range(link.position_in_string, link.position_in_string + 3)
+                ):
                 contents = _UrtextProjectList.current_project.nodes[link.node_id].contents()
                 if contents:
 
                     def open_node_from_this_view(node_id):
                         _UrtextProjectList.current_project.open_node(link.node_id)
 
-                    html = """
-                        <body id=linked_node_contents>
+                    markup = """
+                        <body id="linked_node_contents">
                             <style>
                                 h1 {
                                     font-size: 1.1rem;
@@ -365,8 +368,8 @@ class UrtextEventListeners(EventListener):
                             <p>%s</p>
                             <a href="%s">open</a>
                         </body>
-                    """ % (contents, link.node_id)
-                    view.show_popup(html,
+                    """ % (contents, html.escape(link.node_id))
+                    view.show_popup(markup,
                         max_width=512, 
                         max_height=512, 
                         location=file_pos,
