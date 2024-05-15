@@ -76,6 +76,9 @@ class ProjectList:
                     return values
         return []
 
+    def parse_link(self, string, filename, col_pos=0):
+        return utils.get_link_from_position_in_string(string, col_pos, include_http=True)
+
     def handle_link(self,
                     string,
                     filename,

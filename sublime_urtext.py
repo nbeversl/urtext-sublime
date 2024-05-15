@@ -285,11 +285,21 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 
 class UrtextEventListeners(EventListener):
 
+    def on_activated(self, view):
+        _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
+        if view and view.file_name() and _UrtextProjectList:
+            _UrtextProjectList.on_modified(view.file_name())
+            if _UrtextProjectList.visit_node(
+                view.file_name(),
+                get_node_id(view)):
+                view.window().set_project_data({"folders": [
+                    {"path": _UrtextProjectList.current_project.entry_path}]})
+
     def on_post_save(self, view):
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
 
-    def on_hover(self, view, point, hover_zone, **kwargs):
+    def on_hover(self, view, point, hover_zone):
         if view.is_folded(sublime.Region(point, point)) and _UrtextProjectList:
             for r in view.folded_regions():
                 if point in [r.a, r.b]:
@@ -311,18 +321,14 @@ class UrtextEventListeners(EventListener):
                 on_navigate=unfold_region)
 
         if _UrtextProjectList:
-            return
-            click_position = view.window_to_text((kwargs['event']['x'],kwargs['event']['y']))
-            region = view.line(click_position)
+            region = view.line(point)
             file_pos = region.a
             full_line_region = view.full_line(region)
-            row, col_pos = view.rowcol(click_position)
-
+            row, col_pos = view.rowcol(point)
             full_line = view.substr(full_line_region)
-            link = _UrtextProjectList.parse_link(full_line, view.file_name())
+            link = _UrtextProjectList.parse_link(full_line, view.file_name(), col_pos=col_pos)
             if link and link.is_node and  (
-                link.node_id in _UrtextProjectList.current_project.nodes ) and (
-                link.end_position() < col_pos ):
+                link.node_id in _UrtextProjectList.current_project.nodes ):
                 contents = _UrtextProjectList.current_project.nodes[link.node_id].contents()
                 if contents:
 

@@ -137,6 +137,6 @@ def get_link_from_position_in_string(string, position, include_http=True):
     if links:
         links = sorted(links, key=lambda l: l.position_in_string)
         for link in links:
-            if position < link.position_in_string:
+            if position in range(link.position_in_string, link.position_in_string+len(link.matching_string)):
                 return link
         return link
