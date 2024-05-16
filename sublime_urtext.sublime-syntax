@@ -107,7 +107,7 @@ contexts:
   # Metadata  
   metadata-assigner:
     - meta_content_scope: metadata_assigner.urtext
-    - match: '(::)[\w_][\w_]*?'
+    - match: '(::)(?=[\w_\|])'
       captures:
         1: metadata_assigner.urtext
       push: metadata-value
@@ -133,10 +133,10 @@ contexts:
     - meta_scope: meta_value.urtext
     - match: <
       push: datestamp
+    - include: file_link
     - include: other-project-link
     - include: meta-key-terminator
     - include: tagvalue-separator
-    - include: file_link  
     - include: node_link
     - match: ;|\r|(?=\})|$
       pop: 1
