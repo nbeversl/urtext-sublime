@@ -107,7 +107,7 @@ contexts:
   # Metadata  
   metadata-assigner:
     - meta_content_scope: metadata_assigner.urtext
-    - match: '(::)(?!\{)'
+    - match: '(::)[\w_][\w_]*?'
       captures:
         1: metadata_assigner.urtext
       push: metadata-value
