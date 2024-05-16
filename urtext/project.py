@@ -1070,7 +1070,6 @@ class UrtextProject:
         key_occurrences = {}
         exclude = self.get_setting('exclude_from_star')
         exclude.extend(self.get_settings_keys())
-
         for node in list(self.nodes.values()):
             node_keys = node.metadata.get_keys(exclude=exclude)
             for key in node_keys:
@@ -1346,6 +1345,7 @@ class UrtextProject:
                     tag_self=True,
                     from_node=entry.from_node,
                     tag_descendants=entry.tag_descendants)
+                self.nodes[node_to_tag].metadata.convert_hash_keys()
                 if node_to_tag not in entry.from_node.target_nodes:
                     entry.from_node.target_nodes.append(node_to_tag)
 

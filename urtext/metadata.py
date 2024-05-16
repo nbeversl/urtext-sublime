@@ -111,6 +111,7 @@ class NodeMetadata:
                 1)
 
         self.add_system_keys()
+        self.convert_hash_keys()
         return remaining_contents, parsed_contents
 
     def add_entry(self, 
@@ -296,12 +297,13 @@ class NodeMetadata:
                     self.entries_dict[k].remove(entry)
     
     def convert_hash_keys(self):
-        if '#' in self.entries_dict:
-            for entry in self.get_entries('#'):
-                entry.keyname = self.project.get_setting('hash_key')
-            self.entries_dict.setdefault(self.project.get_setting('hash_key'), [])                
-            self.entries_dict[self.project.get_setting('hash_key')].extend(self.entries_dict['#'])
-            del self.entries_dict['#']
+        if self.project.get_setting('hash_key'):
+            if '#' in self.entries_dict:
+                for entry in self.get_entries('#'):
+                    entry.keyname = self.project.get_setting('hash_key')
+                self.entries_dict.setdefault(self.project.get_setting('hash_key'), [])                
+                self.entries_dict[self.project.get_setting('hash_key')].extend(self.entries_dict['#'])
+                del self.entries_dict['#']
 
     def get_oldest_timestamp(self):
         value = self.get_first_value('_oldest_timestamp')
