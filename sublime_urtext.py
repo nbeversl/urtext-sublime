@@ -289,13 +289,8 @@ class UrtextEventListeners(EventListener):
     def on_activated(self, view):
         _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if view and view.file_name() and _UrtextProjectList:
-            _UrtextProjectList.on_modified(view.file_name())
-            if _UrtextProjectList.visit_node(
-                view.file_name(),
-                get_node_id(view)):
-                view.window().set_project_data({"folders": [
-                    {"path": _UrtextProjectList.current_project.entry_path}]})
-
+            _UrtextProjectList.visit_node(view.file_name(), get_node_id(view))
+                
     def on_post_save(self, view):
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
