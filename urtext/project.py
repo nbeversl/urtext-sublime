@@ -859,9 +859,7 @@ class UrtextProject:
             links[node.filename].extend(node.links)
         return links
 
-    def handle_link(self,
-                    link,
-                    filename):
+    def handle_link(self, link):
 
         if link.is_node and link.node_id in self.nodes:
             if link.is_action:
@@ -878,9 +876,8 @@ class UrtextProject:
                     position=self.nodes[link.node_id].start_position + link.dest_node_position)
 
         elif link.is_node:
-            link.is_missing = True
-            self.handle_info_message('Node is not in the project.')
-
+            return self.project_list.handle_link_using_all_projects(link)
+           
         return link
 
     def _is_duplicate_id(self, node_id):

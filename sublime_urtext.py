@@ -287,7 +287,6 @@ class MoveFileToAnotherProjectCommand(UrtextTextCommand):
 class UrtextEventListeners(EventListener):
 
     def on_activated(self, view):
-        _UrtextProjectList = initialize_project_list(view.window(), add_project=False)
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.visit_node(view.file_name(), get_node_id(view))
                 

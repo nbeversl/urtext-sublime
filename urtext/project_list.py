@@ -119,13 +119,20 @@ class ProjectList:
             else:
                 self.handle_message('Path does not exist')
 
-        elif self.current_project and link.is_node:
-            return self.current_project.handle_link(
-                link,
-                filename)
+        elif link.is_node:
+            if self.current_project: 
+                return self.current_project.handle_link(link)
 
         elif link.is_http:
             return self.run_editor_method('open_http_link', link.url)
+
+    def handle_link_using_all_projects(self, link):
+        for project in self.projects:
+            if link.node_id in project.nodes:
+                self.set_current_project(project.title())
+                return self.current_project.handle_link(link)
+        self.handle_message('Node cannot be found in any active project.')
+        link.is_missing=True
 
     def handle_unusable_link(self):
         if self.current_project and not self.current_project.compiled:
