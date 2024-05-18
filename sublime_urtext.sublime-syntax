@@ -326,7 +326,7 @@ contexts:
         4: pointer_destination.urtext
 
   file_link:
-    - match: '(\|)(\/)(\s)([^\s][^;]*)\s>'
+    - match: '(\|)(\/)(\s)([^\s][^;]*?)\s>'
       captures:
         1: link_opening_wrapper.urtext 
         2: file_link_modifier.urtext
