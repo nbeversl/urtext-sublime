@@ -816,13 +816,15 @@ class UrtextProject:
                         node_group,
                         key=lambda n: n.metadata.get_first_value(k))
                 for node in node_group:
-                    detail = node.metadata.get_first_value(k)
-                    if use_timestamp and detail.timestamp:
-                        node.display_detail = detail.timestamp.wrapped_string
-                    elif use_timestamp:
-                        node.display_detail = '(no timestamp)'
+                    detail_key = self.get_setting('node_browser_detail')
+                    if not detail_key:
+                        detail_key = k
+                    detail = node.metadata.get_first_value(detail_key)
+                    if detail_key in self.get_setting('use_timestamp'):
+                        detail = detail.timestamp.wrapped_string
                     else:
-                        node.display_detail = k + '::' + detail.text
+                        detail = detail.text
+                    node.display_detail = detail
                 sorted_nodes.extend(node_group)
         sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])
         if not as_nodes:
