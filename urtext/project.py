@@ -580,8 +580,8 @@ class UrtextProject:
                 suffix += 1
             filename = resolved_filename
 
+        utils.write_file_contents(filename, new_node_contents)
         new_file = self.urtext_file(filename, self)
-        new_file.write_file_contents(new_node_contents)
 
         self._check_buffer_for_duplicates(new_file)
         if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
@@ -591,8 +591,8 @@ class UrtextProject:
                     add_seconds_to_timestamp=True,
                     contents_format=contents_format,
                     metadata=metadata)
+            utils.write_file_contents(filename, new_node_contents)
             new_file = self.urtext_file(filename, self)
-            new_file.write_file_contents(new_node_contents)
             self._check_buffer_for_duplicates(new_file)
 
         self._parse_file(filename)
