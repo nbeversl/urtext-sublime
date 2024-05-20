@@ -45,7 +45,7 @@ class UrtextProject:
         self.dynamic_metadata_entries = []
         self.project_settings_nodes = {}
         self.directives = {}
-        self.global_directives = {}
+        self.project_instance_directives = {}
         self.initialized = False
         self.compiled = False
         self.executor = None
@@ -100,7 +100,7 @@ class UrtextProject:
         self.add_directive(Exec)
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
-        for directive in self.project_list.global_directives.values():
+        for directive in self.project_list.project_instance_directives.values():
             self.add_directive(directive)
 
         num_file_extensions = len(self.get_setting('file_extensions'))
@@ -263,7 +263,7 @@ class UrtextProject:
                             changed_ids[old_node_id], # new id
                             ) 
             self._rewrite_changed_links(changed_ids)
-
+        self._mark_dynamic_nodes()
         return buffer
 
     def _verify_links_globally(self):
@@ -820,10 +820,13 @@ class UrtextProject:
                     if not detail_key:
                         detail_key = k
                     detail = node.metadata.get_first_value(detail_key)
-                    if detail_key in self.get_setting('use_timestamp'):
-                        detail = detail.timestamp.wrapped_string
+                    if detail:
+                        if detail_key in self.get_setting('use_timestamp'):
+                            detail = detail.timestamp.wrapped_string
+                        else:
+                            detail = detail.text
                     else:
-                        detail = detail.text
+                        detail = ''
                     node.display_detail = detail
                 sorted_nodes.extend(node_group)
         sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])
@@ -1226,10 +1229,11 @@ class UrtextProject:
             hook = getattr(dd, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
-        for directive in self.global_directives.values():
+        for directive in self.project_instance_directives.values():
             hook = getattr(directive, hook_name, None)
             if hook and callable(hook):
                 hook(*args)
+        self.project_list.run_hook(hook_name, *args)
 
     """ Project Compile """
 
@@ -1237,7 +1241,7 @@ class UrtextProject:
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
         self._add_all_sub_tags()
         num_directives = len(list(self.directives.values()))
-        num_project_directives = len(list(self.global_directives.values()))
+        num_project_directives = len(list(self.project_instance_directives.values()))
         for dd in list(self.dynamic_definitions.values()):
             directives = self.__run_def(dd)
         while len(self.directives.values()) > num_directives: # directives can add directives
@@ -1432,13 +1436,12 @@ class UrtextProject:
         class Directive(directive, UrtextDirective):
             pass
 
-        if Directive.single_global_instance:
+        if Directive.project_instance:
             global_directive = Directive(self)
             global_directive.on_added()
-            self.global_directives[Directive.name[0]] = (Directive(self))
+            self.project_instance_directives[Directive.name[0]] = (Directive(self))
             if Directive.name in propagated_directives or propagate_all_directives:
                 self.project_list.add_directive(directive)
-
         else:
             for n in directive.name:
                 self.directives[n] = directive

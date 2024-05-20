@@ -45,12 +45,12 @@ class UrtextNode:
         self.resolved = False
         self.filename = None
         self.embedded_syntax_ranges = []
+        self.dd_ranges = []
         
         contents = strip_errors(contents)
         self.full_contents = contents
-        ranges, stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
-        self.embedded_syntax_ranges.extend(ranges)
-        stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
+        self.embedded_syntax_ranges, stripped_contents, replaced_contents = strip_embedded_syntaxes(contents)
+        self.dd_ranges, stripped_contents, replaced_contents = self.parse_dynamic_definitions(replaced_contents)
         self.metadata = self.urtext_metadata(self, self.project)        
         stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
         replaced_contents = self._get_links(replaced_contents)
@@ -337,9 +337,11 @@ class UrtextNode:
         return self.file._set_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents): 
+        dd_ranges = []
         stripped_contents = contents
         replaced_contents = contents
         for d in syntax.dynamic_def_c.finditer(contents):
+            dd_ranges.append([d.start(),d.end()])
             param_string = d.group(0)[2:-2]
             self.dynamic_definitions.append(
                 UrtextDynamicDefinition(
@@ -355,7 +357,7 @@ class UrtextNode:
                 '', 
                 1)
 
-        return stripped_contents, replaced_contents
+        return dd_ranges, stripped_contents, replaced_contents
 
     def strip_first_line_title(self, contents):
         if self.first_line_title:

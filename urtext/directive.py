@@ -16,17 +16,20 @@ class UrtextDirective:
     RenderTree = RenderTree
     PreOrderIter = PreOrderIter
     UrtextTimestamp = UrtextTimestamp
-    single_global_instance = False
-    from_project_list = False
+    project_instance = False
+    project_list_instance = False
     
-    def __init__(self, project):
+    def __init__(self, project_or_project_list):
         self.keys_with_flags = []
         self.flags = []
         self.links = []
         self.params = []
         self.arguments = []
         self.params_dict = {}
-        self.project = project
+        if self.project_list_instance:
+            self.project_list = project_or_project_list
+        else:
+            self.project = project_or_project_list
         self.argument_string = None
         self.dynamic_definition = None
 
@@ -42,6 +45,9 @@ class UrtextDirective:
         self.run(*args, **kwargs)
 
     def on_added(self):
+        pass
+
+    def on_node_visited(self, node_id):
         pass
         
     def dynamic_output(self, input_contents):

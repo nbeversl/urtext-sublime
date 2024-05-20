@@ -31,7 +31,8 @@ class ProjectList:
         self.editor_methods = editor_methods if editor_methods else {}
         self.entry_point = entry_point.strip()
         self.directives = {}
-        self.global_directives = {}
+        self.project_instance_directives = {}
+        self.project_list_instance_directives = {}
         self.projects = []
         self.entry_points = []
         self.current_project = None
@@ -367,11 +368,37 @@ class ProjectList:
         print(message)
 
     def add_directive(self, directive):
+        
         for n in directive.name:
             self.directives[n] = directive
 
         class Directive(directive, UrtextDirective):
             pass
+            
+        if Directive.project_list_instance:
+            instance_directive = Directive(self)
+            instance_directive.on_added()
+            self.project_list_instance_directives[Directive.name[0]] = instance_directive
+            return
 
-        if Directive.single_global_instance:
-            self.global_directives[n[0]]= directive
+        if Directive.project_instance:
+            self.project_instance_directives[n[0]] = directive
+
+    def get_directive_instance(self, directive_name):
+        get_directive_instance = None
+        if directive_name in self.project_list_instance_directives:
+            get_directive_instance = self.project_list_instance_directives[directive_name]
+        return get_directive_instance
+
+    def run_directive(self, directive_name, *args, **kwargs):
+        directive_instance = self.get_directive_instance(directive_name)
+        if not directive_instance:
+            self.handle_message('Directive %s is not available' % directive_name)
+            return None
+        return directive_instance.run(*args, **kwargs)
+
+    def run_hook(self, hook_name, *args):
+        for directive in self.project_list_instance_directives.values():
+            hook = getattr(directive, hook_name, None)
+            if hook and callable(hook):
+                hook(*args)

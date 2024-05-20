@@ -7,7 +7,7 @@ Adds the functionality of anytree (https://anytree.readthedocs.io/en/latest/) as
 class UrtextAnyTree:
 
     name = ["TREE_EXTENSION"]
-    single_global_instance = True
+    project_instance = True
 
     def on_buffer_added(self, buffer):
         for node in buffer.nodes:
