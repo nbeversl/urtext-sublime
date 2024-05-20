@@ -292,7 +292,6 @@ class UrtextBuffer:
         if messages:
             self.messages = messages
         self._clear_messages()
-        new_contents = self._get_contents()
         timestamp = self.project.timestamp(as_string=True)
         messages = ''.join([ 
             syntax.urtext_message_opening_wrapper,
@@ -308,7 +307,7 @@ class UrtextBuffer:
                     
         new_contents = ''.join([
             messages,
-            new_contents,
+            self._get_contents(),
             ])
 
         self._set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
@@ -364,12 +363,17 @@ class UrtextBuffer:
             child.parent = start_node
             self._assign_parents(child)
 
-    def get_node_id_from_position(self, position):
+    def get_node_from_position(self, position):
         for node in self.nodes:
-            for r in node.ranges:           
+            for r in node.ranges:       
                 if position in range(r[0],r[1]+1): # +1 in case the cursor is in the last position of the node.
-                    return node.id
+                    return node
+        print('NO NODE', self.contents[position-5:position])
 
+    def get_node_id_from_position(self, position):
+        node = self.get_node_from_position(position)
+        if node:
+            return node.id
 
     def _log_error(self, message, position):
         self.nodes = {}

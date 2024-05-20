@@ -191,6 +191,7 @@ class UrtextProject:
 
         if buffer.filename in self.files:
             self.drop_file(buffer.filename)
+
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()
@@ -245,6 +246,7 @@ class UrtextProject:
                 is_node=True)
             self.nodes[target_node].is_meta = True
             self.nodes[target_node].meta_key = keyname
+        
         for node in buffer.nodes:
             for dd in node.dynamic_definitions:
                 dd.source_node = node
@@ -320,13 +322,12 @@ class UrtextProject:
                             replaced_contents = contents
                             node_id_regex = re.escape(node_id)
                             replaced_contents = re.sub(''.join([
-                                syntax.node_link_opening_wrapper_match,
-                                node_id_regex,
-                                syntax.link_closing_wrapper
-                            ]),
+                                    syntax.node_link_opening_wrapper_match,
+                                    node_id_regex,
+                                    syntax.link_closing_wrapper
+                                    ]),
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
-                            if replaced_contents != contents:
-                                self.files[project_node.filename].write_file_contents(replaced_contents)
+                            self.files[project_node.filename]._set_buffer_contents(replaced_contents)
 
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
@@ -476,12 +477,11 @@ class UrtextProject:
         returns filename if contents changed.
         """
         if node_id in self.nodes:
-            self._parse_file(self.nodes[node_id].filename)
+            self._parse_buffer(self.nodes[node_id].file)
             if node_id in self.nodes:
                 if self.nodes[node_id]._set_contents(
                         contents,
                         preserve_title=preserve_title):
-                    self._parse_file(self.nodes[node_id].filename)
                     if node_id in self.nodes:
                         return self.nodes[node_id].filename
         return False
@@ -580,8 +580,8 @@ class UrtextProject:
                 suffix += 1
             filename = resolved_filename
 
-        utils.write_file_contents(filename, new_node_contents)
         new_file = self.urtext_file(filename, self)
+        new_file.write_file_contents(new_node_contents)
 
         self._check_buffer_for_duplicates(new_file)
         if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
@@ -591,8 +591,8 @@ class UrtextProject:
                     add_seconds_to_timestamp=True,
                     contents_format=contents_format,
                     metadata=metadata)
-            utils.write_file_contents(filename, new_node_contents)
             new_file = self.urtext_file(filename, self)
+            new_file.write_file_contents(new_node_contents)
             self._check_buffer_for_duplicates(new_file)
 
         self._parse_file(filename)
@@ -954,7 +954,7 @@ class UrtextProject:
             self.open_node(node_id)
         return None
 
-    def on_modified(self, filename):
+    def on_modified(self, filename, flags=[]):
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
                 print('(debugging) ALREADY RUNNING ON MOD (debugging)')
@@ -963,15 +963,16 @@ class UrtextProject:
             if file_obj:
                 self._compile_file(
                     filename,
-                    flags=['-file_update'])
-                contents = self._reverify_links(filename)
+                    flags=['-file_update'].extend(flags))
+                file_obj._set_buffer_contents(self._reverify_links(filename))
                 self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
                 # to allow on_set_file_contents hook to run
-                self.files[filename].write_file_contents(contents, run_hook=True)
+                file_obj.write_file_contents(file_obj.contents, run_hook=True)
                 self._sync_file_list()
                 if filename in self.files:
                     self.run_hook('after_on_file_modified', filename)
+                self._parse_buffer(file_obj)
                 self.running_on_modified = None
         self.running_on_modified = None
 
@@ -987,9 +988,7 @@ class UrtextProject:
 
     def visit_file(self, filename):
         if filename in self.files and self.compiled:
-            self._compile_file(
-                filename,
-                flags=['-file_visited'])
+            self.on_modified(filename, flags=['-file_visited'])
 
     def _sync_file_list(self):
         included_files = self._get_included_files()
