@@ -962,14 +962,10 @@ class UrtextProject:
                     filename,
                     flags=['-file_update'].extend(flags))
                 file_obj.set_buffer_contents(self._reverify_links(filename))
-                self._parse_buffer(file_obj)
-                # Here the last method to modify the file uses _set_contents
-                # to allow on_set_file_contents hook to run
                 file_obj.write_file_contents(file_obj.contents, run_hook=True)
                 self._sync_file_list()
                 if filename in self.files:
                     self.run_hook('after_on_file_modified', filename)
-                self._parse_buffer(file_obj)
                 self.running_on_modified = None
         self.running_on_modified = None
 
