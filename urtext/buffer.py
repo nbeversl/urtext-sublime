@@ -153,7 +153,7 @@ class UrtextBuffer:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
-                    self._set_buffer_contents(contents)
+                    self.set_buffer_contents(contents, re_parse=False)
                     return self._lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -215,7 +215,7 @@ class UrtextBuffer:
                 syntax.node_closing_wrapper,
                 ' ',
                 contents[position:]])
-            self._set_buffer_contents(contents)
+            self.set_buffer_contents(contents, re_parse=False)
             return self._lex_and_parse()
 
         for node in self.nodes:
@@ -228,6 +228,7 @@ class UrtextBuffer:
                 for r in node.ranges:
                     if match.span()[1] in r:
                         node.is_meta = True
+                        node.meta_key = match.group()[:-3]
 
         return nested_levels, child_group, nested
 
@@ -266,7 +267,7 @@ class UrtextBuffer:
     def _get_contents(self):
         return self.contents
 
-    def _set_buffer_contents(self, 
+    def set_buffer_contents(self, 
         new_contents,
         re_parse=True,
         run_hook=False,
@@ -310,7 +311,7 @@ class UrtextBuffer:
             self._get_contents(),
             ])
 
-        self._set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
+        self.set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
         
     def _clear_messages(self):
         original_contents = self._get_contents()
@@ -320,7 +321,7 @@ class UrtextBuffer:
                 if self.user_delete_string not in cleared_contents:
                     cleared_contents = cleared_contents.replace(match.group(),'')
             if cleared_contents != original_contents:
-                self._set_buffer_contents(cleared_contents, re_parse=False)
+                self.set_buffer_contents(cleared_contents, re_parse=False)
                 return True
         return False
 
@@ -330,14 +331,14 @@ class UrtextBuffer:
             key=lambda node : node.start_position)
 
     def _insert_contents(self, inserted_contents, position):
-        self._set_buffer_contents(''.join([
+        self.set_buffer_contents(''.join([
             self.contents[:position],
             inserted_contents,
             self.contents[position:],
             ]))
 
     def _replace_contents(self, inserted_contents, range):
-        self._set_buffer_contents(''.join([
+        self.set_buffer_contents(''.join([
             self.contents[:range[0]],
             inserted_contents,
             self.contents[range[1]:],

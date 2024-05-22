@@ -189,13 +189,11 @@ class UrtextProject:
         if buffer.filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
 
-        if buffer.filename in self.files:
-            self.drop_file(buffer.filename)
+        self.drop_buffer(buffer)
 
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()
-            self.drop_buffer(buffer)
             self.log_item(buffer.filename, '%s has no root node, dropping' % buffer.filename)
             return False
 
@@ -245,7 +243,6 @@ class UrtextProject:
                 end_position=self.nodes[target_node].end_position,
                 is_node=True)
             self.nodes[target_node].is_meta = True
-            self.nodes[target_node].meta_key = keyname
         
         for node in buffer.nodes:
             for dd in node.dynamic_definitions:
@@ -327,14 +324,14 @@ class UrtextProject:
                                     syntax.link_closing_wrapper
                                     ]),
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
-                            self.files[project_node.filename]._set_buffer_contents(replaced_contents)
+                            self.files[project_node.filename].set_buffer_contents(replaced_contents)
 
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
         changed_ids = {}
 
         for node in list([n for n in buffer.nodes if n.title == '(untitled)']):
-            resolution = node.resolve_id()
+            resolution = node.resolve_id(allocated_ids=[])
             if not resolution['resolved_id']:
                 message = ''.join([
                     'Dropping (untitled) ID at position ',
@@ -354,8 +351,9 @@ class UrtextProject:
         # resolve duplicate titles within file/buffer
         new_file_node_ids = [file_node.id for file_node in buffer.nodes]
         nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.id) > 1]
+        allocated_ids=[file_node.id for file_node in buffer.nodes]
         for n in nodes_to_resolve:
-            resolution = n.resolve_id(allocated_ids=[file_node.id for file_node in buffer.nodes])
+            resolution = n.resolve_id(allocated_ids=allocated_ids)
             if not resolution['resolved_id'] or n.id in changed_ids:
                 message = ''.join([
                     'Dropping duplicate node title "',
@@ -363,7 +361,7 @@ class UrtextProject:
                     '"',
                     ' at position ',
                     str(n.start_position),
-                    '; duplicated in the same file. Unable to resolve.'
+                    '; duplicated in the same file.'
                 ])
                 self.log_item(buffer.filename, message)
                 messages.append(message)
@@ -391,8 +389,7 @@ class UrtextProject:
                         syntax.link_closing_wrapper,
                     ])
                     buffer.nodes.remove(node)
-                    (self.
-                     log_item(buffer.filename, message))
+                    self.log_item(buffer.filename, message)
                     messages.append(message)
                     continue
                 changed_ids[node.id] = resolution['resolved_id']
@@ -964,7 +961,7 @@ class UrtextProject:
                 self._compile_file(
                     filename,
                     flags=['-file_update'].extend(flags))
-                file_obj._set_buffer_contents(self._reverify_links(filename))
+                file_obj.set_buffer_contents(self._reverify_links(filename))
                 self._parse_buffer(file_obj)
                 # Here the last method to modify the file uses _set_contents
                 # to allow on_set_file_contents hook to run

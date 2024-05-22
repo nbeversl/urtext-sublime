@@ -111,9 +111,33 @@ class UrtextNode:
                 'resolved_id': self.id,
                 'method': "already resolved",
             }
-        if not allocated_ids:
+        if allocated_ids is None:
             allocated_ids = self.project.nodes
+        timestamp = self.metadata.get_oldest_timestamp()
         if self.parent:
+            if self.is_meta:
+                resolved_id = ''.join([
+                        self.meta_key,
+                        syntax.resolution_identifier,
+                        self.parent.title
+                    ])
+                if resolved_id not in allocated_ids:
+                    self.resolved = True
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'meta key'
+                    return return_value
+                if timestamp:
+                    resolved_id = ''.join([
+                        self.meta_key,
+                        syntax.resolution_identifier,
+                        timestamp.unwrapped_string
+                    ])
+                    if resolved_id not in allocated_ids:
+                        self.resolved = True
+                        return_value['resolved_id'] = resolved_id
+                        return_value['method'] = 'meta key and timestamp'
+                        return return_value
+
             if self.parent.title != '(untitled)':
                 resolved_id = ''.join([
                         self.title,
@@ -139,7 +163,6 @@ class UrtextNode:
                     return_value['method'] = 'parent timestamp'
                     return_value['reason'] = 'parent is untitled'
                     return return_value
-        timestamp = self.metadata.get_oldest_timestamp()
         if timestamp:
             resolved_id = ''.join([
                 self.title,
@@ -152,8 +175,9 @@ class UrtextNode:
                 return_value['resolved_id'] = resolved_id
                 return_value['method'] = 'own timestamp'
                 return_value['reason'] = 'parent is untitled and parent timestamp not available'
+                return return_value
             else:
-                return_value['reason'] = 'parent root node timestamp is used in another node'
+                return_value['reason'] = 'timestamp is used to resolve %s' % utils.make_node_link(resolved_id)
                 return return_value
 
         return_value['reason'] = 'no title or timestamp in parent, no timestamp in node'
@@ -286,7 +310,7 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        self.file._set_buffer_contents(new_file_contents)
+        self.file.set_buffer_contents(new_file_contents)
 
     def replace_range(self, 
         range_to_replace, 
@@ -303,7 +327,7 @@ class UrtextNode:
             file_contents[0:file_range_to_replace[0]],
             replacement_contents,
             file_contents[file_range_to_replace[1]:]])
-        self.file._set_buffer_contents(new_file_contents)
+        self.file.set_buffer_contents(new_file_contents)
 
     def append_content(self, appended_content):
         file_contents = self.file._get_contents()
@@ -312,7 +336,7 @@ class UrtextNode:
             contents,
             appended_content,
             file_contents[self.end_position:]])         
-        return self.file._set_buffer_contents(new_file_contents)
+        return self.file.set_buffer_contents(new_file_contents)
 
     def prepend_content(self, prepended_content, preserve_title=True):
         node_contents = self.strip_first_line_title(self.full_contents)
@@ -334,7 +358,7 @@ class UrtextNode:
             file_contents[:self.start_position], # omit opening
             new_node_contents,
             file_contents[self.end_position:]]) 
-        return self.file._set_buffer_contents(new_file_contents)
+        return self.file.set_buffer_contents(new_file_contents)
 
     def parse_dynamic_definitions(self, contents): 
         dd_ranges = []
