@@ -200,6 +200,7 @@ class UrtextProject:
         self.messages[buffer.filename] = buffer.messages
         if buffer.has_errors:
             buffer.write_buffer_messages()
+            self._check_buffer_for_duplicates(buffer)
         changed_ids = {}
         if existing_buffer_ids:
             new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
@@ -235,15 +236,16 @@ class UrtextProject:
             target_node = self.get_node_id_from_position(
                 buffer.filename,
                 entry.span()[1] + 1)
-            self.nodes[source_node].metadata.add_entry(
-                keyname,
-                [self.nodes[target_node]],
-                self.nodes[source_node],
-                start_position=self.nodes[target_node].start_position,
-                end_position=self.nodes[target_node].end_position,
-                is_node=True)
-            self.nodes[target_node].is_meta = True
-        
+            if source_node and target_node:
+                self.nodes[source_node].metadata.add_entry(
+                    keyname,
+                    [self.nodes[target_node]],
+                    self.nodes[source_node],
+                    start_position=self.nodes[target_node].start_position,
+                    end_position=self.nodes[target_node].end_position,
+                    is_node=True)
+                self.nodes[target_node].is_meta = True
+                self.nodes[target_node].meta_key = keyname
         for node in buffer.nodes:
             for dd in node.dynamic_definitions:
                 dd.source_node = node
@@ -329,9 +331,10 @@ class UrtextProject:
     def _check_buffer_for_duplicates(self, buffer):
         messages = []
         changed_ids = {}
+        allocated_ids = []
 
         for node in list([n for n in buffer.nodes if n.title == '(untitled)']):
-            resolution = node.resolve_id(allocated_ids=[])
+            resolution = node.resolve_id(allocated_ids=allocated_ids)
             if not resolution['resolved_id']:
                 message = ''.join([
                     'Dropping (untitled) ID at position ',
@@ -343,15 +346,17 @@ class UrtextProject:
                 self.log_item(buffer.filename, message)
                 messages.append(message)
                 buffer.nodes.remove(node)
+                del node
                 continue
             else:
                 node.id = resolution['resolved_id']
                 changed_ids[node.id] = resolution['resolved_id']
+                allocated_ids.append(node.id)
 
         # resolve duplicate titles within file/buffer
         new_file_node_ids = [file_node.id for file_node in buffer.nodes]
         nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.id) > 1]
-        allocated_ids=[file_node.id for file_node in buffer.nodes]
+        allocated_ids.extend([file_node.id for file_node in buffer.nodes])
         for n in nodes_to_resolve:
             resolution = n.resolve_id(allocated_ids=allocated_ids)
             if not resolution['resolved_id'] or n.id in changed_ids:
@@ -396,7 +401,7 @@ class UrtextProject:
                 node.id = resolution['resolved_id']
 
         if messages:
-            buffer.write_buffer_messages(messages=messages)
+            buffer.messages = messages
             buffer.has_errors = True
 
         return changed_ids
