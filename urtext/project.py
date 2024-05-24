@@ -148,7 +148,7 @@ class UrtextProject:
         for node in self.nodes.values():
             node.metadata.convert_hash_keys()
             node.metadata.convert_node_links()
-
+        self._add_all_sub_tags()
         self._mark_dynamic_nodes()
         self.run_hook('after_project_initialized')
 
@@ -1251,7 +1251,6 @@ class UrtextProject:
 
     def _compile(self):
         self.handle_info_message('Compiling Urtext project from %s' % self.entry_point)
-        self._add_all_sub_tags()
         num_directives = len(list(self.directives.values()))
         num_project_directives = len(list(self.project_instance_directives.values()))
         for dd in list(self.dynamic_definitions.values()):

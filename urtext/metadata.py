@@ -111,7 +111,6 @@ class NodeMetadata:
                 1)
 
         self.add_system_keys()
-        self.convert_hash_keys()
         return remaining_contents, parsed_contents
 
     def add_entry(self, 
@@ -140,9 +139,6 @@ class NodeMetadata:
             tag_children=tag_children,
             tag_descendants=tag_descendants)
 
-        # error catch in case the user tries to manually add one:
-        # if key == 'inline_timestamp' and not e.timestamps:
-        #     return False
         self.entries_dict[key] = self.entries_dict.get(key, [])        
         if e.is_node:
             # node values must be unique for the key
