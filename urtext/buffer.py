@@ -4,12 +4,9 @@ from urtext.utils import strip_backtick_escape, get_id_from_link
 import urtext.syntax as syntax
 from urtext.metadata import MetadataValue
 
-USER_DELETE_STRING = 'This message can be deleted.'
-
 class UrtextBuffer:
 
     urtext_node = UrtextNode
-    user_delete_string = USER_DELETE_STRING
 
     def __init__(self, project, filename, contents):
         self.contents = contents
@@ -20,7 +17,7 @@ class UrtextBuffer:
         self.filename = filename
         self.nodes = []
         self.root_node = None
-        self._clear_messages()
+        self.__clear_messages()
         self._lex_and_parse()
         if not self.root_node:
             print('LOGGING NO ROOT NODE (DEBUGGING, buffer)')
@@ -275,7 +272,7 @@ class UrtextBuffer:
 
         self.contents = new_contents
         if re_parse:
-            self._clear_messages()
+            self.__clear_messages()
             self._lex_and_parse()
             self.project._parse_buffer(self)
         if update_buffer:
@@ -292,37 +289,69 @@ class UrtextBuffer:
             return False
         if messages:
             self.messages = messages
-        self._clear_messages()
         timestamp = self.project.timestamp(as_string=True)
-        messages = ''.join([ 
+        
+        top_message = ''.join([
             syntax.urtext_message_opening_wrapper,
             ' ',
-            '\n'.join(self.messages),
+            '\n'.join([m['top_message'] for m in self.messages]),
             timestamp,
             ' ',
             syntax.urtext_message_closing_wrapper,
             '\n'
             ])
 
-        message_length = len(messages)
-                    
-        new_contents = ''.join([
-            messages,
-            self._get_contents(),
-            ])
+        current_messages = self.__get_messages()
+        messaged_contents = self._get_contents()
+        for m in current_messages:
+            messaged_contents = messaged_contents.replace(m.group(), 
+                ''.join([
+                    m.group()[:2],
+                    'X',
+                    m.group()[3:],                   
+                    ]))
 
-        self.contents = new_contents
-        self.__update_buffer_contents_from_buffer_obj()
-        self._lex_and_parse()
-        # self.set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
+        sorted_messages = sorted(self.messages, key=lambda m: m['position'])
+        insert_index = 0
+        for m in sorted_messages:
+            
+            insert_position = m['position'] + insert_index
+            messaged_contents = ''.join([
+                messaged_contents[:insert_position],
+                syntax.urtext_message_opening_wrapper,
+                ' ',
+                m['position_message'],
+                ' ',
+                syntax.urtext_message_closing_wrapper,
+                messaged_contents[insert_position:],
+                ])
+            insert_index += len(m['position_message']) + 6
         
-    def _clear_messages(self):
+        for match in syntax.invalidated_messages_c.finditer(messaged_contents):
+            messaged_contents = messaged_contents.replace(match.group(), '')
+        new_contents = ''.join([
+            top_message,
+            messaged_contents,
+            ])
+        self.messages = []
+        self.contents = new_contents
+        self._lex_and_parse()
+
+        self.set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
+        
+    def __get_messages(self):
+        messages = []        
+        for match in syntax.urtext_messages_c.finditer(self._get_contents()):
+            messages.append(match)
+        return messages
+
+    def __clear_messages(self):
         original_contents = self._get_contents()
         if original_contents:
+            messages = self.__get_messages()
             cleared_contents = original_contents
-            for match in syntax.urtext_messages_c.finditer(cleared_contents):
-                if self.user_delete_string not in cleared_contents:
-                    cleared_contents = cleared_contents.replace(match.group(),'')
+            for match in messages:
+                cleared_contents = cleared_contents.replace(match.group(),'')
             if cleared_contents != original_contents:
                 self.set_buffer_contents(cleared_contents, re_parse=False)
                 return True
@@ -385,7 +414,3 @@ class UrtextBuffer:
         message = message +' at position '+ str(position)
         if message not in messages:
             self.messages.append()
-
-        # print(''.join([ 
-        #         message, ' in >f', self.filename, ' at position ',
-        #     str(position)]))

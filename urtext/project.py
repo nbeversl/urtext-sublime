@@ -336,13 +336,17 @@ class UrtextProject:
         for node in list([n for n in buffer.nodes if n.title == '(untitled)']):
             resolution = node.resolve_id(allocated_ids=allocated_ids)
             if not resolution['resolved_id']:
-                message = ''.join([
-                    'Dropping (untitled) ID at position ',
-                    str(node.start_position),
-                    '. ',
-                    resolution['reason'],
-                    ' ',
-                ])
+                message = {
+                    'top_message': ''.join([
+                                'Dropping (untitled) ID at position ',
+                                str(node.start_position),
+                                '. ',
+                                resolution['reason'],
+                                ' ',
+                            ]),
+                    'position_message': 'Dropped (untitled, cannot resolve)',
+                    'position' : node.start_position
+                    }
                 self.log_item(buffer.filename, message)
                 messages.append(message)
                 buffer.nodes.remove(node)
@@ -360,17 +364,23 @@ class UrtextProject:
         for n in nodes_to_resolve:
             resolution = n.resolve_id(allocated_ids=allocated_ids)
             if not resolution['resolved_id'] or n.id in changed_ids:
-                message = ''.join([
-                    'Dropping duplicate node title "',
-                    n.title,
-                    '"',
-                    ' at position ',
-                    str(n.start_position),
-                    '; duplicated in the same file.'
-                ])
+                message = {
+                    'top_message' :''.join([
+                                'Dropping duplicate node title "',
+                                n.title,
+                                '"',
+                                ' at position ',
+                                str(n.start_position),
+                                '; duplicated in the same file.'
+                            ]),
+                    'position_message': 'Dropped (duplicate title in file)',
+                    'position': n.start_position
+                    }
+
                 self.log_item(buffer.filename, message)
                 messages.append(message)
-                buffer.nodes.remove(n)
+                buffer.nodes.remove(node)
+                del n
                 continue
             changed_ids[n.id] = resolution['resolved_id']
             n.id = resolution['resolved_id']
@@ -384,16 +394,21 @@ class UrtextProject:
                 resolution = node.resolve_id(
                     allocated_ids=allocated_ids)
                 if not resolution['resolved_id']:
-                    message = ''.join([
-                        'Dropping duplicate node ID "',
-                        node.id,
-                        '"',
-                        ' already exists in file ',
-                        syntax.file_link_opening_wrapper,
-                        duplicate_titled_node.filename,
-                        syntax.link_closing_wrapper,
-                    ])
+                    message = {
+                        'top_message' : ''.join([
+                                'Dropping duplicate node ID "',
+                                node.id,
+                                '"',
+                                ' already exists in file ',
+                                syntax.file_link_opening_wrapper,
+                                duplicate_titled_node.filename,
+                                syntax.link_closing_wrapper,
+                            ]),
+                        'position_message': 'Dropped (node ID already exists in file)',
+                        'position': node.id.start_position,
+                    }
                     buffer.nodes.remove(node)
+                    del node
                     self.log_item(buffer.filename, message)
                     messages.append(message)
                     continue

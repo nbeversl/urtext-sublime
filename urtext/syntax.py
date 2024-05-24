@@ -212,6 +212,15 @@ urtext_messages = r''.join([
     re.escape(urtext_message_closing_wrapper),
     '\n?'
     ])
+
+invalidated_messages = r''.join([
+    re.escape(urtext_message_opening_wrapper),
+    'X',
+    r'.*?',
+    re.escape(urtext_message_closing_wrapper),
+    '\n?'
+    ])
+
 metadata_ops = r'(' + r'|'.join([
             metadata_op_before,
             metadata_op_after,
@@ -274,6 +283,7 @@ project_link_c = re.compile(project_link, flags=re.DOTALL)
 subnode_regexp_c = re.compile(sub_node, flags=re.DOTALL)
 timestamp_c = re.compile(timestamp)
 title_regex_c = re.compile(title_pattern)
+invalidated_messages_c = re.compile(invalidated_messages, flags=re.DOTALL)
 virtual_target_match_c = re.compile(virtual_target, flags=re.DOTALL)
 metadata_replacements = re.compile("|".join([
     r'(?:<)([^-/<\s`][^=<]+?)(?:>)', # timestamp
