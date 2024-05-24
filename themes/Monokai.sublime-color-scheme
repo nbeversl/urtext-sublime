@@ -1,40 +1,8 @@
 {
     "name": "Urtext Monokai",
     "variables":
-    {
-        "meta-key": "var(blue-grey)",
-        "value-separator": "var(grey)",
-        "meta-value": "var(blue-brighter)",
-        "meta-separator": "var(grey)",
-        "plus-sign": "var(blue-brighter)",
-        "asterisk": "var(yellow)",
-        "link": "var(bright-green)",
-        "other-project-link": "var(reg-text-white)",
-        "file-link": "var(blue-grey)",
-        "link-title": "var(reg-text-white)",
-        "datestamp": "var(blue-brighter)",
-        "link-prefix": "var(reg-text-white)",
-        "wrapper1": "var(dark1)",
-        "wrapper2": "var(dark2)",
-        "wrapper3": "var(dark3)",
-        "wrapper4": "var(dark4)",
-        "wrapper5": "var(dark5)",
-        "embed-marker": "var(red)",
-        "dynamic-flag": "var(blue)",
-        "raw": "var(dark1)",
-        "system-message": "var(yellow)",
-        "error-message": "var(red)",
-        "open-dynamic": "var(blue-grey)",
-        "close-dynamic": "var(blue-grey)",
-        "dynamic-key": "var(blue-brighter)",
-        "dynamic-value": "var(blue-brighter)",
-        "function-name": "var(blue-grey)",
-        "dynamic-keyword": "var(blue-brighter)",
-        "dynamic-def-node-id": "var(blue-brighter)",
-        "dynamic-parens": "var(blue-grey)",
-        "format-variable": "var(blue-brighter)",
-        "format-string": "var(blue-brighter)",
-        "compact-node-marker": "var(blue-bright)",
+    {   
+        // Color Definitions
         "unobtrusive": "hsl(0, 0%, 20%)",
         "blue-bright": "#0661EE",
         "blue-brighter": "hsl(225, 80%, 60%)",
@@ -57,7 +25,43 @@
         "dark2": "hsl(0, 15%, 40%)",
         "dark3": "hsl(0, 22%, 50%)",
         "dark4": "hsl(0, 40%, 60%)",
-        "dark5": "hsl(0, 50%, 80%)"
+        "dark5": "hsl(0, 50%, 80%)",
+
+        // Scope assignments
+
+        "meta-key": "var(blue-grey)",
+        "value-separator": "var(grey)",
+        "meta-value": "var(blue-brighter)",
+        "meta-separator": "var(grey)",
+        "plus-sign": "var(blue-brighter)",
+        "asterisk": "var(yellow)",
+        "link": "var(bright-green)",
+        "other-project-link": "var(reg-text-white)",
+        "file-link": "var(blue-grey)",
+        "link-title": "var(reg-text-white)",
+        "datestamp": "var(blue-brighter)",
+        "link-prefix": "var(reg-text-white)",
+        "wrapper1": "var(bright-green2)",
+        "wrapper2": "var(dark2)",
+        "wrapper3": "var(dark3)",
+        "wrapper4": "var(dark4)",
+        "wrapper5": "var(dark5)",
+        "embed-marker": "var(red)",
+        "dynamic-flag": "var(blue)",
+        "raw": "var(dark1)",
+        "system-message": "var(yellow)",
+        "error-message": "var(red)",
+        "open-dynamic": "var(blue-grey)",
+        "close-dynamic": "var(blue-grey)",
+        "dynamic-key": "var(blue-brighter)",
+        "dynamic-value": "var(blue-brighter)",
+        "function-name": "var(blue-grey)",
+        "dynamic-keyword": "var(blue-brighter)",
+        "dynamic-def-node-id": "var(blue-brighter)",
+        "dynamic-parens": "var(blue-grey)",
+        "format-variable": "var(blue-brighter)",
+        "format-string": "var(blue-brighter)",
+        "compact-node-marker": "var(blue-bright)"
     },
     "rules":
     [
@@ -198,43 +202,53 @@
         },
         {
             "scope": "punctuation.section.braces.begin.inline_node_1.urtext",
-            "foreground": "var(wrapper1)"
+            "foreground": "var(wrapper1)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.begin.inline_node_2.urtext",
-            "foreground": "var(wrapper2)"
+            "foreground": "var(wrapper2)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.begin.inline_node_3.urtext",
-            "foreground": "var(wrapper3)"
+            "foreground": "var(wrapper3)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.begin.inline_node_4.urtext",
-            "foreground": "var(wrapper4)"
+            "foreground": "var(wrapper4)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.begin.inline_node_5.urtext",
-            "foreground": "var(wrapper5)"
+            "foreground": "var(wrapper5)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.end.inline_node_1.urtext",
-            "foreground": "var(wrapper1)"
+            "foreground": "var(wrapper1)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.end.inline_node_2.urtext",
-            "foreground": "var(wrapper2)"
+            "foreground": "var(wrapper2)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.end.inline_node_3.urtext",
-            "foreground": "var(wrapper3)"
+            "foreground": "var(wrapper3)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.end.inline_node_4.urtext",
-            "foreground": "var(wrapper4)"
+            "foreground": "var(wrapper4)",
+            "font_style": "bold"
         },
         {
             "scope": "punctuation.section.braces.end.inline_node_5.urtext",
-            "foreground": "var(wrapper5)"
+            "foreground": "var(wrapper5)",
+            "font_style": "bold"
         },
         {
             "scope": "raw.urtext",
