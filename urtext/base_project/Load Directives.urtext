@@ -19,6 +19,7 @@ EXEC(| Log >)
 EXEC(| Collect >)
 EXEC(| Pull >)
 EXEC(| Pop >)
+EXEC(| Files >)
 EXEC(| Show >)
 >(| results >)
 +(*)
@@ -45,8 +46,15 @@ TREE()
 | Stats >
 | Text >
 | Tree >
-| Tree Manager >
 | When >
 | project_settings >
+| File List >
 | Home >
+| Log output >
+| Tree Manager >
 } 
+
+{ Log output _
+
+
+[[>(@self) LOG()]]}
