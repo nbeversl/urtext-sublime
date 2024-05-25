@@ -379,7 +379,7 @@ class UrtextProject:
 
                 self.log_item(buffer.filename, message)
                 messages.append(message)
-                buffer.nodes.remove(node)
+                buffer.nodes.remove(n)
                 del n
                 continue
             changed_ids[n.id] = resolution['resolved_id']
