@@ -231,12 +231,9 @@ class ProjectList:
         return None
 
     def visit_file(self, filename):
-        return self.execute(self._visit_file, filename)
-
-    def _visit_file(self, filename):
         self.set_current_project(filename)
         if self.current_project:
-            return self.current_project.visit_file(filename)
+            return self.execute(self.current_project.visit_file, filename)
 
     def visit_node(self, filename, node_id):
         return self.execute(self._visit_node, filename, node_id)

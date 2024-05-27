@@ -67,9 +67,13 @@ def show_popup(text):
     if sublime.active_window() and sublime.active_window().active_view():
         view = sublime.active_window().active_view()
         view.show_popup(
-            text, 
-            max_width=1800, 
-            max_height=1000)
+            ''.join([
+                '<div style="overflow-wrap: break-word;">',
+                text,
+                '</div>'
+                ]),
+            max_width=800, 
+            max_height=400)
 
 def set_buffer(filename, contents):
     view = sublime.active_window().find_open_file(filename)
@@ -288,7 +292,7 @@ class UrtextEventListeners(EventListener):
 
     def on_activated(self, view):
         if view and view.file_name() and _UrtextProjectList:
-            _UrtextProjectList.visit_node(view.file_name(), get_node_id(view))
+            _UrtextProjectList.visit_file(view.file_name())
                 
     def on_post_save(self, view):
         if view and view.file_name() and _UrtextProjectList:
