@@ -150,7 +150,7 @@ class UrtextBuffer:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
-                    self.set_buffer_contents(contents, re_parse=False)
+                    self.set_buffer_contents(contents)
                     return self._lex_and_parse()
 
                 position += 1 #wrappers exist outside range
@@ -212,7 +212,7 @@ class UrtextBuffer:
                 syntax.node_closing_wrapper,
                 ' ',
                 contents[position:]])
-            self.set_buffer_contents(contents, re_parse=False)
+            self.set_buffer_contents(contents)
             return self._lex_and_parse()
 
         for node in self.nodes:
@@ -267,13 +267,17 @@ class UrtextBuffer:
     def set_buffer_contents(self, 
         new_contents,
         re_parse=True,
+        clear_messages=True,
+        re_parse_in_project=False,
         run_hook=False,
         update_buffer=False):
 
         self.contents = new_contents
-        if re_parse:
+        if clear_messages:
             self.__clear_messages()
+        if re_parse:
             self._lex_and_parse()
+        if re_parse_in_project:
             self.project._parse_buffer(self)
         if update_buffer:
             self.__update_buffer_contents_from_buffer_obj()
@@ -335,9 +339,7 @@ class UrtextBuffer:
             ])
         self.messages = []
         self.contents = new_contents
-        self._lex_and_parse()
-
-        self.set_buffer_contents(new_contents, re_parse=False, update_buffer=True)
+        self.set_buffer_contents(new_contents, clear_messages=False, update_buffer=True)
         
     def __get_messages(self):
         messages = []        
@@ -353,7 +355,7 @@ class UrtextBuffer:
             for match in messages:
                 cleared_contents = cleared_contents.replace(match.group(),'')
             if cleared_contents != original_contents:
-                self.set_buffer_contents(cleared_contents, re_parse=False)
+                self.set_buffer_contents(cleared_contents)
                 return True
         return False
 

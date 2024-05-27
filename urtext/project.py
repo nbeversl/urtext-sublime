@@ -179,7 +179,7 @@ class UrtextProject:
                 buffer = self._make_buffer(filename, buffer_contents)
         elif passed_contents:
             buffer = self._make_buffer(filename, passed_contents)
-        if not buffer:
+        else:
             buffer = self.urtext_file(filename, self)
         return self._parse_buffer(buffer)
 

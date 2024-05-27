@@ -88,8 +88,7 @@ class PullNode:
             wrapped_contents)
 
         self.project.files[destination_filename].set_buffer_contents(destination_file_contents,
-            update_buffer=True,
-            re_parse=False)
+            update_buffer=True)
         self.project.files[destination_filename].write_contents_to_file()
 
 ThisProject.add_directive(PullNode)
