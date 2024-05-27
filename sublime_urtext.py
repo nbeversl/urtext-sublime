@@ -401,7 +401,6 @@ class UrtextViewEventListener(ViewEventListener):
             if self.view and ( self.view.file_name() and self.view.is_dirty()
                 and self.view.file_name() in _UrtextProjectList.current_project.files):
                     self.view.run_command('save')
-                    _UrtextProjectList.on_modified(self.view.file_name())
 
 class OpenUrtextLinkCommand(UrtextTextCommand):
 
