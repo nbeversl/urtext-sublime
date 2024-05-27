@@ -986,7 +986,6 @@ class UrtextProject:
                 self._sync_file_list()
                 if filename in self.files:
                     self.run_hook('after_on_file_modified', filename)
-                self.running_on_modified = None
         self.running_on_modified = None
 
     def visit_node(self, node_id):
