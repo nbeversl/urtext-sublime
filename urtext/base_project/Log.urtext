@@ -1,7 +1,7 @@
 Log _ 
 
 Outputs messages from Urtext, dynamically updated as contents changes. Should be used once in every project.
-The base project log is | Log Output >
+The base project log is | Log output >
 
 %%Python
 
@@ -25,7 +25,7 @@ class Log:
 	                'in file ',
 	                file,
 	                ' ',
-	                message,
+	                message['top_message'],
 	                '\n'
 	                ]))
 		return text_contents + '\n'.join(output) + '\n'

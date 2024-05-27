@@ -37,13 +37,13 @@ class UrtextProject:
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
+        self.project_settings_nodes = []
         self.files = {}
         self.paths = []
         self.messages = {}
         self.dynamic_definitions = {}
         self.virtual_outputs = {}
         self.dynamic_metadata_entries = []
-        self.project_settings_nodes = {}
         self.directives = {}
         self.project_instance_directives = {}
         self.initialized = False
@@ -54,39 +54,35 @@ class UrtextProject:
         self.running_on_modified = None
         self.new_file_node_created = new_file_node_created
 
-    def get_setting(self, setting, as_type='text', _from_project_list=False):
+    def get_setting(self, setting, _from_project_list=False):
 
         values = []
+        is_text = True
         if 'project_settings' in self.nodes:
-            settings_node = self.nodes['project_settings']
-            if settings_node:
-                values = settings_node.metadata.get_values(setting)
+            values = self.nodes['project_settings'].metadata.get_values(setting)
         if not values and not _from_project_list:
-            values = self.project_list.get_setting(setting, self)
-            if values:
-                return values
+            return self.project_list.get_setting(setting, self)
         if values and values[0].is_node:
             return values
         if setting in ['boolean_settings', 'single_values_settings', 'numerical_settings']:
             return [v.text for v in values]
         if setting in self.get_setting('boolean_settings', _from_project_list=_from_project_list):
             values = [v.true() for v in values]
-            if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
-                return values[0]
-            return values
-        if setting in self.get_setting('numerical_settings', _from_project_list=_from_project_list):
+            is_text = False
+        elif setting in self.get_setting('numerical_settings', _from_project_list=_from_project_list):
             values = [v.num() for v in values]
-            if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
+            is_text = False
+        single_values_settings = self.get_setting('single_values_settings', _from_project_list=_from_project_list)
+        if values and not is_text:
+            if setting in single_values_settings:
                 return values[0]
-            return values
-        if values and setting in self.get_setting('single_values_settings', _from_project_list=_from_project_list):
+        if setting in single_values_settings:
             return values[0].text
         return [v.text for v in values]
 
     def get_settings_keys(self):
         keys = []
-        settings_nodes = [n for n in self.nodes.values() if n.title == 'project_settings']
-        for n in settings_nodes:
+        for n in self.project_settings_nodes:
             keys.extend(n.metadata.get_keys())
         return keys
 
@@ -470,6 +466,8 @@ class UrtextProject:
         self.nodes[new_node.id] = new_node
         if self.compiled:
             new_node.metadata.convert_node_links()
+        if new_node.title == 'project_settings':
+            self.project_settings_nodes.append(new_node)
         self.run_hook('on_node_added', new_node)
 
     def get_source_node(self, filename, position):  # future
@@ -530,6 +528,8 @@ class UrtextProject:
             self._remove_sub_tags(node.id)
             self._remove_dynamic_defs(node.id)
             self._remove_dynamic_metadata_entries(node.id)
+            if node in self.project_settings_nodes:
+                self.project_settings_nodes.remove(node)
             del self.nodes[node.id]
 
     def delete_file(self, filename):
@@ -1027,7 +1027,7 @@ class UrtextProject:
         if os.path.isdir(self.entry_point):
             paths.append(self.entry_point)
 
-        for node in self.get_setting('paths', as_type='node'):
+        for node in self.get_setting('paths'):
             for n in node.children:
                 pathname = n.metadata.get_first_value('path')
                 if pathname:
