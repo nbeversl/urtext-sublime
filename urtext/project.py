@@ -817,8 +817,10 @@ class UrtextProject:
     def _sort_nodes(self, nodes, keys, as_nodes=False):
         remaining_nodes = nodes
         sorted_nodes = []
+        use_timestamp_setting = self.get_setting('use_timestamp')
+        detail_key = self.get_setting('node_browser_detail')
         for k in keys:
-            use_timestamp = k in self.get_setting('use_timestamp')
+            use_timestamp = k in use_timestamp_setting
             node_group = [r for r in remaining_nodes if r.metadata.get_first_value(k) is not None]
             remaining_nodes = [r for r in remaining_nodes if r not in node_group]
             if node_group:
@@ -833,12 +835,11 @@ class UrtextProject:
                         node_group,
                         key=lambda n: n.metadata.get_first_value(k))
                 for node in node_group:
-                    detail_key = self.get_setting('node_browser_detail')
                     if not detail_key:
                         detail_key = k
                     detail = node.metadata.get_first_value(detail_key)
                     if detail:
-                        if detail_key in self.get_setting('use_timestamp'):
+                        if detail_key in use_timestamp_setting:
                             detail = detail.timestamp.wrapped_string
                         else:
                             detail = detail.text
@@ -1184,6 +1185,8 @@ class UrtextProject:
             for v in values:
                 results.update(self.get_links_from(v))
         else:
+            numerical_keys_setting = self.get_setting('numerical_keys')
+            case_sensitive_setting = self.get_setting('case_sensitive')
             if key == '*':
                 keys = self.get_all_keys()
             else:
@@ -1196,8 +1199,7 @@ class UrtextProject:
                                             k,
                                             convert_nodes_to_links=True)])
                         continue
-
-                    if k in self.get_setting('numerical_keys'):
+                    if k in numerical_keys_setting:
                         try:
                             value = float(value)
                         except ValueError:
@@ -1207,7 +1209,7 @@ class UrtextProject:
                     if isinstance(value, UrtextTimestamp):
                         use_timestamp = True
 
-                    if k in self.get_setting('case_sensitive'):
+                    if k in case_sensitive_setting:
                         results.update([
                             n for n in self.nodes if
                             value in [

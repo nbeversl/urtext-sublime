@@ -23,4 +23,4 @@ class PullNodeCommand(UrtextTextCommand):
                 self.view.substr(self.view.line(self.view.sel()[0])),
                 col_pos,
                 self.view.file_name(),
-                self.view.sel()[0].a)
+                file_pos)

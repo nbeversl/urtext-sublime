@@ -293,12 +293,13 @@ class NodeMetadata:
                     self.entries_dict[k].remove(entry)
     
     def convert_hash_keys(self):
-        if self.project.get_setting('hash_key'):
+        hash_key_setting = self.project.get_setting('hash_key')
+        if hash_key_setting:
             if '#' in self.entries_dict:
                 for entry in self.get_entries('#'):
-                    entry.keyname = self.project.get_setting('hash_key')
-                self.entries_dict.setdefault(self.project.get_setting('hash_key'), [])                
-                self.entries_dict[self.project.get_setting('hash_key')].extend(self.entries_dict['#'])
+                    entry.keyname = hash_key_setting
+                self.entries_dict.setdefault(hash_key_setting, [])                
+                self.entries_dict[hash_key_setting].extend(self.entries_dict['#'])
                 del self.entries_dict['#']
 
     def get_oldest_timestamp(self):
@@ -350,10 +351,11 @@ def determine_desc_tagging(string):
 def get_extended_metadata(extended_keyname, node):
     entries = node.metadata.get_entries(extended_keyname[0])
     values = set()
+    use_timestamp_setting = node.project.get_setting('use_timestamp')
     for e in entries:
         for v in e.meta_values:
             if len(extended_keyname) == 1:
-                if extended_keyname[0] in node.project.get_setting('use_timestamp'):
+                if extended_keyname[0] in use_timestamp_setting:
                     if v.timestamp:
                         values.add(v.timestamp.unwrapped_string)
                 elif v.is_node:
