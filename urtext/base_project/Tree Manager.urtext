@@ -26,7 +26,11 @@ class UrtextAnyTree:
     def on_added(self):
         for node in self.project.nodes.values():
             node.tree_node = self.Node(node.id)
-         
+            for pointer in node.pointers:
+                alias_node = self.Node('ALIA$'+pointer['id']) # anytree Node, not UrtextNode 
+                alias_node.position = pointer['position']
+                alias_node.parent = node.tree_node
+
     def on_node_id_changed(self, old_node_id, new_node_id):
         self.project.nodes[new_node_id].tree_node = self.Node(new_node_id)
 
