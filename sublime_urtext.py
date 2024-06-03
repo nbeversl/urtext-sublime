@@ -297,6 +297,14 @@ class UrtextEventListeners(EventListener):
     def on_post_save(self, view):
         if view and view.file_name() and _UrtextProjectList:
             _UrtextProjectList.on_modified(view.file_name())
+            num_groups = view.window().num_groups()
+            window = view.window()
+            for index in range(0, window.num_groups()):
+                active_view = window.active_sheet_in_group(index)
+                if active_view:
+                    filename = active_view.file_name()
+                    if filename:
+                        _UrtextProjectList.on_modified(filename)
 
     def on_hover(self, view, point, hover_zone):
         if view.is_folded(sublime.Region(point, point)) and _UrtextProjectList:

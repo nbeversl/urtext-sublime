@@ -50,7 +50,6 @@
         "dynamic-flag": "var(blue)",
         "raw": "var(dark1)",
         "system-message": "var(yellow)",
-        "error-message": "var(red)",
         "open-dynamic": "var(blue-grey)",
         "close-dynamic": "var(blue-grey)",
         "dynamic-key": "var(blue-brighter)",

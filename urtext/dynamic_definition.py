@@ -148,15 +148,16 @@ class UrtextDynamicDefinition:
                 continue
             if target_id not in self.project.nodes:
                 filename = self.project.nodes[self.source_node.id].filename
-                self.project.log_item(filename, ''.join([
-                    'Dynamic node definition in ',
-                    self.source_node.link(),
-                    '\n',
-                    'points to nonexistent node ',
-                    syntax.missing_link_opening_wrapper,
-                    target_id,
-                    syntax.link_closing_wrapper]))
-
+                self.project.log_item(filename, {
+                    'top_message': ''.join([
+                        'Dynamic node definition in ',
+                        self.source_node.link(),
+                        '\n',
+                        'points to nonexistent node ',
+                        syntax.missing_link_opening_wrapper,
+                        target_id,
+                        syntax.link_closing_wrapper])
+                })
         output = self.process_output()
         if self.spaces:
             output = self.indent(output, spaces=self.spaces)

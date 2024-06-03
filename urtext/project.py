@@ -157,7 +157,8 @@ class UrtextProject:
 
     def _approve_new_path(self, path):
         if path in self.project_list.get_all_paths():
-            self.log_item('system', "%s is already in another project." % path)
+            self.log_item('system', {
+                'top_message':  "%s is already in another project." % path})
             return False
         return True
 
@@ -188,7 +189,8 @@ class UrtextProject:
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()
-            self.log_item(buffer.filename, '%s has no root node, dropping' % buffer.filename)
+            self.log_item(buffer.filename, {
+                'top_message': '%s has no root node, dropping' % buffer.filename})
             return False
 
         self.messages[buffer.filename] = buffer.messages
@@ -443,18 +445,20 @@ class UrtextProject:
                     self.virtual_outputs[target].append(definition)
 
     def _reject_definition(self, target_id, definition):
-        message = ''.join([
-            '\nDynamic node ',
-            utils.make_node_link(target_id),
-            '\nalready has a definition in ',
-            self.dynamic_definitions[target_id].source_node.link(),
-            '\n in file ',
-            syntax.file_link_opening_wrapper,
-            self.dynamic_definitions[target_id].source_node.filename,
-            syntax.link_closing_wrapper,
-            '\nskipping the definition in ',
-            definition.source_node.link(),
-        ])
+        message = {
+            'top_message': ''.join([
+                '\nDynamic node ',
+                utils.make_node_link(target_id),
+                '\nalready has a definition in ',
+                self.dynamic_definitions[target_id].source_node.link(),
+                '\n in file ',
+                syntax.file_link_opening_wrapper,
+                self.dynamic_definitions[target_id].source_node.filename,
+                syntax.link_closing_wrapper,
+                '\nskipping the definition in ',
+                definition.source_node.link(),
+                ])
+            }
         self.log_item(
             self.nodes[definition.source_node.id].filename,
             message)
@@ -1010,7 +1014,7 @@ class UrtextProject:
         for filename in [f for f in list(self.files) if f not in included_files]:
             self.log_item(
                 filename,
-                filename + ' no longer seen in project path. Dropping it from the project.')
+                { 'top_message ': filename + ' no longer seen in project path. Dropping it from the project.'})
             self.drop_file(filename)
 
     def _get_included_files(self):

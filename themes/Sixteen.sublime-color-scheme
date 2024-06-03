@@ -36,8 +36,7 @@
         "dynamic-parens": "var(white2)",
         "format-variable": "var(foreground)",
         "format-string": "var(foreground)",
-        "system-message": "var(yellow)",
-        "error-message": "var(red)",
+        "system-message": "var(red)",
         "unobtrusive": "hsl(20, 5%, 84%)",
         "red": "hsl(0, 100%, 50%)",
         "blue-lighter2": "hsl(225, 40%, 85%)",
@@ -176,6 +175,11 @@
         {
             "scope": "punctuation.section.braces.begin.inline_node_5.urtext",
             "foreground": "var(wrapper5)",
+            "font_style": "bold"
+        },
+        {
+            "scope": "missing_node.urtext",
+            "foreground": "var(red)",
             "font_style": "bold"
         },
         {
