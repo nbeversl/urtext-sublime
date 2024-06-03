@@ -918,7 +918,7 @@ class UrtextProject:
         if message not in self.messages[filename]:
             self.messages[filename].append(message)
         if self.get_setting('console_log'):
-            print(str(filename) + ' : ' + message)
+            print(str(filename) + ' : ' + message['top_message'])
 
     def timestamp(self, date=None, as_string=False, add_seconds=False):
         """ 

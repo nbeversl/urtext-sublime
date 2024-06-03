@@ -355,7 +355,7 @@ class UrtextBuffer:
             for match in messages:
                 cleared_contents = cleared_contents.replace(match.group(),'')
             if cleared_contents != original_contents:
-                self.set_buffer_contents(cleared_contents)
+                self.set_buffer_contents(cleared_contents, clear_messages=False)
                 return True
         return False
 
