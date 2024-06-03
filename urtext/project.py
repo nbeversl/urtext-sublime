@@ -171,7 +171,7 @@ class UrtextProject:
         existing_buffer_ids = []
         if filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
-            self.drop_buffer(self.files[filename])
+        self.drop_file(filename)
             
         if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
@@ -182,10 +182,13 @@ class UrtextProject:
         else:
             buffer = self.urtext_file(filename, self)
         if buffer:
-            self.drop_buffer(buffer) #TODO should not be needed
             return self._parse_buffer(buffer, existing_buffer_ids=existing_buffer_ids)
 
     def _parse_buffer(self, buffer, existing_buffer_ids=[]):
+        if buffer.filename and buffer.filename in self.files:
+            existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]            
+            self.drop_file(buffer.filename)
+
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()
@@ -420,8 +423,7 @@ class UrtextProject:
     def _add_dynamic_definition(self, definition):
         for target_id in definition.target_ids:
             if target_id in self.dynamic_definitions:
-                pass
-                # self._reject_definition(target_id, definition)
+                self._reject_definition(target_id, definition)
             else:
                 self.dynamic_definitions[target_id] = definition
 
@@ -436,10 +438,7 @@ class UrtextProject:
             if virtual_target:
                 target = virtual_target.group()
                 if target == "@self":
-                    if definition.source_node.id in self.dynamic_definitions:
-                        self._reject_definition(definition.source_node.id, definition)
-                    else:
-                        self.dynamic_definitions[definition.source_node.id] = definition
+                    self.dynamic_definitions[definition.source_node.id] = definition
                 else:
                     self.virtual_outputs.setdefault(target, [])
                     self.virtual_outputs[target].append(definition)
@@ -706,7 +705,7 @@ class UrtextProject:
                            has_not_run=False):
 
         defs = []
-        if target_node and target_node.id in self.dynamic_definitions:
+        if target_node and (target_node.id in self.dynamic_definitions):
             defs.append(self.dynamic_definitions[target_node.id])
         if source_node:
             for dd in self.dynamic_definitions.values():
