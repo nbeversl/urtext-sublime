@@ -182,10 +182,10 @@ class UrtextProject:
         else:
             buffer = self.urtext_file(filename, self)
         if buffer:
+            self.drop_buffer(buffer) #TODO should not be needed
             return self._parse_buffer(buffer, existing_buffer_ids=existing_buffer_ids)
 
     def _parse_buffer(self, buffer, existing_buffer_ids=[]):
-
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()

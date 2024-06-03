@@ -79,6 +79,18 @@ class UrtextDynamicDefinition:
             return ' ' + self.project.nodes[node_id].title + syntax.title_marker + '\n'
         return ''
 
+    def preserve_timestamp_if_present(self, target):
+        if target == '@self' and self.source_node.id in self.project.nodes:
+            oldest_timestamp = self.project.nodes[self.source_node.id].metadata.get_oldest_timestamp()
+            if oldest_timestamp:
+                return oldest_timestamp.wrapped_string
+        node_id = get_id_from_link(target)
+        if node_id in self.target_ids and node_id in self.project.nodes:
+            oldest_timestamp = self.project.nodes[node_id].metadata.get_oldest_timestamp()
+            if oldest_timestamp:
+                return oldest_timestamp.wrapped_string
+        return ''
+
     def process_output(self):
         
         self.project.run_hook('on_dynamic_def_process_started', self)
@@ -86,20 +98,20 @@ class UrtextDynamicDefinition:
 
         for operation in self.operations:
 
-            if not self.sorted:
-                # TODO this should not happen on every iteration.
-                self.included_nodes = sorted(
-                    self.included_nodes,
-                    key=lambda node: node.title)
-                self.included_nodes = sorted(
-                    self.included_nodes,
-                    key=lambda node: node.metadata.get_first_value(
-                        '_oldest_timestamp').timestamp.datetime if (
-                        node.metadata.get_first_value('_oldest_timestamp')) else (
-                        datetime.datetime(
-                            1, 1, 1,
-                            tzinfo=datetime.timezone.utc)),
-                    reverse=True)
+            # if not self.sorted:
+            #     # TODO this should not happen on every iteration.
+            #     self.included_nodes = sorted(
+            #         self.included_nodes,
+            #         key=lambda node: node.title)
+            #     self.included_nodes = sorted(
+            #         self.included_nodes,
+            #         key=lambda node: node.metadata.get_first_value(
+            #             '_oldest_timestamp').timestamp.datetime if (
+            #             node.metadata.get_first_value('_oldest_timestamp')) else (
+            #             datetime.datetime(
+            #                 1, 1, 1,
+            #                 tzinfo=datetime.timezone.utc)),
+            #         reverse=True)
 
             current_text = accumulated_text
             try:
@@ -165,7 +177,10 @@ class UrtextDynamicDefinition:
         return output
 
     def post_process(self, target, output):
-        output = self.preserve_title_if_present(target) + output
+        output = ''.join([
+            self.preserve_timestamp_if_present(target),
+            self.preserve_title_if_present(target),
+            output])
         if target == '@self':
             output += self.get_definition_text()
         return output
