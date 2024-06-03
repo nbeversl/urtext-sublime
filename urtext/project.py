@@ -167,6 +167,9 @@ class UrtextProject:
             return False
 
         buffer = None
+        if filename in self.files:
+            self.drop_buffer(self.files[filename])
+
         if self.compiled and not passed_contents and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
@@ -184,8 +187,6 @@ class UrtextProject:
         existing_buffer_ids = []
         if buffer.filename in self.files:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
-
-        self.drop_buffer(buffer)
 
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
