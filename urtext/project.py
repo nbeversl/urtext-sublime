@@ -738,7 +738,7 @@ class UrtextProject:
         for target in self.virtual_outputs:
             for dd in self.virtual_outputs[target]:
                 if dd.source_node.id == node_id:
-                    self.virtual_outputs[target].remove(dd)
+                    del dd
 
     def _remove_dynamic_metadata_entries(self, node_id):
         for entry in list(self.dynamic_metadata_entries):

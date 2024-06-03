@@ -309,7 +309,7 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        self.file.set_buffer_contents(new_file_contents)
+        self.file.set_buffer_contents(new_file_contents, parse_into_project=True)
 
     def replace_range(self, 
         range_to_replace, 
