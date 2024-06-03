@@ -161,32 +161,29 @@ class UrtextProject:
             return False
         return True
 
-    def _parse_file(self, filename, try_buffer=False, passed_contents=None):
+    def _parse_file(self, filename, try_buffer=False):
         if self._filter_filenames(filename) is None:
             self._add_to_excluded_files(filename)
             return False
 
         buffer = None
+        existing_buffer_ids = []
         if filename in self.files:
+            existing_buffer_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
             self.drop_buffer(self.files[filename])
-
-        if self.compiled and not passed_contents and try_buffer:
+            
+        if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
                 'get_buffer',
                 filename)
             if buffer_contents:
                 buffer = self._make_buffer(filename, buffer_contents)
-        elif passed_contents:
-            buffer = self._make_buffer(filename, passed_contents)
         else:
             buffer = self.urtext_file(filename, self)
-        return self._parse_buffer(buffer)
+        if buffer:
+            return self._parse_buffer(buffer, existing_buffer_ids=existing_buffer_ids)
 
-    def _parse_buffer(self, buffer):
-
-        existing_buffer_ids = []
-        if buffer.filename in self.files:
-            existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]
+    def _parse_buffer(self, buffer, existing_buffer_ids=[]):
 
         self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
