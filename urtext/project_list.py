@@ -52,7 +52,6 @@ class ProjectList:
                                 project_list=self,
                                 editor_methods=self.editor_methods,
                                 new_file_node_created=new_file_node_created)
-        project.executor = self.executor
         project.is_async = self.is_async
         project.initialize(callback=callback)
 

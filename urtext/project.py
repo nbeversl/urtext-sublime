@@ -14,7 +14,6 @@ import urtext.syntax as syntax
 import urtext.utils as utils
 from urtext.exec import Exec
 
-
 class UrtextProject:
     urtext_file = UrtextFile
     urtext_node = UrtextNode
@@ -48,7 +47,6 @@ class UrtextProject:
         self.project_instance_directives = {}
         self.initialized = False
         self.compiled = False
-        self.executor = None
         self.excluded_files = []
         self.home_requested = False
         self.running_on_modified = None
