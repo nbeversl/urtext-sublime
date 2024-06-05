@@ -25,8 +25,7 @@ class TreeDirective:
         start_points = self.dynamic_definition.included_nodes
 
         for start_point in start_points:
-            start_point_tree_node = self._duplicate_tree(start_point)            
-
+            start_point_tree_node = self._duplicate_tree(self.Node(start_point.id))            
             level = 0
             for pre, _, this_node in self.RenderTree(
                     start_point_tree_node, 
@@ -118,35 +117,34 @@ class TreeDirective:
                     return True
         return False
 
-    def _duplicate_tree(self, from_node, ancestors=None):
+    def _duplicate_tree(self, from_tree_node, ancestors=None):
 
-        new_root = self.Node(from_node.id)
         if ancestors is None:
-            ancestors = [new_root.name]
-        node_children = self.project.nodes[new_root.name].children
-
-        for pointer in from_node.pointers:
+            ancestors = [from_tree_node.name]
+        node_children = self.project.nodes[from_tree_node.name].children
+        urtext_node = self.project.nodes[from_tree_node.name]
+        for pointer in urtext_node.pointers:
             if pointer['id'] not in ancestors:
                 alias_node = self.Node(pointer['id'])
-                alias_node.parent = new_root
+                alias_node.parent = from_tree_node
                 ancestors.append(pointer['id'])
-                new_pointer_tree_node = self._duplicate_tree(self.project.nodes[pointer['id']], ancestors=ancestors)
-                new_pointer_tree_node.parent = new_root
+                new_pointer_tree_node = self._duplicate_tree(alias_node, ancestors=ancestors)
+                new_pointer_tree_node.parent = from_tree_node
 
         for child in node_children:
             if child.id not in ancestors:               
                 new_tree_node = self.Node(child.id)
-                new_tree_node.parent = new_root
+                new_tree_node.parent = from_tree_node
                 new_tree_node.position = child.start_position
                 ancestors.append(child.id)
+                next_childen_node = self._duplicate_tree(new_tree_node, ancestors=ancestors)
+                next_childen_node.parent = from_tree_node
             else:
                 new_tree_node = self.Node('! RECURSION (from tree duplication) : '+ child.id + ' >')
-                new_tree_node.parent = new_root
+                new_tree_node.parent = from_tree_node
                 new_tree_node.position = child.start_position  
  
-            next_childen_node = self._duplicate_tree(child, ancestors=ancestors)
-            next_childen_node.parent = new_root
-        return new_root
+        return from_tree_node
 
 ThisProject.add_directive(TreeDirective)
 
