@@ -101,7 +101,8 @@ class TreeDirective:
     
     def _tree_node_is_excluded(self, tree_node):
 
-        if tree_node.name in self.dynamic_definition.target_ids:
+        node_id = tree_node.name
+        if node_id in self.dynamic_definition.target_ids:
             return True
 
         if self.dynamic_definition.excluded_nodes:
@@ -112,9 +113,6 @@ class TreeDirective:
             if node_id not in self.project.nodes:
                 return True
 
-            for ancestor in self.project.nodes[node_id].tree_node.ancestors:
-                if ancestor.name in self.dynamic_definition.excluded_nodes:
-                    return True
         return False
 
     def _duplicate_tree(self, from_tree_node, ancestors=None):
