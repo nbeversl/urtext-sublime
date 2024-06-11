@@ -770,8 +770,7 @@ class UrtextProject:
             'open_file_to_position',
             self.nodes[node_id].filename,
             position,
-            node_range=node_range
-        )
+            node_range=node_range)
         return self.visit_node(node_id)
 
     def open_home(self):
