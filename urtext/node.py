@@ -186,9 +186,8 @@ class UrtextNode:
     def _get_links(self, positioned_contents):
         urtext_links, replaced_contents = utils.get_all_links_from_string(positioned_contents)
         for urtext_link in urtext_links:
-            if urtext_link.is_node:
-                urtext_link.containing_node = self
-                self.links.append(urtext_link)
+            urtext_link.containing_node = self
+            self.links.append(urtext_link)
 
     def set_title(self, contents):
         """

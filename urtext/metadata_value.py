@@ -1,5 +1,7 @@
 from urtext.timestamp import UrtextTimestamp
 import urtext.syntax as syntax
+import urtext.utils as utils
+import os
 
 class MetadataValue:
 
@@ -24,6 +26,15 @@ class MetadataValue:
             return float(self.text)
         except:
             return float('inf')
+
+    def links(self):
+        urtext_links, replaced_contents = utils.get_all_links_from_string(self.text)
+        for urtext_link in urtext_links:
+            if urtext_link.is_file:
+                urtext_link.path = os.path.join(
+                    os.path.dirname(self.entry.node.filename),
+                    urtext_link.path)
+        return urtext_links
 
     def __lt__(self, other):
         if self.text:

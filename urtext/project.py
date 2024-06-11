@@ -52,12 +52,12 @@ class UrtextProject:
         self.running_on_modified = None
         self.new_file_node_created = new_file_node_created
 
-    def get_setting(self, setting, _from_project_list=False):
+    def get_setting(self, setting, _from_project_list=False, as_text=True):
 
         values = []
         is_text = True
-        if 'project_settings' in self.nodes:
-            values = self.nodes['project_settings'].metadata.get_values(setting)
+        for node in self.project_settings_nodes:
+            values.extend(node.metadata.get_values(setting))
         if not values and not _from_project_list:
             return self.project_list.get_setting(setting, self)
         if values and values[0].is_node:
@@ -76,7 +76,9 @@ class UrtextProject:
                 return values[0]
         if setting in single_values_settings:
             return values[0].text
-        return [v.text for v in values]
+        if as_text:
+            return [v.text for v in values]
+        return values
 
     def get_settings_keys(self):
         keys = []
@@ -146,10 +148,16 @@ class UrtextProject:
         self._mark_dynamic_nodes()
         self.run_hook('after_project_initialized')
 
-        other_entry_points = self.get_setting('other_entry_points')
+        other_entry_points = self.get_setting('other_entry_points', as_text=False)
         if other_entry_points:
-            for path_link in other_entry_points:
-                self.project_list._add_project(utils.get_path_from_link(path_link))
+            for value in other_entry_points:
+                urtext_links = value.links()
+                if urtext_links:
+                    for path in [link.path for link in urtext_links if link.path]:
+                        self.project_list._add_project(path)
+                    continue
+                self.project_list._add_project(utils.get_path_from_link(value.text))
+
         self.initialized = True
         callback(self)
 
