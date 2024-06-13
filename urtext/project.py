@@ -1018,7 +1018,7 @@ class UrtextProject:
         for filename in [f for f in list(self.files) if f not in included_files]:
             self.log_item(
                 filename,
-                { 'top_message ': filename + ' no longer seen in project path. Dropping it from the project.'})
+                {'top_message': filename + ' no longer seen in project path. Dropping it from the project.'})
             self.drop_file(filename)
 
     def _get_included_files(self):
