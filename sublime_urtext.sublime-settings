@@ -1,6 +1,0 @@
-{
-	"extensions": [ "urtext" ],
-	"reload_file_on_change": true,
-	"line_numbers" : false,
-	"always_prompt_for_file_reload": false,
-}
