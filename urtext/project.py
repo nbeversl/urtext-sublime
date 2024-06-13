@@ -77,7 +77,7 @@ class UrtextProject:
         if setting in single_values_settings:
             return values[0].text
         if as_text:
-            return [v.text for v in values]
+            return list(set([v.text for v in values]))
         return values
 
     def get_settings_keys(self):

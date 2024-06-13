@@ -22,6 +22,7 @@ EXEC(| Files >)
 EXEC(| Show >)
 >(| results >)
 +(*)
+SORT(title)
 TREE()
 ]]
 
@@ -30,10 +31,12 @@ TREE()
 | Export Directive >
 | Files >
 | Format Directive >
+| Home >
 | Include and Exclude >
 | Interlinks >
 | Limit >
 | Log >
+| Log output >
 | Max Length >
 | Navigation >
 | Pop >
@@ -47,10 +50,6 @@ TREE()
 | Tree >
 | When >
 | project_settings >
-| File List >
-| Home >
-| Log output >
-| Tree Manager >
 } 
 
 { Log output _
