@@ -39,6 +39,7 @@ class ProjectList:
         if base_project:
             self.add_project(base_project)
         self.add_project(self.entry_point)
+        self.set_current_project(self.entry_point)
 
     def add_project(self, entry_point, new_file_node_created=False):
         self.execute(self._add_project, entry_point, new_file_node_created=False)
