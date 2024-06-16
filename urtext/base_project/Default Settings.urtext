@@ -24,6 +24,7 @@ node_browser_sort::_oldest_timestamp - title
 node_date_keyname::_oldest_timestamp
 numerical_settings::_index - index - title_length - filename_title_length
 on_project_activated::open_home - open_last_nav
+new_filenames_template::$device_keyname $timestamp 
 node_browser_detail::_newest_timestamp
 timestamp_format::%a., %b. %d, %Y, %I:%M %p %Z
 title_length::255,
@@ -31,7 +32,7 @@ use_timestamp::timestamp - _inline_timestamp - _oldest_timestamp - _newest_times
 project_title::Urtext Base Project & Documentation
 propagate_settings::_all
 propagate_directives::_all
-single_values_settings::home - filename_datestamp_format - filename_title_length - node_date_keyname - timestamp_format - device_keyname - breadcrumb_key - title - new_file_node_format - hash_key - meta_browser_key - meta_browser_sort_keys_by - meta_browser_sort_values_by - project_title - title_length - always_oneline_meta - preformat - console_log - atomic_rename  - contents_strip_outer_whitespace - contents_strip_internal_whitespace - node_browser_detail
+single_values_settings::home - filename_datestamp_format - filename_title_length - node_date_keyname - timestamp_format - device_keyname - breadcrumb_key - title - new_file_node_format - hash_key - meta_browser_key - meta_browser_sort_keys_by - meta_browser_sort_values_by - project_title - title_length - always_oneline_meta - preformat - console_log - atomic_rename  - contents_strip_outer_whitespace - contents_strip_internal_whitespace - node_browser_detail - new_filenames_template
 
 
 boolean_settings::always_oneline_meta - preformat - console_log - atomic_rename  contents_strip_outer_whitespace - contents_strip_internal_whitespace

@@ -573,7 +573,8 @@ class UrtextProject:
                       path=None,
                       contents=None,
                       metadata=None,
-                      open_file=True):
+                      open_file=True,
+                      add_seconds_to_timestamp=False):
 
         contents_format = None
         if contents is None:
@@ -583,14 +584,18 @@ class UrtextProject:
             ).decode("unicode_escape")
         if metadata is None:
             metadata = {}
-        filename = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+    
+        new_filename_setting = self.get_setting('new_filenames_template')
+        filename = self.fill_template(new_filename_setting,
+            filename_safe=True,
+            add_seconds_to_timestamp=add_seconds_to_timestamp) 
+        filename += '.urtext'
 
         new_node_contents, node_id, cursor_pos = self._new_node(
             contents=contents,
             contents_format=contents_format,
             metadata=metadata)
 
-        filename += '.urtext'
         if path:
             filename = os.path.join(path, filename)
         else:
@@ -622,14 +627,11 @@ class UrtextProject:
         self._parse_file(filename)
 
         if filename in self.files:
-            # TODO possibly should be sent in a thread:
             self.run_hook('on_new_file_node',
                           self.files[filename].root_node.id)
-
             if open_file:
                 self.open_node(self.files[filename].root_node.id,
                                position=cursor_pos)
-
             return {
                 'filename': filename,
                 'root_node': self.files[filename].root_node,
@@ -667,12 +669,7 @@ class UrtextProject:
             contents = ''
 
         if contents_format:
-            new_node_contents = contents_format.replace(
-                '$timestamp',
-                self.timestamp(add_seconds=add_seconds_to_timestamp).wrapped_string)
-            new_node_contents = new_node_contents.replace(
-                '$device_keyname',
-                platform.node())
+            new_node_contents = self.fill_template(contents_format)
             if '$cursor' in new_node_contents:
                 new_node_contents = new_node_contents.split('$cursor')
                 cursor_pos = len(new_node_contents[0]) - 1
@@ -694,6 +691,25 @@ class UrtextProject:
 
         return new_node_contents, title, cursor_pos
 
+    def fill_template(self,
+        template_string,
+        unwrap_timestamps=False,
+        filename_safe=False,
+        add_seconds_to_timestamp=False):
+    
+        if '$timestamp' in template_string:
+            if unwrap_timestamps:
+                timestamp = self.timestamp(add_seconds=add_seconds_to_timestamp).unwrapped_string
+            else:
+                timestamp = self.timestamp(add_seconds=add_seconds_to_timestamp).wrapped_string
+            template_string = template_string.replace('$timestamp', timestamp)
+        template_string = template_string.replace(
+            '$device_keyname',
+            platform.node())
+        if filename_safe:
+            template_string = utils.strip_illegal_file_characters(template_string)
+        return template_string
+        
     def add_compact_node(self,
                          contents='',
                          metadata=None):
