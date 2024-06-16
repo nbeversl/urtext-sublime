@@ -1045,7 +1045,10 @@ class UrtextProject:
             for n in node.children:
                 pathname = n.metadata.get_first_value('path')
                 if pathname:
-                    path = utils.get_path_from_link(pathname.text)
+                    path = utils.get_path_from_link(pathname.text)                    
+                    path = os.path.abspath(os.path.join(
+                        os.path.dirname(n.filename), 
+                        path))
                     if os.path.exists(path):
                         paths.append(path)
                         recurse_subfolders = n.metadata.get_first_value('recurse_subfolders')
@@ -1056,7 +1059,7 @@ class UrtextProject:
                                         continue
                                     paths.append(dirpath)
                     else:
-                        print("NOT PATH FOR", pathname.text)
+                        print("NO PATH FOR", pathname.text)
         return paths
 
     def _include_file(self, filename):
