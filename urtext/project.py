@@ -116,7 +116,7 @@ class UrtextProject:
         for p in self.get_settings_paths():
             if p not in self.paths:
                 if not self._approve_new_path(p):
-                    print(p, 'NOT ADDED (debugging)')
+                    print('FROM PROJECT', self.title(), p, 'NOT ADDED (debugging)')
                 else:
                     self.paths.append(p)
                     for file in self._get_included_files():
