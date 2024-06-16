@@ -281,15 +281,10 @@ class UrtextNode:
         """
         use project._set_node_contents() method instead of using this directly.
 
-        potential issues:
-
-        1. file should be parsed before this, in case the content
+        file should be parsed before this, in case the content
         has been modified manually by a directive
-
-        2. Appears that dynamnic nodes in node.replace_links() cannot
-        be filtered out if the dynamic node itself is in the midst of being updated
-    
         """
+
         node_contents = self.strip_first_line_title(self.full_contents)
         file_contents = self.file._get_contents()        
         if preserve_title and self.first_line_title:
@@ -308,7 +303,8 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        self.file.set_buffer_contents(new_file_contents, parse_into_project=True)
+        self.file.set_buffer_contents(new_file_contents)
+        # does not re-parse into project
 
     def replace_range(self, 
         range_to_replace, 

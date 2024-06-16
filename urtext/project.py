@@ -174,9 +174,6 @@ class UrtextProject:
 
         buffer = None
         existing_buffer_ids = []
-        if filename in self.files:
-            existing_buffer_ids = [n.id for n in self.files[filename].get_ordered_nodes()]
-        self.drop_file(filename)
             
         if self.compiled and try_buffer:
             buffer_contents = self.run_editor_method(
@@ -265,8 +262,7 @@ class UrtextProject:
             for old_node_id in changed_ids:
                 self.run_hook('on_node_id_changed',
                             old_node_id, # old id
-                            changed_ids[old_node_id], # new id
-                            ) 
+                            changed_ids[old_node_id]) # new id
             self._rewrite_changed_links(changed_ids)
         self._mark_dynamic_nodes()
         return buffer
@@ -517,8 +513,7 @@ class UrtextProject:
     """
 
     def drop_file(self, filename):
-        if filename in self.files:
-            self.drop_buffer(self.files[filename])
+        self.drop_buffer(self.files[filename])
 
     def drop_buffer(self, buffer):
         self.run_hook('on_buffer_dropped', buffer.filename)
@@ -998,16 +993,16 @@ class UrtextProject:
             if self.running_on_modified == filename:
                 print('(debugging) already visiting', filename)
             self.running_on_modified = filename
-            file_obj = self._parse_file(filename)
-            if file_obj:
-                self._compile_file(
-                    filename,
-                    flags=['-file_update'].extend(flags))
-                file_obj.set_buffer_contents(self._reverify_links(filename))
-                file_obj.write_file_contents(file_obj.contents, run_hook=True)
-                self._sync_file_list()
-                if filename in self.files:
-                    self.run_hook('after_on_file_modified', filename)
+            self._parse_file(filename)
+            self._compile_file(
+                filename,
+                flags=['-file_update'].extend(flags))
+            file_obj = self.files[filename]                
+            file_obj.set_buffer_contents(self._reverify_links(filename))
+            file_obj.write_file_contents(file_obj.contents, run_hook=True)
+            self._sync_file_list()
+            if filename in self.files:
+                self.run_hook('after_on_file_modified', filename)
         self.running_on_modified = None
 
     def visit_node(self, node_id):
