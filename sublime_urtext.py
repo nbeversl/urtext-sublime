@@ -327,7 +327,7 @@ class UrtextEventListeners(EventListener):
                 location=file_pos,
                 on_navigate=unfold_region)
 
-        if _UrtextProjectList:
+        if _UrtextProjectList and _UrtextProjectList.current_project:
             region = view.line(point)
             file_pos = region.a
             full_line_region = view.full_line(region)

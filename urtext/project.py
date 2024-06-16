@@ -100,13 +100,11 @@ class UrtextProject:
 
         num_file_extensions = len(self.get_setting('file_extensions'))
         if os.path.exists(self.entry_point):
-            if os.path.isdir(self.entry_point) and (
-                    self._approve_new_path(self.entry_point)):
+            if os.path.isdir(self.entry_point):
                 self.entry_path = self.entry_point
             elif self._include_file(self.entry_point):
                 self._parse_file(self.entry_point)
-                if self._approve_new_path(os.path.dirname(self.entry_point)):
-                    self.entry_path = os.path.dirname(self.entry_point)
+                self.entry_path = os.path.dirname(self.entry_point)
             if self.entry_path:
                 self.paths.append(self.entry_path)
             for file in self._get_included_files():
@@ -153,9 +151,9 @@ class UrtextProject:
                 urtext_links = value.links()
                 if urtext_links:
                     for path in [link.path for link in urtext_links if link.path]:
-                        self.project_list._add_project(path)
+                        self.project_list._add_project(os.path.abspath(path))
                     continue
-                self.project_list._add_project(utils.get_path_from_link(value.text))
+                self.project_list._add_project(os.path.abspath(utils.get_path_from_link(value.text)))
 
         self.initialized = True
         self._compile()
