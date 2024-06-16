@@ -982,7 +982,6 @@ class UrtextProject:
         if self.compiled and filename in self._get_included_files():
             if self.running_on_modified == filename:
                 print('(debugging) already visiting', filename)
-                return
             self.running_on_modified = filename
             file_obj = self._parse_file(filename)
             if file_obj:
