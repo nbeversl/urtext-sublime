@@ -40,34 +40,25 @@ class ProjectList:
             self.add_project(base_project)
         self.add_project(self.entry_point)
 
-    def add_project(self, entry_point, callback=None, new_file_node_created=False):
-        self.execute(self._add_project, entry_point, callback=None, new_file_node_created=False)
+    def add_project(self, entry_point, new_file_node_created=False):
+        self.execute(self._add_project, entry_point, new_file_node_created=False)
 
-    def _add_project(self, entry_point, callback=None, new_file_node_created=False):
+    def _add_project(self, entry_point, new_file_node_created=False):
         if self.get_project(entry_point):
             return
-        if not callback:
-            callback = self.compile_project
         project = UrtextProject(entry_point,
                                 project_list=self,
                                 editor_methods=self.editor_methods,
                                 new_file_node_created=new_file_node_created)
-        project.is_async = self.is_async
-        project.initialize(callback=callback)
+        self.projects.append(project)
+        self.entry_points.append(project.entry_point)
+        project.initialize()
 
     def execute(self, function, *args, **kwargs):
         if self.is_async:
             return self.executor.submit(function, *args, **kwargs)
         return function(*args, **kwargs)
     
-    def compile_project(self, project):
-        if not project.get_settings_paths() and not os.path.isdir(project.entry_point):
-            print('(debugging) NO PATHS')
-            return
-        self.projects.append(project)
-        self.entry_points.append(project.entry_point)
-        project._compile()
-
     def get_setting(self, setting, calling_project):
         for project in [p for p in self.projects if p.entry_point != calling_project.entry_point]:
             if setting in project.get_propagated_settings(_from_project_list=True):

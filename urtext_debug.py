@@ -55,4 +55,4 @@ class NoAsync(sublime_plugin.TextCommand):
 
     @refresh_project_text_command()
     def run(self):
-        self._UrtextProjectList.current_project.is_async = False
+        self._UrtextProjectList.is_async = False

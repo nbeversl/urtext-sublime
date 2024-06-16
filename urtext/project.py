@@ -32,7 +32,6 @@ class UrtextProject:
         self.entry_path = None
         self.project_title = self.entry_point  # default
         self.editor_methods = editor_methods
-        self.is_async = None
         self.time = time.time()
         self.last_compile_time = 0
         self.nodes = {}
@@ -92,7 +91,7 @@ class UrtextProject:
             return self.get_settings_keys()
         return propagated_settings
 
-    def initialize(self, callback=None):
+    def initialize(self):
         self.add_directive(Exec)
         for directive in self.project_list.directives.values():
             self.add_directive(directive)
@@ -159,7 +158,7 @@ class UrtextProject:
                 self.project_list._add_project(utils.get_path_from_link(value.text))
 
         self.initialized = True
-        callback(self)
+        self._compile()
 
     def _approve_new_path(self, path):
         if path in self.project_list.get_all_paths():
