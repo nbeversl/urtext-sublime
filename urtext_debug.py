@@ -32,8 +32,6 @@ class DebugCommand(sublime_plugin.TextCommand):
             self._UrtextProjectList.current_project.nodes[node_id].is_meta)
         print('NODE PARENT: %s' %
             self._UrtextProjectList.current_project.nodes[node_id].parent)
-        print('TREE PARENT: %s' %
-            self._UrtextProjectList.current_project.nodes[node_id].tree_node.parent)
         print('LINKS: ')
         print(self._UrtextProjectList.current_project.nodes[node_id].links)
         print('LINKS IDS: ')
@@ -42,8 +40,6 @@ class DebugCommand(sublime_plugin.TextCommand):
         print(self._UrtextProjectList.current_project.nodes[node_id].metadata.log())
         print('EXPORTS:')
         print(self._UrtextProjectList.current_project.nodes[node_id].export_points)
-        print('TREE CHILDREN:')
-        print(self._UrtextProjectList.current_project.nodes[node_id].tree_node.children)
         print('DESCENDANTS:')
         for n in self._UrtextProjectList.current_project.nodes[node_id].descendants():
             print(n.id)

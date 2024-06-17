@@ -118,14 +118,11 @@ class UrtextProject:
             return False
 
         for p in self.get_settings_paths():
-            if p not in self.paths:
-                if not self._approve_new_path(p):
-                    print('FROM PROJECT', self.title(), p, 'NOT ADDED (debugging)')
-                else:
-                    self.paths.append(p)
-                    for file in self._get_included_files():
-                        if file not in self.files:
-                            self._parse_file(file)
+            if self._approve_new_path(p):
+                self.paths.append(p)
+                for file in self._get_included_files():
+                    if file not in self.files:
+                        self._parse_file(file)
                                 
         num_paths = len(self.get_settings_paths())
         while len(self.get_settings_paths()) > num_paths or (
@@ -221,9 +218,6 @@ class UrtextProject:
                             changed_ids[existing_buffer_ids[index]] = new_node_ids[index]
                             # else:
                             # TODO try to map old to new.
-        for node in buffer.nodes:
-            if node.id == '(untitled)':
-                print('(DEBUGGING) - should not happen, untitled node', buffer.filename)
 
         for node in buffer.nodes:
             self._add_node(node)
@@ -266,6 +260,11 @@ class UrtextProject:
                             old_node_id, # old id
                             changed_ids[old_node_id]) # new id
             self._rewrite_changed_links(changed_ids)
+
+        for node in buffer.nodes:
+            if node.id == '(untitled)':
+                print('(DEBUGGING) - should not happen, untitled node', buffer.filename)
+
         self._mark_dynamic_nodes()
         return buffer
 
@@ -1501,4 +1500,4 @@ class UrtextProject:
             self.handle_info_message('Directive %s is not available' % directive_name)
             return None
         op = directive(self)
-        return op.run(*args, **kwargs)
+        return self.project_list.execute(op.run, *args, **kwargs)
