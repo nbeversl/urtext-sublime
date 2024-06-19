@@ -278,9 +278,9 @@ class UrtextBuffer:
         if re_parse:
             self._lex_and_parse()
         if update_buffer:
-            self.__write_buffer_contents()
+            self.write_buffer_contents()
 
-    def write_buffer_contents(self):
+    def write_buffer_contents(self, run_hook=None):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,

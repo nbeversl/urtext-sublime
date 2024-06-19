@@ -725,6 +725,8 @@ class FileOutlineDropdown(UrtextTextCommand):
     def run(self):
         if self._UrtextProjectList.current_project and (
             self.view.file_name() in self._UrtextProjectList.current_project.files):
+            # TODO need to parse buffer here.
+
             ordered_file_nodes = self._UrtextProjectList.current_project.files[
                 self.view.file_name()].get_ordered_nodes()
 

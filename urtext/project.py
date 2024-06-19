@@ -105,12 +105,12 @@ class UrtextProject:
         num_file_extensions = len(self.get_setting('file_extensions'))
         if os.path.exists(self.entry_point):
             if os.path.isdir(self.entry_point):
-                self.entry_path = self.entry_point
+                self.entry_path = os.path.abspath(self.entry_point)
             elif self._include_file(self.entry_point):
                 self._parse_file(self.entry_point)
-                self.entry_path = os.path.dirname(self.entry_point)
+                self.entry_path = os.path.abspath(os.path.dirname(self.entry_point))
             if self.entry_path:
-                self.paths.append(self.entry_path)
+                self.paths.append(os.path.abspath(self.entry_path))
             for file in self._get_included_files():
                 self._parse_file(file)
         else:
@@ -557,7 +557,7 @@ class UrtextProject:
                 new_filename)
 
     def _filter_filenames(self, filename):
-        if filename in ['urtext_files', '.git']:
+        if filename in ['urtext_files', '.git', '_versions']:
             return None
         if filename in self.get_setting('exclude_files'):
             return None
@@ -1039,9 +1039,9 @@ class UrtextProject:
     def get_settings_paths(self):
         paths = []
         if self.entry_path is not None:
-            paths.append(self.entry_path)
+            paths.append(os.path.abspath(self.entry_path))
         if os.path.isdir(self.entry_point):
-            paths.append(self.entry_point)
+            paths.append(os.path.abspath(self.entry_point))
 
         for node in self.get_setting('paths'):
             for n in node.children:
@@ -1059,7 +1059,7 @@ class UrtextProject:
                                 for dirpath, dirnames, filenames in os.walk(path):
                                     if '/.git' in dirpath or '/_diff' in dirpath:
                                         continue
-                                    paths.append(dirpath)
+                                    paths.append(os.path.abspath(dirpath))
                     else:
                         print("NO PATH FOR", pathname.text)
         return paths
