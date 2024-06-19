@@ -69,7 +69,7 @@ class PullNode:
                 ])
             self.project.files[source_filename].set_buffer_contents(
                 updated_source_file_contents)
-            self.project.files[source_filename].write_contents_to_file()
+            self.project.files[source_filename].write_buffer_contents()
         else:
             self.project.delete_file(source_filename)
 
@@ -89,7 +89,7 @@ class PullNode:
 
         self.project.files[destination_filename].set_buffer_contents(destination_file_contents,
             update_buffer=True)
-        self.project.files[destination_filename].write_contents_to_file()
+        self.project.files[destination_filename].write_buffer_contents()
 
 ThisProject.add_directive(PullNode)
         

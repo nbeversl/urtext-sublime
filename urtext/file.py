@@ -34,7 +34,7 @@ class UrtextFile(UrtextBuffer):
             return print('Cannot read file from storage %s' % self.filename)
         return full_file_contents
 
-    def write_contents_to_file(self, run_hook=False):
+    def write_buffer_contents(self, run_hook=False):
         if run_hook: # for last modification only
             self.project.run_hook('on_write_file_contents', self)
         

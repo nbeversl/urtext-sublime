@@ -269,7 +269,6 @@ class UrtextBuffer:
         new_contents,
         re_parse=True,
         clear_messages=True,
-        parse_into_project=False,
         run_hook=False,
         update_buffer=False):
 
@@ -278,12 +277,10 @@ class UrtextBuffer:
             self.__clear_messages()
         if re_parse:
             self._lex_and_parse()
-        if parse_into_project:
-            self.project._parse_buffer(self)
         if update_buffer:
-            self.__update_buffer_contents_from_buffer_obj()
+            self.__write_buffer_contents()
 
-    def __update_buffer_contents_from_buffer_obj(self):
+    def write_buffer_contents(self):
         self.project.run_editor_method(
             'set_buffer',
             self.filename,
