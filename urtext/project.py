@@ -997,10 +997,8 @@ class UrtextProject:
                 filename,
                 flags=['-file_update'].extend(flags))
             file_obj = self.files[filename]
-            # bug here
-            # temporarily disabled
-            #file_obj.contents = self._reverify_links(filename)
-            file_obj.write_contents_to_file(run_hook=True)
+            file_obj.contents = self._reverify_links(filename)
+            file_obj.write_buffer_contents(run_hook=True)
             self.files[filename] = file_obj
             self._sync_file_list()
             if filename in self.files:
