@@ -33,6 +33,7 @@ class UrtextBuffer:
             node.buffer = self
             node.filename = self.filename
         self._assign_parents(self.root_node)
+        self.project._resolve_node_ids(self)
 
     def _lex(self, contents, start_position=0):
         symbols = {}

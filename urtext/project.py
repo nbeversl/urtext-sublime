@@ -190,7 +190,6 @@ class UrtextProject:
             existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]            
             self.drop_file(buffer.filename)
 
-        self._check_buffer_for_duplicates(buffer)
         if not buffer.root_node:
             buffer.write_buffer_messages()
             self.log_item(buffer.filename, {
@@ -200,7 +199,7 @@ class UrtextProject:
         self.messages[buffer.filename] = buffer.messages
         if buffer.has_errors:
             buffer.write_buffer_messages()
-            self._check_buffer_for_duplicates(buffer)
+            # self._resolve_node_ids(buffer)
         changed_ids = {}
         if existing_buffer_ids:
             new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
@@ -329,7 +328,7 @@ class UrtextProject:
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
                             self.files[project_node.filename].set_buffer_contents(replaced_contents)
 
-    def _check_buffer_for_duplicates(self, buffer):
+    def _resolve_node_ids(self, buffer):
         messages = []
         changed_ids = {}
         allocated_ids = []
@@ -607,7 +606,6 @@ class UrtextProject:
         utils.write_file_contents(filename, new_node_contents)
         new_file = self.urtext_file(filename, self)
 
-        self._check_buffer_for_duplicates(new_file)
         if new_file.has_errors and 'timestamp or parent title exists in another node' in new_file.messages[0]:
             if contents is None:
                 new_node_contents, node_id, cursor_pos = self._new_node(
@@ -617,7 +615,7 @@ class UrtextProject:
                     metadata=metadata)
             utils.write_file_contents(filename, new_node_contents)
             new_file = self.urtext_file(filename, self)
-            self._check_buffer_for_duplicates(new_file)
+            self._resolve_node_ids(new_file)
 
         self._parse_file(filename)
 
