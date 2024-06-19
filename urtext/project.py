@@ -999,12 +999,13 @@ class UrtextProject:
                 flags=['-file_update'].extend(flags))
             file_obj = self.files[filename]
             file_obj.contents = self._reverify_links(filename)
-            file_obj.write_buffer_contents(run_hook=True)
+            contents_changed = file_obj.write_buffer_contents(run_hook=True)
             self.files[filename] = file_obj
             self._sync_file_list()
             if filename in self.files:
                 self.run_hook('after_on_file_modified', filename)
         self.running_on_modified = None
+        return contents_changed
 
     def visit_node(self, node_id):
         if self.compiled:
