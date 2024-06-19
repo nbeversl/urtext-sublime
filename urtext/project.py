@@ -192,6 +192,7 @@ class UrtextProject:
 
         if not buffer.root_node:
             buffer.write_buffer_messages()
+            buffer.write_buffer_contents()
             self.log_item(buffer.filename, {
                 'top_message': '%s has no root node, dropping' % buffer.filename})
             return False

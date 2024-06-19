@@ -269,16 +269,13 @@ class UrtextBuffer:
         new_contents,
         re_parse=True,
         clear_messages=True,
-        run_hook=False,
-        update_buffer=False):
+        run_hook=False):
 
         self.contents = new_contents
         if clear_messages:
             self.__clear_messages()
         if re_parse:
             self._lex_and_parse()
-        if update_buffer:
-            self.write_buffer_contents()
 
     def write_buffer_contents(self, run_hook=None):
         self.project.run_editor_method(
@@ -337,7 +334,6 @@ class UrtextBuffer:
             ])
         self.messages = []
         self.contents = new_contents
-        self.set_buffer_contents(new_contents, clear_messages=False, update_buffer=True)
         
     def __get_messages(self):
         messages = []        
