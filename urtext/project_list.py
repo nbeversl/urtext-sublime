@@ -139,7 +139,7 @@ class ProjectList:
         return self.run_editor_method('popup', message)
 
     def on_modified(self, filename):
-        self.execute(self._on_modified, filename)
+        return self.execute(self._on_modified, filename)
 
     def _on_modified(self, filename):
         project = self._get_project_from_path(
