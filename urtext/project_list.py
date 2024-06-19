@@ -39,13 +39,16 @@ class ProjectList:
         if base_project:
             self.add_project(os.path.abspath(base_project))
         if os.path.abspath(base_project) != os.path.abspath(self.entry_point):
-            self.add_project(os.path.abspath(self.entry_point))
-        self.set_current_project(os.path.abspath(self.entry_point))
+            self.add_project(os.path.abspath(self.entry_point), callback=self.set_initial_project)
 
-    def add_project(self, entry_point, new_file_node_created=False):
+    def set_initial_project(self):
+        self.set_current_project(os.path.abspath(self.entry_point), notify=False)
+        self.run_editor_method('popup',
+               'Initial project: %s ' % self.current_project.title())
+    def add_project(self, entry_point, new_file_node_created=False, callback=None):
         self.execute(self._add_project, entry_point, new_file_node_created=False)
 
-    def _add_project(self, entry_point, new_file_node_created=False):
+    def _add_project(self, entry_point, new_file_node_created=False, callback=None):
         if self.get_project(entry_point):
             return
         project = UrtextProject(entry_point,
@@ -55,6 +58,8 @@ class ProjectList:
         self.projects.append(project)
         self.entry_points.append(project.entry_point)
         project.initialize()
+        if callback:
+            callback()
 
     def execute(self, function, *args, **kwargs):
         if self.is_async:
@@ -91,8 +96,7 @@ class ProjectList:
         """ If a project name has been specified, locate the project and node """
         if link.project_name:
             if not self.set_current_project(link.project_name):
-                self.current_project.run_editor_method('popup',
-                                                       'Project is not available.')
+                self.run_editor_method('popup', 'Project is not available.')
                 return None
 
         elif filename:
@@ -142,7 +146,7 @@ class ProjectList:
             os.path.dirname(filename))
         if project:
             self.current_project = project
-            project.on_modified(filename)
+            return project.on_modified(filename)
         else:
             self._add_project(filename)
 
@@ -164,15 +168,16 @@ class ProjectList:
             project = self._get_project_from_path(title_or_path)
         return project
 
-    def set_current_project(self, title_or_path):
+    def set_current_project(self, title_or_path, notify=True):
         project = self.get_project(title_or_path)
         if not project:
             return
         if (not self.current_project) or (
                 project.title() != self.current_project.title()):
             self.current_project = project
-            self.current_project.run_editor_method('popup',
-                                                   'Switched to project: %s ' % self.current_project.title())
+            if notify:
+                self.run_editor_method('popup',
+                   'Switched to project: %s ' % self.current_project.title())
             project_paths = self.current_project.get_settings_paths()
             if project_paths:
                 self.current_project.on_project_activated()
@@ -339,7 +344,7 @@ class ProjectList:
             project_title = self.current_project.title
         if project_title:
             link = self.build_contextual_link(node.id, project_title=project_title)
-            self.current_project.run_editor_method('insert_text', link)
+            self.run_editor_method('insert_text', link)
 
     def delete_file(self, file_name, project=None):
         if not project:
