@@ -13,7 +13,6 @@ class UrtextDynamicDefinition:
         self.targets = []
         self.included_nodes = []
         self.excluded_nodes = []
-        self.spaces = 0
         self.flags = []
         self.operations = []
         self.project = project
@@ -93,6 +92,10 @@ class UrtextDynamicDefinition:
 
     def process_output(self):
         
+        self.included_nodes = []
+        self.excluded_nodes = []
+        self.sorted = False
+
         self.project.run_hook('on_dynamic_def_process_started', self)
         accumulated_text = ''
 
@@ -171,8 +174,6 @@ class UrtextDynamicDefinition:
                         syntax.link_closing_wrapper])
                 })
         output = self.process_output()
-        if self.spaces:
-            output = self.indent(output, spaces=self.spaces)
         self.ran = True
         return output
 

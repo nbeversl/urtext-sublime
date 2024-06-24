@@ -200,7 +200,7 @@ class UrtextProject:
         self.messages[buffer.filename] = buffer.messages
         if buffer.has_errors:
             buffer.write_buffer_messages()
-            # self._resolve_node_ids(buffer)
+
         changed_ids = {}
         if existing_buffer_ids:
             new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
@@ -257,8 +257,8 @@ class UrtextProject:
         if self.compiled and changed_ids:
             for old_node_id in changed_ids:
                 self.run_hook('on_node_id_changed',
-                            old_node_id, # old id
-                            changed_ids[old_node_id]) # new id
+                            old_node_id,
+                            changed_ids[old_node_id])
             self._rewrite_changed_links(changed_ids)
 
         for node in buffer.nodes:
