@@ -201,7 +201,8 @@ class UrtextBuffer:
 
                 child_group[nested] = child_group.get(nested, [])
                 child_group[nested].append(root_node)
-                del nested_levels[nested]
+                if nested in nested_levels:
+                    del nested_levels[nested]
                 nested -= 1
                 continue
 
@@ -217,7 +218,7 @@ class UrtextBuffer:
             return self._lex_and_parse()
 
         for node in self.nodes:
-            node.filename =self.filename
+            node.filename = self.filename
             node.file = self
 
         for match in self.meta_to_node:
