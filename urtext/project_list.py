@@ -56,6 +56,7 @@ class ProjectList:
         project.initialize()
         if initial:
             self.current_project = project
+            self.current_project.on_project_activated()
 
     def execute(self, function, *args, **kwargs):
         if self.is_async:
