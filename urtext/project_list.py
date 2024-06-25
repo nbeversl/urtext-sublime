@@ -39,16 +39,12 @@ class ProjectList:
         if base_project:
             self.add_project(os.path.abspath(base_project))
         if os.path.abspath(base_project) != os.path.abspath(self.entry_point):
-            self.add_project(os.path.abspath(self.entry_point), callback=self.set_initial_project)
+            self.add_project(os.path.abspath(self.entry_point), initial=True)
 
-    def set_initial_project(self):
-        self.set_current_project(os.path.abspath(self.entry_point), notify=False)
-        self.run_editor_method('popup',
-               'Initial project: %s ' % self.current_project.title())
-    def add_project(self, entry_point, new_file_node_created=False, callback=None):
-        self.execute(self._add_project, entry_point, new_file_node_created=False)
+    def add_project(self, entry_point, new_file_node_created=False, initial=False):
+        self.execute(self._add_project, entry_point, new_file_node_created=False, initial=initial)
 
-    def _add_project(self, entry_point, new_file_node_created=False, callback=None):
+    def _add_project(self, entry_point, new_file_node_created=False, initial=None):
         if self.get_project(entry_point):
             return
         project = UrtextProject(entry_point,
@@ -58,8 +54,8 @@ class ProjectList:
         self.projects.append(project)
         self.entry_points.append(project.entry_point)
         project.initialize()
-        if callback:
-            callback()
+        if initial:
+            self.current_project = project
 
     def execute(self, function, *args, **kwargs):
         if self.is_async:
