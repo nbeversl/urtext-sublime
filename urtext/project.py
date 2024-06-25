@@ -1416,17 +1416,16 @@ class UrtextProject:
         return self.entry_point
 
     def on_project_activated(self):
-        if not self.compiled:
+        if self.get_setting('on_project_activated'):
+            #TODO add hooks 
+            for action in self.get_setting('on_project_activated'):
+                if action == 'open_home':
+                    if self.open_home():
+                        return
+        elif not self.compiled:
             timer = threading.Timer(.5, self.on_project_activated)
             timer.start()
             return timer
-        else:
-            # TODO add hooks
-            if self.get_setting('on_project_activated'):
-                for action in self.get_setting('on_project_activated'):
-                    if action == 'open_home':
-                        if self.open_home():
-                            return
 
     def has_folder(self, folder):
         included_paths = self.get_settings_paths()
