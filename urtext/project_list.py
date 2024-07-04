@@ -65,8 +65,8 @@ class ProjectList:
     
     def get_setting(self, setting, calling_project):
         for project in [p for p in self.projects if p.entry_point != calling_project.entry_point]:
-            if setting in project.get_propagated_settings(_from_project_list=True):
-                values = project.get_setting(setting, _from_project_list=True)
+            if setting in project.get_propagated_settings(_called_from_project_list=True):
+                values = project.get_setting(setting, _called_from_project_list=True)
                 if values:
                     return values
         return []
