@@ -351,27 +351,11 @@ class UrtextBuffer:
                 cleared_contents = cleared_contents.replace(match.group(),'')
             if cleared_contents != original_contents:
                 self.set_buffer_contents(cleared_contents, clear_messages=False)
-                return True
-        return False
 
     def get_ordered_nodes(self):
         return sorted( 
             list(self.nodes),
             key=lambda node : node.start_position)
-
-    def _insert_contents(self, inserted_contents, position):
-        self.set_buffer_contents(''.join([
-            self.contents[:position],
-            inserted_contents,
-            self.contents[position:],
-            ]))
-
-    def _replace_contents(self, inserted_contents, range):
-        self.set_buffer_contents(''.join([
-            self.contents[:range[0]],
-            inserted_contents,
-            self.contents[range[1]:],
-            ]))
 
     def propagate_timestamps(self, start_node):
         oldest_timestamp = start_node.metadata.get_oldest_timestamp()

@@ -323,37 +323,6 @@ class UrtextNode:
             file_contents[file_range_to_replace[1]:]])
         self.file.set_buffer_contents(new_file_contents)
 
-    def append_content(self, appended_content):
-        file_contents = self.file._get_contents()
-        new_file_contents = ''.join([
-            file_contents[0:start_position],
-            contents,
-            appended_content,
-            file_contents[self.end_position:]])         
-        return self.file.set_buffer_contents(new_file_contents)
-
-    def prepend_content(self, prepended_content, preserve_title=True):
-        node_contents = self.strip_first_line_title(self.full_contents)
-        file_contents = self.file._get_contents()
-        
-        if preserve_title and self.first_line_title:
-            new_node_contents = ''.join([ 
-                ' ',
-                self.title,
-                prepended_content,
-                node_contents,
-                ])
-        else: 
-            new_node_contents = ''.join([
-                prepended_content,
-                node_contents
-                ])
-        new_file_contents = ''.join([
-            file_contents[:self.start_position], # omit opening
-            new_node_contents,
-            file_contents[self.end_position:]]) 
-        return self.file.set_buffer_contents(new_file_contents)
-
     def parse_dynamic_definitions(self, contents): 
         dd_ranges = []
         stripped_contents = contents
