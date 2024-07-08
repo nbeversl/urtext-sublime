@@ -151,8 +151,7 @@ class UrtextBuffer:
                     nested_levels[nested].append([last_position, position])
                 if nested <= 0:
                     contents = contents[:position] + contents[position + 1:]
-                    self.set_buffer_contents(contents)
-                    return self._lex_and_parse()
+                    return self.set_buffer_contents(contents, clear_messages=False)
 
                 position += 1 #wrappers exist outside range
                 node = self.add_node(
@@ -214,8 +213,7 @@ class UrtextBuffer:
                 syntax.node_closing_wrapper,
                 ' ',
                 contents[position:]])
-            self.set_buffer_contents(contents)
-            return self._lex_and_parse()
+            return self.set_buffer_contents(contents)
 
         for node in self.nodes:
             node.filename = self.filename
@@ -275,6 +273,7 @@ class UrtextBuffer:
         self.contents = new_contents
         if clear_messages:
             self.__clear_messages()
+            return
         if re_parse:
             self._lex_and_parse()
 

@@ -362,14 +362,13 @@ class UrtextProject:
                 node.id = resolution['resolved_id']
                 changed_ids[node.id] = resolution['resolved_id']
                 allocated_ids.append(node.id)
-
         # resolve duplicate titles within file/buffer
         new_file_node_ids = [file_node.id for file_node in buffer.nodes]
         nodes_to_resolve = [n for n in buffer.nodes if new_file_node_ids.count(n.id) > 1]
-        allocated_ids.extend([file_node.id for file_node in buffer.nodes])
         for n in nodes_to_resolve:
+            unresolved_id = n.id
             resolution = n.resolve_id(allocated_ids=allocated_ids)
-            if not resolution['resolved_id'] or n.id in changed_ids:
+            if not resolution['resolved_id'] or resolution['resolved_id'] in changed_ids:
                 message = {
                     'top_message' :''.join([
                                 'Dropping duplicate node title "',
@@ -388,7 +387,7 @@ class UrtextProject:
                 buffer.nodes.remove(n)
                 del n
                 continue
-            changed_ids[n.id] = resolution['resolved_id']
+            changed_ids[unresolved_id] = resolution['resolved_id']
             n.id = resolution['resolved_id']
 
         # resolve duplicate titles in project

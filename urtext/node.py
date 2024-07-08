@@ -286,7 +286,7 @@ class UrtextNode:
         """
 
         node_contents = self.strip_first_line_title(self.full_contents)
-        file_contents = self.file._get_contents()        
+        file_contents = self.file._get_contents()
         if preserve_title and self.first_line_title:
             new_node_contents = ''.join([ 
                 ' ',
@@ -303,7 +303,7 @@ class UrtextNode:
             file_contents[:self.start_position],
             new_contents,
             file_contents[self.end_position:]])
-        self.file.set_buffer_contents(new_file_contents)
+        self.file.set_buffer_contents(new_file_contents, clear_messages=False)
         # does not re-parse into project
 
     def replace_range(self, 
