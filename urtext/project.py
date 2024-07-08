@@ -332,7 +332,7 @@ class UrtextProject:
                                     syntax.link_closing_wrapper
                                     ]),
                                 utils.make_node_link(links_to_change[node_id]), replaced_contents)
-                            self.files[project_node.filename].set_buffer_contents(replaced_contents)
+                            self.files[project_node.filename].set_buffer_contents(replaced_contents, clear_messages=False)
 
     def _resolve_node_ids(self, buffer):
         messages = []
