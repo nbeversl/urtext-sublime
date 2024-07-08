@@ -334,7 +334,7 @@ class UrtextBuffer:
             messaged_contents,
             ])
         self.messages = []
-        self.contents = new_contents
+        self.set_buffer_contents(new_contents, clear_messages=False)
         
     def __get_messages(self):
         messages = []        
