@@ -1,0 +1,14 @@
+Insert Timestamp _
+	
+%%Python
+class InsertTimestampCommand:
+
+	selector_string = 'insert_timestamp'
+	name = 'Insert Timestamp'
+	thread_safe = True
+	
+	def run(self):
+		self.project_list.current_project.editor_insert_timestamp()
+
+ThisProject.add_selector(InsertTimestampCommand)
+%%
