@@ -1,0 +1,18 @@
+Wrap Selection _
+
+%%Python
+
+class WrapSelection:
+   
+	selector_string = 'wrap_selection'
+	name = 'Wrap Selectino'
+
+	def run(self):
+		selection, position = self.current_project().run_editor_method('get_selection')
+		self.current_project().run_editor_method('replace',
+			start=position,
+			end=position+len(selection),
+			replacement_text=''.join(['{ ',selection, ' }']))
+
+ThisProject.add_selector(WrapSelection)
+%%

@@ -1,385 +1,554 @@
-# -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
-import os
-import json
-from .metadata import NodeMetadata
-from .dynamic import UrtextDynamicDefinition
-
-from anytree.exporter import JsonExporter
-
 import re
-import datetime
-import logging
-import pytz
-from anytree import Node, PreOrderIter
-
-dynamic_definition_regex = re.compile('(?:\[\[)([^\]]*?)(?:\]\])', re.DOTALL)
-subnode_regexp = re.compile(r'{(?!.*{)(?:(?!}).)*}', re.DOTALL)
-dynamic_def_regexp = re.compile(r'\[\[[^\]]*?\]\]', re.DOTALL)
-default_date = pytz.timezone('UTC').localize(datetime.datetime(1970,2,1))
-node_link_regex = r'>{1,2}[0-9,a-z]{3}\b'
-timestamp_match = re.compile('(?:<)([^-/<\s`][^=<]*?)(?:>)', flags=re.DOTALL)
-inline_meta = re.compile('\*{0,2}\w+\:\:([^\n};]+;?(?=>:})?)?', flags=re.DOTALL)
-embedded_syntax = re.compile('%%-[^E][A-Z-]*.*?%%-END-[A-Z-]*', flags=re.DOTALL)
+from urtext.metadata import NodeMetadata
+from urtext.frame import UrtextFrame
+import urtext.utils as utils
+import urtext.syntax as syntax
 
 class UrtextNode:
-    """ Urtext Node object"""
+
+    urtext_metadata = NodeMetadata
+
     def __init__(self, 
-        filename, 
         contents,
-        settings=None,
-        root=False, 
-        compact=False):
+        project,
+        root=False,
+        compact=False,
+        nested=None):
 
-        self.filename = os.path.basename(filename)
-        self.project_path = os.path.dirname(filename)
-        self.project = None
-        self.position = 0
-        self.ranges = [[0, 0]]
-        self.tree = None
+        self.project = project
+        self.ranges = []
         self.is_tree = False
+        self.is_node = True
+        self.is_meta = False
+        self.meta_key = None
         self.export_points = {}
-        self.dynamic = False
+        self.marked_dynamic = False
+        self.is_dynamic = False
         self.id = None
-        self.links_from = []
+        self.has_errors = False
+        self.pointers = []
+        self.display_detail = ''
+        self.links = []
         self.root_node = root
-        self.tz = pytz.timezone('UTC')
-        self.date = default_date # default, modified by the project
-        self.prefix = None
-        self.project_settings = False
-        self.dynamic_definitions = {}
         self.compact = compact
-        self.index = 10
-        self.parent_project = None
-        self.last_accessed = 0
-        self.trailing_node_id = False
-        self.dynamic_definitions = []
-        self.blank = False
-        self.title = None
-        self.hashed_contents = hash(contents)
-
-        stripped_contents = self.strip_dynamic_definitions(contents)
-        self.metadata = NodeMetadata(self, stripped_contents, settings=settings)
-
-        stripped_contents = self.strip_metadata(contents=stripped_contents)
-        stripped_contents = self.strip_embedded_syntaxes(contents=stripped_contents)
-        
-        if stripped_contents.strip() == '':
-            self.blank = True
-            
-        self.title = self.set_title(stripped_contents)
-       
-        if self.metadata.get_first_value('id'):
-            node_id = self.metadata.get_first_value('id')
-            node_id = node_id.lower().strip()
-            if re.match('^[a-z0-9]{3}$', node_id):
-                self.id = node_id
-        else:
-            contents = self.strip_wrappers(contents)
-            r = re.match('\s[a-z0-9]{3}', contents[-4:])
-            if r:
-                self.id = contents[-3:]
-                self.trailing_node_id = True
-                self.metadata.add_meta_entry('id',[self.id],position=len(contents)-3)
-
-        title_value = self.metadata.get_first_value('title')
-        if title_value and title_value == 'project_settings':
-            self.project_settings = True
-
+        self.frames = []
+        self.target_nodes = []
+        self.untitled = False
+        self.title_only = False
+        self.title = ''
         self.parent = None
-        self.index = self.assign_as_int(
-                self.metadata.get_first_value('index'),
-                self.index)
-
-        # create tree node
-        self.reset_node()
-
-        # parse dynamic definitions
-        for possible_def in ['[['+section for section in contents.split('[[') ]:
-            match = re.match(dynamic_definition_regex, possible_def)        
-            if match:
-                match = match.group(0).strip('[[').strip(']]')
-                dynamic_definition = UrtextDynamicDefinition(match)
-                dynamic_definition.source_id = self.id
-                self.dynamic_definitions.append(dynamic_definition)
-
-        # parse back and forward links
-        self.get_links(contents=self.strip_metadata(contents=stripped_contents))
-    
-
-    def default_sort(self):
-        r = str(self.date.timestamp()) + self.title
-        return r
-
-    def start_position(self):
-        return self.ranges[0][0]
-
-    def reset_node(self):
-        self.tree_node = Node(self.id)
-    
-    def get_date(self, format_string=''):
-        return self.date.strftime(format_string)
-
-    def contents(self):
-   
-        with open(os.path.join(self.project_path, self.filename),
-                  'r',
-                  encoding='utf-8') as theFile:
-            file_contents = theFile.read()
-        node_contents = []
-        for segment in self.ranges:
-            this_range = file_contents[segment[0]:segment[1]]
-            if this_range and this_range[0] in ['}','{']:
-                this_range = this_range[1:]
-            if this_range and this_range[-1] in ['}','{']:
-                this_range = this_range[:-1]
-            node_contents.append(this_range)
-        node_contents = ''.join(node_contents)
-        node_contents = self.strip_wrappers(node_contents)
-        node_contents = self.strip_embedded_syntaxes(contents=node_contents)
-        return node_contents
-
-    def strip_wrappers(self, contents, outside_only=False):
-        if contents and contents[0] in ['}','{']:
-            contents = contents[1:]
-        if contents and contents[-1] in ['}','{']:
-            contents = contents[:-1]
-        if not outside_only:
-            contents = contents.replace('{','')
-            contents = contents.replace('}','')
-        if self.compact: # don't include the compact marker
-             contents = contents.lstrip().replace('^','',1)        
-        return contents
-
-    @classmethod
-    def strip_metadata(self, contents=''):
-        if contents == '':
-            return contents
-
-        stripped_contents = inline_meta.sub('', contents )
-        stripped_contents = timestamp_match.sub('',  stripped_contents)
-
-        # TODO: integrate this with checking for self.trailing_node_id
-        if re.match('\s[a-z0-9]{3}', stripped_contents[-4:]):
-            stripped_contents = stripped_contents[:-3]
-
-        return stripped_contents
-
-    @classmethod
-    def strip_embedded_syntaxes(self, contents=None):
-        if contents == None:
-            #contents = self.contents
-            contents = self.contents()
-        stripped_contents = contents
-
-        for e in embedded_syntax.findall(stripped_contents):
-            stripped_contents = stripped_contents.replace(e,'')
-        return stripped_contents
-
-    @classmethod
-    def strip_inline_nodes(self, contents=''):
-        if contents == '':
-            #contents = self.contents
-            contents = self.contents()
+        self.children = []
+        self.first_line_title = False
+        self.title_from_marker = False
+        self.nested = nested
+        self.resolution = None
+        self.filename = None
+        self.embedded_syntax_ranges = []
+        self.frame_ranges = []
         
-        stripped_contents = contents
-        while subnode_regexp.search(stripped_contents):
-            for inline_node in subnode_regexp.findall(stripped_contents):
-                stripped_contents = stripped_contents.replace(inline_node, '')
-        return stripped_contents
+        contents = utils.strip_errors(contents)
 
-    @classmethod
-    def strip_dynamic_definitions(self, contents=''):
-        if not contents:
-            return contents
-             
-        stripped_contents = contents
-        while dynamic_def_regexp.search(stripped_contents):
-            for dynamic_definition in dynamic_def_regexp.findall(
-                    stripped_contents):
-                stripped_contents = stripped_contents.replace(
-                    dynamic_definition, '')
-        return stripped_contents
+        ranges, stripped_contents = utils.strip_backtick_escape(contents)
+        self.embedded_syntax_ranges.extend(ranges)
+        stripped_contents = utils.strip_whitespace_anchors(stripped_contents)
+        self.full_contents = stripped_contents
 
-    def content_only(self, contents=None):
-        if contents == None:
-            #contents = self.contents
-            contents = self.contents()
-        contents = self.strip_metadata(contents=contents)
-        contents = self.strip_dynamic_definitions(contents=contents)
-        contents = self.strip_embedded_syntaxes(contents=contents)
-        if self.trailing_node_id:
-            contents = contents[:-3]
+        ranges, stripped_contents, replaced_contents = self._strip_embedded_syntaxes(stripped_contents)
+        self.embedded_syntax_ranges.extend(ranges)
+
+        replaced_contents, self.marked_dynamic = check_and_sanitize_dynamic_marker(replaced_contents)
+        self._get_links(replaced_contents)
+        self.frame_ranges, stripped_contents, replaced_contents = self.parse_frames(replaced_contents)
+        self.metadata = self.urtext_metadata(self, self.project)        
+        stripped_contents, replaced_contents = self.metadata.parse_contents(replaced_contents)
+        for link in self.links:
+            stripped_contents = stripped_contents.replace(link.matching_string, '', 1)        
+        self.title = self.set_title(stripped_contents)
+        if not stripped_contents.strip().replace(self.title,'').replace(' _',''):
+            self.title_only = True
+        self.id = self.title
+        for d in self.frames:
+            d.source_node = self
+        for entry in self.metadata.entries():
+            entry.from_node = self
+        self.stripped_contents = stripped_contents   
+        self.text = utils.make_node_link(self.id)
+
+    def get_file_position(self, node_position): 
+        node_length = 0
+        offset_position = node_position
+        for r in self.ranges:
+            range_length = r[1] - r[0]
+            node_length += range_length
+            if node_position <= node_length:
+                return r[0] + offset_position
+            offset_position -= range_length
+
+    def get_date(self, date_keyword):
+        return self.metadata.get_date(date_keyword)
+
+    def contents(self,
+        stripped=True,
+        strip_dynamic_marker=False,
+        strip_first_line_title=False):
+
+        if stripped:
+            contents = self.stripped_contents
+        else:
+            contents = self.full_contents
+
+        if strip_dynamic_marker:
+            contents = strip_dynamic_markers(contents)
+
+        if strip_first_line_title:
+            contents = self.strip_first_line_title(contents)
+
         return contents
-    
-    def get_links(self, contents=None):
-        if contents == None:
-            contents = self.contents_only()
-        nodes = re.findall(node_link_regex, contents)  # link RegEx
-        for node in nodes:
-            self.links_from.append(node[-3:])
 
-    @classmethod
-    def strip_contents(self, contents):
-        contents = self.strip_metadata(contents=contents)
-        contents = self.strip_dynamic_definitions(contents=contents)
-        return contents
+    def contents_with_contained_nodes(self):
+        file_contents = self.file._get_contents()
+        full_contents = file_contents[self.start_position:self.end_position-1]
+        return full_contents
 
-    def set_index(self, new_index):
-        self.index = new_index
+    def links_ids(self):
+        return [link.node_id for link in self.links]
+
+    def resolve_id(self, allocated_ids=None):
+        return_value = {
+            'resolved_id': None,
+            'method': None,
+            'reason': None}
+        if self.resolution:
+            return_value = {
+                'resolved_id': self.id,
+                'method': "already resolved"}
+        if allocated_ids is None:
+            allocated_ids = self.project.nodes
+        timestamp = self.metadata.get_oldest_timestamp()
+        if self.parent:
+            if self.is_meta:
+                resolved_id = ''.join([
+                        self.meta_key,
+                        syntax.resolution_identifier,
+                        self.parent.title
+                    ])
+                if resolved_id not in allocated_ids:
+                    self.resolution = self.parent.title
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'meta key'
+                    return return_value
+                if timestamp:
+                    resolved_id = ''.join([
+                        self.meta_key,
+                        syntax.resolution_identifier,
+                        timestamp.unwrapped_string
+                    ])
+                    if resolved_id not in allocated_ids:
+                        self.resolution = timestamp.unwrapped_string
+                        return_value['resolved_id'] = resolved_id
+                        return_value['method'] = 'meta key and timestamp'
+                        return return_value
+
+            if self.parent.title != '(untitled)':
+                resolved_id = ''.join([
+                        self.title,
+                        syntax.resolution_identifier,
+                        self.parent.title
+                    ])
+                if resolved_id not in allocated_ids:
+                    self.resolution = self.parent.title
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'parent title'
+                    return return_value
+
+            parent_oldest_timestamp = self.parent.metadata.get_oldest_timestamp()
+            if parent_oldest_timestamp:
+                resolved_id = ''.join([
+                        self.title,
+                        syntax.resolution_identifier,
+                        parent_oldest_timestamp.unwrapped_string
+                    ])
+                if resolved_id not in allocated_ids:
+                    self.resolution = parent_oldest_timestamp.unwrapped_string
+                    return_value['resolved_id'] = resolved_id
+                    return_value['method'] = 'parent timestamp'
+                    return_value['reason'] = 'parent is untitled'
+                    return return_value
+        if timestamp:
+            resolved_id = ''.join([
+                self.title,
+                syntax.resolution_identifier,
+                timestamp.unwrapped_string, 
+                ])
+            if resolved_id not in allocated_ids:
+                self.resolution = timestamp.unwrapped_string
+                return_value['resolved_id'] = resolved_id
+                return_value['method'] = 'own timestamp'
+                return_value['reason'] = 'parent is untitled and parent timestamp not available'
+                return return_value
+            else:
+                return_value['reason'] = 'timestamp is used to resolve %s' % utils.make_node_link(resolved_id)
+                return return_value
+
+        return_value['reason'] = 'no title or timestamp in parent, no timestamp in node'
+        return return_value
+
+    def _get_links(self, positioned_contents):
+        urtext_links, replaced_contents = utils.get_all_links_from_string(positioned_contents, self, self.project.project_list)
+        for urtext_link in urtext_links:
+            urtext_link.containing_node = self
+            self.links.append(urtext_link)
 
     def set_title(self, contents):
+        """
+        - `title` metadata key overrides any _ marker.
+        - Then the first ` _` marker overrides any subsequent one.
+            - If it is on the first line, 
+            we need to remember this for dynamic nodes.
+        - if nothing else found, title is the first non-blank line
+        """
+        t = self.metadata.get_first_value('title')
+        if t:
+            return t.text
 
-        title_value = self.metadata.get_first_value('title')
-        if title_value: 
-            return title_value
-        #
-        # otherwise, title is the first non white-space line
-        #
-        stripped_contents_lines = self.strip_metadata(contents=contents).strip().split('\n')
-        index = 0
-        last_line = len(stripped_contents_lines) - 1
-        while stripped_contents_lines[index].strip() in ['','%']:
-            if index == last_line:
-                return '(untitled)'
-            index += 1
-
-        first_line = stripped_contents_lines[index][:100].replace('{','').replace('}', '')
-        first_line = re.sub('>{1,2}[0-9,-z]{3}', '', first_line, re.DOTALL)
-    
-        first_line = first_line.replace('┌──','')
-        first_line = first_line.replace('|','') # pipe character cannot be in node names
-       
-        # make conditional?
-        if '^' in first_line:
-            first_line = re.sub(r'^[\s]*\^','',first_line)           # compact node opening wrapper
-        return first_line.strip().strip('\n').strip()
-
-    def get_ID(self):
-        if len(self.metadata.get_first_value('ID')): 
-            return self.metadata.get_first_value('ID')
-        return self.id
-
+        first_non_blank_line = None
+        contents_lines = contents.strip().split('\n')
+        for line in contents_lines:
+            first_non_blank_line = line.strip()
+            first_non_blank_line = strip_nested_links(first_non_blank_line).strip()
+            if first_non_blank_line and first_non_blank_line not in ['_', '~']:
+                break
+        title = syntax.node_title_c.search(contents)
+        if title:
+            title = title.group().strip()
+            title = title.strip(syntax.title_marker).strip()
+        if title:
+            self.title_from_marker = True
+            if title in first_non_blank_line:
+                self.first_line_title = True 
+        elif first_non_blank_line:
+            title = first_non_blank_line
+            for character in syntax.disallowed_title_characters:
+                title = re.sub(character, ' ', title)
+            self.first_line_title = True
+        if not title:
+            title = '(untitled)'
+            self.untitled = True
+        if len(title) > 255:
+            title = title[:255].strip()
+        title = title.strip()
+        self.metadata.add_entry('title', title, self)
+        return title
+   
     def log(self):
-        logging.info(self.id)
-        logging.info(self.index)
-        logging.info(self.filename)
-        logging.info(self.metadata.log())
+        print(self.id)
+        print(self.filename)
+        self.metadata.log()
 
-    def consolidate_metadata(self, one_line=True, separator='::'):
+    def bound_action(self, selector_string):
+        # this does not work as hoped
+        self.project.project_list.run_selector(selector_string)
+
+    def consolidate_metadata(self, separator='::'):
         
         keynames = {}
-        for entry in self.metadata._entries:
+        for entry in self.metadata.entries():
+            if entry.keyname in [
+                '_newest_timestamp',
+                '_oldest_timestamp', 
+                '_inline_timestamp']:
+                continue
             if entry.keyname not in keynames:
                 keynames[entry.keyname] = []
-            timestamp = ''
-            if entry.dt_string:
-                timestamp = '<'+entry.dt_string+'>'
-            if not entry.values:
-                keynames[entry.keyname].append(timestamp)
-            for value in entry.values:
-                keynames[entry.keyname].append(str(value)+timestamp)
+            keynames[entry.keyname] = [v.unparsed_text for v in entry.meta_values]
 
-        return self.build_metadata(keynames, one_line=one_line, separator=separator)
+        return self.build_metadata(keynames, separator=separator)
 
     @classmethod
     def build_metadata(self, 
         metadata, 
-        one_line=False, 
-        separator='::'
-        ):
+        separator=syntax.metadata_assignment_operator):
 
         if not metadata:
             return ''
 
         line_separator = '\n'
-        if one_line:
-            line_separator = '; '
-  
         new_metadata = ''
 
         for keyname in metadata:
             new_metadata += keyname + separator
             if isinstance(metadata[keyname], list):
-                new_metadata += ' | '.join(metadata[keyname])
+                new_metadata += ' - '.join(metadata[keyname])
             else:
-                new_metadata += metadata[keyname]
+                new_metadata += str(metadata[keyname])
             new_metadata += line_separator
-
         return new_metadata.strip()
 
-    def get_all_meta_keynames(self):
-        return self.metadata._entries.keys()
+    def _set_contents(self, new_contents, preserve_title=True):
+        """
+        use project._set_node_contents() method instead of using this directly.
 
-    def get_region(self, region):
-        region = self.ranges[region]
-        with open(os.path.join(self.project_path, self.filename),
-                  'r',
-                  encoding='utf-8') as theFile:
-            file_contents = theFile.read()
-        region_contents = file_contents[region[0]: region[1]]
-        return region_contents
+        file should be parsed before this, in case the content
+        has been modified manually by a call
+        """
+        if preserve_title and self.first_line_title:
+            new_node_contents = ''.join([ 
+                self.title,
+                syntax.title_marker,
+                '\n',
+                new_contents,
+                ])
+        else:
+            new_node_contents = new_contents
+        file_contents = self.file._get_contents()
+        new_file_contents = ''.join([
+            file_contents[:self.start_position],
+            new_node_contents,
+            file_contents[self.end_position:]])
+        self.file.set_buffer_contents(new_file_contents, clear_messages=False)
+        # does not re-parse into project
 
-    def set_region(self, region, contents):
-        with open(os.path.join(self.project_path, self.filename),
-                  'r',
-                  encoding='utf-8') as theFile:
-            file_contents = theFile.read()
+    def replace_range(self, 
+        range_to_replace, 
+        replacement_contents):
 
-        region = self.ranges[region]
-        new_contents = file_contents[:region[0]] + contents +  file_contents[region[1]:]
-        if new_contents == file_contents:
-            return None
-        with open(os.path.join(self.project_path, self.filename),
-                  'w',
-                  encoding='utf-8') as theFile:
-            theFile.write(new_contents)
-
-    def set_content(self, contents, preserve_metadata=False, bypass_check=False):
-
-        with open(os.path.join(self.project_path, self.filename),
-                  'r',
-                  encoding='utf-8') as theFile:
-            file_contents = theFile.read()
-            
-        # if preserve_metadata:
-        #     contents += self.consolidate_metadata()
-
-        start_range = self.ranges[0][0]
-        end_range = self.ranges[-1][1]
+        self.project._parse_file(self.filename)
+        file_contents = self.file._get_contents()
+        file_range_to_replace = [
+            self.get_file_position(range_to_replace[0]),
+            self.get_file_position(range_to_replace[1])
+            ]
 
         new_file_contents = ''.join([
-            file_contents[0:start_range],
-            contents,
-            file_contents[end_range:]]) 
-        
-        with open(os.path.join(self.project_path, self.filename),
-                  'w',
-                  encoding='utf-8') as theFile:
-            theFile.write(new_file_contents)
+            file_contents[0:file_range_to_replace[0]],
+            replacement_contents,
+            file_contents[file_range_to_replace[1]:]])
+        self.file.set_buffer_contents(new_file_contents)
 
-        return True
+    def parse_frames(self, contents): 
+        frame_ranges = []
+        stripped_contents = contents
+        replaced_contents = contents
+        for d in syntax.dynamic_def_c.finditer(contents):
+            frame_ranges.append([d.start(),d.end()])
+            param_string = d.group(0)[2:-2]
+            self.frames.append(
+                UrtextFrame(
+                    param_string, 
+                    self.project, 
+                    d.start(),
+                    d.end()))
+            stripped_contents = stripped_contents.replace(
+                d.group(), 
+                ' '*len(d.group()), 
+                1)
+            replaced_contents = replaced_contents.replace(
+                d.group(), 
+                '', 
+                1)
 
-    def assign_as_int(self, value, default):
-        try:
-            number = int(value)
-            return number
-        except ValueError:
-            return default
+        return frame_ranges, stripped_contents, replaced_contents
 
+    def strip_first_line_title(self, contents):
+        if self.first_line_title:
+            contents = contents.replace(self.title,'',1)
+        if self.title_from_marker:
+            contents = contents.replace(syntax.title_marker,'',1)
+        return contents
+
+    def ancestors(self):
+        return node_ancestors(self)
+
+    def descendants(self):
+        return node_descendants(self)
+
+    def siblings(self):
+        if self.parent:
+            return [n for n in self.parent.children if n.id != self.id]
+        return []
+
+    def get_sibling(self, node_title):
+        for n in self.siblings():
+            if n.title == node_title:
+                return n
+
+    def get_child(self, node_title):
+        for c in self.children:
+            if c.title == node_title:
+                return c
+
+    def replace_links(self, original_id, new_id='', new_project=''):
+        if self.is_dynamic:
+            return
+        if not new_id and not new_project:
+            return None
+        if not new_id:
+            new_id = original_id
+        pattern_to_replace = re.escape(utils.make_node_link(original_id))
+        if new_id:
+            replacement = utils.make_node_link(new_id)
+        if new_project:
+            replacement = replacement = utils.make_project_link(new_project) + replacement
+        new_contents = self.contents(stripped=False)
+        for link in re.finditer(pattern_to_replace, new_contents):
+            new_contents = new_contents.replace(link.group(), replacement, 1)
+        self._set_contents(new_contents)
+
+    def link(self, include_project=False, position=0):
+        project_link = ''
+        if include_project:
+            project_link = utils.make_project_link(self.project.title())
+        return ''.join([
+            project_link,
+            utils.make_node_link(self.id, position=position)])
+
+    def pointer(self):
+        return utils.make_node_pointer(self.id)
+
+    def ranges_with_embedded_syntaxes(self):
+        ranges_with_embedded_syntaxes = {}
+        for r in self.ranges:
+            for embedded in self.embedded_syntax_ranges:                
+                if embedded[0] in range(r[0],r[1]):
+                    ranges_with_embedded_syntaxes[r[0]] = {
+                        'start' : r[0],
+                        'kind': 'urtext',
+                        'end' : embedded[0]
+                     }
+                    ranges_with_embedded_syntaxes[embedded[0]] = {
+                        'start' : embedded[0],
+                        'kind': 'embedded',
+                        'end' : embedded[1]
+                     }
+                    ranges_with_embedded_syntaxes[embedded[1]] = {
+                        'start' : embedded[1],
+                        'kind': 'urtext',
+                        'end' : r[1]
+                     }
+            if r[0] not in ranges_with_embedded_syntaxes:
+                ranges_with_embedded_syntaxes[r[0]] = {
+                    'start' : r[0],
+                    'starts_node' : r == self.ranges[0],
+                    'ends_node' : r == self.ranges[-1],
+                    'kind': 'urtext',
+                    'end' : r[1]
+                 }
+
+        return ranges_with_embedded_syntaxes
+
+    def append_child_node(self, contents, kind='bracket'):
+        full_contents = self.contents_with_contained_nodes()
+        self.project._set_node_contents(
+            self.id,
+            ''.join([
+                full_contents,
+                syntax.node_opening_wrapper,
+                ' ',
+                contents, ' \n',
+                syntax.node_closing_wrapper, '\n',
+                ]))
+
+    def lines(self, strip_dynamic_marker=False):
+        return self.contents(stripped=False, strip_dynamic_marker=strip_dynamic_marker).split('\n')
+
+    def line_from_pos(self, position):
+        length = 0
+        for index, l in enumerate(self.lines()):
+            length += len(l)
+            if position < length:
+                return index
+        return index # temporary fallback
+
+    def dynamic_output(self, m_format):
+        m_format = m_format.replace('$title', self.title)
+        m_format = m_format.replace('$_link', self.link())
+        m_format = m_format.replace('$_pointer', self.pointer()) 
+        m_format = m_format.replace('$_meta', self.metadata.dynamic_output(m_format))
+
+        contents_syntax = re.compile(r'\$_contents(:\d*)?', flags=re.DOTALL)      
+        contents_match = re.search(contents_syntax, m_format)
+        if contents_match:
+            contents = self.contents(strip_dynamic_marker=True)
+            suffix = ''
+            if contents_match.group(1):
+                suffix = contents_match.group(1)
+                length_str = suffix[1:]
+                length = int(length_str)
+                if len(contents) > length:
+                    contents = contents[0:length] + ' (...)'
+            m_format = m_format.replace(''.join(['$_contents',suffix]), ''.join([ contents, '\n']))
+
+        for match in re.finditer(r'(\$_lines:)(\d{1,9})(,\d{1,9})?', m_format):
+            lines = self.lines(strip_dynamic_marker=True)
+            if match.group(3):
+                first_line = int(match.group(2))
+                last_line = int(match.group(3))
+            else:
+                first_line = 0
+                last_line = int(match.group(2))
+            if first_line - 1 > len(lines): first_line = len(lines) - 1
+            if last_line - 1 > len(lines): last_line = len(lines) 
+            m_format = m_format.replace(match.group(), '\n'.join(lines[first_line:last_line+1]))
+
+        other_format_keys = re.findall(r'\$[\.A-Za-z0-9_-]+', m_format)
+        for match in other_format_keys:
+            meta_key = match.lstrip('$')
+            values = self.metadata.get_extended_values(meta_key)
+            m_format = m_format.replace(match, values)
+        m_format = m_format.replace(r'\n', '\n')
+        return m_format
+
+    def _strip_embedded_syntaxes(self, contents):
+        replaced_contents = contents
+        stripped_contents = contents
+        ranges = []
+        for e in syntax.embedded_syntax_c.finditer(contents):
+            contents = e.group()
+            stripped_contents = stripped_contents.replace(contents, '')
+            replaced_contents = replaced_contents.replace(contents, ' '*len(contents))
+            ranges.append([e.start(), e.end()])
+        return ranges, stripped_contents, replaced_contents
+    
+def node_descendants(node, known_descendants=[]):
+    # differentiate between pointer and "real" descendants
+    all_descendants = [n for n in node.children if n not in known_descendants]
+    for descendant in all_descendants:
+        all_descendants.extend(
+            node_descendants(descendant, known_descendants=all_descendants))
+    return all_descendants
+
+def node_ancestors(node, known_ancestors=[]):
+    # differentiate between pointer and "real" descendants
+    if node.parent:
+        known_ancestors.append(node.parent)
+        return node_ancestors(node.parent, known_ancestors)
+    return known_ancestors
+
+def strip_nested_links(title):
+    stripped_title = title
+    for nested_link in syntax.node_link_or_pointer_c.finditer(title):
+        stripped_title = title.replace(nested_link.group(), '')
+    return stripped_title
+
+def check_and_sanitize_dynamic_marker(text):
+    marked_dynamic = False
+    missing = False
+    while True:
+        text = text.lstrip()
+        if not len(text):
+            break
+        if text[0] == syntax.dynamic_marker:
+            marked_dynamic = True
+            text = text[1:]
+        else:
+            break
+    if len(text) and text[0] == syntax.dynamic_def_missing_marker:
+        text = text[1:]
+    return text, marked_dynamic
+
+def strip_dynamic_markers(contents):
+    if len(contents) and contents[0] == '~':
+        contents = contents[1:]
+        if len(contents) and contents[0] == '?':
+            contents = contents[1:]
+    return contents

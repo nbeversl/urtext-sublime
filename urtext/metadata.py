@@ -1,285 +1,369 @@
-# -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
-
-import re
-import datetime
-import pytz
-
-default_date = pytz.timezone('UTC').localize(datetime.datetime(1970,1,1))
-timestamp_match = re.compile('(?:<)([^-/<\s][^=<]*?)(?:>)')
-inline_meta = re.compile('\*{0,2}\w+\:\:[^\n};]+;?(?=>:})?')
-node_title_regex = re.compile('^[^\n_]*?(?= _)', re.MULTILINE)
+from urtext.timestamp import UrtextTimestamp, default_date
+import urtext.syntax as syntax
+from urtext.metadata_entry import MetadataEntry
+import urtext.utils as utils
 
 class NodeMetadata:
 
-    def __init__(self, node, full_contents, settings=None):
+    def __init__(self, 
+        node,
+        project):
 
         self.node = node
-        self._entries, self.dynamic_entries = parse_contents(
-            full_contents,
-            node,
-            settings=settings)
-        self._sort()       
-        self._last_accessed = 0
-        
-    def _sort(self):
-        """ from extant entries, populate a dict by key"""
-        
-        self.entries = {}
-        for e in self._entries:
-            self.entries.setdefault(e.keyname, [])
-            if e not in self.entries[e.keyname]:
-               self.entries[e.keyname].append(e)
+        self.entries_dict = {}
+        self.project = project
+   
+    def parse_contents(self, full_contents):
+        parsed_contents = full_contents
+        remaining_contents = full_contents
 
-        node_id = self.get_first_value('id')
-        if node_id:
-            self._entries = sorted(self._entries, key = lambda entry: entry.position)
-            for i in range(len(self._entries)):
-                self._entries[i].index = i
-                self._entries[i].node = node_id
+        for m in syntax.metadata_entry_c.finditer(full_contents):
+            keyname, contents = m.group().strip(syntax.metadata_end_marker).split(syntax.metadata_assigner, 1)
+            value_list = []
+            for pattern in syntax.special_metadata_patterns_c.finditer(contents):
+                value_list.append(pattern.group())
+                contents = contents.replace(pattern.group(),'')
+            value_list.extend(syntax.metadata_separator_pattern_c.split(contents))       
+            value_list = [v.strip() for v in value_list if v.strip()]
+            tag_self, tag_children, tag_descendants, keyname = determine_desc_tagging(keyname)
 
-    def get_links_to(self): 
-        return sorted(
-            [r for r in self.node.project.links_to[node_id] if not self.node.project.nodes[r].dynamic],
-            key = lambda n: n.index )
+            self.add_entry(
+                keyname,
+                value_list,
+                self.node,
+                tag_self=tag_self,
+                tag_children=tag_children,
+                tag_descendants=tag_descendants,
+                start_position=m.start(),
+                end_position=m.start() + len(m.group().strip()))
 
-    def get_links_from(self):
-        return sorted(
-            [r for r in self.node.project.links_from[node_id] if not self.node.project.nodes[r].dynamic],
-            key = lambda n: n.index )
-        
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()), 
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '', 
+                1)
 
-    def get_first_value(self, keyname):
-        if keyname == '_last_accessed':
-            return self.node.last_accessed
-
-        entries = self.entries.get(keyname)
-        if not entries or not entries[0].values:
-            return ''
-        return entries[0].values[0]
-
-    
-        
-
-    def get_values(self, 
-        keyname,
-        # use_timestamp=False, # use timestamp as value (FUTURE)
-        substitute_timestamp=False  # substitutes the timestamp as a string if no value
-        ):
-
-        """ returns a list of values for the given key """
-        values = []
-        entries = self.entries.get(keyname)
-        if not entries:
-            return values
-        for e in entries:
-            values.extend(e.values)
+        for m in syntax.hash_meta_c.finditer(parsed_contents):
+            tag_self=False
+            tag_children=False
+            tag_descendants=False
             
-        if not values and substitute_timestamp:
-            for e in entries:
-                if e.dt_stamp != default_date:
-                    values.append(e.dt_string)            
-        return values
-  
-    def get_entries(self, 
-        keyname, 
-        value=None):
+            entry = m.group().strip()
+            tag_self, tag_children, tag_descendants, entry = determine_desc_tagging(entry)
+            value = entry.strip().replace('-',' ')
+            value = value[1:]
 
+            keyname = '#'
+            if self.project.compiled:
+                hash_key_setting = self.project.get_single_setting('hash_key')
+                if hash_key_setting:
+                    keyname = hash_key_setting.text
+
+            self.add_entry(
+                keyname,
+                value,
+                self.node,
+                tag_self=tag_self,
+                tag_children=tag_children,
+                tag_descendants=tag_descendants,
+                start_position=m.start(), 
+                end_position=m.start() + len(m.group()))
+            
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        # inline timestamps:
+        for m in syntax.timestamp_c.finditer(parsed_contents):
+            self.add_entry(
+                '_inline_timestamp',
+                m.group(),
+                self.node,
+                start_position=m.start(),
+                end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        #remove from contents entries without or entries that are nodes:
+        for m in syntax.metadata_key_only_c.finditer(parsed_contents):
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        for m in syntax.bold_text_c.finditer(parsed_contents):
+            self.add_entry(
+                '_bold',
+                m.group(),
+                self.node,
+                start_position=m.start(),
+                end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        for m in syntax.italic_text_c.finditer(parsed_contents):
+            self.add_entry(
+                '_italic',
+                m.group(),
+                self.node,
+                start_position=m.start(),
+                end_position=m.start() + len(m.group()))
+            parsed_contents = parsed_contents.replace(
+                m.group(),
+                ' '*len(m.group()),
+                1)
+            remaining_contents = remaining_contents.replace(
+                m.group(),
+                '',
+                1)
+
+        self.add_system_keys()
+        return remaining_contents, parsed_contents
+
+    def add_entry(self, 
+        key,
+        values,
+        node,
+        start_position=0,
+        end_position=0,
+        tag_self=True,
+        from_node=None,
+        tag_children=False,
+        tag_descendants=False):
+
+        if not isinstance(values, list):
+            values = [values]
+
+        key = key.lower().strip()
+        e = MetadataEntry(
+            key, 
+            values,
+            node,
+            start_position=start_position, 
+            end_position=end_position,
+            from_node=from_node,
+            tag_self=tag_self,
+            tag_children=tag_children,
+            tag_descendants=tag_descendants)
+
+        self.entries_dict[key] = self.entries_dict.get(key, [])        
+        self.entries_dict[key].append(e)
+
+    def get_keys(self, exclude=[]):
+        keys = {}
+        for k in self.entries_dict.keys():
+            keys[k] = len(self.entries_dict[k])
+        return keys
+
+    def get_entries(self, keyname):
         keyname = keyname.lower()
-        if keyname in self.entries:
-            return self.entries[keyname]
-        return []
+        if keyname not in self.entries_dict:
+            return []
+        return [e for e in self.entries_dict[keyname] if e.tag_self]
 
-    def get_matching_entries(self, 
-        keyname, 
-        value,
-        use_timestamp=False):
+    def entries(self):
+        all_entries = []
+        for k in self.entries_dict:
+            all_entries.extend(self.entries_dict[k])
+        return all_entries
 
+    def add_system_keys(self):
+        inline_timestamp_entries = self.get_entries('_inline_timestamp')
+        if inline_timestamp_entries:
+            inline_timestamps = sorted(
+                inline_timestamp_entries,
+                key=lambda t: t.meta_values[0].timestamp)
+            self.add_entry(
+                '_oldest_timestamp', 
+                inline_timestamps[0].meta_values[0].timestamp.wrapped_string,
+                self.node,
+                start_position=inline_timestamps[0].start_position,
+                end_position=inline_timestamps[0].end_position)
+            self.add_entry(
+                '_newest_timestamp',
+                inline_timestamps[-1].meta_values[0].timestamp.wrapped_string,
+                self.node,
+                start_position=inline_timestamps[-1].start_position,
+                end_position=inline_timestamps[-1].end_position)
+
+    def get_first_value(self, keyname,order_by='default'):
+        values = self.get_values(
+            keyname,
+            order_by=order_by)
+        if values:
+            return values[0]
+
+    def get_values_with_frequency(self, keyname):
+
+        # TODO FIX
+
+        values = {}
         entries = self.get_entries(keyname)
-        matching_entries = []
-        for e in entries:
-            if not use_timestamp:
-                if value in e.values:
-                    matching_entries.append(e)
-            else:
-                if value == e.dt_stamp:
-                    matching_entries.append(e)
 
+        for e in entries:
+            for v in e.meta_values:
+                node_as_value = v.node()
+                if node_as_value:
+                    link_as_value = node_as_value.link()
+                    values[link_as_value] = values.get(link_as_value,0)
+                    values[link_as_value] += 1
+                    continue                 
+                values[v] = values.get(v, 0)
+                values[v] +=1
+        return values
+
+    def get_values(self,
+        keyname,
+        order_by=None):
+
+        values = []
+        entries = self.get_entries(keyname)
+
+        for e in entries:
+            values.extend(e.meta_values)
+
+        if order_by in ['-pos','-position']:
+            return sorted(
+                list(values),
+                key = lambda v: v.entry.start_position)
+
+        if order_by == 'default':
+            return sorted(list(values))
+
+        return list(values)
+
+    def get_extended_values(self, extended_key):
+        """
+        from an optionally extended key, returns the value(s) as a formatted string
+        """
+        if '.' not in extended_key:
+            extended_keyname = [extended_key]
+        else:
+            extended_keyname = extended_key.split('.')
+        values = get_extended_metadata(extended_keyname, self.node)        
+        values = list(set(values))
+        return syntax.metadata_separator_syntax.join(values)
+
+    def get_matching_entries(self, keyname, value):
+        entries = self.get_entries(keyname)
+        if value == '*':
+            return entries
+        matching_entries = []
+        if entries:
+            for e in entries:
+                if isinstance(value, UrtextTimestamp):
+                    meta_values = [v.timestamp for v in e.meta_values]
+                else:
+                    meta_values = [v.text for v in e.meta_values]
+                for v in meta_values:
+                    if v == value:
+                        matching_entries.append(e)
         return matching_entries
 
     def get_date(self, keyname):
         """
         Returns the timestamp of the FIRST matching metadata entry with the given key.
-        Requires the project be parsed (dt_stamp set from dt_string)
+        #TODO possibly remove
         """
-        entries = self.get_entries(keyname)
-        if entries:
-            return entries[0].dt_stamp
-
-        return default_date # ?
-
-    # Set
+        value = self.get_first_value(keyname)
+        if value:
+            return value.timestamp
+        return default_date
+      
+    def clear_from_source(self, source_node):
+        for k in self.entries_dict:
+            for entry in self.entries_dict[k]:
+                if entry.from_node == source_node:
+                    self.entries_dict[k].remove(entry)
     
-    def add_meta_entry(self, 
-        key, 
-        values,
-        from_node=None,
-        position=0):
+    def convert_hash_keys(self):
+        hash_key_setting = self.project.get_single_setting('hash_key')
+        if hash_key_setting:
+            hash_key_setting = hash_key_setting.text
+            if '#' in self.entries_dict:
+                for entry in self.get_entries('#'):
+                    entry.keyname = hash_key_setting
+                self.entries_dict.setdefault(hash_key_setting, [])                
+                self.entries_dict[hash_key_setting].extend(self.entries_dict['#'])
+                del self.entries_dict['#']
 
-        new_entry = MetadataEntry(key, values, None, from_node=from_node, position=position)
-        self._entries.append(new_entry)
-        self._sort()
-
-    def clear_from_source(self, source_node_id):
-        for entry in list(self._entries):
-            if entry.from_node == source_node_id:
-                self._entries.remove(entry)
-        self._sort()
-
-    # Debug
+    def get_oldest_timestamp(self):
+        value = self.get_first_value('_oldest_timestamp')
+        if value:
+            return value.timestamp                  
 
     def log(self):
-        for entry in self._entries:
+        for entry in self.entries():
             entry.log()
 
-class MetadataEntry:  # container for a single metadata entry
-    def __init__(self, 
-        keyname, 
-        value, 
-        dt_string,
-        children=False,
-        recursive=False,
-        position=None,
-        end_position=None, 
-        from_node=None):
+    def dynamic_output(self, m_format):
+        return ''
 
-        self.keyname = keyname.strip().lower() # string
-        self.values = value         # always a list
-        self.dt_string = dt_string
-        self.dt_stamp = default_date # default or set by project        
-        self.from_node = from_node
-        self.position = position
-        self.end_position = end_position
-        self.children = children
-        self.recursive = recursive
-
-    def log(self):
-        print('key: %s' % self.keyname)
-        print('value: %s' % self.values)
-        print('datetimestring: %s' % self.dt_string)
-        print('datetimestamp: %s' % self.dt_stamp)
-        print('from_node: %s' % self.from_node)
-        print('children: %s' % self.children)
-        print('recursive: %s' % self.recursive)
-
-def parse_contents(full_contents, node, settings=None):
-
-    project = node.project
-
-    parsed_contents = full_contents
-
-    # parse inline metadata:
-    entries = []
-    dynamic_entries = []
-    for m in inline_meta.finditer(full_contents):
-
-        key, value = m.group().strip(';').split('::', 1)
-
-        """
-        For lines containing a timestamp
-        """
-        timestamp = timestamp_match.search(value)
-        dt_string = ''
-        if timestamp:
-            dt_string = timestamp.group(1).strip()
-            value = value.replace(timestamp.group(0), '').strip()
-
-        values = []
-        value_list = value.split('|')
-
-        for value in value_list:
-
-            if key not in settings['case_sensitive']:
-                value = value.lower()
-            value = value.strip()
-            if key in settings['numerical_keys']:
-                try:
-                    value = int(value)
-                except ValueError:
-                    value = -1
-            if value:
-                values.append(value)
-
-        recursive = False
-        children = False
-        if key[0] == '*' :
-            children = True
-            key = key[1:]
-            if key[0] == '*' :
-                recursive = True
-                key = key[1:]
-
-        end_position = m.start() + len(m.group())
-        
-        entry = MetadataEntry(
-                key, 
-                values, 
-                dt_string, 
-                children=children,
-                recursive=recursive,       
-                position=m.start(), 
-                end_position=end_position)    
-
-        if children or recursive:
-            dynamic_entries.append(entry)
-        else:
-            entries.append(entry)
-
-        parsed_contents = parsed_contents.replace(m.group(),'X'*len(m.group()))
-
-    # parse inline timestamps:
+def determine_desc_tagging(string):
+    tag_self=False
+    tag_children=False
+    tag_descendants=False
     
-    for m in timestamp_match.finditer(parsed_contents):
-        stamp = m.group()
-        position = m.start()
-        end_position = position + len(m.group())
-        entries.append(
-            MetadataEntry(
-                'inline-timestamp', 
-                '', 
-                stamp[1:-1],     
-                position=position, 
-                end_position=end_position)
-                )   
+    if not syntax.metadata_tag_self_c.match(string[0]) and ( 
+        not syntax.metadata_tag_desc_c.match(string[0])):
+        tag_self=True
+    else:
+        if syntax.metadata_tag_self_c.match(string[0]):
+            tag_self = True
+            string = string[1:]
+        if syntax.metadata_tag_desc_c.match(string[0]):
+            tag_children = True
+            string = string[1:]
+        if syntax.metadata_tag_desc_c.match(string[0]):
+            tag_descendants = True
+            string = string[1:]
 
-    # parse title
+    return tag_self, tag_children, tag_descendants, string
 
-    s = node_title_regex.search(parsed_contents)
-    if s:
-       title = s.group(0).strip()
-       entries.append( 
-            MetadataEntry(
-                'title',
-                [title],
-                '',
-                position=s.start(),
-                end_position=s.end())
-            )
-
-    return entries, dynamic_entries
+def get_extended_metadata(extended_keyname, node):
+    if len(extended_keyname) == 0: return []
+    entries = node.metadata.get_entries(extended_keyname[0])
+    values = []
+    use_timestamp_setting = node.project.get_setting_as_text('use_timestamp')
+    for e in entries:
+        for v in e.meta_values:
+            if v.node():
+                if len(extended_keyname) == 1:
+                    values.append(v.node().link())
+                elif len(extended_keyname) > 1:
+                    values.append(v.node().dynamic_output('$'+'.'.join(extended_keyname[1:])))
+                continue
+            elif len(extended_keyname) == 1:
+                if extended_keyname[0] in use_timestamp_setting and v.timestamp:
+                    values.append(v.timestamp.unwrapped_string)
+                else:
+                    values.append(v.text)
+                continue
+            elif len(extended_keyname) == 2 and extended_keyname[1] in ['timestamp','timestamps'] and v.timestamp:
+                values.append(v.timestamp.unwrapped_string) 
+                continue
+    return values

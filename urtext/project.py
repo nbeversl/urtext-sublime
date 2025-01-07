@@ -1,1549 +1,1460 @@
-    # -*- coding: utf-8 -*-
-"""
-This file is part of Urtext.
-
-Urtext is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Urtext is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Urtext.  If not, see <https://www.gnu.org/licenses/>.
-
-"""
 import re
 import datetime
-import itertools
 import platform
-import json
 import os
-import random
 import time
-import pickle
-from time import strftime
 import concurrent.futures
-try:
-    import diff_match_patch as dmp_module
-except:
-    import diffmatchpatch as dmp_module
-from dateutil.parser import *
-from pytz import timezone
+import threading
+from urtext.file import UrtextFile, UrtextBuffer
+from urtext.node import UrtextNode
+from urtext.timestamp import date_from_timestamp, default_date, UrtextTimestamp
+from urtext.call import UrtextCall
+import urtext.syntax as syntax
+import urtext.utils as utils
+from urtext.exec import Exec
+from urtext.selector import UrtextSelector
+from itertools import chain
 
-from .file import UrtextFile
-from .interlinks import Interlinks
-from .node import UrtextNode 
-from .compile import compile_functions
-from .trees import trees_functions
-from .meta_handling import metadata_functions
-from .reindex import reindex_functions
-from .search import search_functions
-from .collection import collection_functions
-from .dynamic import UrtextDynamicDefinition
-
-node_pointer_regex = r'>>[0-9,a-z]{3}\b'
-node_link_regex = r'>[0-9,a-z]{3}\b'
-title_marker_regex = r'\|.*?\s>{1,2}[0-9,a-z]{3}\b'
-node_id_regex = r'\b[0-9,a-z]{3}\b'
-
-functions = trees_functions
-functions.extend(compile_functions)
-functions.extend(metadata_functions)
-functions.extend(reindex_functions)
-functions.extend(search_functions)
-functions.extend(collection_functions)
-
-
-def add_functions_as_methods(functions):
-    def decorator(Class):
-        for function in functions:
-            setattr(Class, function.__name__, function)
-        return Class
-    return decorator
-
-@add_functions_as_methods(functions)
 class UrtextProject:
-    """ Urtext project object """
+    urtext_file = UrtextFile
+    urtext_node = UrtextNode
+    urtext_buffer = UrtextBuffer
 
     def __init__(self,
-                 path,
-                 rename=False,
-                 recursive=False,
-                 import_project=False,
-                 init_project=False,
-                 watchdog=False):
-        
-        self.is_async = True 
-        self.is_async = False # development only
-        self.path = path
+                 entry_point,
+                 project_list=None,
+                 editor_methods=None,
+                 initial=False,
+                 new_file_node_created=False):
+
+        if editor_methods is None:
+            editor_methods = {}
+        self.project_list = project_list
+        self.entry_point = entry_point
+        self.entry_path = None
+        self.running_on_modified = False
+        self.project_title = self.entry_point  # default
+        self.editor_methods = editor_methods
+        self.time = time.time()
+        self.last_compile_time = 0
         self.nodes = {}
-        self.h_content = {}
+        self.project_settings_nodes = []
         self.files = {}
-        self.keynames = {}
-        self.navigation = []  # Stores, in order, the path of navigation
-        self.nav_index = -1  # pointer to the CURRENT position in the navigation list
-        self.to_import = []
-        self.settings_initialized = False
-        self.dynamic_nodes = []  # { target : definition, etc.}
-        self.dynamic_memo = {}
-        self.watchdog = watchdog
-        # dict of nodes tagged recursively from parent/ancestors
-        self.dynamic_meta = { } # { source_id :  { 'entries' : [] , 'targets' : [] } }
-        self.quick_loaded = False
-        self.compiled = False
-        self.links_to = {}
-        self.links_from = {}
-        self.loaded = False
-        self.other_projects = [] # propagates from UrtextProjectList, permits "awareness" of list context
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        self.access_history = {}
+        self.buffers = {}
+        self.last_exec_node = None
+        self.paths = []
+        self.frames = {}
+        self.selectors = {}
         self.messages = {}
-        self.title_completions = []
-        self.settings = {  # defaults
-            'home': None,
-            'timestamp_format':'%a., %b. %d, %Y, %I:%M %p', 
-            'use_timestamp': ['timestamp','inline-timestamp'],
-            'filenames': ['PREFIX', 'DATE %m-%d-%Y', 'TITLE'],
-            'console_log': True,
-            'google_auth_token' : 'token.json',
-            'google_calendar_id' : None,
-            'timezone' : ['UTC'],
-            'always_oneline_meta' : False,
-            'format_string': '$title\n-\n',
-            'strict':False,
-            'node_date_keyname' : '',
-            'log_id': '',
-            'numerical_keys': ['_index' ,'index'],
-            'preload': [],
-            'atomic_rename' : False,
-            'case_sensitive': [
-                'title',
-                'notes',
-                'comments',
-                'project_title',
-                'timezone',
-                'timestamp_format',
-                'filenames',
-                'weblink',
-                'timestamp',]
-        }
-        self.default_timezone = timezone('UTC')
-        self.title = self.path # default
+        self.virtual_outputs = {}
+        self.dynamic_metadata_entries = []
+        self.calls = {}
+        self.project_instance_calls = {}
+        self.initialized = False
+        self.compiled = False
+        self.excluded_files = []
+        self.home_requested = False
+        self.new_file_node_created = new_file_node_created
+        self.initial_project = initial
+        self.visible = None
 
-        self.quick_load(import_project=import_project)
-        if self.is_async:
-            self.executor.submit(self._initialize_project,
-                import_project=import_project, 
-                init_project=init_project)
-        else:
-            self._initialize_project(
-                 import_project=import_project, 
-                 init_project=init_project)
+    def get_setting(self,
+            setting,
+            _called_from_project_list=False,
+            use_project_list=True):
 
-        if not os.path.exists(os.path.join(self.path, "history")):
-            os.mkdir(os.path.join(self.path, "history"))
+        values = []
+        for node_id in self.project_settings_nodes:
+            values.extend(self.nodes[node_id].metadata.get_values(setting))
+        if not values and not _called_from_project_list and use_project_list:
+            return self.project_list.get_setting(setting, self)
+        if values and values[0].node():
+            return values
+        elif setting != 'numerical_settings' and setting in self.get_setting('numerical_settings',
+            _called_from_project_list=_called_from_project_list,
+            use_project_list=use_project_list):
+            values = [v.num() for v in values]
+        return values
 
-        if watchdog:
-            self._initialize_watchdog()        
+    def get_single_setting(self, 
+            setting,
+            _called_from_project_list=False,
+            use_project_list=True):
+        values = self.get_setting(
+            setting, 
+            _called_from_project_list=_called_from_project_list,
+            use_project_list=use_project_list)
+        if values:
+            return values[0]
 
-    def quick_load(self, import_project=False):
+    def setting_is_true(self, setting):
+        setting = self.get_single_setting(setting)
+        if setting and setting.true():
+            return True
+        return False
 
-        self.retrieve()
-        
-        if self.ql and 'last_accessed' in self.ql:
-            for file in [t for t in self.ql['last_accessed'] if t in os.listdir(self.path)]:
+    def get_setting_as_text(self, 
+            setting,
+            _called_from_project_list=False,
+            use_project_list=True):
+        setting = self.get_setting(setting, _called_from_project_list=_called_from_project_list)
+        return [v.text for v in setting]
+
+    def get_settings_keys(self):
+        keys = []
+        for nid in self.project_settings_nodes:
+            keys.extend(self.nodes[nid].metadata.get_keys())
+        return keys
+
+    def get_propagated_settings(self, _called_from_project_list=False):
+        propagated_settings = self.get_setting_as_text('propagate_settings', _called_from_project_list=_called_from_project_list)
+        if '_all' in propagated_settings:
+            return self.get_settings_keys()
+        return propagated_settings
+
+    def initialize(self, callback=None, initial=True, visible=True, make_current=False, selector=None):
+        self.visible = visible
+        self.add_call(Exec)
+        for call in self.project_list.calls.values():
+            self.add_call(call)
+        for call in self.project_list.project_instance_calls.values():
+            self.add_call(call)
+        if os.path.exists(self.entry_point):
+            if os.path.isdir(self.entry_point) and self._approve_new_path(self.entry_point):
+                self.entry_path = os.path.abspath(self.entry_point)
+                self.paths.append(os.path.abspath(self.entry_point))          
+            elif self._include_file(self.entry_point):
+                self._parse_file(self.entry_point)
+                self.entry_path = os.path.abspath(os.path.dirname(self.entry_point))
+                self.paths.append(os.path.abspath(self.entry_point))
+            included_files = self._get_included_files()
+            if included_files and visible:
+                self.handle_info_message('Initializing Urtext project from %s' % os.path.basename(self.entry_point))
+            for file in included_files:
                 self._parse_file(file)
-        self.quick_loaded = True
-        
-    def retrieve(self):
-        if os.path.exists(os.path.join(self.path,'_store.json')):
-            with open(os.path.join(self.path, '_store.json'), 'r') as f:
-                self.ql = json.loads(f.read())
-                self.settings=self.ql['project_settings']
-                self.title = self.ql['title']
-        else:
-            self.ql = { 'last_accessed': [], 'title': '', 'path': self.path}
-
-    def store(self):
-        if self.compiled:
-            self.ql['title'] = self.title
-            self.ql['project_settings'] = self.settings       
-            with open(os.path.join(self.path,'_store.json'), "w", encoding='utf-8') as f:
-                f.write(json.dumps(self.ql))
-
-    def _initialize_project(self, 
-        import_project=False, 
-        init_project=False):
-
-        for file in [f for f in os.listdir(self.path) if f not in self.ql['last_accessed']]:
-            self._parse_file(file, import_project=import_project)
-
-        if import_project:
-            for file in self.to_import:
-                self.import_file(file)
-        
-        self.default_timezone = timezone(self.settings['timezone'][0])
-        if self.nodes == {}:
-            if init_project == True:
-                self._log_item('Initalizing a new Urtext project in ' + self.path)
-                self.new_file_node()
-            else:
-                raise NoProject('No Urtext nodes in this folder.')
-
-        elif init_project:
-            print('Urtext project already exists here.')
-            return None            
-        
-        # must be done once manually on project init
-        # TODO refactor
-        for node_id in self.nodes:
-            self._parse_meta_dates(node_id)
-            for e in self.nodes[node_id].metadata.dynamic_entries:                
-                self._add_sub_tags( node_id, node_id, e)
-
-        self._get_access_history()        
-        self._compile()
-        self.compiled = True
-
-    def _node_id_generator(self):
-        chars = [
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
-            'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-            'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-        ]
-        return itertools.product(chars, repeat=3)
-
-    def formulate_links_to(self):       
-        for node_id in self.links_from:
-            self.update_links_in(node_id)
-
-    def update_links_in(self, node_id):
-        for link_from in self.links_from[node_id]:
-            if link_from not in self.links_to:
-                self.links_to[link_from] = []
-            if node_id not in self.links_to[link_from]:
-                self.links_to[link_from].append(node_id) 
-
-    def remove_links_in(self, node_id):
-
-        for destination in self.links_to:
-            self.links_to[destination] = [ r for r in self.links_to[destination] if r != node_id ]
-
-    def _assign_node_parent_title(self):
-        """
-        Only has to be called once on project init
-        """
-
-        for node_id in self.nodes:
-            self.nodes[node_id].parent_project = self.title
-
-
-    def _file_changed(self, filename, strict=False):
-        
-        old_hash = None
-        if filename in self.files:
-            already_in_project = True
-            old_hash = self.files[filename].hash
-
-        """
-        Parse the file
-        """
-        new_file = UrtextFile(
-            os.path.join(self.path, filename), 
-            settings=self.settings,
-            previous_hash=old_hash,
-            strict=strict
-            )
-        
-        if new_file.changed == False:
+        if not self.files:
             return False
 
-        return new_file
-
-    def _parse_file(self, 
-            filename, 
-            import_project=False):
-        """
-        Parses a single file into the project.
-        Returns None if successful, or a list of duplicate nodes found
-        if duplicate nodes were found.
-        FUTURE: return value should be sanitized Currently returns None, False or list.
-        """
-        filename = os.path.basename(filename)
-        if self._filter_filenames(filename) == None:
-            return
+        self._add_paths_from_settings()                        
         
-        already_in_project = False
+        if len(self.nodes) == 0 and not self.new_file_node_created:
+            return False
 
-        new_file = self._file_changed(filename)
-        if not new_file:
+        for node in self.nodes.values():
+            node.metadata.convert_hash_keys()
+        self._add_all_sub_tags()
+        self._mark_dynamic_nodes()
+        self.initialized = True
+        if self.initial_project:
+            self.on_initialized()
+        self.run_hook('on_initialized')
+        self._compile()
+        other_entry_points = self.get_setting('other_entry_points')
+        if other_entry_points:
+            for value in other_entry_points:
+                urtext_links = value.links()
+                if urtext_links:
+                    for path in [link.path for link in urtext_links if link.path]:
+                        self.project_list._init_project(os.path.abspath(path))
+                    continue
+                self.project_list._init_project(os.path.abspath(utils.get_path_from_link(value.text)))
+
+        self.compiled = True
+        self.last_compile_time = time.time() - self.time
+        self.time = time.time()
+        if visible:
+            self.handle_info_message('"%s" compiled' % self.title())
+        return True
+
+    def _add_paths_from_settings(self):
+        num_paths = len(self.get_settings_paths())
+        num_file_extensions = len(self.get_setting('file_extensions'))
+        for p in self.get_settings_paths():
+            if self._approve_new_path(p):
+                self.paths.append(p)
+                for file in self._get_included_files():
+                    if file not in self.files:
+                        self._parse_file(file)
+        if len(self.get_settings_paths()) > num_paths or (
+            len(self.get_setting('file_extensions')) > num_file_extensions):
+            self._add_paths_from_settings()
+
+    def _verify_paths_from_settings(self):        
+        num_paths = len(self.get_settings_paths())
+        num_file_extensions = len(self.get_setting('file_extensions'))
+        included_paths = self.get_settings_paths()
+        for p in self.paths:
+            if p not in included_paths:
+                self.paths.remove(p)
+        included_files = self._get_included_files()
+        for file in list(self.files):
+            if file not in included_files:
+                self.drop_file(file)
+        if len(self.get_settings_paths()) < num_paths or (
+            len(self.get_setting('file_extensions')) < num_file_extensions):
+            self._add_paths_from_settings()
+        
+    def _approve_new_path(self, path):
+        if path in self.project_list.get_all_paths():
+            self.log_item('system', {
+                'top_message':  "%s is already in another project." % path})
+            return False
+        if path in self.paths:
+            return False
+        if os.path.isdir(path):
+            for f in os.listdir(path):
+                if self.is_project_file(f):
+                    return True
+        if self.is_project_file(path):
+            return True
+        return False
+
+    def _filter_filenames(self, filename):
+        if filename in ['urtext_files', '.git']:
             return None
+        if filename in self.get_setting_as_text('exclude_files'):
+            return None
+        return filename
 
-        self.messages[filename] = []
-        if new_file.messages:
-            self.messages[filename] = new_file.messages 
+    def _parse_file(self, filename, try_buffer=False):
+        if self._filter_filenames(filename) is None:
+            self._add_to_excluded_files(filename)
+            return False
+
+        existing_buffer_ids = None
+        if filename in self.files:
+            existing_buffer_ids = [n.id for n in self.files[filename].get_ordered_nodes()]     
+
+        if filename in self.files:
+            self.drop_buffer(self.files[filename])
+
+        buffer = None
+        if self.compiled and try_buffer:
+            buffer_contents = self.run_editor_method('get_buffer', filename)
+            if buffer_contents:
+                buffer = self._make_buffer(filename, buffer_contents)
+        else:
+            buffer = self.urtext_file(filename, self)
+        if buffer:
+            return self._parse_buffer(buffer, existing_buffer_ids=existing_buffer_ids)
+
+    def _parse_buffer(self, buffer, existing_buffer_ids=None):
+        for n in buffer.nodes:
+            self._resolve_duplicate_titles(n)
+
+        if existing_buffer_ids is None:
+            if buffer.filename and buffer.filename in self.files:
+                existing_buffer_ids = [n.id for n in self.files[buffer.filename].get_ordered_nodes()]     
+
+        self.drop_buffer(buffer)
+        if not buffer.root_node:
+            self.log_item(buffer.filename, {'top_message': '%s has no root node, dropping' % buffer.filename})
+            buffer.write_buffer_messages()
+            return False
+
+        self.messages[buffer.filename] = buffer.messages
+        if buffer.has_errors:
+            buffer.write_buffer_messages()
+            for n in buffer.nodes:
+                # re-parse into project necessary if the file is kept
+                self._resolve_duplicate_titles(n)
         
-        if not new_file.is_parseable:
-            if already_in_project:
-                self._log_item('Unable to re-parse >f'+filename+ ', dropping it from the project.')
-                return False
-            self.to_import.append(filename)
-            return
-
-        self._remove_file(filename)
-        """
-        Check the file for duplicate nodes
-        """
-        duplicate_nodes = self._check_file_for_duplicates(new_file)
-        if duplicate_nodes:
-            return duplicate_nodes
- 
-        """
-        re-add the filename and all its nodes to the project
-        """
-        self.files[new_file.basename] = new_file  
-
-        for node_id in new_file.nodes:
-            self._add_node(new_file.nodes[node_id])
-        
-        self._set_tree_elements(new_file.basename)
-        
-        for node_id in new_file.nodes:
-            self._rebuild_node_meta(node_id)
-
-        """
-        If this is not the initial load of the project, parse the timestamps in the file
-        and rebuild sub-tags
-        """        
-        if self.compiled:
-            for node_id in new_file.nodes:
-                self._parse_meta_dates(node_id)
-                for e in self.nodes[node_id].metadata.dynamic_entries:                
-                    self._add_sub_tags( node_id, node_id, e)
-     
-        """ returns None if successful """
-        return None
-
-    def _check_file_for_duplicates(self, file_obj):
-        duplicate_nodes = {}
-        for node_id in file_obj.nodes:
-            duplicate_filename = self._is_duplicate_id(node_id, file_obj.filename)
-            if duplicate_filename:
-                duplicate_nodes[node_id] = duplicate_filename
-
-        if duplicate_nodes:
-            basename = os.path.basename(file_obj.filename)
-            self.messages[basename].append('Duplicate node ID(s) found')
-
-            messages = []
-            for node_id in duplicate_nodes:
-                messages.append(''.join([
-                    'node ID >',
-                    node_id,
-                    ' exists in f>',
-                    duplicate_nodes[node_id]]) )
-
-            file_obj.write_errors( self.settings, messages=messages)
-            return duplicate_nodes
-
-        return False
-
-    def _rewrite_titles(self, filename):
-        
-        original_contents = self._full_file_contents(filename=filename)
-        new_contents = original_contents
-        offset = 0        
-        for match in re.finditer(title_marker_regex, new_contents):
-            start = match.start() + offset
-            end = match.end() + offset
-            location_node_id = self.get_node_id_from_position(filename, start)
-            if not location_node_id:
-                continue
-            if not self.nodes[location_node_id].dynamic:          
-                match_contents = new_contents[start:end]
-                node_id = match_contents[-3:]
-                if node_id in self.nodes:
-                    title = self.nodes[node_id].title
-                else:
-                    title = ' ? '
-                bracket = '>'
-                if re.search(node_pointer_regex, match_contents):
-                    bracket += '>'
-                replaced_contents = ''.join([new_contents[:start],
-                    '| ', title, ' ', bracket, node_id,
-                    new_contents[end:]
-                    ])
-                offset += len(replaced_contents) - len(new_contents)
-                new_contents = replaced_contents
-        if new_contents != original_contents:
-            return new_contents 
-        return False
-
-    def _target_id_defined(self, check_id):
-        for definition in self.dynamic_nodes:
-            if definition.target_id and definition.target_id == check_id:
-                return definition.source_id
-        return
-
-    def _target_file_defined(self, file):
-        for definition in self.dynamic_nodes:
-            for e in  definition.exports:
-                for f in e.to_files:
-                    if f == file:
-                        return definition.source_id
-        return
-
-    """
-    Parsing helpers
-    """
-    def _add_node(self, new_node):
-        """ Adds a node to the project object """
-
-        for definition in new_node.dynamic_definitions:
-            
-            if definition.target_id:
-                
-                defined = self._target_id_defined(definition.target_id)
-                
-                if defined and defined != new_node.id:
-
-                    message = ''.join([ 'Node >', definition.target_id,
-                                ' has duplicate definition in >' , new_node.id ,
-                                  '. Keeping the definition in >',
-                                  defined, '.'
-                                  ])
-
-                    self.messages[new_node.filename].append(message)
-                    self._log_item(message)
-                else:
-                    self.dynamic_nodes.append(definition)
-
-            if definition.exports:
-                for e in definition.exports:
-                    for f in e.to_files:
-                        defined = self._target_file_defined(f)
-                        if defined and defined != new_node.id:
-                            message = ''.join([ 
-                                          'File >f' , f ,
-                                          ' has duplicate definition in >' , new_node.id ,
-                                          '. Keeping the definition in >' , defined , '.'
-                                          ])
-                            self.message[new_node.filename].append(message)
-                            self._log_item(message)
+        buffer.nodes = [n for n in buffer.nodes if n.has_errors is False]
+        changed_ids = {}
+        if existing_buffer_ids:
+            new_node_ids = [n.id for n in buffer.get_ordered_nodes()]
+            if len(existing_buffer_ids) == len(new_node_ids):
+                for index in range(0, len(existing_buffer_ids)):  # existing links are all we care about
+                    if existing_buffer_ids[index] == new_node_ids[index]:
+                        continue  # id stayed the same
+                    else:
+                        if new_node_ids[index] in existing_buffer_ids:
+                            # proably only the order changed.
+                            # don't have to do anything
+                            continue
                         else:
-                            self.dynamic_nodes.append(definition)
+                            # check each new id for similarity to the old one
+                            changed_ids[existing_buffer_ids[index]] = new_node_ids[index]
+                            # else:
+                            # TODO try to map old to new.
 
-        if len(new_node.metadata.get_first_value('ID')) > 1:
-            message = ''.join([ 
-                    'Multiple ID tags in >' , new_node.id ,': ',
-                    ', '.join(new_node.metadata.get_first_value('ID')),' - using the first one found.'])
-            if new_node.filename not in self.messages: #why?
-                self.messages[new_node.filename] = []
-            self.messages[new_node.filename].append(message)
-            self._log_item(message)
+        for node in buffer.nodes:
+            self._add_node(node)
+            if node.frames:
+                self.frames[node.id] = []
+                for frame in node.frames:
+                    frame.source_node = node
+                    for t in frame.targets:
+                        if t.is_virtual and t.matching_string == "@self":
+                            t.is_node = True
+                            t.node_id = frame.source_node.id
+                    self.frames[node.id].append(frame)
 
-        new_node.parent_project = self.title
-        if new_node.id in self.access_history:
-            new_node.last_accessed = self.access_history[new_node.id]
+        if buffer.identifier:
+            self.buffers[buffer.identifier] = buffer
+        else:
+            self.files[buffer.filename] = buffer
+        self.run_hook('on_buffer_added', buffer)
 
-        self.h_content[new_node.id] = new_node.hashed_contents
+        for entry in buffer.meta_to_node:
+            keyname = entry.group(1)
+            source_node = self.get_node_from_position(
+                buffer.filename,
+                entry.span()[0])
+            target_node = self.get_node_from_position(
+                buffer.filename,
+                entry.span()[1] + 1)
+            if source_node and target_node:
+                source_node.metadata.add_entry(
+                    keyname,
+                    target_node,
+                    source_node,
+                    start_position=target_node.start_position,
+                    end_position=target_node.end_position)
+                target_node.is_meta = True
+                target_node.meta_key = keyname
+       
+        for node in buffer.nodes:
+            for entry in node.metadata.entries():
+                entry.from_node = node
+                if entry.tag_children:
+                    self._add_sub_tags(entry)
+                    self.dynamic_metadata_entries.append(entry)
+
+        if self.compiled and changed_ids:
+            for old_node_id in changed_ids:
+                self.run_hook('on_node_id_changed',
+                            self,
+                            old_node_id,
+                            changed_ids[old_node_id])
+            self._rewrite_changed_links(changed_ids)
+        self._mark_dynamic_nodes()
+        return buffer
+
+    def _verify_links_globally(self):
+        links = self.get_all_links()
+        for filename in links:
+            self._reverify_links(filename)
+
+    def _reverify_links(self, filename, buffer=None):
+        if not buffer and filename in self.files:
+            buffer = self.files[filename]
+        contents = buffer._get_contents()
+        for node in [n for n in buffer.nodes if not n.is_dynamic]:
+            rewrites = {}
+            for link in node.links:
+                if link.is_file:
+                    if link.is_missing and link.exists():
+                        rewrites[link] = ''.join([
+                            syntax.file_link_opening_wrapper,
+                            link.path,
+                            syntax.link_closing_wrapper])
+                    if not link.exists():
+                        rewrites[link] = ''.join([
+                            syntax.missing_file_link_opening_wrapper,
+                            link.path,
+                            syntax.link_closing_wrapper,
+                            link.suffix])
+                    continue
+                if not link.node_id or link.project_name or link.bound:
+                    continue
+                node_id = link.node_id
+                suffix = ' >>' if link.is_pointer else ' >'
+                if node_id not in self.nodes:
+                    title_only = node_id.split(syntax.resolution_identifier)[0]
+                    if title_only not in self.nodes and link.node_id not in rewrites:
+                        rewrites[link] = ''.join([
+                            syntax.missing_node_link_opening_wrapper,
+                            title_only,
+                            suffix])
+                elif link.is_missing and link not in rewrites:  # node marked missing but is there
+                    rewrites[link] = ''.join([
+                        syntax.link_opening_wrapper,
+                        link.node_id,
+                        suffix])
+            if rewrites:
+                for old_link in rewrites:
+                    contents = contents.replace(old_link.matching_string, rewrites[old_link])
+        return contents
+
+    def _add_all_sub_tags(self):
+        for entry in self.dynamic_metadata_entries:
+            self._add_sub_tags(entry)
+
+    def _rewrite_changed_links(self, changed_ids):
+        for old_id in list(changed_ids.keys()):
+            new_id = changed_ids[old_id]
+            if new_id in self.nodes:
+                for project_node in [n for n in self.nodes.values() if not n.is_dynamic]:
+                    links_to_change = {}
+                    for link in project_node.links:
+                        if link.node_id == old_id:
+                            links_to_change[old_id] = new_id
+                    if links_to_change:
+                        contents = project_node.file._get_contents()
+                        for node_id in list(links_to_change.keys()):
+                            replaced_contents = contents
+                            node_id_regex = re.escape(node_id)
+                            replaced_contents = re.sub(''.join([
+                                    syntax.node_link_opening_wrapper_match,
+                                    node_id_regex,
+                                    syntax.link_closing_wrapper
+                                    ]),
+                                utils.make_node_link(links_to_change[node_id]), replaced_contents)
+                            project_node.file.set_buffer_contents(replaced_contents, clear_messages=False)
+                            project_node.file.write_buffer_contents()
+ 
+    def _verify_frame_present_if_marked(self, node_id, buffer=None):
+        node = self.get_node(node_id)
+        if node and node.marked_dynamic and not node.is_dynamic:
+            dynamic_contents = node.contents_with_contained_nodes().strip()
+            if len(dynamic_contents) > 1 and dynamic_contents[:2] != "~?":
+                self._set_node_contents(node_id, dynamic_contents.replace('~', '~?', 1), buffer=buffer)
+                return False
+        return True      
+
+    def _resolve_duplicate_titles(self, node):
+        duplicate_titled_nodes = self._find_duplicate_title(node)
+        if duplicate_titled_nodes:
+            for d in duplicate_titled_nodes:
+                if d.resolution:
+                    continue
+                old_id = d.id
+                resolution = d.resolve_id(allocated_ids=self.nodes)
+                if not resolution['resolved_id']:
+                    message = {
+                    'top_message' : ''.join(['Dropping node ID "', node.id, '", ', resolution['reason'],
+                        '; node exists at %s '  % utils.make_node_link(d.id)]),
+                    'position_message': 'node exists at %s ' % utils.make_node_link(d.id),
+                    'position': node.start_position}
+                    self.log_item(node.filename, message)
+                    node.buffer.messages.append(message)
+                    node.has_errors = True
+                    node.buffer.has_errors = True
+                    return
+                else:
+                    d.id = resolution['resolved_id']
+                    self.nodes[resolution['resolved_id']] = d
+                    del self.nodes[old_id]
+                    if old_id in self.project_settings_nodes:
+                        self.project_settings_nodes.remove(old_id)
+                        self.project_settings_nodes.append(resolution['resolved_id'])
+                    self.run_hook('on_node_id_changed', self, old_id, resolution['resolved_id'])
+            resolution = node.resolve_id(allocated_ids=list(self.nodes))
+            if not resolution['resolved_id']:
+                message = {
+                    'top_message' : ''.join(['Dropping node ID "', node.id, '", ', resolution['reason'],
+                        '; node exists at %s'  % utils.make_node_link(d.id)]),
+                    'position_message': ''.join(['node exists at %s ' % utils.make_node_link(d.id), resolution['reason']]),
+                    'position': node.start_position}
+                node.buffer.messages.append(message)
+                node.buffer.has_errors = True
+                node.has_errors = True
+                self.log_item(node.filename, message)
+            else:
+                node.id = resolution['resolved_id']
+
+    def _add_node(self, new_node):
+   
         new_node.project = self
-        # TODO : it's not necessary to keep a copy of this
-        # inside the node. do it at the project level only. 
-        self.links_from[new_node.id] = new_node.links_from
         self.nodes[new_node.id] = new_node
-        self.update_links_in(new_node.id)
+        if new_node.title == 'project_settings':
+            self.project_settings_nodes.append(new_node.id)
+        self.run_hook('on_node_added', new_node)
 
-        if new_node.project_settings:
-            self._get_settings_from(new_node)
-
-    def _parse_meta_dates(self, node_id):
-        """ Parses dates (requires that timestamp_format already be set) """
-        for entry in self.nodes[node_id].metadata._entries:
-
-            if entry.dt_string:                    
-                dt_stamp = self._date_from_timestamp(entry.dt_string)
-                if dt_stamp:
-                    entry.dt_stamp = dt_stamp 
-                    if entry.keyname.lower() == self.settings['node_date_keyname'].lower():
-                        self.nodes[node_id].date = dt_stamp
-
-    def _date_from_timestamp(self, datestamp_string):
-        dt_stamp = None
-        try:
-            d = parse(datestamp_string)
-            if d.tzinfo == None:
-                 d = self.default_timezone.localize(d) 
-            return d
-        except:
-            pass
-
-        return None
-
-    def export_from_root_node(self, root_node_id):
-        export = UrtextExport(self)
-        contents = export.export_from(
-            root_node_id, 
-            kind='plaintext',
-            as_single_file=True)
-        return contents[0]
-    
-
-    def get_source_node(self, filename, position):
+    def get_source_node(self, filename, position):  # future
         if filename not in self.files:
             return None, None
-        exported_node_id = self.get_node_id_from_position(filename, position)
-        points = self.nodes[exported_node_id].export_points
+        exported_node = self.get_node_from_position(filename, position)
+        points = exported_node.export_points
         if not points:
             return None, None
-        node_start_point = self.nodes[exported_node_id].ranges[0][0]
 
         indexes = sorted(points)
         for index in range(0, len(indexes)):
-            if position >= indexes[index] and position < indexes[index+1]:
-                node, target_position = self.nodes[exported_node_id].export_points[indexes[index]]
+            if indexes[index] <= position < indexes[index + 1]:
+                node, target_position = exported_node.export_points[indexes[index]]
                 offset = position - indexes[index]
-                return node, target_position+offset
+                return node, target_position + offset
 
-    def _set_node_contents(self, node_id, contents):
-        """ project-aware alias for the Node set_content() method """
+    def _set_node_contents(self, node_id, contents, preserve_title=False, buffer=None):
+        """ project-aware alias for the Node _set_contents() method """
+        if buffer:
+            for node in buffer.nodes:
+                if node.id == node_id:
+                    node._set_contents(contents, preserve_title=preserve_title)
+                    return node.buffer
+        node = self.get_node(node_id)
+        if node:
+            node._set_contents(contents, preserve_title=preserve_title)
+            return node.file
 
-        self._parse_file(self.nodes[node_id].filename)
-        if node_id not in self.nodes:
-            print('NODE LOST')
-            print(contents)
-        self.nodes[node_id].set_content(contents, preserve_metadata=True)
-        self._parse_file(self.nodes[node_id].filename)
-        if node_id in self.nodes:
-            return self.nodes[node_id].filename
-        return False
+    def _mark_dynamic_nodes(self):
+        for frame in self._get_all_frames():
+            for node_id in frame.target_ids():
+                node = self.get_node(node_id)
+                if node:
+                    node.is_dynamic = True
 
-    def _adjust_ranges(self, filename, from_position, amount):
-        """ 
-        adjust the ranges of all nodes in the given file 
-        a given amount, from a given position
-        """
-        for node_id in self.files[os.path.basename(filename)].nodes:
-            number_ranges = len(self.nodes[node_id].ranges)
-            for index in range(number_ranges):
-                this_range = self.nodes[node_id].ranges[index]
-                if from_position >= this_range[0]:
-                    self.nodes[node_id].ranges[index][0] -= amount
-                    self.nodes[node_id].ranges[index][1] -= amount
-
-    def _full_file_contents(self, filename='', node_id=''):
-        if node_id:
-            filename = self.nodes[node_id].filename
-        if not filename:
-            return
-        with open(os.path.join(self.path, filename), 'r', encoding='utf-8') as theFile:
-            file_contents = theFile.read()
-            theFile.close()
-        return file_contents
-
-    def _set_file_contents(self, filename, contents):
-        with open(os.path.join(self.path, filename), 'w', encoding='utf-8') as theFile:
-            theFile.write(contents)
-
-    def import_file(self, filename):
-
-        with open(
-                os.path.join(self.path, filename),
-                'r',
-                encoding='utf-8',
-        ) as theFile:
-            full_file_contents = theFile.read()
-            theFile.close()
-
-        date = creation_date(os.path.join(self.path, filename))
-        now = datetime.datetime.now()
-        contents = '\n\n'
-        contents += "id::" + self.next_index() + '\n'
-        if self.settings['node_date_keyname']:
-            contents += self.settings['node_date_keyname']+'::' + self.timestamp(date) + '\n'
-        contents += 'imported::' + self.timestamp(now) + '\n'
-
-        full_file_contents += contents
-
-        self._set_file_contents(filename,full_file_contents)
-
-        return self._parse_file(filename)
-
-    def get_node_relationships(self, 
-        node_id, 
-        omit=[]):
-
-        return Interlinks(self, 
-            node_id, 
-            omit=omit).render_tree()
-
-    def _list_messages(self):
-        pass
-        output = []
-        for filename in self.messages:
-            if self.messages[filename]:
-                output.append('f>./'+filename)
-                output.extend(self.messages[filename])
-        return '\n'.join(output)
-
-    def _populate_messages(self):
-        if self.settings['log_id'] and self.settings['log_id'] in self.nodes:
-            output = self._list_messages()
-            output += '\n'+UrtextNode.build_metadata(
-                {   'id':self.settings['log_id'],
-                    'title':'Log',
-                    'timestamp' : self.timestamp(datetime.datetime.now())
-                })
-            self.messages = {}
-            changed = self._set_node_contents(self.settings['log_id'], output)     
-            if changed:
-                return self.nodes[self.settings['log_id']].filename
     """
     Removing and renaming files
     """
-    def _remove_file(self, filename):
-       
+
+    def drop_file(self, filename):
         if filename in self.files:
-            
-            for node_id in self.files[filename].nodes: 
-                # remove this node's dynamic definitions
-                for index, definition in enumerate(self.dynamic_nodes):
-                    if definition.source_id == node_id:
-                        del self.dynamic_nodes[index]
-                
-                self.nodes[node_id].tree_node.parent = None
-                self.nodes[node_id].tree_node = None
-                self._remove_sub_tags(node_id)                
-                del self.links_from[node_id]
-                self.remove_links_in(node_id)
-                del self.nodes[node_id]
-                del self.h_content[node_id]
+            self.drop_buffer(self.files[filename])
 
-            for a in self.files[filename].alias_nodes:
-                a.parent = None
-                a.children = []
+    def drop_buffer(self, buffer):
+        self.run_hook('on_buffer_dropped', buffer.filename)
+        if buffer.identifier and buffer.identifier in self.buffers:
+            del self.buffers[buffer.identifier]
+        file_nodes = [n for n in self.nodes.values() if n.filename == buffer.filename]
+        for node in file_nodes:
+            self._drop_node(node)
+        if buffer.filename in self.files:
+            del self.files[buffer.filename]
+        if buffer.filename in self.messages:
+            self.messages[buffer.filename] = []
 
-            del self.files[filename]
+    def _drop_node(self, node):
+        if node.id in self.nodes:
+            self._remove_dynamic_metadata_entries(node.id)
+            if node.id in self.project_settings_nodes:
+                self.project_settings_nodes.remove(node.id)
+            self._remove_sub_tags(node.id)
+            if node.id in self.frames:
+                del self.frames[node.id]
+            del self.nodes[node.id]
+            del node
 
     def delete_file(self, filename):
         """
         Deletes a file, removes it from the project,
-        and returns a future of modified files.
         """
-        filename = os.path.basename(filename)
+        self.run_hook('before_file_deleted', self, filename)
+        self.run_editor_method('close_file', filename)
         if filename in self.files:
-            node_ids = list(self.files[filename].nodes)
-            for node_id in node_ids:
-                while node_id in self.navigation:
-                    index = self.navigation.index(node_id)
-                    del self.navigation[index]
-                    if self.nav_index > index: # >= ?
-                        self.nav_index -= 1            
-            self.remove_file(filename, async=False)
-            os.remove(os.path.join(self.path, filename))
-            return node_ids
-        return []
+            self.drop_buffer(self.files[filename])
+        os.remove(filename)
+        if filename in self.messages:
+            del self.messages[filename]
+        self.run_hook('after_file_deleted', self, filename)
+
+    def new_file_node(self,
+                      path=None,
+                      contents=None,
+                      metadata=None,
+                      open_file=True,
+                      ensure_timestamp_unique=True):
+
+        contents_format = None
+        if contents is None:
+            contents_format = bytes(
+                self.get_single_setting('new_file_node_format').text,
+                "utf-8"
+            ).decode("unicode_escape")
+        if metadata is None:
+            metadata = {}
     
-    def _handle_renamed(self, old_filename, new_filename):
-        new_filename = os.path.basename(new_filename)
-        old_filename = os.path.basename(old_filename)
-        self.files[new_filename] = self.files[old_filename]
-        for node_id in self.files[new_filename].nodes:
-            self.nodes[node_id].filename = new_filename
-            self.nodes[node_id].full_path = os.path.join(
-                self.path, new_filename)
-        if new_filename != old_filename:
-            del self.files[old_filename]
+        new_filename_setting = self.get_single_setting('new_filenames_template').text
+        filename = self._fill_template(new_filename_setting,
+            filename_safe=True,
+            ensure_timestamp_unique=ensure_timestamp_unique) 
+        filename += '.urtext'
 
-    """ 
-    Methods for filtering files to skip 
-    """
-    def _filter_filenames(self, filename):
-        """ Filters out files to skip altogether """
-        """ Omit system files """
-        if filename[0] == '.':
-            return None
-        if not filename.endswith('.txt'):
-            # FUTURE:
-            # save and check these in an optional list of other extensions 
-            # set from project_settings 
-            return None
-            
-        return filename
-    
-    def new_file_node(self, 
-        date=None, 
-        metadata = {}, 
-        node_id=None,
-        one_line=None
-        ):
-        
-        if date == None:
-            date = datetime.datetime.now()
+        new_node_contents, cursor_pos = self._new_node(
+            contents=contents,
+            contents_format=contents_format,
+            metadata=metadata)
 
-        if one_line == None:
-            one_line = self.settings['always_oneline_meta']
-
-        if not node_id:
-            node_id = self.next_index()   
-        metadata['id'] = node_id
-        if self.settings['node_date_keyname']:
-            metadata[self.settings['node_date_keyname']] = self.timestamp(date)
-        metadata['from'] = platform.node()
-        metadata_block = UrtextNode.build_metadata(metadata, one_line=one_line)
-        contents = '\n\n\n' +metadata_block
-        filename = node_id + '.txt'
-
-        self._set_file_contents( filename, contents )  
-        self._parse_file(filename)
-        return { 
-                'filename':filename, 
-                'id':node_id
-                }
- 
-    def add_inline_node(self, 
-            date=None, 
-            contents='',
-            metadata={},
-            one_line=None,
-            trailing_id=False,
-            include_timestamp=False):
-              
-        if one_line == None:
-            one_line = self.settings['always_oneline_meta']
-            
-        node_id = self.next_index()
-
-        if not trailing_id:
-            metadata['id']=node_id
-        
-        if include_timestamp:
-
-            if date == None:
-                date = datetime.datetime.now()
- 
-            if 'node_date_keyname' in self.settings:
-                metadata[self.settings['node_date_keyname']] = self.timestamp(date)
- 
-        new_node_contents = ''.join([
-            '{ ', 
-            contents,
-            '  ',
-            UrtextNode.build_metadata(metadata, one_line=one_line),
-            ' '])
-        if trailing_id:
-            new_node_contents += node_id   
-        new_node_contents += "}"
-        return (new_node_contents, node_id)
-
-    # def insert_interlinks(self, node_id, one_line=True):
-    #     new_node = self.add_inline_node()
-    #     insertion = new_node[0]
-    #     new_node_id = new_node[1]
-    #     dynamic_def =   '[[ id('+ new_node_id +'); '
-    #     dynamic_def +=  'interlinks:'+node_id
-    #     dynamic_def += ' ]]'
-
-    #     return '\n'.join([insertion, dynamic_def])
-
-    def add_compact_node(self, 
-            date=None, 
-            contents='', 
-            metadata={},
-        ):
-        if date == None:
-            date = datetime.datetime.now()
-        metadata['id']=self.next_index()
-        if self.settings['node_date_keyname']:
-            metadata[self.settings['node_date_keyname']] = self.timestamp(date)
-        metadata_block = UrtextNode.build_metadata(metadata, one_line=True)
-        return '^  '+contents + ' ' + metadata_block
-
-    def _prefix_length(self):
-        """ Determines the prefix length for indexing files (requires an already-compiled project) """
-
-        prefix_length = 0
-        num_files = len(self.files)
-        while num_files > 1:
-            prefix_length += 1
-            num_files /= 10
-        return prefix_length
-
-    """
-    Project Navigation
-    """
-
-    def nav_advance(self):
-        if not self.navigation:
-            return None
-        
-        # return if the index is already at the end
-        if self.nav_index == len(self.navigation) - 1:
-            self._log_item('project index is at the end.')
-            return None
-        
-        self.nav_index += 1
-       
-        return self.navigation[self.nav_index]
-
-
-    def nav_new(self, node_id):
-
-        # don't re-remember consecutive duplicate links
-        if -1 < self.nav_index < len(self.navigation) and node_id == self.navigation[self.nav_index]:
-            return
-
-        if node_id in self.nodes and self.nodes[node_id].filename not in self.ql['last_accessed']:
-            self.ql.setdefault('last_accessed',[])
-            self.ql['last_accessed'].insert(0, self.nodes[node_id].filename)
-            self.ql['last_accessed'] = self.ql['last_accessed'][:20]
-            self.store()
-            
-        # add the newly opened file as the new "HEAD"
-        self.nav_index += 1
-        del self.navigation[self.nav_index:]
-        self.navigation.append(node_id)
-        self.executor.submit(self._push_access_history, node_id)
-         
-    def nav_reverse(self):
-        if not self.navigation:
-            return None
-
-        if self.nav_index == 0:
-            self._log_item('project index is already at the beginning.')
-            return None
-
-        self.nav_index -= 1
-        last_node = self.navigation[self.nav_index]
-        
-        return last_node
-
-    def nav_current(self):
-
-        if self.navigation and self.nav_index > -1:
-            return self.navigation[self.nav_index]
-        alternative = self.get_home()
-        if not alternative:
-            alternative = self.random_node()
-        return alternative
-
-    """ 
-    Cataloguing Nodes
-    """
-
-    def unindexed_nodes(self):
-        """ 
-        returns an array of node IDs of unindexed nodes, 
-        in reverse order (most recent) by date 
-        """
-
-        unindexed_nodes = []
-        for node_id in list(self.nodes):   
-            if not self.nodes[node_id].metadata.get_first_value('index'):
-                unindexed_nodes.append(node_id)
-                
-        sorted_unindexed_nodes = sorted(
-            unindexed_nodes,
-            key=lambda node_id: self.nodes[node_id].date,
-            reverse=True)
-        return sorted_unindexed_nodes
-
-    def indexed_nodes(self):
-        """ returns an array of node IDs of indexed nodes, in indexed order """
-
-        indexed_nodes_list = []
-        for node_id in list(self.nodes):
-            index = self.nodes[node_id].metadata.get_first_value('index')
-            if index:
-                indexed_nodes_list.append([
-                    node_id,
-                    index
-                ])
-        sorted_indexed_nodes = sorted(indexed_nodes_list, key=lambda item: item[1])
-        for index, node in enumerate(sorted_indexed_nodes):
-            sorted_indexed_nodes[index] = node[0] 
-        return sorted_indexed_nodes
-
-    def all_nodes(self):
-        all_nodes = self.indexed_nodes()
-        all_nodes.extend(self.unindexed_nodes())
-        return all_nodes
-
-    def root_nodes(self, primary=False):
-        """
-        Returns the IDs of all the root (file level) nodes
-        """
-        root_nodes = []        
-        for filename in self.files:
-            if not primary:
-                root_nodes.extend(self.files[filename].root_nodes)
-            else:
-                if not self.files[filename].root_nodes:
-                    self._log_item('DEBUGGING (project.py): No root nodes in f>'+filename)
-                else:
-                    root_nodes.append(self.files[filename].root_nodes[0])
-        return root_nodes
-          
-    def get_node_id_from_position(self, filename, position):
-
-        filename = os.path.basename(filename)
-        if filename in self.files:
-            for node_id in self.files[filename].nodes:
-                for r in self.files[filename].nodes[node_id].ranges:
-                    if position in range(r[0],r[1]):
-                        return node_id
-        return None
-
-    def get_links_to(self, to_id):
-        """
-        Returns the list of all nodes linking to the passed id
-        """
-        if to_id in self.links_to:
-            return [i for i in self.links_to[to_id] if i in self.nodes]
-        return []
-
-    def get_links_from(self, from_id):
-        """
-        Returns the list of all nodes linking to the passed id
-        """
-        if from_id in self.links_from:
-            return [i for i in self.links_from[from_id] if i in self.nodes]
-        return []
-
-    def get_link(self, string, position=0):
-        """ 
-        Given a line of text passed from an editor, 
-        opens a web link, file, or returns a node,
-        in that order. Returns a tuple of type and success/failure or node ID
-        """
-    
-        link = None
-    
-        # start after cursor    
-        link = self.find_link(string[position:])
-
-        # then work backwards along the whole line
-        if not link[0]:
-            h = position
-            while h > -1:
-                link = self.find_link(string[h:])
-                if link[0]:
-                    break
-                h -= 1
-
-        
-        if not link[0]:
-            self._log_item('No node ID, web link, or file found on this line.')
-            return None
-
-        if link[0] == 'NODE' and link[1] not in self.nodes:
-            self._log_item('Node ' + link[1] + ' is not in the project')
-            return None
-
-        return link
-
-    def find_link(self, string):
-
-        node_link_regex = re.compile('(\|?.*?[^f]>{1,2})(\w{3})(\:\d{1,10})?')
-        editor_file_link_regex = re.compile('(f>{1,2})([^;]+)')
-        url_scheme = re.compile('http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\), ]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-
-        kind = ''
-        result = None
-        link = ''
-        position = 0
-        result = re.search(node_link_regex, string)        
-        link_location = None
-        if result:
-            kind = 'NODE'
-            link_location = result.span()
-            link = result.group(2) # node id
-            if len(result.groups()) > 2:
-                position = result.group(3) 
-                if position:
-                    position = int(position[1:])
-                else:
-                    position = 0
+        if path:
+            filename = os.path.join(path, filename)
         else:
-            result = re.search(editor_file_link_regex, string)            
-            if result:
-                kind='EDITOR_LINK'
-                link = os.path.join(self.path, result.group(2))
+            filename = os.path.join(self.entry_path, filename)
+
+        if os.path.isfile(filename):
+            suffix = 2
+            resolved_filename = filename
+            while os.path.isfile(resolved_filename):
+                resolved_filename = filename.replace('.urtext', ' (dup name %s).urtext' % str(suffix))
+                suffix += 1
+            filename = resolved_filename
+
+        utils.write_file_contents(filename, new_node_contents)
+        new_file = self.urtext_file(filename, self)
+        buffer = self._parse_file(filename)
+
+        if buffer.has_errors and 'timestamp or parent title exists in another node' in buffer.messages[0]:
+            if contents is None:
+                new_node_contents, cursor_pos = self._new_node(
+                    contents=contents,
+                    ensure_timestamp_unique=True,
+                    contents_format=contents_format,
+                    metadata=metadata)
+            utils.write_file_contents(filename, new_node_contents)
+            self.drop_buffer(buffer)
+            new_file = self.urtext_file(filename, self)
+            buffer = self._parse_file(filename)
+
+        if filename in self.files:
+            self.run_hook('on_new_file_node',
+                          self.files[filename].root_node.id)
+            if open_file:
+                self.open_node(self.files[filename].root_node.id, position=cursor_pos)
+            return {
+                'filename': filename,
+                'root_node': self.files[filename].root_node,
+                'id': buffer.root_node.id,
+                'cursor_pos': cursor_pos
+            }
+
+    def new_inline_node(self,
+                        metadata=None,
+                        contents=''):
+
+        if metadata is None:
+            metadata = {}
+        contents_format = None
+        new_node_contents, cursor_pos = self._new_node(
+            contents=contents,
+            contents_format=contents_format,
+            metadata=metadata)
+
+        return {
+            'contents': ''.join(['{', new_node_contents, '}']),
+            'cursor_pos': cursor_pos
+        }
+
+    def _new_node(self,
+                  contents=None,
+                  contents_format=None,
+                  ensure_timestamp_unique=True,
+                  metadata=None):
+
+        cursor_pos = 0
+        if contents is None:
+            contents = ''
+
+        if contents_format:
+            new_node_contents = self._fill_template(contents_format, ensure_timestamp_unique=True)
+            if '$cursor' in new_node_contents:
+                cursor_pos = len(new_node_contents.split('$cursor')[0])
+                new_node_contents = new_node_contents.replace('$cursor','')
+        else:
+            if not metadata:
+                metadata = {}
+            new_node_contents = contents
+            new_node_contents += self.urtext_node.build_metadata(metadata)
+
+        return new_node_contents, cursor_pos
+
+    def _fill_template(self,
+        template_string,
+        unwrap_timestamps=False,
+        filename_safe=False,
+        ensure_timestamp_unique=False):
+    
+        if '$timestamp' in template_string:
+            timestamp = self.timestamp()
+            if ensure_timestamp_unique and timestamp.unwrapped_string in [n.resolution for n in self.nodes.values()]:
+                timestamp = self.timestamp(add_seconds=True) 
+            if unwrap_timestamps:
+                timestamp = timestamp.unwrapped_string
             else:
-                result = re.search(url_scheme, string)                
-                if result:
-                    kind ='HTTP'
-                    link = result.group()
-
+                timestamp = timestamp.wrapped_string
+            template_string = template_string.replace('$timestamp', timestamp)
+        template_string = template_string.replace(
+            '$device_keyname',
+            platform.node())
+        if filename_safe:
+            template_string = utils.strip_illegal_file_characters(template_string)
+        return template_string
         
-        return (kind, link, position, link_location)
-             
-    def build_collection(self):
-        """ Returns a collection of context-aware metadata anchors """ 
-        s = UrtextDynamicDefinition('')
-        return self._collection([self.nodes[j] for j in self.nodes], s)
+    def add_compact_node(self,
+                         contents='',
+                         metadata=None):
+        if metadata is None:
+            metadata = {}
+        metadata_block = self.urtext_node.build_metadata(metadata)
+        if metadata_block:
+            metadata_block = ' ' + metadata_block
+        return '• ' + contents.strip() + metadata_block
 
-    def _is_duplicate_id(self, node_id, filename):
-        """ private method to check if a node id is already in the project """
+    def _get_all_frames(self):
+        return list(chain.from_iterable(self.frames.values()))
+
+    def __get_all_dynamic_targets(self):
+        targets = []
+        for frame in self._get_frames():
+            targets.extend(frame.target_ids())
+        return targets
+
+    def _get_frames(self, target_node=None, source_node=None, flags=None):        
+        frames = []
+        for frame in self._get_all_frames():
+            if target_node and (target_node.id in frame.target_ids()):
+                frames.append(frame)
+            if source_node:
+                if frame.source_node.id == source_node.id:
+                    frames.append(frame)
+            for target in self.virtual_outputs:
+                if source_node and frame.source_node.id == source_node.id:
+                    frames.append(frame)
+                elif not source_node:
+                    frames.append(frame)
+            if flags:
+                if not isinstance(flags, list):
+                    flags = [flags]
+                for f in flags:
+                    if frame.have_flags(f) and frame not in frames:
+                        frames.append(frame)
+        return frames
+
+    def _remove_dynamic_metadata_entries(self, node_id):
+        for entry in list(self.dynamic_metadata_entries):
+            if entry.from_node == self.nodes[node_id]:
+                self.dynamic_metadata_entries.remove(entry)
+
+    def _remove_sub_tags(self, source_id):
+        source_node = self.nodes[source_id]
+        for target_id in source_node.target_nodes:
+            if target_id in self.nodes:
+                self.nodes[target_id].metadata.clear_from_source(source_node)
+
+    def open_node(self, node_id, position=None):
+        node = self.get_node(node_id)
+        if not node:
+            if self.compiled:
+                message = node_id + ' not in current project'
+            else:
+                message = 'Project is still compiling'
+            self.handle_info_message(message)
+            return False
+
+        node_range = (node.ranges[0][0], node.ranges[-1][1])
+        if position is None:
+            position = node.start_position
+        self.run_editor_method(
+            'open_file_to_position',
+            node.filename,
+            character=position,
+            highlight_range=node_range)
+        self.project_list.notify_node_opened()
+        self.close_inactive()
+        self.visit_node(node_id)
+
+    def open_home(self):
+        home_node_id = self.get_home() 
+        if not home_node_id:
+            if not self.compiled:
+                if not self.home_requested:
+                    self.handle_info_message('Project is compiling. Home will be shown when found.')
+                    self.home_requested = True
+                timer = threading.Timer(.5, self.open_home)
+                timer.start()
+                return timer
+            else:
+                self.home_requested = False
+                self.handle_info_message('No home node for this project')
+                return False
+        self.home_requested = False
+        if home_node_id in self.nodes:
+            return self.open_node(home_node_id)
+        self.handle_info_message('Home node set as "%s" but not in project' % home_node_id)
+
+    def handle_info_message(self, message):
+        print(message)
+        self.run_editor_method('popup', message)
+
+    def handle_error_message(self, message):
+        print(message)
+        self.run_editor_method('error_message', message)
+
+    def sort_for_node_browser(self, nodes=None):
+        if not nodes:
+            nodes = list(self.nodes.values())
+        return self._sort_nodes(nodes, self.get_setting_as_text('node_browser_sort'), reverse=True)
+
+    def sort_for_meta_browser(self, nodes):
+        meta_browser_key = self.get_single_setting('meta_browser_key')
+        if meta_browser_key:
+            meta_browser_key = meta_browser_key.text
+            nodes = [n for n in nodes if n.metadata.get_first_value(meta_browser_key)]
+            return self._sort_nodes(nodes, [meta_browser_key])
+        meta_browser_sort_setting = self.get_setting_as_text('meta_browser_sort_nodes_by')
+        if meta_browser_sort_setting:
+            return self._sort_nodes(nodes, meta_browser_sort_setting)
+        return nodes
+
+    def _sort_nodes(self, nodes, keys, reverse=False):
+        remaining_nodes = nodes
+        sorted_nodes = []
+        use_timestamp_setting = self.get_setting_as_text('use_timestamp')
+        detail_key = self.get_single_setting('node_browser_detail').text
+        for k in keys:
+            use_timestamp = k in use_timestamp_setting
+            node_group = [r for r in remaining_nodes if r.metadata.get_first_value(k) is not None]
+            remaining_nodes = [r for r in remaining_nodes if r not in node_group]
+            if node_group:
+                if use_timestamp:
+                    node_group = sorted(
+                        node_group,
+                        key=lambda node: node.metadata.get_first_value(k).timestamp if node.metadata.get_first_value(
+                            k) else None,
+                        reverse=reverse)
+                else:
+                    node_group = sorted(
+                        node_group,
+                        key=lambda n: n.metadata.get_first_value(k), reverse=reverse)
+                for node in node_group:
+                    if not detail_key:
+                        detail_key = k
+                    detail = node.metadata.get_first_value(detail_key)
+                    if detail:
+                        if detail_key in use_timestamp_setting:
+                            detail = detail.timestamp.wrapped_string
+                        else:
+                            detail = detail.text
+                    else:
+                        detail = ''
+                    node.display_detail = detail
+                sorted_nodes.extend(node_group)
+        sorted_nodes.extend([r for r in remaining_nodes if r not in sorted_nodes])
+        return sorted_nodes
+
+    def get_node_from_position(self, filename, position, identifier=None):
+        if identifier and identifier in self.buffers:
+            return self.buffers[identifier].get_node_from_position(position)
+        if filename in self.files:
+            return self.files[filename].get_node_from_position(position)
+
+    def get_node(self, node_id):
         if node_id in self.nodes:
-            return self.nodes[node_id].filename
-        return False
+            return self.nodes[node_id]
 
-    def _log_item(self, item):
-        if self.settings['console_log']:
-            print(item)
-        
-    def timestamp(self, date):
-        """ Given a datetime object, returns a timestamp in the format set in project_settings, or the default """
+    def get_links_to(self, to_id, include_dynamic=True):
+        links_to = [n for n in self.nodes.values() if to_id in n.links_ids()]
+        if not include_dynamic:
+            links_to = [n for n in links_to if not n.is_dynamic]
+        return links_to
 
-        if date.tzinfo == None:
-            date = self.default_timezone.localize(date)    
+    def get_links_from(self, from_id, include_dynamic=True):
+        from_node = self.get_node(from_id)
+        if from_node:
+            links = from_node.links_ids()
+            links_from = [l for l in links if l in self.nodes]
+            if not include_dynamic:
+                links_from = [link for link in links_from if not self.nodes[link].is_dynamic]
+            return [self.nodes[n] for n in links_from]
+        return []
 
-        timestamp_format = '<' + self.settings['timestamp_format'] + '>'
-        return date.strftime(timestamp_format)
+    def get_all_links(self):
+        links = {}
+        for node in self.nodes.values():
+            links[node.filename] = links.get(node.filename, [])
+            links[node.filename].extend(node.links)
+        return links
 
-    def get_log_node(self):
-        return self.settings['log_id']
+    def _find_duplicate_title(self, node):
+        return [n for n in self.nodes.values() if n.title == node.title]
 
-    def _get_settings_from(self, node):
-        single_values = [
-            'format_string',
-            'home',
-            'project_title',
-            'google_auth_token',
-            'google_calendar_id',
-            'node_date_keyname',
-            'log_id',
-            'timestamp_format'
-        ]
-        single_boolean_values = [
-            'always_oneline_meta',
-            'preformat',
-            'console_log',
-            'atomic_rename',
-        ]
+    def log_item(self, filename, message):
+        self.messages.setdefault(filename, [])
+        if message not in self.messages[filename]:
+            self.messages[filename].append(message)
+        if self.setting_is_true('console_log'):
+            print(str(filename) + ' : ' + message['top_message'])
 
-        for entry in node.metadata._entries:
-            key = entry.keyname
-            values = entry.values
-           
-            if key == 'project_title':
-                # this one sets a project object property, not the settings dict
-                self.title = values[0]
-                continue
-
-            if key == 'numerical_keys':
-                self.settings['numerical_keys'].extend(values)
-                continue
-
-            if key == 'filenames':
-                #always a list
-                self.settings['filenames'] = values
-                continue
-
-            if key in single_boolean_values:
-                self.settings[key] = True if values[0].lower() == 'true' else False
-                continue
-
-            if key in single_values:
-                self.settings[key] = values[0]
-                continue
-
-            if key not in self.settings:
-                self.settings[key] = []                                
-
-            self.settings[key].extend(values)
-
-        self.default_timezone = timezone(self.settings['timezone'][0])
+    def timestamp(self, date=None, as_string=False, add_seconds=False):
+        """ 
+        Returns a timestamp in the format set in project_settings, or the default 
+        """
+        if date is None:
+            date = datetime.datetime.now(
+                datetime.timezone.utc
+            ).astimezone()
+        ts_format = self.get_single_setting('timestamp_format').text
+        if add_seconds:
+            if '%' in ts_format and '%S' not in ts_format:
+                ts_format = ts_format.replace('%M', '%M:%S')
+        if as_string:
+            return ''.join([
+                syntax.timestamp_opening_wrapper,
+                date.strftime(ts_format),
+                syntax.timestamp_closing_wrapper,
+            ])
+        return UrtextTimestamp(
+            date.strftime(ts_format))
 
     def get_home(self):
-        return self.settings['home']
+        home_node = self.get_single_setting('home')
+        if home_node:
+            links = home_node.links()
+            if links and links[0].is_node:
+                return links[0].node_id
+            return home_node.text
 
-    def next_index(self):
-        index = random.choice(list(self._node_id_generator()))
-        while ''.join(index) in self.nodes:
-            index = random.choice(list(self._node_id_generator()))
-        return ''.join(index)
-
-    def pop_node(self, position=None, filename=None, node_id=None):
-        """
-        Pops a node asyncronously, making sure that if the file was saved and on_modified
-        was called in the same calling function, this completes before evaluating
-        the node_id from the position.
-
-        Returns a future containing a list of modified files as the result.
-        """
-        #return self.executor.submit(self._pop_node, position=position, filename=filename, node_id=node_id)        
-        return self._pop_node( position=position, filename=filename, node_id=node_id)
-
-    def _pop_node(self, position=None, filename=None, node_id=None):
- 
-        if not node_id:
-            node_id = self.get_node_id_from_position(filename, position)
- 
-        if not node_id:
-            print('No node ID or duplicate Node ID')
-            return None
-
-        if self.nodes[node_id].root_node:
-            print(node_id+ ' is already a root node.')
-            return None
-
-        start = self.nodes[node_id].ranges[0][0]
-        end = self.nodes[node_id].ranges[-1][1]
-        file_contents = self._full_file_contents(node_id=node_id)
-        
-        popped_node_id = node_id
-
-        filename = self.nodes[node_id].filename
-
-        popped_node_contents = file_contents[start:end].strip()
-
-        # special case:
-        # for popped nodes with trailing IDs, manually repopulate the node ID at file level.
-        if self.nodes[node_id].trailing_node_id:
-            popped_node_contents = popped_node_contents[:-3]
-            popped_node_contents += 'id::'+node_id+'; '
-
-        remaining_node_contents = ''.join([
-            file_contents[0:start - 2],
-            '\n| ',
-            self.nodes[popped_node_id].title,
-             ' >>',
-            popped_node_id,
-            '\n',
-            file_contents[end + 2:]])
-       
-        with open (os.path.join(self.path, filename), 'w', encoding='utf-8') as f:
-            f.write(remaining_node_contents)
-        self._parse_file(filename) 
-
-        # new file
-        with open(os.path.join(self.path, popped_node_id+'.txt'), 'w',encoding='utf-8') as f:
-            f.write(popped_node_contents)
-        self._parse_file(popped_node_id+'.txt') 
-        self._compile()  
-
-    def pull_node(self, string, current_file, current_position):
-        """ File must be saved in the editor first for this to work """
-        if self.is_async:
-            return self.executor.submit(self._pull_node, string, current_file, current_position) 
-        else:
-            self._pull_node(string, current_file, current_position)
-    
-    def _pull_node(self, string, current_file, current_position):
-
-        link = self.get_link(string)
-        
-        if not link or link[0] != 'NODE': 
-            return None
-        
-        node_id = link[1]
-        if node_id not in self.nodes: 
-            return None
-
-        current_node = self.get_node_id_from_position(current_file, current_position)
-        if not current_node:
-            return None
-
-        start = self.nodes[node_id].ranges[0][0]
-        end = self.nodes[node_id].ranges[-1][1]
-        
-        contents =self._full_file_contents(filename=self.nodes[node_id].filename)
-        replaced_file_contents = ''.join([contents[0:start],contents[end:len(contents)]])
-
-        if self.nodes[node_id].root_node:
-            self.delete_file(self.nodes[node_id].filename)  
-        else:
-            self._set_file_contents(self.nodes[node_id].filename, replaced_file_contents)
-            self._parse_file(self.nodes[node_id].filename)
-        pulled_contents = contents[start:end]
-        full_current_contents = self._full_file_contents(current_file)
-
-        # here we need to know the exact location of the returned link within the file
-        span = link[3]
-        replacement = string[span[0]:span[1]]
-        wrapped_contents = ''.join(['{',pulled_contents,'}'])
-        replacement_contents = full_current_contents.replace(replacement, wrapped_contents)
-        self._set_file_contents(current_file, replacement_contents)
-        self._parse_file(current_file)
-        
-        return self._compile()  
-
-    def titles(self):
-        title_list = {}
-        for node_id in self.nodes:
-            title_list[self.nodes[node_id].title] = (self.title, node_id)
-        return title_list
-
-    def complete_meta_value(self, fragment):
-        fragment = fragment.lower().strip()
-        length = len(fragment)
-
-        for keyname in self.keynames:
-            for value in keyname:
-                if fragment == value[:length].lower():
-                    return (keyname, value)
-        return u''        
+    def get_node_from_editor(self):
+        filename = self.project_list.run_editor_method('get_current_filename')
+        position = self.project_list.run_editor_method('get_position')
+        return self.get_node_from_position(filename, position)
 
     def get_all_meta_pairs(self):
         pairs = []
-        ignore = [ 'id' ]
-        for k in [kn for kn in self.keynames if kn not in ignore]: 
-            for value in list(self.keynames[k]):
-                meta_string = ''.join([k, '::', str(value) ])            
-                pairs.append(meta_string)
+        for n in self.nodes.values():
+            for k in n.metadata.get_keys().keys():
+                values = n.metadata.get_values(k)
+                assigner = syntax.metadata_assignment_operator
+                hash_key_setting = self.get_single_setting('hash_key')
+                if k == hash_key_setting.text:
+                    k = '#'
+                    assigner = ''
+                for v in values:
+                    node_as_value = v.node()
+                    if node_as_value:
+                        pairs.append(utils.make_node_link(node_as_value.id))
+                    else:
+                        pairs.append(''.join([
+                            k,
+                            assigner,
+                            v.text,  # num would need to be converted to text anyway
+                        ]))
+
         return list(set(pairs))
 
-    def random_node(self):
-        if self.nodes:
-            node_id = random.choice(list(self.nodes))
-            return node_id
-    
-    def replace_links(self, original_id, new_id='', new_project=''):
-        if not new_id and not new_project:
-            return None
-        replacement = '>'+original_id
-        if new_id:
-            replacement = '>'+new_id
-        if new_project:
-            replacement = '{"'+new_project+'"}'+replacement
-        patterns_to_replace = [
-            r'\|.*?\s>{1,2}',   # replace title markers before anything else
-            r'[^\}]>>',         # then node pointers
-            r'[^\}]>' ]         # finally node links
+    def close_inactive(self):
+        if self.compiled and self.setting_is_true('close_inactive_views'):
+            extensions = self.get_setting_as_text('file_extensions')
+            extensions = [e.lstrip('.') for e in extensions]
+            self.run_editor_method('close_inactive', extensions=extensions)
 
-        for filename in list(self.files):
-            contents = self._full_file_contents(filename)
-            new_contents = contents
-            for pattern in patterns_to_replace:
-                links = re.findall(pattern + original_id, new_contents)
-                for link in links:
-                    new_contents = new_contents.replace(link, replacement, 1)
-            if contents != new_contents:
-                self._set_file_contents(filename, new_contents)
-                if self.is_async:
-                    self.executor.submit(self._file_update, filename)
-                else:
-                    self._file_update(filename)
-                    
-    ## file modification 
+    def on_modified(self, filename, flags=[]):
+        if self.compiled and filename in self._get_included_files():
+            self._compile_file(filename, flags=['-on_modified'] + flags)    
+        self.close_inactive()
+        self._sync_file_list()
 
-    def on_modified(self, filename):
-        """ 
-        Main method to keep the project updated. 
-        Should be called whenever file or directory content changes
-        Returns a FULL PATH to the new filename if the filename changes by atomic rename
-        """
-        do_not_update = ['history','files']
-        
-        filename = os.path.basename(filename)
-        if filename in do_not_update or '.git' in filename:
-            return (True, '')
-        self._log_item('MODIFIED f>' + filename +' - Updating the project object')
-        if self.is_async:
-            return self.executor.submit(self._file_update, filename)
-        return self._file_update(filename)
-    
-    def _file_update(self, filename):
-        
-        rewritten_contents = self._rewrite_titles(filename)
-        if rewritten_contents:
-            self._set_file_contents(filename, rewritten_contents)
-        self._parse_file(filename)
-        full_filename = filename
-        # if self.settings['atomic_rename']:
-        #     renamed = self._rename_file_nodes(filename)
-        #     if os.path.join(self.path, filename) in renamed:
-        #         full_filename = renamed[os.path.join(self.path, filename)]
-        self._compile()
-        """ returns filename with full path"""
-        return full_filename
+    def visit_node(self, node_id):
+        self.run_hook('on_node_visited', self, node_id)
+        if self.compiled:
+            self.run_editor_method('status_message', ''.join([self.title(),' (compiled)']))
+            return self.visit_file(self.nodes[node_id].filename)
 
-    def _check_for_new_files(self):
-        filelist = os.listdir(self.path)
-        new_files = []
-        for file in filelist:
-            if self._filter_filenames(file) == None:
-                continue
-            if os.path.basename(file) not in self.files:
-                duplicate_node_ids = self._parse_file(file)
-                if not duplicate_node_ids:
-                    new_files.append(os.path.basename(file))
-        for filename in list(self.files):
-            if filename not in filelist:
-                self._log_item(filename+' no longer seen in project path. Dropping it from the project.')
-                self.remove_file(filename)
-        return new_files
+    def visit_file(self, filename):
+        return self.on_modified(filename, flags=['-file_visited'])
+
+    def _sync_file_list(self):
+        self._add_paths_from_settings()
+        self._verify_paths_from_settings()
+        # self._add_other_entry_points()
+        self._drop_missing_files()
+
+    def _drop_missing_files(self):
+        included_files = self._get_included_files()
+        for filename in [f for f in list(self.files) if f not in included_files]:
+            self.log_item(
+                filename,
+                {'top_message': filename + ' no longer seen in project path. Dropping it from the project.'})
+            self.drop_buffer(self.files[filename])
+
+    def _get_included_files(self):
+        files = []
+        for pathname in self.paths:
+            if os.path.isdir(pathname):
+                files.extend([os.path.join(pathname, f) for f in os.listdir(pathname)])
+            else:
+                files.extend([os.path.join(os.path.dirname(pathname), f) for f in os.listdir(os.path.dirname(pathname))])
+        return [f for f in files if self._include_file(f)]
+
+    def get_settings_paths(self):
+        paths = []
+        if self.entry_path is not None:
+            paths.append(os.path.abspath(self.entry_path))
+        if os.path.isdir(self.entry_point):
+            paths.append(os.path.abspath(self.entry_point))
+
+        for value in self.get_setting('paths'):
+            node_as_value = value.node()
+            for n in node_as_value.children:
+                pathname = n.metadata.get_first_value('path')
+                if pathname:
+                    path = utils.get_path_from_link(pathname.text)           
+                    path = os.path.abspath(os.path.join(
+                        os.path.dirname(n.filename), 
+                        path))
+                    if os.path.exists(path):
+                        paths.append(path)
+                        recurse_subfolders = n.metadata.get_first_value('recurse_subfolders')
+                        if recurse_subfolders:                        
+                            if path:
+                                for dirpath, dirnames, filenames in os.walk(path):
+                                    if '/.git' in dirpath or '/_diff' in dirpath:
+                                        continue
+                                    paths.append(os.path.abspath(dirpath))
+        return paths
+
+    def _include_file(self, filename):
+        if filename in self.excluded_files:
+            return False
+        if self.is_project_file(filename):
+            return True
+        return False
+
+    def is_project_file(self, filename):
+        file_extensions = self.get_setting_as_text('file_extensions')
+        if '.urtext' not in file_extensions or 'urtext' not in file_extensions:
+            file_extensions.append('urtext')  # for bootstrapping
+        file_extensions = [e.lstrip('.') for e in file_extensions]
+        if utils.get_file_extension(filename) in file_extensions:
+            return True
+        return False
+
+    def _add_to_excluded_files(self, filename):
+        if filename not in self.excluded_files:
+            self.excluded_files.append(filename)
 
     def add_file(self, filename):
         """ 
         parse syncronously so we can raise an exception
         if moving files between projects.
         """
-        any_duplicate_ids = self._parse_file(filename)
-        
-        if any_duplicate_ids:
-            self._log_item('File moved but not added to destination project. Duplicate Nodes IDs shoudld be printed above.')
-            raise DuplicateIDs()
-        else:
-            if self.is_async:
-                return self.executor.submit(self._compile)
-            else:
-                self._compile()
+        self._parse_file(filename)
+        self._compile_file(filename)
 
-
-    def remove_file(self, filename, async=True):
-        if self.is_async and async:
-            self.executor.submit(self._remove_file, os.path.basename(filename))
-            return self.executor.submit(self._compile)
-        else:
-            self._remove_file(os.path.basename(filename))
-            self._compile()
-    
-    def get_file_name(self, node_id, absolute=False):
-        filename = None
+    def get_file_name(self, node_id):
         if node_id in self.nodes:
-            filename = self.nodes[node_id].filename
+            return self.nodes[node_id].filename
+
+    def title_completions(self):
+        return [
+            (self.nodes[n].id,
+             ''.join(utils.make_node_link(self.nodes[n].id)))
+            for n in list(self.nodes)]
+
+    def get_keys_with_frequency(self):
+        key_occurrences = {}
+        exclude = self.get_setting_as_text('exclude_from_star')
+        exclude.extend(self.get_settings_keys())
+        for node in list(self.nodes.values()):
+            node_keys = node.metadata.get_keys(exclude=exclude)
+            for key in node_keys:
+                key_occurrences[key] = key_occurrences.get(key, 0)
+                key_occurrences[key] += node_keys[key]
+
+        return key_occurrences
+
+    def get_all_keys(self):
+        key_occurrences = self.get_keys_with_frequency()
+        unique_keys = key_occurrences.keys()
+        meta_browser_sort_keys_by_setting = self.get_single_setting('meta_browser_sort_keys_by')
+        if meta_browser_sort_keys_by_setting and meta_browser_sort_keys_by_setting.text == 'frequency':
+            return sorted(
+                unique_keys,
+                key=lambda key: key_occurrences[key],
+                reverse=True)
         else:
-            return None
-        if absolute:
-            filename = os.path.join(self.path, filename)
-        return filename
+            return sorted(unique_keys)
 
-    """
-    File History
-    """
-    def snapshot_diff(self, filename, contents):
-        pass
-        dmp = dmp_module.diff_match_patch()
-        filename = os.path.basename(filename)
-        if filename not in self.files:
-            return None
-        now = int(time.time())
-        history_file = filename.replace('.txt','.pkl')
-        file_history = self.get_history(filename)
-        if not file_history:
-            file_history = {}
-            file_history[now] = contents
-            with open( os.path.join(self.path, 'history', history_file), "wb") as f:
-                pickle.dump(file_history, f )
-            return
-        else:
+    def get_all_values_for_key_with_frequency(self, key):
+        values = {}
+        for node in self.nodes.values():
+            values_occurrences = node.metadata.get_values_with_frequency(key)
+            for v in values_occurrences:
+                values[v.text] = values.get(v.text, 0)
+                values[v.text] += values_occurrences[v]
+        return values
 
-            latest_history = self.apply_patches(file_history)
-            if contents != latest_history:
-                file_history[now] = dmp.patch_make(latest_history, contents)
-                with open( os.path.join(self.path, 'history', history_file), "wb") as f:
-                    pickle.dump(file_history, f )
+    def get_all_values_for_key(self, key, substitute_timestamp=True):
+        """
+        Return tuple of (value.text, value.timestamp)
+        """
+        values_occurrences = self.get_all_values_for_key_with_frequency(key)
+        values = values_occurrences.keys()
+        meta_browser_sort_values_by_setting = self.get_single_setting('meta_browser_sort_values_by')
+        if meta_browser_sort_values_by_setting and meta_browser_sort_values_by_setting.text == 'frequency':
+            return sorted(values, key=lambda value: values_occurrences[value], reverse=True)
+        return sorted(values)
 
-    def apply_patches(self, history, distance_back=0):
-        dmp = dmp_module.diff_match_patch()
-        timestamps = sorted(history.keys())
-        original = history[timestamps[0]]
-        for index in range(1,len(timestamps)-distance_back):
-            next_patch = history[timestamps[index]]
-            original = dmp.patch_apply(next_patch, original)[0]
-
-        return original
-
-    def get_version(self, filename, distance_back=0):
-        history = self.get_history(filename)
-        version = self.apply_patches(history, distance_back)
-       
-        return version
-
-    def get_history(self, filename):
-        filename = os.path.basename(filename)
-        history_file = os.path.join(self.path, 'history', filename.replace('.txt','.pkl'))
-        if os.path.exists(history_file):
-            with open(history_file, "rb") as f:
-                file_history = pickle.load(f)
-            return file_history
-        return None
-
-    def most_recent_history(self, history):
-        times = sorted(history.keys())
-        return times[-1]
-
-    """
-    Access History
-    """
-
-    def _get_access_history(self):
-
-        accessed_file = os.path.join(self.path, "history", "URTEXT_accessed.json")
-        if os.path.exists(accessed_file):
-            with open(accessed_file,"r") as f:
-                try:
-                    contents = f.read()
-                    if contents:
-                        try:
-                            access_history = json.loads(contents)
-                            self.access_history = convert_dict_values_to_int(access_history)
-                        except:
-                            print('Could not parse access history for '+accessed_file)
-                            print(contents)
-                except EOFError as error:
-                    print(error)
-         
-        self._propagate_access_history()    
-
-    def _propagate_access_history(self):
-
-        for node_id, access_time in self.access_history.items():
-            if node_id in self.nodes:
-                self.nodes[node_id].last_accessed = access_time
-
-    def _save_access_history(self):
-
-        accessed_file = os.path.join(self.path, "history", "URTEXT_accessed.json")
-
-        with open(accessed_file,"w") as f:
-            f.write(json.dumps(self.access_history))
-    
-    def _push_access_history(self, node_id, duplicate=False):
-        if node_id not in self.nodes: return
-        access_time = int(time.time()) # UNIX timestamp
-        self.nodes[node_id].last_accessed = access_time
-        self.access_history[node_id] = access_time
-        self._save_access_history()
-
-    def get_first_value(self, node, keyname):
-        value = node.metadata.get_first_value(keyname)
-        if keyname in self.settings['numerical_keys']:
-            try:
-                value = float(value)
-            except ValueError:
-                return 0
-        return value
+    def go_to_frame(self, target_id):
+        frames = self._get_all_frames()
+        for frame in frames:
+            if target_id in frame.target_ids():
+                self.run_editor_method(
+                    'open_file_to_position',
+                    frame.source_node.filename,
+                    character=self.nodes[frame.source_node.id].get_file_position(frame.position))
+                return self.visit_node(frame.source_node.id)
+        self.handle_info_message('No frame for "%s"' % target_id)
 
     def get_by_meta(self, key, values, operator):
-        
-        if isinstance(values,str):
+
+        if not isinstance(values, list):
             values = [values]
+        results = set()
 
-        results = []
+        if operator in ['before', 'after']:
+            compare_date = date_from_timestamp(values[0][1:-1])
 
-        if key == '_contents' and operator == '?': # `=` not currently implemented
-            for node_id in self.nodes:
-                if self.nodes[node_id].dynamic:
+            if compare_date:
+                if operator == 'before':
+                    results = [n for n in self.nodes.values() if
+                               default_date != n.metadata.get_date(key) < compare_date]
+                if operator == 'after':
+                    results = [n for n in self.nodes.values() if
+                               n.metadata.get_date(key) > compare_date != default_date]
+
+        if key == '_contents' and operator == '?':
+            for node in list(self.nodes.values()):
+                if node.is_dynamic:
                     continue
-                matches = []
-                contents = self.nodes[node_id].content_only()
-                lower_contents = contents.lower()           
+                contents = node.stripped_contents
+                lower_contents = contents.lower()
 
                 for v in values:
                     if v.lower() in lower_contents:
-                        results.append(node_id)
+                        results.add(node.id)
 
-            return results
-
-        if key == '_links_to':
-
+        elif key == '_links_to':
             for v in values:
-                if v in self.links_to:
-                    results.extend(self.links_to[v])
-            return results
+                results.update(self.get_links_to(v))
 
-        if key == '_links_from':
+        elif key == '_links_from':
             for v in values:
-                if v in self.links_from:
-                    results.extend(self.links_from[v])
-            return results
+                results.update(self.get_links_from(v))
+        else:
+            numerical_keys_setting = self.get_setting_as_text('numerical_keys')
+            case_sensitive_setting = self.get_setting_as_text('case_sensitive_keys')
+            if key == '*':
+                keys = self.get_all_keys()
+            else:
+                keys = [key]
+            for k in keys:
+                for value in values:
+                    if value == '*':
+                        results.update([n for n in self.nodes if self.nodes[n].metadata.get_values(k)])
+                        continue
+                    if k in numerical_keys_setting:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            value = float('inf')
 
-        results = set([])
+                    use_timestamp = False
+                    if isinstance(value, UrtextTimestamp):
+                        use_timestamp = True
 
-        for value in values:
-            if value in ['*']:
-                results = results.union(set(n for n in self.nodes if self.nodes[n].metadata.get_values(key))) 
-                continue
-            
-            if isinstance(value, str) and key not in self.settings['case_sensitive']:
-                value = value.lower() # all comparisons case insensitive
+                    if k in case_sensitive_setting:
+                        results.update([
+                            n for n in self.nodes if
+                            value in [
+                                v.text for v in self.nodes[n].metadata.get_values(k) if v.text]])
+                    else:
+                        if isinstance(value, str):
+                            value = value.lower()
+                        for n in self.nodes.values():
+                            found_values = n.metadata.get_values(k)
+                            if use_timestamp:
+                                if value in [v.timestamp for v in found_values]:
+                                    results.update([n.id])
+                            else:
+                                if value in [v.text_lower for v in found_values]:
+                                    results.update([n.id])
 
-            if key in self.settings['numerical_keys']:
-                try:
-                    value = float(value)
-                except ValueError:
-                    value = 99999999
-                    continue
-           
-            results = results.union(set(n for n in self.nodes if value in self.nodes[n].metadata.get_values(key)))
-
-        return results
-
-    """
-    Export
-    """
-    def is_in_export(self, filename, position):
-
-        node_id = self.get_node_id_from_position(filename, position)
-        if not node_id:
-            return False
-        for export_range in self.nodes[node_id].export_points:
-            if position in range(export_range[0],export_range[1]):
-                # returns tuple (id, starting_position)
-                return self.nodes[node_id].export_points[export_range]
-        return False
+        results = list(results)
+        return [self.nodes[n] for n in results]
 
     def get_file_and_position(self, node_id):
         if node_id in self.nodes:
-            filename = self.get_file_name(node_id, absolute=True)
-            position = self.nodes[node_id].start_position()
+            filename = self.get_file_name(node_id)
+            position = self.nodes[node_id].start_position
             return filename, position
         return None, None
 
-    """
-    FUTURE : Calendar
-    """
-    def export_to_ics(self):
-        c = Calendar()
-        for node_id in self.nodes:
-            e = Event()
-            urtext_node = self.nodes[node_id]
-            e.name = urtext_node.title
-            e.begin = urtext_node.date.isoformat()
-            c.add(e)
-        with open('my.ics', 'w') as f:
-            f.write(c)
+    def run_hook(self, hook_name, *args, **kwargs):
+        for frame in self._get_all_frames():
+            for op in frame.operations:
+                hook = getattr(op, hook_name, None)
+                if hook and callable(hook):
+                    hook(*args, **kwargs)
+        for call in self.project_instance_calls.values():
+            hook = getattr(call, hook_name, None)
+            if hook and callable(hook):
+                hook(*args, **kwargs)
+        for call in self.project_list.project_list_instance_calls.values():
+            hook = getattr(call, hook_name, None)
+            if hook and callable(hook):
+                hook(*args, **kwargs)
+        for selector in self.selectors.values():
+            hook = getattr(selector, hook_name, None)
+            if hook and callable(hook):
+                hook(*args, **kwargs)
 
-class NoProject(Exception):
-    """ no Urtext nodes are in the folder """
-    pass
+    """ Project Compile """
 
-class DuplicateIDs(Exception):
-    """ duplicate IDS """
-    def __init__(self):
-        pass
+    def _compile(self):
+        num_calls = len(list(self.calls.keys()))
+        num_project_calls = len(list(self.project_instance_calls.keys()))
+        modified_buffers = set()
+        dynamic_nodes = set()
+        for frame in self._get_all_frames():
+            self._run_frame(frame)
+        if len(self.calls.keys()) > num_calls or len(self.project_instance_calls.keys()) > num_project_calls:
+            return self._compile()
+        for frame in self._get_all_frames():
+            self._run_frame(frame)
+        self._add_all_sub_tags()
+        self._verify_links_globally()
 
-""" 
-Helpers 
-"""
+    def _compile_file(self, filename, flags=[]):
+        modified_buffers = set()
+        dynamic_nodes = set()
+        buffer = self._parse_file(filename)
+        if buffer:
+            for node in buffer.nodes:
+                for frame in list(self._get_frames(target_node=node, source_node=node)):
+                    m_buffers, d_nodes = self._run_frame(frame, flags=flags, buffer=buffer)
+                    modified_buffers.update(m_buffers)
+                    dynamic_nodes.update(d_nodes)
+                    for b in modified_buffers:
+                        for node in b.nodes:
+                            self._verify_frame_present_if_marked(node.id, buffer=b)
+            modified_buffers.add(buffer)
+            for b in list(modified_buffers):
+                verified_links_content = self._reverify_links(b.filename, buffer=b)
+                b.set_buffer_contents(verified_links_content)
+                b.write_buffer_contents(run_hook=True)
+            for d in list(dynamic_nodes):
+                node = self.get_node(d)
+                if node:
+                    node.is_dynamic = True
+        if filename in self.files:
+            self.run_hook('after_on_file_modified', filename)  
 
-def convert_dict_values_to_int(old_dict):
-    new_dict = {}
-    for key, value in old_dict.items():
-        new_dict[key] = int(value)
-    return new_dict
+    def _run_frame(self, frame, flags=None, buffer=None):
+        if flags is None:
+            flags = []
+        modified_buffers = []
+        dynamic_nodes = []
+        if frame.is_manual():
+            return []
+        output = frame.process(flags=flags)
+        for target in frame.targets:
+            if output not in [False, None]:
+                if target.is_node and not self.get_node(target.node_id):
+                    self.log_item(frame.source_node.filename, {
+                        'top_message': ''.join([
+                            'Dynamic node definition in ',
+                            frame.source_node.link(),
+                            '\n',
+                            'points to nonexistent node ',
+                            syntax.missing_node_link_opening_wrapper,
+                            target.node_id,
+                            syntax.link_closing_wrapper])})
+                    continue
+                targeted_output = frame.post_process(target, output)
+                buffer = self._direct_output(targeted_output, target, frame, buffer=buffer)
+                if target.is_virtual and target.matching_string == "@self":
+                    modified_buffers.append(buffer)
+                if target.is_node and self.get_node(target.node_id):
+                    modified_buffers.append(buffer)
+                    dynamic_nodes.append(target.node_id)
+        return modified_buffers, dynamic_nodes
 
-def creation_date(path_to_file):
-    """
-    Try to get the date that a file was created, falling back to when it was
-    last modified if that isn't possible.
-    See http://stackoverflow.com/a/39501288/1709587 for explanation.
-    """
-    if platform.system() == 'Windows':
-        return datetime.datetime.fromtimestamp(os.path.getctime(path_to_file))
-    else:
-        stat = os.stat(path_to_file)
-        try:
-            return datetime.datetime.fromtimestamp(stat.st_birthtime)
-        except AttributeError:
-            # We're probably on Linux. No easy way to get creation dates here,
-            # so we'll settle for when its content was last modified.
-            return datetime.datetime.fromtimestamp(stat.st_mtime)
+    def _direct_output(self, output, target, frame, buffer=None):
+        if target.is_node and target.node_id in self.nodes:
+            return self._set_node_contents(target.node_id, ''.join([syntax.dynamic_marker, output]), buffer=buffer)            
+        if target.is_virtual:
+            if target.matching_string == '@self':
+                return self._set_node_contents(frame.source_node.id, ''.join([syntax.dynamic_marker, output]), buffer=buffer)
+            if target.matching_string == '@clipboard':
+                return self.run_editor_method('set_clipboard', output)
+            if target.matching_string == '@log':
+                return self.log_item(frame.source_node.filename, {'top_message': output})
+            if target.matching_string == '@buffer':
+                return self.run_editor_method('scratch_buffer', output)
+            if target.matching_string == '@popup':
+                return self.run_editor_method('popup', output)
+            if target.matching_string == '@line':
+                contents = frame.source_node.contents_with_contained_nodes()
+                return self._set_node_contents(
+                    frame.source_node.id,
+                    ''.join([
+                    contents[:frame.end_position+1],
+                    ' ', 
+                    output,
+                    '\n'.join(contents[frame.end_position+1:].split('\n')[1:]),
+                    '\n']))
+            if target.matching_string == '@console':
+                return self.run_editor_method('write_to_console', output)
+            if target.matching_string == '@popup':
+                return self.run_editor_method('popup', output)
+        if target.is_file:
+            return utils.write_file_contents(os.path.join(self.entry_path, target.path), output)
+        if target.is_raw_string and target.matching_string in self.nodes:  # fallback
+            return self._set_node_contents(target.matching_string, ''.join([syntax.dynamic_marker, output]), buffer=buffer)
+
+    """ Metadata Handling """
+
+    def _add_sub_tags(self,
+                      entry,
+                      next_node=None,
+                      visited_nodes=None):
+
+        if visited_nodes is None:
+            visited_nodes = []
+        source_node_id = entry.from_node.id
+        if next_node:
+            source_node_id = next_node
+
+        if source_node_id not in self.nodes:
+            return
+
+        for child in self.nodes[source_node_id].children:
+
+            uid = source_node_id + child.id
+            if uid in visited_nodes:
+                continue
+            node_to_tag = child.id
+            if node_to_tag not in self.nodes:
+                visited_nodes.append(uid)
+                continue
+
+            if uid not in visited_nodes and not self.nodes[node_to_tag].is_dynamic:
+                self.nodes[node_to_tag].metadata.add_entry(
+                    entry.keyname,
+                    [v.text if not v.node_as_value else v.node() for v in entry.meta_values],
+                    self.nodes[node_to_tag],
+                    tag_self=True,
+                    from_node=entry.from_node,
+                    tag_descendants=entry.tag_descendants)
+                if node_to_tag not in entry.from_node.target_nodes:
+                    entry.from_node.target_nodes.append(node_to_tag)
+
+            visited_nodes.append(uid)
+
+            if entry.tag_descendants:
+                self._add_sub_tags(
+                    entry,
+                    next_node=node_to_tag,
+                    visited_nodes=visited_nodes)
+        self.run_hook(
+            'on_sub_tags_added',
+            source_node_id,
+            entry)
+
+    def title(self):
+        title_setting = self.get_single_setting('project_title', use_project_list=False)
+        if title_setting:
+            return title_setting.text
+        return self.entry_point
+
+    def on_initialized(self):
+        on_loaded_setting = self.get_setting_as_text('on_loaded')
+        for action in on_loaded_setting:
+            if action == 'open_home' and not self.project_list.node_has_been_opened():
+                if self.open_home(): return
+
+    def on_selected(self):
+        self.run_hook('on_selected', self)
+
+    def has_folder(self, folder):
+        included_paths = self.get_settings_paths()
+        if os.path.isdir(self.entry_point):
+            included_paths.append(self.entry_point)
+        return included_paths
+
+    def _make_buffer(self, filename, buffer_contents):
+        new_buffer = UrtextBuffer(self, filename, buffer_contents)
+        for node in new_buffer.nodes:
+            node.filename = filename
+        return new_buffer
+
+    """ Editor Methods """
+
+    def editor_insert_timestamp(self):
+        self.run_editor_method('insert_text', self.timestamp(as_string=True))
+
+    def editor_copy_link_to_node(self,
+                                 position,
+                                 filename,
+                                 include_project=False):
+
+        self._parse_file(filename, try_buffer=True)
+        if filename in self.files:
+            node_id = None
+            for node in self.files[filename].nodes:
+                for r in node.ranges:
+                    if position in range(r[0], r[1] + 1):  # +1 in case the cursor is in the last position of the node.
+                        node_id = node.id
+                        break
+            if node_id:
+                link = self.project_list.build_contextual_link(node_id, include_project=include_project)
+                return self.run_editor_method('set_clipboard', link)
+        self.handle_info_message('No Node found here')
+
+    def run_editor_method(self, method_name, *args, **kwargs):
+        if method_name in self.editor_methods:
+            return self.editor_methods[method_name](*args, **kwargs)
+        print('No editor method available for "%s"' % method_name)
+        return False
+
+    def add_call(self, call):
+        propagated_calls = self.get_setting_as_text('propagate_calls')
+        propagate_all_calls = '_all' in propagated_calls
+
+        class call(call, UrtextCall):
+            pass
+
+        if call.project_instance:
+            if call.name[0] not in self.project_instance_calls:
+                global_call = call(self)
+                global_call.on_added()
+                self.project_instance_calls[call.name[0]] = (call(self))
+                if call.name in propagated_calls or propagate_all_calls:
+                    self.project_list.add_call(call)
+        else:
+            for n in call.name:
+                self.calls[n] = call
+            self.project_list.add_call(call)
+        return self.calls
+
+    def get_call(self, call_name):
+        call_class = None
+        if call_name in self.calls:
+            call_class = self.calls[call_name]
+        elif call_name in self.project_list.calls:
+            call_class = self.project_list.calls[call_name]
+        if not call_class:
+            return None
+
+        class call(call_class, UrtextCall):
+            pass
+
+        return call
+
+    def run_selector(self, selector_string):
+        selector_string = selector_string.replace(' ','_').lower()
+        if selector_string in self.selectors:
+            return self.selectors[selector_string].run()
+        if selector_string in self.project_list.selectors:
+            return self.project_list.selectors[selector_string].run()
+
+    def run_call(self, call_name, *args, **kwargs):
+        call = self.get_call(call_name)
+        if not call:
+            self.handle_info_message('call %s is not available' % call_name)
+            return None
+        op = call(self)
+        return self.project_list.execute(op.run, *args, **kwargs)
+
+    def add_selector(self, selector):
+        propagated_selectors = self.get_setting_as_text('propagate_selectors')
+        propagate_all_selectors = '_all' in propagated_selectors
+        class selector(selector, UrtextSelector):
+            pass
+        selector_instance = selector(self.project_list)
+        selector_instance.source_node = self.last_exec_node
+        self.selectors[selector_instance.selector_string] = selector_instance
+        if selector_instance.selector_string in propagated_selectors or propagate_all_selectors:
+            self.project_list.selectors[selector_instance.selector_string] = selector_instance
+        self.last_exec_node = None
